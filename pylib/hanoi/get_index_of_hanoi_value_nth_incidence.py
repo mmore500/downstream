@@ -5,6 +5,6 @@ def get_index_of_hanoi_value_nth_incidence(value: int, n: int) -> int:
     Assumes zero-indexing convention. See `get_hanoi_value_at_index` for notes
     on zero-based variant of Hanoi sequence used.
     """
-    offset = 2 ** value - 1
+    offset = 2**value - 1
     cadence = 2 ** (value + 1)
     return offset + cadence * n

@@ -7,4 +7,4 @@ def get_hanoi_value_at_index(n: int) -> int:
     assumes zero-based convention.
     """
     n += 1
-    return (n&-n).bit_length() - 1
+    return (n & -n).bit_length() - 1
