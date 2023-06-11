@@ -1,5 +1,5 @@
-from .hanoi_seq import hanoi_seq
+from .get_hanoi_val import get_hanoi_val
 
 __all__ = [
-    "hanoi_seq",
+    "get_hanoi_val",
 ]
