@@ -1,6 +1,6 @@
 import pytest
 
-from pylib import (
+from pylib.hanoi import (
     get_hanoi_value_at_index,
     get_index_of_hanoi_value_nth_incidence,
 )

@@ -1,4 +1,4 @@
-from pylib import get_hanoi_value_incidence_at_index, get_hanoi_value_at_index
+from pylib.hanoi import get_hanoi_value_incidence_at_index, get_hanoi_value_at_index
 
 def test_get_hanoi_value_incidence_at_index():
     hanoi_values = [*map(get_hanoi_value_at_index, range(100))]
