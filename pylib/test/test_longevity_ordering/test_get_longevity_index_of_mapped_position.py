@@ -7,7 +7,7 @@ import pylib
 
 
 @pytest.mark.parametrize("num_indices", [2**x for x in range(64)])
-def test_inverse_get_longevity_ordered_position_of_index(num_indices):
+def test_inverse_get_longevity_mapped_position_of_index(num_indices):
     random.seed(num_indices)
 
     for index in it.chain(
@@ -16,7 +16,7 @@ def test_inverse_get_longevity_ordered_position_of_index(num_indices):
     ):
 
         mapped_position = (
-            pylib.longevity_ordering.get_longevity_ordered_position_of_index(
+            pylib.longevity_ordering.get_longevity_mapped_position_of_index(
                 index,
                 num_indices,
             )
