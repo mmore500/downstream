@@ -1,5 +1,6 @@
 from pylib import bit_floor
 
+
 def test_bit_floor():
     assert bit_floor(0b00000000) == 0b00000000
     assert bit_floor(0b00000001) == 0b00000001

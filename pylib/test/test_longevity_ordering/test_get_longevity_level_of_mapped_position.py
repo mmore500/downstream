@@ -48,24 +48,31 @@ def test_get_longevity_level_of_mapped_position():
     ] == [0, 4, 3, 4, 2, 4, 3, 4, 1, 4, 3, 4, 2, 4, 3, 4]
 
 
-@pytest.mark.parametrize("num_indices", [2 ** x for x in range(64)])
+@pytest.mark.parametrize("num_indices", [2**x for x in range(64)])
 def test_inverse_get_longevity_level_of_index(num_indices):
     random.seed(num_indices)
 
     for index in it.chain(
         range(min(3000, num_indices)),
-        (random.randrange(num_indices) for __ in range(3000))
+        (random.randrange(num_indices) for __ in range(3000)),
     ):
 
-        mapped_position = pylib.longevity_ordering.get_longevity_ordered_position_of_index(
-            index,
-            num_indices,
+        mapped_position = (
+            pylib.longevity_ordering.get_longevity_ordered_position_of_index(
+                index,
+                num_indices,
+            )
         )
-        longevity_level_of_index = pylib.longevity_ordering.get_longevity_level_of_index(
-            index,
+        longevity_level_of_index = (
+            pylib.longevity_ordering.get_longevity_level_of_index(
+                index,
+            )
         )
 
-        assert pylib.longevity_ordering.get_longevity_level_of_mapped_position(
-            mapped_position,
-            num_indices,
-        ) == longevity_level_of_index
+        assert (
+            pylib.longevity_ordering.get_longevity_level_of_mapped_position(
+                mapped_position,
+                num_indices,
+            )
+            == longevity_level_of_index
+        )
