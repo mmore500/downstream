@@ -12,4 +12,5 @@ def get_longevity_ordered_position_of_index(index: int, num_indices: int) -> int
 
     offset = get_longevity_offset_of_level(longevity_level, num_indices)
     spacing = offset * 2
-    return offset + spacing * position_within_level
+    position = offset + spacing * position_within_level
+    return position
