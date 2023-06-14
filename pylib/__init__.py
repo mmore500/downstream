@@ -4,6 +4,7 @@ from .get_powersof2triangle_val_at_index import get_powersof2triangle_val_at_ind
 from .modulo import modulo
 from . import hanoi
 from . import longevity_ordering
+from . import longevity_ordering_alternating
 
 __all__ = [
     "bit_ceil",
@@ -12,4 +13,5 @@ __all__ = [
     "modulo",
     "hanoi",
     "longevity_ordering",
+    "longevity_ordering_alternating",
 ]
