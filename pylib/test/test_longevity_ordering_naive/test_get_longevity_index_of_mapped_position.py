@@ -16,13 +16,13 @@ def test_inverse_get_longevity_mapped_position_of_index(num_indices):
     ):
 
         mapped_position = (
-            pylib.longevity_ordering.get_longevity_mapped_position_of_index(
+            pylib.longevity_ordering_naive.get_longevity_mapped_position_of_index(
                 index,
                 num_indices,
             )
         )
         assert (
-            pylib.longevity_ordering.get_longevity_index_of_mapped_position(
+            pylib.longevity_ordering_naive.get_longevity_index_of_mapped_position(
                 mapped_position,
                 num_indices,
             )

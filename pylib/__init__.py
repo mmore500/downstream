@@ -6,7 +6,7 @@ from .get_powersof2triangle_val_at_index import get_powersof2triangle_val_at_ind
 from .jupyter_hide_toggle import jupyter_hide_toggle
 from .modulo import modulo
 from . import hanoi
-from . import longevity_ordering
+from . import longevity_ordering_naive
 from . import longevity_ordering_alternating
 
 __all__ = [
@@ -18,6 +18,6 @@ __all__ = [
     "jupyter_hide_toggle",
     "modulo",
     "hanoi",
-    "longevity_ordering",
+    "longevity_ordering_naive",
     "longevity_ordering_alternating",
 ]
