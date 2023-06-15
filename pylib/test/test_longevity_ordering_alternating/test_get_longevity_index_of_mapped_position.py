@@ -5,6 +5,7 @@ import pytest
 
 import pylib.longevity_ordering_alternating as loa
 
+
 @pytest.mark.parametrize("num_indices", [2**x for x in range(64)])
 @pytest.mark.parametrize("polarity", [True, False])
 def test_inverse_get_longevity_mapped_position_of_index(num_indices, polarity):

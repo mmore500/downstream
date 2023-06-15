@@ -2,10 +2,12 @@ import pylib
 
 
 def test_get_a341916_value_at_index():
-    assert [*map(
-        pylib.longevity_ordering_descending.get_a341916_value_at_index,
-        range(67),
-    )] == [
+    assert [
+        *map(
+            pylib.longevity_ordering_descending.get_a341916_value_at_index,
+            range(67),
+        )
+    ] == [
         # https://oeis.org/A341916
         0,
         1,

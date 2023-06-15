@@ -27,8 +27,7 @@ def get_longevity_index_of_mapped_position(
     position_within_level = (mapped_position - offset) // spacing if spacing else 0
     if not directionality:
         position_within_level = get_longevity_reversed_position_within_level(
-            position_within_level,
-            longevity_level
+            position_within_level, longevity_level
         )
 
     # level -> num_positions_at_lower_levels
