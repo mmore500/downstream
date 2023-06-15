@@ -8,6 +8,7 @@ from .modulo import modulo
 from . import hanoi
 from . import longevity_ordering_naive
 from . import longevity_ordering_alternating
+from . import longevity_ordering_piecewise_ascending
 
 __all__ = [
     "bit_ceil",
@@ -20,4 +21,5 @@ __all__ = [
     "hanoi",
     "longevity_ordering_naive",
     "longevity_ordering_alternating",
+    "longevity_ordering_piecewise_ascending",
 ]
