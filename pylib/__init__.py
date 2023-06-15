@@ -10,6 +10,7 @@ from . import hanoi
 from . import longevity_ordering_naive
 from . import longevity_ordering_alternating
 from . import longevity_ordering_piecewise_ascending
+from . import longevity_ordering_descending
 
 __all__ = [
     "bit_ceil",
@@ -24,4 +25,5 @@ __all__ = [
     "longevity_ordering_naive",
     "longevity_ordering_alternating",
     "longevity_ordering_piecewise_ascending",
+    "longevity_ordering_descending",
 ]
