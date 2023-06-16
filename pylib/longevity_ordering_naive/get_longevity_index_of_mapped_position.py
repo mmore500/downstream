@@ -1,7 +1,7 @@
-from .get_longevity_level_of_mapped_position import (
+from ..longevity_ordering_common import (
     get_longevity_level_of_mapped_position,
+    get_longevity_offset_of_level,
 )
-from .get_longevity_offset_of_level import get_longevity_offset_of_level
 
 
 def get_longevity_index_of_mapped_position(

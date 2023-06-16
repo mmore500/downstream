@@ -1,4 +1,4 @@
-from .get_longevity_num_positions_at_level import get_longevity_num_positions_at_level
+from ..longevity_ordering_common import get_longevity_num_positions_at_level
 
 
 def get_longevity_reversed_position_within_level(

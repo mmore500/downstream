@@ -8,7 +8,7 @@ import pylib
 
 def test_get_longevity_level_of_mapped_position():
     assert [
-        pylib.longevity_ordering_naive.get_longevity_level_of_mapped_position(
+        pylib.longevity_ordering_common.get_longevity_level_of_mapped_position(
             mapped_position,
             1,
         )
@@ -16,7 +16,7 @@ def test_get_longevity_level_of_mapped_position():
     ] == [0]
 
     assert [
-        pylib.longevity_ordering_naive.get_longevity_level_of_mapped_position(
+        pylib.longevity_ordering_common.get_longevity_level_of_mapped_position(
             mapped_position,
             2,
         )
@@ -24,7 +24,7 @@ def test_get_longevity_level_of_mapped_position():
     ] == [0, 1]
 
     assert [
-        pylib.longevity_ordering_naive.get_longevity_level_of_mapped_position(
+        pylib.longevity_ordering_common.get_longevity_level_of_mapped_position(
             mapped_position,
             4,
         )
@@ -32,7 +32,7 @@ def test_get_longevity_level_of_mapped_position():
     ] == [0, 2, 1, 2]
 
     assert [
-        pylib.longevity_ordering_naive.get_longevity_level_of_mapped_position(
+        pylib.longevity_ordering_common.get_longevity_level_of_mapped_position(
             mapped_position,
             8,
         )
@@ -40,7 +40,7 @@ def test_get_longevity_level_of_mapped_position():
     ] == [0, 3, 2, 3, 1, 3, 2, 3]
 
     assert [
-        pylib.longevity_ordering_naive.get_longevity_level_of_mapped_position(
+        pylib.longevity_ordering_common.get_longevity_level_of_mapped_position(
             mapped_position,
             16,
         )
@@ -64,13 +64,13 @@ def test_inverse_get_longevity_level_of_index(num_indices):
             )
         )
         longevity_level_of_index = (
-            pylib.longevity_ordering_naive.get_longevity_level_of_index(
+            pylib.longevity_ordering_common.get_longevity_level_of_index(
                 index,
             )
         )
 
         assert (
-            pylib.longevity_ordering_naive.get_longevity_level_of_mapped_position(
+            pylib.longevity_ordering_common.get_longevity_level_of_mapped_position(
                 mapped_position,
                 num_indices,
             )
