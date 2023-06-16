@@ -1,6 +1,7 @@
 from ..longevity_ordering_common import (
     get_longevity_level_of_mapped_position,
     get_longevity_offset_of_level,
+    get_longevity_num_positions_at_lower_levels,
 )
 
 from .get_longevity_directionality import get_longevity_directionality
@@ -31,12 +32,9 @@ def get_longevity_index_of_mapped_position(
             position_within_level, longevity_level
         )
 
-    # level -> num_positions_at_lower_levels
-    # 0 -> 0
-    # 1 -> 1
-    # 2 -> 2, etc.
-    # 3 -> 4, etc.
-    num_positions_at_lower_levels = 2 ** (longevity_level - 1) if longevity_level else 0
+    num_positions_at_lower_levels = get_longevity_num_positions_at_lower_levels(
+        longevity_level,
+    )
 
     index = position_within_level + num_positions_at_lower_levels
     return index
