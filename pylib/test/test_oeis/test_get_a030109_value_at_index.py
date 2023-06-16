@@ -4,7 +4,7 @@ import pylib
 def test_get_a030109_value_at_index():
     assert [
         *map(
-            pylib.longevity_ordering_piecewise_ascending.get_a030109_value_at_index,
+            pylib.oeis.get_a030109_value_at_index,
             range(83),
         )
     ] == [
