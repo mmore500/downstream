@@ -7,6 +7,7 @@ from .bit_reverse import bit_reverse
 from .get_powersof2triangle_val_at_index import get_powersof2triangle_val_at_index
 from .jupyter_hide_toggle import jupyter_hide_toggle
 from .modulo import modulo
+from .prepend_cmap_with_color import prepend_cmap_with_color
 from . import hanoi
 from . import longevity_ordering_naive
 from . import longevity_ordering_alternating
@@ -24,6 +25,7 @@ __all__ = [
     "get_powersof2triangle_val_at_index",
     "jupyter_hide_toggle",
     "modulo",
+    "prepend_cmap_with_color",
     "hanoi",
     "longevity_ordering_naive",
     "longevity_ordering_alternating",
