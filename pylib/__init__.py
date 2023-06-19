@@ -6,14 +6,18 @@ from .bit_floor import bit_floor
 from .bit_reverse import bit_reverse
 from .get_powersof2triangle_val_at_index import get_powersof2triangle_val_at_index
 from .jupyter_hide_toggle import jupyter_hide_toggle
+from .Literal import Literal
 from .modulo import modulo
 from .prepend_cmap_with_color import prepend_cmap_with_color
+from .round_to_one_sigfig import round_to_one_sigfig
 from . import hanoi
 from . import longevity_ordering_naive
 from . import longevity_ordering_alternating
 from . import longevity_ordering_piecewise_ascending
 from . import longevity_ordering_descending
 from . import oeis
+from . import site_selection_eval
+from . import site_selection_viz
 
 __all__ = [
     "bit_ceil",
@@ -24,12 +28,16 @@ __all__ = [
     "bit_reverse",
     "get_powersof2triangle_val_at_index",
     "jupyter_hide_toggle",
+    "Literal",
     "modulo",
     "prepend_cmap_with_color",
+    "round_to_one_sigfig",
     "hanoi",
     "longevity_ordering_naive",
     "longevity_ordering_alternating",
     "longevity_ordering_piecewise_ascending",
     "longevity_ordering_descending",
     "oeis",
+    "site_selection_eval",
+    "site_selection_viz",
 ]
