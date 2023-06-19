@@ -1,4 +1,5 @@
 import pytest
+
 from pylib import bit_ceil
 
 
@@ -39,12 +40,18 @@ def test_bit_ceil_at_zero():
 
 
 def test_bit_ceil_returns_integer():
-    assert isinstance(bit_ceil(17), int), "Expected the result to be of type int"
+    assert isinstance(
+        bit_ceil(17), int
+    ), "Expected the result to be of type int"
 
 
 def test_bit_ceil_at_large_power_of_two():
-    assert bit_ceil(65534) == 65536, "Expected the bit ceil of 65534 to be 65536"
-    assert bit_ceil(65536) == 65536, "Expected the bit ceil of 65536 to be 65536"
+    assert (
+        bit_ceil(65534) == 65536
+    ), "Expected the bit ceil of 65534 to be 65536"
+    assert (
+        bit_ceil(65536) == 65536
+    ), "Expected the bit ceil of 65536 to be 65536"
 
 
 def test_bit_ceil_at_one_less_than_power_of_two():

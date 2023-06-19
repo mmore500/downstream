@@ -12,11 +12,9 @@ def test_get_longevity_mapped_position_of_index1():
 
     target = [None] * 1
     for index in range(1):
-        mapped_position = (
-            pylib.longevity_ordering_naive.get_longevity_mapped_position_of_index(
-                index,
-                1,
-            )
+        mapped_position = pylib.longevity_ordering_naive.get_longevity_mapped_position_of_index(
+            index,
+            1,
         )
         target[mapped_position] = index
 
@@ -34,11 +32,9 @@ def test_get_longevity_mapped_position_of_index2():
 
     target = [None] * 2
     for index in range(2):
-        mapped_position = (
-            pylib.longevity_ordering_naive.get_longevity_mapped_position_of_index(
-                index,
-                2,
-            )
+        mapped_position = pylib.longevity_ordering_naive.get_longevity_mapped_position_of_index(
+            index,
+            2,
         )
         target[mapped_position] = index
 
@@ -56,11 +52,9 @@ def test_get_longevity_mapped_position_of_index4():
 
     target = [None] * 4
     for index in range(4):
-        mapped_position = (
-            pylib.longevity_ordering_naive.get_longevity_mapped_position_of_index(
-                index,
-                4,
-            )
+        mapped_position = pylib.longevity_ordering_naive.get_longevity_mapped_position_of_index(
+            index,
+            4,
         )
         target[mapped_position] = index
 
@@ -78,11 +72,9 @@ def test_get_longevity_mapped_position_of_index8():
 
     target = [None] * 8
     for index in range(8):
-        mapped_position = (
-            pylib.longevity_ordering_naive.get_longevity_mapped_position_of_index(
-                index,
-                8,
-            )
+        mapped_position = pylib.longevity_ordering_naive.get_longevity_mapped_position_of_index(
+            index,
+            8,
         )
         target[mapped_position] = index
 
@@ -100,11 +92,9 @@ def test_get_longevity_mapped_position_of_index16():
 
     target = [None] * 16
     for index in range(16):
-        mapped_position = (
-            pylib.longevity_ordering_naive.get_longevity_mapped_position_of_index(
-                index,
-                16,
-            )
+        mapped_position = pylib.longevity_ordering_naive.get_longevity_mapped_position_of_index(
+            index,
+            16,
         )
         target[mapped_position] = index
 

@@ -1,9 +1,9 @@
-from ..oeis import get_a030109_value_at_index
-
 from ..longevity_ordering_common import (
     get_longevity_level_of_index,
     get_longevity_offset_of_level,
 )
+from ..oeis import get_a030109_value_at_index
+
 
 def get_longevity_mapped_position_of_index(
     index: int,
@@ -11,9 +11,7 @@ def get_longevity_mapped_position_of_index(
 ) -> int:
     longevity_level = get_longevity_level_of_index(index)
     position_within_level = (
-        get_a030109_value_at_index(index - 1)
-        if index
-        else 0
+        get_a030109_value_at_index(index - 1) if index else 0
     )
 
     offset = get_longevity_offset_of_level(longevity_level, num_indices)

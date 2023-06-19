@@ -1,5 +1,7 @@
-from IPython.display import HTML
 import random
+
+from IPython.display import HTML
+
 
 # adapted from https://stackoverflow.com/a/52664156
 def jupyter_hide_toggle(for_next=False):

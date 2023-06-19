@@ -90,4 +90,6 @@ def test_get_powersof2triangle_val_at_index():
         20,
     ]
 
-    assert [*map(get_powersof2triangle_val_at_index, range(len(A053645)))] == A053645
+    assert [
+        *map(get_powersof2triangle_val_at_index, range(len(A053645)))
+    ] == A053645

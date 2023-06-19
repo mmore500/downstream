@@ -12,16 +12,26 @@ def test_get_index_of_hanoi_value_next_incidence(hanoi_value, i):
     lb = get_index_of_hanoi_value_nth_incidence(hanoi_value, i)
     ub = get_index_of_hanoi_value_nth_incidence(hanoi_value, i + 1)
     for index in range(lb, ub):
-        assert get_index_of_hanoi_value_next_incidence(
-            hanoi_value,
-            index,
-        ) == ub
+        assert (
+            get_index_of_hanoi_value_next_incidence(
+                hanoi_value,
+                index,
+            )
+            == ub
+        )
     for index in range(0, lb):
-        assert get_index_of_hanoi_value_next_incidence(
+        assert (
+            get_index_of_hanoi_value_next_incidence(
+                hanoi_value,
+                index,
+            )
+            <= lb
+            < ub
+        )
+    assert (
+        get_index_of_hanoi_value_next_incidence(
             hanoi_value,
-            index,
-        ) <= lb < ub
-    assert get_index_of_hanoi_value_next_incidence(
-        hanoi_value,
-        ub,
-    ) > ub
+            ub,
+        )
+        > ub
+    )

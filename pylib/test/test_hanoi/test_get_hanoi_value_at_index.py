@@ -111,4 +111,6 @@ def test_get_hanoi_value():
         1,
     ]
 
-    assert [*map(get_hanoi_value_at_index, range(105))] == [x - 1 for x in A001511]
+    assert [*map(get_hanoi_value_at_index, range(105))] == [
+        x - 1 for x in A001511
+    ]

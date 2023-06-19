@@ -1,5 +1,4 @@
 from ..bit_decode_gray import bit_decode_gray
-
 from .get_a059893_value_at_index import get_a059893_value_at_index
 
 

@@ -1,5 +1,4 @@
 from ..bit_encode_gray import bit_encode_gray
-
 from .get_a059893_index_of_value import get_a059893_index_of_value
 
 

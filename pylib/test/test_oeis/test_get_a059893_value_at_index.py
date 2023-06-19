@@ -2,12 +2,7 @@ import pylib
 
 
 def test_get_a059893_value_at_index():
-    assert [
-        *map(
-            pylib.oeis.get_a059893_value_at_index,
-            range(71),
-        )
-    ] == [
+    assert [*map(pylib.oeis.get_a059893_value_at_index, range(71),)] == [
         # https://oeis.org/A059893
         1,
         2,
