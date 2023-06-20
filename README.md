@@ -28,6 +28,9 @@ Check out the live in-browser web app at <https://mmore500.github.io/hstrat-surf
 
 ![cookie monster example](docs/assets/cookie.gif)
 -->
+Brain dump slide deck & graphics are at <https://hopth.ru/ce>.
+Also put some notes into the template manuscript skeleton in `tex/`.
+
 
 ## Credits
 
