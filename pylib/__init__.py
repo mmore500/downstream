@@ -22,6 +22,7 @@ from .jupyter_hide_toggle import jupyter_hide_toggle
 from .modulo import modulo
 from .prepend_cmap_with_color import prepend_cmap_with_color
 from .round_to_one_sigfig import round_to_one_sigfig
+from .tee_release import tee_release
 
 __all__ = [
     "bit_ceil",
@@ -44,4 +45,5 @@ __all__ = [
     "oeis",
     "site_selection_eval",
     "site_selection_viz",
+    "tee_release",
 ]
