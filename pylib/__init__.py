@@ -9,6 +9,7 @@ from . import (
     site_selection_viz,
 )
 from .Literal import Literal
+from .log_args_and_result import log_args_and_result
 from .bit_ceil import bit_ceil
 from .bit_decode_gray import bit_decode_gray
 from .bit_drop_msb import bit_drop_msb
@@ -40,6 +41,7 @@ __all__ = [
     "get_powersof2triangle_val_at_index",
     "jupyter_hide_toggle",
     "Literal",
+    "log_args_and_result",
     "modulo",
     "prepend_cmap_with_color",
     "round_to_one_sigfig",
