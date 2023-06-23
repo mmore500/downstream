@@ -13,16 +13,28 @@ def enforce_typing(func: Callable) -> Callable:
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
         # Check argument types
-        for (arg, value) in zip(func.__annotations__, args):
-            if not isinstance(value, hints[arg]):
-                raise TypeError(f"Argument {arg} must be of type {hints[arg]}")
+        arg_names = list(func.__annotations__.keys())
+        for arg_name, value in zip(arg_names, args):
+            expected_type = hints.get(arg_name)
+            if expected_type and not isinstance(value, expected_type):
+                actual_type = type(value)
+                raise TypeError(
+                    f"Argument '{arg_name}' must be of type {expected_type}, "
+                    f"but got {actual_type} with value {value}",
+                )
 
         # Call the original function
         result = func(*args, **kwargs)
 
         # Check return type
-        if "return" in hints and not isinstance(result, hints["return"]):
-            raise TypeError(f"Return value must be of type {hints['return']}")
+        if "return" in hints:
+            expected_return_type = hints["return"]
+            if not isinstance(result, expected_return_type):
+                actual_return_type = type(result)
+                raise TypeError(
+                    f"Return value must be of type {expected_return_type}, "
+                    f"but got {actual_return_type} with value {result}",
+                )
 
         return result
 
