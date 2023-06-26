@@ -55,8 +55,10 @@ dendropy==4.6.1
     # via
     #   alifedata-phyloinformatics-convert
     #   hstrat
-deprecated==1.2.14
-    # via hstrat
+deprecated==1.2.13
+    # via
+    #   -r requirements.in
+    #   hstrat
 exceptiongroup==1.1.1
     # via pytest
 fastjsonschema==2.17.1
