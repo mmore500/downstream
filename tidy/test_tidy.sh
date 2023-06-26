@@ -22,5 +22,5 @@ echo "(Including how to automatically generate tidyness fixes if tidyness enforc
 ./tidy/test_make_clean.sh && echo "✔ no compilation artifacts" || exit 1
 ./tidy/test_notebooks_clear.sh && echo "✔ notebooks ok" || exit 1
 ./tidy/test_bibtex.sh && echo "✔ bibtex okay" || exit 1
-black . && echo "✔ black format okay" || exit 1
-isort . && echo "✔ isort okay" || exit 1
+./tidy/test_black.sh && echo "✔ black okay" || exit 1
+./tidy/test_isort.sh . && echo "✔ isort okay" || exit 1
