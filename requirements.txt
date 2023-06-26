@@ -156,12 +156,15 @@ mypy-extensions==1.0.0
     #   typing-inspect
 nanto==0.1.1
     # via alifedata-phyloinformatics-convert
+nb-clean==2.4.0
+    # via -r requirements.in
 nbclient==0.5.13
     # via nbconvert
 nbconvert==7.6.0
     # via -r requirements.in
 nbformat==5.9.0
     # via
+    #   nb-clean
     #   nbclient
     #   nbconvert
 nbmetalog==0.2.6
