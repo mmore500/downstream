@@ -32,6 +32,7 @@ def log_args_and_result(
 
     def decorator(func: typing.Callable) -> typing.Callable:
         """Print the function signature, args and return value"""
+
         @functools.wraps(func)
         def wrap(*args, **kwargs):
             args_repr = [repr(a) for a in args]

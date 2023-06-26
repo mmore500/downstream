@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import Callable, Any, get_type_hints
+from typing import Any, Callable, get_type_hints
 
 
 def enforce_typing(func: Callable) -> Callable:

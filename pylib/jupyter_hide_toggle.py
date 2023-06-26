@@ -2,6 +2,7 @@ import random
 
 from IPython.display import HTML, Javascript
 
+
 def jupyter_hide_toggle(hide: bool = False):
     if hide:
         return _jupyter_hide_toggle_hide()

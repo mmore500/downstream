@@ -2,6 +2,7 @@ import typing
 
 from ..hanoi import get_hanoi_value_at_index
 
+
 def get_first_deposition_over_too_new_site(
     get_deposition_site_at_rank_impl: typing.Callable,
     get_num_reservations_provided_impl: typing.Callable,
@@ -46,8 +47,9 @@ def get_first_deposition_over_too_new_site(
             ):
                 same_hanoi_value_deposition_ranks = [
                     deposition_rank_
-                    for (hanoi_value_, deposition_rank_)
-                    in zip(surface_hanoi_values, surface_deposition_ranks)
+                    for (hanoi_value_, deposition_rank_) in zip(
+                        surface_hanoi_values, surface_deposition_ranks
+                    )
                     if deposition_rank_ != -1
                     and hanoi_value_ == resident_hanoi_value
                     # exclude deposition rank -1 (phony)
@@ -61,7 +63,8 @@ def get_first_deposition_over_too_new_site(
                     get_reservation_pos_impl(
                         reservation_index,
                         surface_size,
-                    ) + resident_hanoi_value
+                    )
+                    + resident_hanoi_value
                     for reservation_index in range(guaranteed_num_reservations)
                 ]
                 return {

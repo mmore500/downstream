@@ -15,9 +15,7 @@ def get_first_decreasing_hanoi_value_deposition(
         target_site = get_deposition_site_at_rank_impl(
             generation, surface_size
         )
-        deposited_hanoi_value = get_hanoi_value_at_index(
-            generation
-        )
+        deposited_hanoi_value = get_hanoi_value_at_index(generation)
         resident_hanoi_value = surface_hanoi_values[target_site]
         if deposited_hanoi_value < resident_hanoi_value:
             return {
