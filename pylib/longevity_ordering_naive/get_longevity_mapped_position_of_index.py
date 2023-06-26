@@ -17,4 +17,6 @@ def get_longevity_mapped_position_of_index(
 
     offset = get_longevity_offset_of_level(longevity_level, num_indices)
     spacing = offset << 1
-    return offset + spacing * position_within_level
+    res = offset + spacing * position_within_level
+    assert res.bit_count() == index.bit_count()
+    return res
