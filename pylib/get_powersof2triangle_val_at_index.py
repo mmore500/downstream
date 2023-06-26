@@ -1,5 +1,6 @@
 from .bit_floor import bit_floor
 
+
 def get_powersof2triangle_val_at_index(n: int) -> int:
     """Get value from end-to-end concatenation of binary orders of magnitude
     enumerations in constant time.
