@@ -1,6 +1,4 @@
-from ..oeis import (
-    get_a025480_value_at_index,
-)
+from ..oeis import get_a025480_value_at_index
 
 
 def get_longevity_index_of_mapped_position(
