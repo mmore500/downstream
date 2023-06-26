@@ -1,4 +1,4 @@
 try:
-    from typing import Literal
+    from typing import Literal  # noqa: F401
 except ImportError:
-    from typing_extensions import Literal
+    from typing_extensions import Literal  # noqa: F401

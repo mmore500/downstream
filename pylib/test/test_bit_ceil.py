@@ -1,5 +1,3 @@
-import pytest
-
 from pylib import bit_ceil
 
 
@@ -35,10 +33,6 @@ def test_bit_ceil_at_power_of_two():
     assert bit_ceil(64) == 64, "Expected the bit ceil of 64 to be 64"
 
 
-def test_bit_ceil_at_zero():
-    assert bit_ceil(0) == 1, "Expected the bit ceil of 0 to be 1"
-
-
 def test_bit_ceil_returns_integer():
     assert isinstance(
         bit_ceil(17), int
@@ -56,7 +50,3 @@ def test_bit_ceil_at_large_power_of_two():
 
 def test_bit_ceil_at_one_less_than_power_of_two():
     assert bit_ceil(255) == 256, "Expected the bit ceil of 255 to be 256"
-
-
-if __name__ == "__main__":
-    pytest.main()

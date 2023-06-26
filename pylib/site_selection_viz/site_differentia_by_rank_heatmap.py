@@ -18,7 +18,7 @@ from ._linspace_filter_surface_history_df import (
 
 def site_differentia_by_rank_heatmap(
     surface_history_df: pd.DataFrame,
-    ynorm: typing.Optional[Literal["log", "linear"]] = "log",
+    ynorm: typing.Optional[Literal["log", "linear"]] = "log",  # noqa: F821
     rank_sample_size: int = 256,
     figsize: typing.Tuple[int, int] = (12, 7),
 ) -> mpl_axes.Axes:

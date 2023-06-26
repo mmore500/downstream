@@ -11,18 +11,17 @@ def get_first_decreasing_hanoi_value_deposition(
 ) -> typing.Optional[typing.Dict]:
 
     surface_hanoi_values = [-1] * surface_size
-    for generation in progress_wrap(range(num_generations)):
-        target_site = get_deposition_site_at_rank_impl(
-            generation, surface_size
-        )
-        deposited_hanoi_value = get_hanoi_value_at_index(generation)
+    for rank in progress_wrap(range(num_generations)):
+        target_site = get_deposition_site_at_rank_impl(rank, surface_size)
+        deposited_hanoi_value = get_hanoi_value_at_index(rank)
         resident_hanoi_value = surface_hanoi_values[target_site]
         if deposited_hanoi_value < resident_hanoi_value:
             return {
-                "actual_timestamp": actual_timestamp,
-                "expected timestamp": expected_timestamp,
-                "generation": generation,
-                "site": site,
+                "deposited hanoi value": deposited_hanoi_value,
+                "resident hanoi value": resident_hanoi_value,
+                "rank": rank,
+                "surface size": surface_size,
+                "target site": target_site,
             }
 
     return None

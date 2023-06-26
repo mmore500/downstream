@@ -1,1 +1,1 @@
-from hsurf import hsurf
+from hsurf import hsurf  # noqa F401

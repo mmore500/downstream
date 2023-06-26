@@ -19,8 +19,8 @@ from ._linspace_filter_surface_history_df import (
 
 def site_hanoi_value_by_rank_heatmap(
     surface_history_df: pd.DataFrame,
-    cnorm: typing.Optional[Literal["log"]] = "log",
-    ynorm: typing.Optional[Literal["log", "linear"]] = "log",
+    cnorm: typing.Optional[Literal["log"]] = "log",  # noqa: F821
+    ynorm: typing.Optional[Literal["log", "linear"]] = "log",  # noqa: F821
     rank_sample_size: int = 256,
     figsize: typing.Tuple[int, int] = (12, 7),
 ) -> mpl_axes.Axes:
