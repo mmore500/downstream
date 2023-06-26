@@ -10,7 +10,6 @@ echo "See https://empirical.readthedocs.io/en/latest/dev/guide-to-testing.html#t
 echo "(Including how to automatically generate tidyness fixes if tidyness enforcement detects tidyness issues.)"
 
 ./tidy/test_alphabetize_includes.sh && echo "✔ include alphabetization ok" || exit 1
-./tidy/test_alphabetize_imports.sh && echo "✔ import alphabetization ok" || exit 1
 ./tidy/test_partition_includes.sh && echo "✔ include partitioning ok" || exit 1
 ./tidy/test_boilerplate.sh && echo "✔ boilerplate ok" || exit 1
 ./tidy/test_merge_conflict_markers.sh && echo "✔ conflict markers ok" || exit 1
@@ -23,3 +22,5 @@ echo "(Including how to automatically generate tidyness fixes if tidyness enforc
 ./tidy/test_make_clean.sh && echo "✔ no compilation artifacts" || exit 1
 ./tidy/test_notebooks_clear.sh && echo "✔ notebooks ok" || exit 1
 ./tidy/test_bibtex.sh && echo "✔ bibtex okay" || exit 1
+black . && echo "✔ black format okay" || exit 1
+isort . && echo "✔ isort okay" || exit 1
