@@ -7,6 +7,7 @@ from ..longevity_ordering_common import (
 )
 
 
+# related to https://oeis.org/A181733
 def get_longevity_mapped_position_of_index(
     index: int, num_indices: int
 ) -> int:
