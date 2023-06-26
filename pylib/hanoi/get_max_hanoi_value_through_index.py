@@ -1,7 +1,3 @@
-from ..bit_ceil import bit_ceil
-from ..bit_floor import bit_floor
-
-
 def get_max_hanoi_value_through_index(n: int) -> int:
     """What is the largest hanoi value that occurs at indices up to and
     including index n?

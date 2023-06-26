@@ -1,5 +1,3 @@
-import pytest
-
 import pylib.longevity_ordering_piecewise_ascending as lopa
 
 

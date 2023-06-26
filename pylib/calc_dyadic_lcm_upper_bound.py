@@ -1,5 +1,3 @@
-import numpy as np
-
 from .count_factors_of_2 import count_factors_of_2
 
 

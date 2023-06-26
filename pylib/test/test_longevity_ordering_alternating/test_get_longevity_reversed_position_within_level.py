@@ -1,5 +1,3 @@
-import pytest
-
 from pylib import longevity_ordering_alternating as loa
 
 

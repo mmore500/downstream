@@ -1,6 +1,4 @@
 from matplotlib import colors as mpl_colors
-import pytest
-import seaborn as sns
 
 import pylib
 

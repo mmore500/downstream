@@ -1,7 +1,6 @@
 from matplotlib import pyplot as plt
 from matplotlib.colors import ListedColormap, to_rgba
 import numpy as np
-import seaborn as sns
 
 
 def prepend_cmap_with_color(

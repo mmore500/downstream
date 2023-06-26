@@ -1,5 +1,3 @@
-import pytest
-
 import pylib.longevity_ordering_descending as lod
 
 

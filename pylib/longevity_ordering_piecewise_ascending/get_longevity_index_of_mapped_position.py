@@ -1,10 +1,5 @@
 from .. import longevity_ordering_naive as lon
-from ..longevity_ordering_common import (
-    get_longevity_level_of_mapped_position,
-    get_longevity_num_positions_at_level,
-    get_longevity_num_positions_at_lower_levels,
-    get_longevity_offset_of_level,
-)
+from ..longevity_ordering_common import get_longevity_level_of_mapped_position
 from ..oeis import get_a030109_index_of_value
 
 

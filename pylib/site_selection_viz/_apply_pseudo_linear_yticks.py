@@ -1,5 +1,4 @@
 from matplotlib import axes as mpl_axes
-import numpy as np
 
 from ..round_to_one_sigfig import round_to_one_sigfig
 

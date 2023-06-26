@@ -1,6 +1,5 @@
 from hstrat import _auxiliary_lib as hstrat_auxlib
 import numpy as np
-import pytest
 
 import pylib
 
