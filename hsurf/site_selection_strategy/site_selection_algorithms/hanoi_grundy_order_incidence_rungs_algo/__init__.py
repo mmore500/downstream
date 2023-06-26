@@ -7,5 +7,3 @@ __all__ = [
     "resolve_rank_at_site",
     "select_deposit_site",
 ]
-
-
