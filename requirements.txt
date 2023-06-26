@@ -268,6 +268,8 @@ pyzmq==25.1.0
     #   jupyter-client
 retry==0.9.2
     # via keyname
+ruff==0.0.260
+    # via -r requirements.in
 safe-assert==0.4.0
     # via hstrat
 scipy==1.10.1
