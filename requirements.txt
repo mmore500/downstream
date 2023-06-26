@@ -16,6 +16,8 @@ attrs==23.1.0
     #   pytest
 backcall==0.2.0
     # via ipython
+beautifulsoup4==4.12.2
+    # via nbconvert
 biopython==1.81
     # via
     #   alifedata-phyloinformatics-convert
@@ -55,8 +57,6 @@ dendropy==4.6.1
     #   hstrat
 deprecated==1.2.14
     # via hstrat
-entrypoints==0.4
-    # via nbconvert
 exceptiongroup==1.1.1
     # via pytest
 fastjsonschema==2.17.1
@@ -123,7 +123,9 @@ lyncs-setuptools==0.3.1
 lyncs-utils==0.4.5
     # via alifedata-phyloinformatics-convert
 markupsafe==2.1.3
-    # via jinja2
+    # via
+    #   jinja2
+    #   nbconvert
 matplotlib==3.6.2
     # via
     #   -r requirements.in
@@ -134,7 +136,7 @@ matplotlib-inline==0.1.6
     # via
     #   ipykernel
     #   ipython
-mistune==0.8.4
+mistune==3.0.1
     # via nbconvert
 mmh3==4.0.0
     # via hstrat
@@ -154,7 +156,7 @@ nanto==0.1.1
     # via alifedata-phyloinformatics-convert
 nbclient==0.5.13
     # via nbconvert
-nbconvert==6.4.0
+nbconvert==7.6.0
     # via -r requirements.in
 nbformat==5.9.0
     # via
@@ -196,6 +198,7 @@ packaging==23.1
     #   ipykernel
     #   lyncs-setuptools
     #   matplotlib
+    #   nbconvert
     #   pandera
     #   pytest
 pandas==1.5.2
@@ -289,12 +292,14 @@ sortedcontainers==2.4.0
     # via
     #   alifedata-phyloinformatics-convert
     #   hstrat
+soupsieve==2.4.1
+    # via beautifulsoup4
 teeplot==0.5.0
     # via -r requirements.in
-testpath==0.6.0
-    # via nbconvert
 text-unidecode==1.3
     # via python-slugify
+tinycss2==1.2.1
+    # via nbconvert
 tomli==2.0.1
     # via
     #   black
@@ -332,7 +337,9 @@ wcwidth==0.2.6
     #   prettytable
     #   prompt-toolkit
 webencodings==0.5.1
-    # via bleach
+    # via
+    #   bleach
+    #   tinycss2
 wrapt==1.15.0
     # via
     #   deprecated

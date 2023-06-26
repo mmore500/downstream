@@ -4,7 +4,7 @@ interval_search==0.3.1
 IPython==7.31.1
 isort==5.12.0
 matplotlib==3.6.2
-nbconvert==6.4.0
+nbconvert==7.6.0
 nbmetalog==0.2.6
 numpy==1.23.5
 opytional==0.1.0
