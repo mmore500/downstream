@@ -1,6 +1,5 @@
 import itertools as it
 
-from hsurf.pylib import hanoi
 from hsurf.site_selection_strategy.site_selection_algorithms.hanoi_hadamard_order_site_rungs_algo._impl import (
     iter_hanoi_invader_values,
 )
