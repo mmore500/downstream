@@ -1,3 +1,4 @@
+from ._get_fractional_downgrade_state import get_fractional_downgrade_state
 from ._get_num_incidence_reservations_at_rank import (
     get_num_incidence_reservations_at_rank,
 )
@@ -27,6 +28,7 @@ from ._is_hanoi_invader import is_hanoi_invader
 from ._iter_hanoi_invader_values import iter_hanoi_invader_values
 
 __all__ = [
+    "get_fractional_downgrade_state",
     "get_num_incidence_reservations_at_rank",
     "get_num_sites_reserved_per_incidence_at_rank",
     "get_regime_mx",
