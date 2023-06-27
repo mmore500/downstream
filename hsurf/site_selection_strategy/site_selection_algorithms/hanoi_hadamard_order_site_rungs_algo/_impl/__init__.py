@@ -5,6 +5,7 @@ from ._get_num_sites_reserved_per_incidence_at_rank import (
     get_num_sites_reserved_per_incidence_at_rank,
 )
 from ._get_surface_rank_capacity import get_surface_rank_capacity
+from ._get_upcoming_hanoi_invasion_rank import get_upcoming_hanoi_invasion_rank
 from ._get_upcoming_hanoi_invasion_value import (
     get_upcoming_hanoi_invasion_value,
 )
@@ -22,6 +23,7 @@ __all__ = [
     "get_num_sites_reserved_per_incidence_at_rank",
     "get_surface_rank_capacity",
     "get_upcoming_hanoi_invasion_value",
+    "get_upcoming_hanoi_invasion_rank",
     "has_hanoi_value_filled_first_reservation_layer",
     "is_2x_reservation_eligible",
     "is_hanoi_invadable_and_uninvaded",
