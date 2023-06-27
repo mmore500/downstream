@@ -1,3 +1,5 @@
+"""Will corresond to `01-doubling-incidence-reservation-surface.ipynb`."""
+
 from ._iter_resident_ranks import iter_resident_ranks
 from ._resolve_rank_at_site import resolve_rank_at_site
 from ._select_deposit_site import select_deposit_site

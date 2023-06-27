@@ -1,3 +1,6 @@
+"""Will correspond to
+`04-incrementing-incidence-reservation-surface-with-safety-aligned-transition.ipynb`, but with simpler (possibly faster, but also possibly less regular recording) reservation layout ordering."""
+
 from ._iter_resident_ranks import iter_resident_ranks
 from ._resolve_rank_at_site import resolve_rank_at_site
 from ._select_deposit_site import select_deposit_site
