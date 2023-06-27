@@ -21,6 +21,12 @@ def test_is_hanoi_invaded():
     assert is_hanoi_invaded(
         0, hanoi.get_index_of_hanoi_value_nth_incidence(4, 0)
     )
+    assert is_hanoi_invaded(
+        0, hanoi.get_index_of_hanoi_value_nth_incidence(5, 0)
+    )
+    assert is_hanoi_invaded(
+        0, hanoi.get_index_of_hanoi_value_nth_incidence(7, 0)
+    )
     assert not is_hanoi_invaded(
         1, hanoi.get_index_of_hanoi_value_nth_incidence(4, 0)
     )
