@@ -7,7 +7,7 @@ from hsurf.site_selection_strategy.site_selection_algorithms.hanoi_hadamard_orde
 
 
 @pytest.mark.parametrize(
-    "hanoi_value, instance_thresh, surface_size",
+    "hanoi_value, incidence_thresh, surface_size",
     [
         # surface size 8
         (0, 7, 8),
@@ -31,13 +31,13 @@ from hsurf.site_selection_strategy.site_selection_algorithms.hanoi_hadamard_orde
     ],
 )
 def test_has_hanoi_value_filled_first_reservation_layer(
-    hanoi_value,
-    instance_thresh,
-    surface_size,
+    hanoi_value: int,
+    incidence_thresh: int,
+    surface_size: int,
 ):
     rank_thresh = hanoi.get_index_of_hanoi_value_nth_incidence(
         hanoi_value,
-        instance_thresh,
+        incidence_thresh,
     )
 
     for rank in range(0, 100):
