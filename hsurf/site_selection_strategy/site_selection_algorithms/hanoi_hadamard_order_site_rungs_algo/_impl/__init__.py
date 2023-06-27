@@ -4,6 +4,7 @@ from ._get_num_incidence_reservations_at_rank import (
 from ._get_num_sites_reserved_per_incidence_at_rank import (
     get_num_sites_reserved_per_incidence_at_rank,
 )
+from ._get_regime_mx import get_regime_mx
 from ._get_surface_rank_capacity import get_surface_rank_capacity
 from ._get_upcoming_hanoi_invasion_rank import get_upcoming_hanoi_invasion_rank
 from ._get_upcoming_hanoi_invasion_value import (
@@ -21,6 +22,7 @@ from ._iter_hanoi_invader_values import iter_hanoi_invader_values
 __all__ = [
     "get_num_incidence_reservations_at_rank",
     "get_num_sites_reserved_per_incidence_at_rank",
+    "get_regime_mx",
     "get_surface_rank_capacity",
     "get_upcoming_hanoi_invasion_value",
     "get_upcoming_hanoi_invasion_rank",
