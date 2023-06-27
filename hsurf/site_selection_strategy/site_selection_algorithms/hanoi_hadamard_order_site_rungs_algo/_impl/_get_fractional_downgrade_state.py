@@ -13,8 +13,9 @@ from ._iter_hanoi_invader_values import iter_hanoi_invader_values
 
 
 @deprecated(
-    reason="Needs extensive refactor: break into smaller pieces,"
-    "unroll/remove attempt loop, and avoid monolithic bundled return value.",
+    reason="Needs extensive refactor: break into smaller pieces, "
+    "unroll/remove attempt loop, avoid monolithic bundled return value, and "
+    "rename to follow 'site rung' terminology.",
     version="0.0.0",
 )
 def get_fractional_downgrade_state(

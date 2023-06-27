@@ -7,7 +7,7 @@ from ._get_regime_mx import get_regime_mx
 
 
 @deprecated(
-    reason="Should rename 'regime.'",
+    reason="Should rename 'regime' to follow 'term' rung terminology.",
     version="0.0.0",
 )
 def get_regime_num_reservations_available(

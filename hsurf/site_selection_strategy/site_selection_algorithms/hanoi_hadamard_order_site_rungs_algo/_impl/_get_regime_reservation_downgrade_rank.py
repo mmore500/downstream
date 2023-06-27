@@ -11,7 +11,7 @@ from ._get_upcoming_hanoi_invasion_rank import get_upcoming_hanoi_invasion_rank
 
 
 @deprecated(
-    reason="Should rename 'regime.'",
+    reason="Should rename 'regime' to follow 'term' rung terminology.",
     version="0.0.0",
 )
 def get_regime_reservation_downgrade_rank(
