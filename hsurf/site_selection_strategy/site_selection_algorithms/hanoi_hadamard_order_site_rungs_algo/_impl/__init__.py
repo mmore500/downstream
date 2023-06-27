@@ -8,6 +8,7 @@ from ._get_regime_mx import get_regime_mx
 from ._get_regime_num_reservations_available import (
     get_regime_num_reservations_available,
 )
+from ._get_safe_downgrade_rank import get_safe_downgrade_rank
 from ._get_surface_rank_capacity import get_surface_rank_capacity
 from ._get_upcoming_hanoi_invasion_rank import get_upcoming_hanoi_invasion_rank
 from ._get_upcoming_hanoi_invasion_value import (
@@ -27,6 +28,7 @@ __all__ = [
     "get_num_sites_reserved_per_incidence_at_rank",
     "get_regime_mx",
     "get_regime_num_reservations_available",
+    "get_safe_downgrade_rank",
     "get_surface_rank_capacity",
     "get_upcoming_hanoi_invasion_value",
     "get_upcoming_hanoi_invasion_rank",
