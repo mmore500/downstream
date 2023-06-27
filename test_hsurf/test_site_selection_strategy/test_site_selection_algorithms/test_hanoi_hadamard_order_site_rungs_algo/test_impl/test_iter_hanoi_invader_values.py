@@ -5,7 +5,7 @@ from hsurf.site_selection_strategy.site_selection_algorithms.hanoi_hadamard_orde
 )
 
 
-def test_is_hanoi_invader():
+def test_iter_hanoi_invader_values():
     assert [*it.islice(iter_hanoi_invader_values(0), 6)] == [
         1,
         2,

@@ -3,7 +3,7 @@ from hsurf.site_selection_strategy.site_selection_algorithms.hanoi_hadamard_orde
 )
 
 
-def test_get_num_sites_reserved_per_incidence_at_rank():
+def test_get_surface_rank_capacity():
     assert [
         get_surface_rank_capacity(surface_size) for surface_size in (4, 8, 16)
     ] == [
