@@ -12,7 +12,7 @@ from hsurf.site_selection_strategy.site_selection_algorithms.hanoi_hadamard_orde
 @pytest.mark.parametrize("rank", range(0, 255, 12))
 def test_get_fractional_downgrade_state(
     hanoi_value: int, surface_size: int, rank: int
-) -> int:
+):
     # just a smoke test
     actual_result = get_fractional_downgrade_state(
         hanoi_value, surface_size, rank
