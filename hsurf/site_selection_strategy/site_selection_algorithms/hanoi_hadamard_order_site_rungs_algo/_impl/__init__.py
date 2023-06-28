@@ -13,6 +13,9 @@ from ._get_regime_mx import get_regime_mx
 from ._get_regime_num_reservations_available import (
     get_regime_num_reservations_available,
 )
+from ._get_regime_num_reservations_provided import (
+    get_regime_num_reservations_provided,
+)
 from ._get_regime_reservation_downgrade_rank import (
     get_regime_reservation_downgrade_rank,
 )
@@ -39,6 +42,7 @@ __all__ = [
     "get_num_sites_reserved_per_incidence_at_rank",
     "get_regime_mx",
     "get_regime_num_reservations_available",
+    "get_regime_num_reservations_provided",
     "get_regime_reservation_downgrade_rank",
     "get_safe_downgrade_rank",
     "get_surface_rank_capacity",
