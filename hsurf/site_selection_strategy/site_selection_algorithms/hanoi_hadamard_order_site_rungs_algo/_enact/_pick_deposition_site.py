@@ -1,6 +1,6 @@
 from .....pylib import bit_ceil, hanoi
 from .....pylib import longevity_ordering_descending as hadamard_order
-from ._impl import get_num_reservations_provided, get_surface_rank_capacity
+from .._impl import get_num_reservations_provided, get_surface_rank_capacity
 
 
 def pick_deposition_site(rank: int, surface_size: int) -> int:
