@@ -7,9 +7,9 @@ from hsurf.pylib import site_selection_eval
 
 @pytest.mark.parametrize("surface_size", [8, 32, 128])
 @pytest.mark.parametrize("rank", range(0, 255, 12))
-def test_select_deposit_site_smoke(surface_size: int, rank: int) -> int:
+def test_pick_deposition_site_smoke(surface_size: int, rank: int) -> int:
     # just a smoke test
-    deposit_site = algo.select_deposit_site(rank, surface_size)
+    deposit_site = algo.pick_deposition_site(rank, surface_size)
     assert isinstance(deposit_site, int)
     assert 0 <= deposit_site < surface_size
 
@@ -19,12 +19,12 @@ def test_select_deposit_site_smoke(surface_size: int, rank: int) -> int:
     "max_generations",
     [2**10, pytest.param(2**18, marks=pytest.mark.heavy)],
 )
-def test_select_deposit_site_hanoi_value_overwrite_order(
+def test_pick_deposition_site_hanoi_value_overwrite_order(
     surface_size: int,
     max_generations: int,
 ):
     res = site_selection_eval.get_first_decreasing_hanoi_value_deposition(
-        algo.select_deposit_site,
+        algo.pick_deposition_site,
         surface_size=surface_size,
         num_generations=min(
             max_generations,
@@ -39,11 +39,11 @@ def test_select_deposit_site_hanoi_value_overwrite_order(
     "max_generations",
     [2**10, pytest.param(2**18, marks=pytest.mark.heavy)],
 )
-def test_select_deposit_site_incidence_reservation_drop_order(
+def test_pick_deposition_site_incidence_reservation_drop_order(
     surface_size: int, max_generations: int
 ):
     res = site_selection_eval.get_first_deposition_over_too_new_site(
-        algo.select_deposit_site,
+        algo.pick_deposition_site,
         algo._impl.get_num_reservations_provided,
         hadamard_order.get_longevity_mapped_position_of_index,
         surface_size=surface_size,

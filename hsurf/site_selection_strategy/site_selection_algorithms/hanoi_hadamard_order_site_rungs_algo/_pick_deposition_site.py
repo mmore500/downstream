@@ -3,7 +3,7 @@ from ....pylib import longevity_ordering_descending as hadamard_order
 from ._impl import get_num_reservations_provided, get_surface_rank_capacity
 
 
-def select_deposit_site(rank: int, surface_size: int) -> int:
+def pick_deposition_site(rank: int, surface_size: int) -> int:
     if rank > get_surface_rank_capacity(surface_size):
         raise ValueError(
             f"{surface_size}-bit surface only valid "

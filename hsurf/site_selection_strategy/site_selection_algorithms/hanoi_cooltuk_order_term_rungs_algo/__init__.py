@@ -1,12 +1,12 @@
 """Will correspond to
 `04-incrementing-incidence-reservation-surface-with-safety-aligned-transition.ipynb`, but with simpler (possibly faster, but also possibly less regular recording) reservation layout ordering."""
 
-from ._iter_resident_ranks import iter_resident_ranks
-from ._resolve_rank_at_site import resolve_rank_at_site
-from ._select_deposit_site import select_deposit_site
+from ._calc_resident_deposition_rank import calc_resident_deposition_rank
+from ._iter_resident_deposition_ranks import iter_resident_deposition_ranks
+from ._pick_deposition_site import pick_deposition_site
 
 __all__ = [
-    "iter_resident_ranks",
-    "resolve_rank_at_site",
-    "select_deposit_site",
+    "calc_resident_deposition_rank",
+    "iter_resident_deposition_ranks",
+    "pick_deposition_site",
 ]
