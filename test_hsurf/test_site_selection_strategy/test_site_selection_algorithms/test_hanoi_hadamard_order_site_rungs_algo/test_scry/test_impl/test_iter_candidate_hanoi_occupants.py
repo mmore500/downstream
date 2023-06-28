@@ -18,7 +18,6 @@ def test_iter_candidate_hanoi_occupants_smoke1(site: int, rank: int):
     # just a smoke test
     res = [*iter_candidate_hanoi_occupants(site, rank)]
     assert len(res)
-    assert isinstance(res, list)
     assert all(isinstance(x, int) for x in res)
     assert hstrat_aux.is_nonincreasing(res)
 

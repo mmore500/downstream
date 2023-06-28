@@ -12,7 +12,6 @@ def test_iter_candidate_reservation_sizes(site: int, rank: int):
     # just a smoke test
     res = [*iter_candidate_reservation_sizes(site, rank)]
     assert len(res)
-    assert isinstance(res, list)
     assert all(isinstance(x, int) for x in res)
     assert hstrat_auxlib.is_strictly_decreasing(res)
     assert all(x.bit_count() == 1 for x in res)  # ensure perfect powers of 2
