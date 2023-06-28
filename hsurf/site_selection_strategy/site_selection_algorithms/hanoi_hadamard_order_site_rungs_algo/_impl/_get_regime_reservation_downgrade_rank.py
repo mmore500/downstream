@@ -53,4 +53,6 @@ def get_regime_reservation_downgrade_rank(
         hanoi_value_for_asserts=hanoi_value,
     )
     assert downgrade_rank <= end_rank
+    # note: negative downgrade rank ok...
+    # taken to indicate that downgrade should occur immediately (i.e., rank 0)
     return downgrade_rank
