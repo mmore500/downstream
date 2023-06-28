@@ -1,5 +1,3 @@
-import typing
-
 import pytest
 
 from hsurf.site_selection_strategy.site_selection_algorithms.hanoi_hadamard_order_site_rungs_algo._impl import (

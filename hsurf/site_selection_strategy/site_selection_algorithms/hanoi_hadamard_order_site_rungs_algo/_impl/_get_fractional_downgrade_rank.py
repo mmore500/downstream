@@ -1,3 +1,4 @@
+import sys
 import typing
 
 from deprecated.sphinx import deprecated
