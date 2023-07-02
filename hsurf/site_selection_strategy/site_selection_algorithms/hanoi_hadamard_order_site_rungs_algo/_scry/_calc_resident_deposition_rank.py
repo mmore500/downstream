@@ -1,4 +1,5 @@
 from .....pylib import hanoi
+from .._impl import get_num_reservations_provided
 from ._impl import (
     calc_rank_of_deposited_hanoi_value,
     get_reservation_index_elimination_rank,
@@ -16,17 +17,44 @@ def calc_resident_deposition_rank(
 
     rank = num_depositions - 1
 
-    for candidate_hanoi_value, candidate_reservation_index in zip(
+    candidate_zip = zip(
         iter_candidate_hanoi_occupants(site, rank),
         iter_candidate_reservation_indices(site, surface_size, rank),
-    ):
+    )
+    for candidate_hanoi_value, candidate_reservation_index in candidate_zip:
         deadline_rank = get_reservation_index_elimination_rank(
             candidate_hanoi_value,
             candidate_reservation_index,
             surface_size,
         )
         if deadline_rank is None:
-            continue  # could this be a break?
+            assert all(
+                get_reservation_index_elimination_rank(
+                    candidate_hanoi_value_,
+                    candidate_reservation_index_,
+                    surface_size,
+                )
+                is None
+                and (
+                    candidate_hanoi_value_ / candidate_reservation_index_
+                    <= candidate_hanoi_value / candidate_reservation_index
+                )
+                for (
+                    candidate_hanoi_value_,
+                    candidate_reservation_index_,
+                ) in candidate_zip
+                if candidate_hanoi_value_ > 0
+            ), {
+                "candidate_hanoi_value": candidate_hanoi_value,
+                "candidate_reservation_index": candidate_reservation_index,
+                "max_num_reservations_provided": get_num_reservations_provided(
+                    0, surface_size, 0
+                ),
+                "surface_size": surface_size,
+                "rank": rank,
+                "site": site,
+            }
+            break  # continue also works here
 
         assert deadline_rank, {
             "candidate_hanoi_value": candidate_hanoi_value,
