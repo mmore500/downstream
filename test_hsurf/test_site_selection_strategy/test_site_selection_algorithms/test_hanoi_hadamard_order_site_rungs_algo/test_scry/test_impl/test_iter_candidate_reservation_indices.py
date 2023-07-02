@@ -1,3 +1,4 @@
+from hstrat import _auxiliary_lib as hstrat_aux
 import pytest
 
 from hsurf.site_selection_strategy.site_selection_algorithms.hanoi_hadamard_order_site_rungs_algo._scry._impl import (
@@ -21,3 +22,4 @@ def test_iter_candidate_reservation_indices_smoke(
         assert len(res)
         assert all(isinstance(x, int) for x in res)
         assert all(0 <= x < surface_size for x in res)
+        assert hstrat_aux.is_nondecreasing(res)
