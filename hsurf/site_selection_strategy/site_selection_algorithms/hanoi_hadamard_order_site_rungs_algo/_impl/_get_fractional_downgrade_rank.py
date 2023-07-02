@@ -17,6 +17,12 @@ def get_fractional_downgrade_rank(
     rank: int,
     fractional_downgrade_state: typing.Dict,
 ) -> int:
+    """At what rank should reservations provided drop down to the next-lower
+    rung (i.e., decrease by one) under the fractional incrementation mode?
+
+    Manages timing to ensure "safe" transitions so that the oldest values are
+    contained within dropped incidence reservation buffer positions.
+    """
     state = fractional_downgrade_state
 
     cadence = hanoi.get_hanoi_value_index_cadence(hanoi_value)

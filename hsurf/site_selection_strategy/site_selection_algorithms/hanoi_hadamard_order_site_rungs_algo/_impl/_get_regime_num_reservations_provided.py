@@ -15,6 +15,17 @@ from ._get_regime_reservation_downgrade_rank import (
 def get_regime_num_reservations_provided(
     hanoi_value: int, surface_size: int, rank: int
 ) -> int:
+    """How many incidence reservation buffer positions are provided for
+    depositions associated with `hanoi_value` at rank `rank` under non-
+    fractional reservation incrementing mode (i.e., when fractional
+    incrementing is not eligible)?
+
+    Extends `get_regime_num_reservations_available` to time downgrading (i.e.,
+    halving the incidence reservation buffer size) so that it occurs "safely"
+    when athe most recent deposition is at the last site that will be retained
+    after degradation (so the next deposition will be at semantic incidence
+    reseration buffer position zero).
+    """
     thresh = get_regime_reservation_downgrade_rank(
         hanoi_value, surface_size, rank
     )

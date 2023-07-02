@@ -6,6 +6,9 @@ from ._is_hanoi_invader import is_hanoi_invader
 
 
 def is_hanoi_invaded(hanoi_value: int, rank: int) -> bool:
+    """Have any of `hanoi_value`'s incidence reservation buffer positions been
+    overwritten by the expected invasion that will halve `hanoi_value`'s
+    reservation count during the current reservation-size-doubling cycle?"""
     reservation_width = get_num_sites_reserved_per_incidence_at_rank(rank)
     max_hanoi_value = hanoi.get_max_hanoi_value_through_index(rank)
 

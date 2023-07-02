@@ -14,6 +14,14 @@ def calc_incidence_of_deposited_hanoi_value(
     focal_rank: int,
     _is_recurse=False,  # TODO refactor away debugging param
 ) -> int:
+    """What deposition incidence of `hanoi_value` is held at the semantic
+    position `reservation_index` of `hanoi_value`'s reservation incidence
+    buffer?
+
+    Requires query params refer to a `reservation_index` that has been reached
+    by deposited incidences and a `reservation_index` is still present at
+    `focal_rank`.
+    """
     num_reservations_provided = get_num_reservations_provided(
         hanoi_value=hanoi_value,
         surface_size=surface_size,

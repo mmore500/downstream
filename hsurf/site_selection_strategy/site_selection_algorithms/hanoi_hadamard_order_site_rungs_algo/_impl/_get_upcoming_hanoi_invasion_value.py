@@ -7,6 +7,15 @@ from ._is_hanoi_invader import is_hanoi_invader
 
 
 def get_upcoming_hanoi_invasion_value(hanoi_value: int, rank: int) -> int:
+    """What hanoi value will next invade sites associated with `hanoi_value`?
+
+    If any reservation sites associated with `hanoi_value` at the outset of the
+    current reservation-size-doubling cycle have been overwritten by another
+    hanoi value (e.g., an invasion has already begun), the invading hanoi value
+    associated with the _next_ cycle will be returned. Otherwise, if the
+    current-cycle invasion has not begun the current-cycle invading hanoi value
+    will be returned.
+    """
     rank = max(
         rank,
         hanoi.get_index_of_hanoi_value_nth_incidence(hanoi_value, 0),

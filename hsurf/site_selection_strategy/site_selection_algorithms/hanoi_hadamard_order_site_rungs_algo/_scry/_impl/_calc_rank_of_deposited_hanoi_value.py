@@ -10,6 +10,14 @@ def calc_rank_of_deposited_hanoi_value(
     surface_size: int,
     focal_rank: int,
 ) -> int:
+    """What deposition rank is resident at the surface site associated with the
+    `reservation_index` semantic position of `hanoi_value`'s reservation
+    incidence buffer?
+
+    Requires query params refer to a `reservation_index` that has been reached
+    by deposited incidences and a `reservation_index` is still present at
+    `focal_rank`.
+    """
     incidence = calc_incidence_of_deposited_hanoi_value(
         hanoi_value,
         reservation_index,

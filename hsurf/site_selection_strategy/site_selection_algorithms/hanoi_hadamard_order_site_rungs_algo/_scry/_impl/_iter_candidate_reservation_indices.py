@@ -12,8 +12,12 @@ def iter_candidate_reservation_indices(
     surface_size: int,
     rank: int,
 ) -> typing.Iterator[int]:
-    # this is going BACK in time
+    """Yield the possible semantic incidence reservation buffer positions of
+    the site `site` under possible candidate reservation sizes from current
+    naive size back in time through the minimum, starting reservation size
+    (i.e., one site)."""
 
+    # this is going BACK in time
     for candidate_reservation_size in iter_candidate_reservation_sizes(
         site, rank
     ):
