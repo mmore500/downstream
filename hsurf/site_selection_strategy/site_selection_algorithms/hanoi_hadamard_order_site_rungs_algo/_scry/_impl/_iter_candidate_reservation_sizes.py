@@ -8,10 +8,7 @@ from ..._impl._get_num_sites_reserved_per_incidence_at_rank import (
 
 
 @deprecated(reason="Uses generator form, needs refactor to functional impl.")
-def iter_candidate_reservation_sizes(
-    site: int,
-    rank: int,
-) -> typing.Iterator[int]:
+def iter_candidate_reservation_sizes(rank: int) -> typing.Iterator[int]:
     """Yield the incidence reservation sizes from current naive size back in
     time through the minimum, starting reservation size (i.e., one site).
 
