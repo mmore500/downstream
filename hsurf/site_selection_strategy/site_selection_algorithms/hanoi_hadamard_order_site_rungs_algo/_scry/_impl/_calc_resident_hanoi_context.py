@@ -1,6 +1,7 @@
 import typing
 
 from deprecated.sphinx import deprecated
+import opytional as opyt
 
 from ......pylib import hanoi
 from ..._impl import get_num_reservations_provided
@@ -74,6 +75,7 @@ def calc_resident_hanoi_context(
 
             # assert some assumptions related to using break instead of
             # continue below
+            assert site != 0
             assert all(
                 get_reservation_index_elimination_rank(
                     candidate_hanoi_value_,
@@ -90,18 +92,28 @@ def calc_resident_hanoi_context(
                     candidate_reservation_index_,
                 ) in candidate_zip
                 if candidate_hanoi_value_ > 0
-            ), {
-                "candidate_hanoi_value": candidate_hanoi_value,
-                "candidate_reservation_index": candidate_reservation_index,
-                "max_num_reservations_provided": get_num_reservations_provided(
-                    0, surface_size, 0
-                ),
-                "surface_size": surface_size,
-                "num_depositions": num_depositions,
-                "site": site,
+            )
+            # calculated only for assertion
+            hanoi_zero_reservation_index, = {
+                reservation_index
+                for hanoi_value, reservation_index in
+                zip(
+                    iter_candidate_hanoi_occupants(site, rank),
+                    iter_candidate_reservation_indices(
+                        site, surface_size, rank
+                    ),
+                )
+                if hanoi_value == 0
             }
-            # why can we break instead of just continuing? todo
-            break  # continue also works here
+            assert hanoi_zero_reservation_index > opyt.or_value(
+                get_reservation_index_elimination_rank(
+                    0, hanoi_zero_reservation_index, surface_size
+                ),
+                0,
+            ) // 2  # // 2 because 2 ranks between hanoi zero depositions
+            break  # <--- continue works here, too
+            # todo,
+            # why can we break instead of just continuing?
 
         assert deadline_rank, {
             "candidate_hanoi_value": candidate_hanoi_value,
