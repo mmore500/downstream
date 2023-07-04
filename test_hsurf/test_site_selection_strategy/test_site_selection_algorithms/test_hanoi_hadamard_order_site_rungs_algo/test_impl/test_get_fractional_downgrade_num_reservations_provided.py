@@ -18,6 +18,6 @@ def test_get_fractional_downgrade_state(
     )
     if fractional_downgrade_state is not None:
         actual_result = get_fractional_downgrade_num_reservations_provided(
-            hanoi_value, surface_size, fractional_downgrade_state
+            hanoi_value, surface_size, rank, fractional_downgrade_state
         )
         assert isinstance(actual_result, int)
