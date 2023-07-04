@@ -95,7 +95,7 @@ def get_safe_downgrade_rank(
     assert deadline_rank_oc - intermediate_oc <= cycle_num_ranks
 
     tt_below_oc = intermediate_oc - modulo(intermediate_oc, cycle_num_ranks)
-    assert tt_below_oc % cadence == 0
+    assert fast_pow2_mod(tt_below_oc, cadence) == 0
     assert tt_below_oc % cycle_num_ranks == 0
     assert (
         deadline_rank_oc - tt_below_oc
@@ -104,7 +104,7 @@ def get_safe_downgrade_rank(
 
     goal_oc = tt_below_oc + required_cycle_rank_position
     assert goal_oc % cycle_num_ranks == required_cycle_rank_position
-    assert goal_oc % cadence == 0
+    assert fast_pow2_mod(goal_oc, cadence) == 0
     assert goal_oc <= deadline_rank_oc
     assert goal_oc - deadline_rank_oc <= cycle_num_ranks
 
@@ -116,7 +116,7 @@ def get_safe_downgrade_rank(
         <= cycle_num_ranks + required_lag
     )
 
-    assert cycle_num_ranks % cadence == 0
+    assert fast_pow2_mod(cycle_num_ranks, cadence) == 0
     assert (
         hanoi.get_incidence_count_of_hanoi_value_through_index(
             hanoi_value, offset
@@ -130,7 +130,7 @@ def get_safe_downgrade_rank(
 
     assert fast_pow2_mod(cycle_num_ranks, cadence) == 0
     if tt_below_oc + offset >= 0:
-        assert tt_below_oc % cadence == 0
+        assert fast_pow2_mod(tt_below_oc, cadence) == 0
         assert tt_below_oc % cycle_num_ranks == 0
         assert (
             hanoi.get_incidence_count_of_hanoi_value_through_index(
