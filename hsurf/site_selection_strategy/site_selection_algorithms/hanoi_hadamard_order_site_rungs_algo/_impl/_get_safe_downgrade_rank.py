@@ -1,6 +1,6 @@
 from deprecated.sphinx import deprecated
 
-from ..... import pylib
+from .....pylib import fast_pow2_divide, hanoi, modulo
 
 
 @deprecated(
@@ -94,9 +94,7 @@ def get_safe_downgrade_rank(
     intermediate_oc = deadline_rank_oc - required_cycle_rank_position
     assert deadline_rank_oc - intermediate_oc <= cycle_num_ranks
 
-    tt_below_oc = intermediate_oc - pylib.modulo(
-        intermediate_oc, cycle_num_ranks
-    )
+    tt_below_oc = intermediate_oc - modulo(intermediate_oc, cycle_num_ranks)
     assert tt_below_oc % cadence == 0
     assert tt_below_oc % cycle_num_ranks == 0
     assert (
@@ -120,12 +118,12 @@ def get_safe_downgrade_rank(
 
     assert cycle_num_ranks % cadence == 0
     assert (
-        pylib.hanoi.get_incidence_count_of_hanoi_value_through_index(
+        hanoi.get_incidence_count_of_hanoi_value_through_index(
             hanoi_value, offset
         )
     ) % cycle_num_ranks == 1
     assert (
-        pylib.hanoi.get_incidence_count_of_hanoi_value_through_index(
+        hanoi.get_incidence_count_of_hanoi_value_through_index(
             hanoi_value, offset + cadence
         )
     ) % cycle_num_ranks == 2
@@ -135,20 +133,20 @@ def get_safe_downgrade_rank(
         assert tt_below_oc % cadence == 0
         assert tt_below_oc % cycle_num_ranks == 0
         assert (
-            pylib.hanoi.get_incidence_count_of_hanoi_value_through_index(
+            hanoi.get_incidence_count_of_hanoi_value_through_index(
                 hanoi_value, tt_below_oc + offset
             )
             - 1
-        ) % (cycle_num_ranks // cadence) == 0
+        ) % fast_pow2_divide(cycle_num_ranks, cadence) == 0
     if downgrade_rank >= 0:
         assert (downgrade_rank + cadence - offset) % cadence == 0
         assert (
-            pylib.hanoi.get_incidence_count_of_hanoi_value_through_index(
+            hanoi.get_incidence_count_of_hanoi_value_through_index(
                 hanoi_value, downgrade_rank
             )
             - 1
-        ) % (cycle_num_ranks // cadence) == (
-            required_cycle_rank_position // cadence
+        ) % fast_pow2_divide(cycle_num_ranks, cadence) == fast_pow2_divide(
+            required_cycle_rank_position, cadence
         )
 
     return downgrade_rank

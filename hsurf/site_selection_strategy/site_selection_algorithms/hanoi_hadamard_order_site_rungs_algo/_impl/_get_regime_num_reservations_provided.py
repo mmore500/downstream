@@ -1,5 +1,6 @@
 from deprecated.sphinx import deprecated
 
+from .....pylib import fast_pow2_divide, hanoi
 from ._get_regime_num_reservations_available import (
     get_regime_num_reservations_available,
 )
@@ -33,6 +34,6 @@ def get_regime_num_reservations_provided(
         hanoi_value, surface_size, rank
     )
     if rank >= thresh:
-        return before_thresh_num // 2
+        return fast_pow2_divide(before_thresh_num, 2)
     else:
         return before_thresh_num

@@ -25,4 +25,4 @@ def iter_candidate_reservation_sizes(rank: int) -> typing.Iterator[int]:
     # this is going BACK in time, with reservation size halving repeatedly
     while reservation_size:
         yield reservation_size
-        reservation_size //= 2
+        reservation_size >>= 1  # equiv //= 2

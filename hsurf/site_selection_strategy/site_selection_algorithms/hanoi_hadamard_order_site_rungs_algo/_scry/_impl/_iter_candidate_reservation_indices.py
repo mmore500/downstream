@@ -2,6 +2,7 @@ import typing
 
 from deprecated import deprecated
 
+from ......pylib import fast_pow2_divide
 from ......pylib import longevity_ordering_descending as hadamard_order
 from ._iter_candidate_reservation_sizes import iter_candidate_reservation_sizes
 
@@ -19,11 +20,14 @@ def iter_candidate_reservation_indices(
 
     # this is going BACK in time
     for candidate_reservation_size in iter_candidate_reservation_sizes(rank):
-        candidate_reservation_position = site // candidate_reservation_size
+        candidate_reservation_position = fast_pow2_divide(
+            site,
+            candidate_reservation_size,
+        )
         candidate_reservation_index = (
             hadamard_order.get_longevity_index_of_mapped_position(
                 candidate_reservation_position,
-                surface_size // candidate_reservation_size,
+                fast_pow2_divide(surface_size, candidate_reservation_size),
             )
         )
         yield candidate_reservation_index

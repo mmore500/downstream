@@ -2,7 +2,7 @@ import typing
 
 from deprecated.sphinx import deprecated
 
-from .....pylib import hanoi
+from .....pylib import fast_pow2_divide, hanoi
 from ._get_num_incidence_reservations_at_rank import (
     get_num_incidence_reservations_at_rank,
 )
@@ -84,7 +84,8 @@ def get_fractional_downgrade_state(
     # ivading but hasn't yet wrapped up invading
     # (if it has completed invading, go to the next candidate invader value)
     for invading_hanoi_value in iter_hanoi_invader_values(hanoi_value):
-        if invading_hanoi_value >= 2**surface_size // 2:
+        # equiv 2**surface_size // 2
+        if invading_hanoi_value >= fast_pow2_divide(1 << surface_size, 2):
             # needs cleanup
             # this conditional is definitely miswritten and will never fire
             # to make sure, try putting an assert False in here
@@ -117,7 +118,7 @@ def get_fractional_downgrade_state(
         # fractional degradation is meaningless, mark ineligible for fractional
         # degradation to fall back to simpler "drop half at a time" iml
         # possibly redundant with check below
-        if invading_hanoi_value > surface_size // 2:
+        if invading_hanoi_value > fast_pow2_divide(surface_size, 2):
             return None
 
         # first incidence of invading hanoi value
@@ -141,8 +142,8 @@ def get_fractional_downgrade_state(
 
         # how many ranks to make a complete circuit through the ring buffer?
         protagonist_tour_time = tour_size * protagonist_cadence
-        num_protagonist_cycles_per_invader_cadence = (
-            invader_cadence // protagonist_tour_time
+        num_protagonist_cycles_per_invader_cadence = fast_pow2_divide(
+            invader_cadence, protagonist_tour_time
         )
         if num_protagonist_cycles_per_invader_cadence >= (
             # see test_calc_dyadic_lcm_upper_bound.py
@@ -183,11 +184,13 @@ def get_fractional_downgrade_state(
     # num_granules * tour_size * 2 == num_protagonist_cycles_per_invader_cadence
     # num_granules == num_protagonist_cycles_per_invader_cadence // (tour_size * 2)
     num_granules = min(
-        num_protagonist_cycles_per_invader_cadence // (tour_size * 2),
+        fast_pow2_divide(
+            num_protagonist_cycles_per_invader_cadence, (tour_size * 2)
+        ),
         num_reservations,
     )
     assert 1 < num_granules <= num_reservations
-    granule_size = num_reservations // num_granules
+    granule_size = fast_pow2_divide(num_reservations, num_granules)
     assert granule_size
 
     # PART III: DETERMINE CURRENT STAGE WITHIN FRACTIONAL DOWNGRADE PROCESS
@@ -230,21 +233,19 @@ def get_fractional_downgrade_state(
     assert raw_next_subtrahend > raw_current_subtrahend
 
     # granule is measured in "raw" slot counts contained within a chunk
-    current_subtrahend_granule = (
+    current_subtrahend_granule = fast_pow2_divide(
         # adding granule size - 1 rounds up
-        raw_current_subtrahend
-        + granule_size
-        - 1
-    ) // granule_size
+        raw_current_subtrahend + granule_size - 1,
+        granule_size,
+    )
     assert current_subtrahend_granule <= raw_current_subtrahend
     assert bool(current_subtrahend_granule) == bool(raw_current_subtrahend)
 
-    next_subtrahend_granule = (
+    next_subtrahend_granule = fast_pow2_divide(
         # adding granule size - 1 rounds up
-        raw_next_subtrahend
-        + granule_size
-        - 1
-    ) // granule_size
+        raw_next_subtrahend + granule_size - 1,
+        granule_size,
+    )
     assert next_subtrahend_granule <= raw_next_subtrahend
     assert bool(next_subtrahend_granule) == bool(raw_next_subtrahend)
 

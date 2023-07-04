@@ -1,4 +1,4 @@
-from .....pylib import hanoi
+from .....pylib import fast_pow2_divide, hanoi
 from ._get_num_sites_reserved_per_incidence_at_rank import (
     get_num_sites_reserved_per_incidence_at_rank,
 )
@@ -27,4 +27,4 @@ def get_upcoming_hanoi_invasion_value(hanoi_value: int, rank: int) -> int:
     ):
         return hanoi_value + reservation_width
     else:
-        return hanoi_value + reservation_width // 2
+        return hanoi_value + fast_pow2_divide(reservation_width, 2)
