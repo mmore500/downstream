@@ -72,48 +72,7 @@ def calc_resident_hanoi_context(
             # incidence)
             # thus, candidate hanoi value could never have deposited at site
             # and we can skip this value
-
-            # assert some assumptions related to using break instead of
-            # continue below
-            assert site != 0
-            assert all(
-                get_reservation_index_elimination_rank(
-                    candidate_hanoi_value_,
-                    candidate_reservation_index_,
-                    surface_size,
-                )
-                is None
-                and (
-                    candidate_hanoi_value_ / candidate_reservation_index_
-                    <= candidate_hanoi_value / candidate_reservation_index
-                )
-                for (
-                    candidate_hanoi_value_,
-                    candidate_reservation_index_,
-                ) in candidate_zip
-                if candidate_hanoi_value_ > 0
-            )
-            # calculated only for assertion
-            hanoi_zero_reservation_index, = {
-                reservation_index
-                for hanoi_value, reservation_index in
-                zip(
-                    iter_candidate_hanoi_occupants(site, rank),
-                    iter_candidate_reservation_indices(
-                        site, surface_size, rank
-                    ),
-                )
-                if hanoi_value == 0
-            }
-            assert hanoi_zero_reservation_index > opyt.or_value(
-                get_reservation_index_elimination_rank(
-                    0, hanoi_zero_reservation_index, surface_size
-                ),
-                0,
-            ) // 2  # // 2 because 2 ranks between hanoi zero depositions
-            break  # <--- continue works here, too
-            # todo,
-            # why can we break instead of just continuing?
+            continue
 
         assert deadline_rank, {
             "candidate_hanoi_value": candidate_hanoi_value,
