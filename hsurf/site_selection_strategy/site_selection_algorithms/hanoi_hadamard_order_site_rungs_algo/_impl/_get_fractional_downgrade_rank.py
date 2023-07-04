@@ -14,7 +14,6 @@ from ._get_safe_downgrade_rank import get_safe_downgrade_rank
 def get_fractional_downgrade_rank(
     hanoi_value: int,
     surface_size: int,
-    rank: int,
     fractional_downgrade_state: typing.Dict,
 ) -> int:
     """At what rank should reservations provided drop down to the next-lower

@@ -25,7 +25,6 @@ def get_fractional_downgrade_num_reservations_provided(
     thresh = get_fractional_downgrade_rank(
         hanoi_value,
         surface_size,
-        rank,
         fractional_downgrade_state,
     )
 
