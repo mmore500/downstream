@@ -2,6 +2,7 @@ from .....pylib import fast_pow2_divide, hanoi
 from ._get_num_sites_reserved_per_incidence_at_rank import (
     get_num_sites_reserved_per_incidence_at_rank,
 )
+from ._get_surface_rank_capacity import get_surface_rank_capacity
 
 
 def get_num_incidence_reservations_at_rank(
