@@ -29,6 +29,7 @@ def get_fractional_downgrade_num_reservations_provided(
     )
 
     state = fractional_downgrade_state
+    assert state["next subtrahend"] != state["current subtrahend"], state
     if rank >= thresh:
         return state["tour size"] - state["next subtrahend"]
     else:

@@ -6,7 +6,11 @@ from .get_index_of_hanoi_value_nth_incidence import (
 )
 
 
-def get_index_of_hanoi_value_next_incidence(value: int, index: int) -> int:
+def get_index_of_hanoi_value_next_incidence(
+    value: int,
+    index: int,
+    n: int = 1,
+) -> int:
     """At what index does the next incidence of a given value occur within the
     Hanoi sequence past the given index?
 
@@ -18,4 +22,7 @@ def get_index_of_hanoi_value_next_incidence(value: int, index: int) -> int:
         index,
     )
     # note: implicit +1 in converting from count to incidence index
-    return get_index_of_hanoi_value_nth_incidence(value, incidence_count)
+    return get_index_of_hanoi_value_nth_incidence(
+        value,
+        incidence_count - 1 + n,
+    )

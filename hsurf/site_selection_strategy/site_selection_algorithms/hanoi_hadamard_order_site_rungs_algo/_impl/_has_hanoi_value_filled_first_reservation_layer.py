@@ -6,7 +6,7 @@ from ._get_surface_rank_capacity import get_surface_rank_capacity
 
 
 def has_hanoi_value_filled_first_reservation_layer(
-    hanoi_value: int, surface_size: int, rank: int
+    hanoi_value: int, surface_size: int, rank: int, granule_size: int = 1
 ) -> bool:
     """Are the number of incidences of hanoi value elapsed by rank `rank`
     greater than or equal to the number of incidence reservation buffer
@@ -26,6 +26,6 @@ def has_hanoi_value_filled_first_reservation_layer(
         hanoi.get_incidence_count_of_hanoi_value_through_index(
             hanoi_value,
             rank,
-        )
-        < first_layer_size
+        ) + granule_size
+        < first_layer_size + 1
     )
