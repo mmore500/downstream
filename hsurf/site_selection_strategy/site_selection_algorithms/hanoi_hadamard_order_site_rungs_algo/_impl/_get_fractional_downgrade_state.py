@@ -84,16 +84,6 @@ def get_fractional_downgrade_state(
     # ivading but hasn't yet wrapped up invading
     # (if it has completed invading, go to the next candidate invader value)
     for invading_hanoi_value in iter_hanoi_invader_values(hanoi_value):
-        # equiv 2**surface_size // 2
-        if invading_hanoi_value >= fast_pow2_divide(1 << surface_size, 2):
-            # needs cleanup
-            # this conditional is definitely miswritten and will never fire
-            # to make sure, try putting an assert False in here
-            # think this was maybe intended to cover the cases covered in the
-            # for loop below where the number of hanoi reservations has
-            # dwindled so low (e.g., 2) that fractional downgrade is
-            # effectively meaningless?
-            return None
         if not has_hanoi_value_filled_first_reservation_layer(
             invading_hanoi_value, surface_size, rank
         ):
