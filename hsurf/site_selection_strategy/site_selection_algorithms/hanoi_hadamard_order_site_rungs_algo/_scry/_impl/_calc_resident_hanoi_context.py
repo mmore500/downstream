@@ -56,39 +56,56 @@ def calc_resident_hanoi_context(
         iter_candidate_reservation_indices(site, surface_size, rank),
     )
     for candidate_hanoi_value, candidate_reservation_index in candidate_zip:
-        # deadline_rank: one past the last time that candidate hanoi value
-        # could have possibly been deposited at site (because at this point
-        # the incidence reservation buffer position associated with site for
-        # the candidate hanoi value was dropped)
-        deadline_rank = get_reservation_index_elimination_rank(
-            candidate_hanoi_value,
-            candidate_reservation_index,
-            surface_size,
-        )
-        if deadline_rank is None:
-            # None means that is candidate_reservation_index is out of bounds
-            # for even the largest incidence reservation buffer sie associated
-            # with candidate_hanoi_value (i.e., the buffer size at zeroth
-            # incidence)
-            # thus, candidate hanoi value could never have deposited at site
-            # and we can skip this value
-            continue
 
-        assert deadline_rank, {
-            "candidate_hanoi_value": candidate_hanoi_value,
-            "candidate_reservation_index": candidate_reservation_index,
-            "rank": rank,
-            "site": site,
-            "surface_size": surface_size,
-        }
-
-        assert deadline_rank
         # focal rank: the very last possible time when a deposition of
         # candidate_hanoi_value could have been performed onto site
         # (at subsequent time points, that site is dropped from
         # candidate_hanoi_value's incidence reservation buffer)
-        focal_rank = min(rank, deadline_rank - 1)
-        assert focal_rank <= rank
+        focal_rank = None
+
+        # calculate focal_rank under one of two cases
+        # case 1: if we don't currently provide enough reservations for
+        # candidate_reservation_index it's possible that we did in the past...
+        # find focal_rank as the very last rank with enough reservations
+        if get_num_reservations_provided(
+            candidate_hanoi_value, surface_size, rank
+        ) <= candidate_reservation_index:
+            # deadline_rank: one past the last time that candidate hanoi value
+            # could have possibly been deposited at site (because at this point
+            # the incidence reservation buffer position associated with site
+            # for the candidate hanoi value was dropped)
+            deadline_rank = get_reservation_index_elimination_rank(
+                candidate_hanoi_value,
+                candidate_reservation_index,
+                surface_size,
+            )
+            if deadline_rank is None:
+                # None means that is candidate_reservation_index is out of bounds
+                # for even the largest incidence reservation buffer sie associated
+                # with candidate_hanoi_value (i.e., the buffer size at zeroth
+                # incidence)
+                # thus, candidate hanoi value could never have deposited at
+                # site and we can skip this value
+                continue
+
+            assert deadline_rank, {
+                "candidate_hanoi_value": candidate_hanoi_value,
+                "candidate_reservation_index": candidate_reservation_index,
+                "rank": rank,
+                "site": site,
+                "surface_size": surface_size,
+            }
+
+            assert deadline_rank
+            assert deadline_rank <= rank + 1
+            focal_rank = deadline_rank - 1
+
+        # case 2: we have enough reservations, so focal_rank is current rank
+        else:
+            focal_rank = rank
+
+        assert focal_rank is not None
+        assert 0 <= focal_rank <= rank
 
         # how many depositions of candidate_hanoi_value have been performed
         # before the site is dropped from candidate_hanoi_value's incidence
