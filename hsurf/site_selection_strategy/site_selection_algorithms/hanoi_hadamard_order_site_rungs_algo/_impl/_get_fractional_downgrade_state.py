@@ -93,7 +93,8 @@ def get_fractional_downgrade_state(
 
     # check for fractional downgrade eligibility
     # if current invasion cycle is ineligible for fractional downgrade, but the
-    # current invasion has started (so the fallback downgrade would hve
+    # current invasion has started (so the fallback downgrade would have
+    # dispatched)
     for attempt in 1, 2:
         invader_cadence = hanoi.get_hanoi_value_index_cadence(
             invading_hanoi_value
@@ -106,7 +107,7 @@ def get_fractional_downgrade_state(
         # only be two total incidence reservation ring buffer slots and only
         # one "to-be-  dropped" during current invasion...
         # fractional degradation is meaningless, mark ineligible for fractional
-        # degradation to fall back to simpler "drop half at a time" iml
+        # degradation to fall back to simpler "drop half at a time" impl
         # possibly redundant with check below
         if invading_hanoi_value > fast_pow2_divide(surface_size, 2):
             return None
