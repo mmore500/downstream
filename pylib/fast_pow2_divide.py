@@ -1,7 +1,34 @@
-def fast_pow2_divide(dividend, divisor):
-    assert dividend >= 0
-    assert divisor >= 1
-    assert divisor.bit_count() == 1
+def fast_pow2_divide(dividend: int, divisor: int) -> int:
+    """Perform fast division using bitwise operations.
+
+    Parameters
+    ----------
+    dividend : int
+        The dividend of the division operation. Must be a non-negative integer.
+    divisor : int
+        The divisor of the division operation. Must be a positive integer and a
+        power of 2.
+
+    Returns
+    -------
+    int
+        The result of dividing the dividend by the divisor.
+
+    Examples
+    --------
+    >>> fast_pow2_divide(16, 4)
+    4
+
+    >>> fast_pow2_divide(0, 4)
+    0
+
+    >>> fast_pow2_divide(15, 4)
+    3
+    """
+
+    assert dividend >= 0, "Dividend must be non-negative"
+    assert divisor >= 1, "Divisor must be greater than or equal to 1"
+    assert divisor.bit_count() == 1, "Divisor must be a power of 2"
 
     # Count the number of trailing zeros, which is equivalent to log2(divisor)
     shift_amount = (divisor - 1).bit_count()
