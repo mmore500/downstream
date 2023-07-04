@@ -62,9 +62,19 @@ def get_reservation_index_elimination_rank(
             )
 
         assert not predicate(0)
-        upper_bound = get_surface_rank_capacity(surface_size) - 1
-        assert predicate(upper_bound)
-        res = inch.binary_search(
+        upper_bound_exclusive = get_surface_rank_capacity(surface_size)
+        upper_bound_inclusive = upper_bound_exclusive - 1
+        assert predicate(upper_bound_inclusive)
+        search, upper_bound = (
+            # note difference in inclusivity/exclusivity of bounds :/
+            (inch.binary_search, upper_bound_inclusive)
+            # optimization: use doubling search for larger surfaces
+            # performance depends on average rank in use case
+            # (weaker performance for larger ranks)
+            if upper_bound_exclusive <= 2**32
+            else (inch.doubling_search, upper_bound_exclusive)
+        )
+        res = search(
             predicate,
             first_incidence_rank,
             # upper bound prevents assertion errors from out of bounds queries
@@ -78,4 +88,5 @@ def get_reservation_index_elimination_rank(
             "surface_size": surface_size,
             "upper_bound": upper_bound,
         }
+        assert res < upper_bound_exclusive
         return res
