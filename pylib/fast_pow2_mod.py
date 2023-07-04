@@ -4,7 +4,7 @@ def fast_pow2_mod(dividend: int, divisor: int) -> int:
     Parameters
     ----------
     dividend : int
-        The dividend of the mod operation. Must be a non-negative integer.
+        The dividend of the mod operation.
     divisor : int
         The divisor of the mod operation. Must be a positive integer and a
         power of 2.
@@ -28,7 +28,7 @@ def fast_pow2_mod(dividend: int, divisor: int) -> int:
     >>> fast_pow2_mod(3, 4)
     3
     """
-    assert dividend >= 0
     assert divisor >= 1
     assert divisor.bit_count() == 1
-    return dividend & (divisor - 1)  # calculate remainder
+
+    return dividend + abs(dividend * divisor) & (divisor - 1)

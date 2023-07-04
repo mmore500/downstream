@@ -18,14 +18,12 @@ def test_positive_dividend_and_power_of_2():
 
 
 def test_negative_dividend_and_power_of_2():
-    with pytest.raises(AssertionError):
-        assert pylib.fast_pow2_mod(-15, 2) == 1
-    with pytest.raises(AssertionError):
-        assert pylib.fast_pow2_mod(-1, 2) == 3
-    with pytest.raises(AssertionError):
-        assert pylib.fast_pow2_mod(-1, 3) == 7
-    with pytest.raises(AssertionError):
-        assert pylib.fast_pow2_mod(-16, 3) == 0
+    assert pylib.fast_pow2_mod(-15, 2) == 1
+    assert pylib.fast_pow2_mod(-2, 2) == 0
+    assert pylib.fast_pow2_mod(-1, 4) == 3
+    assert pylib.fast_pow2_mod(-2, 4) == 2
+    assert pylib.fast_pow2_mod(-3, 4) == 1
+    assert pylib.fast_pow2_mod(-4, 4) == 0
 
 
 def test_zero_dividend():
