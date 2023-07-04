@@ -81,7 +81,7 @@ def get_fractional_downgrade_state(
     # will fall back to term-runged downgrade
 
     # get the first invading hanoi value that may (or may not) have started
-    # ivading but hasn't yet wrapped up invading
+    # invading but hasn't yet wrapped up invading
     # (if it has completed invading, go to the next candidate invader value)
     for invading_hanoi_value in iter_hanoi_invader_values(hanoi_value):
         if not has_hanoi_value_filled_first_reservation_layer(
@@ -105,7 +105,7 @@ def get_fractional_downgrade_state(
 
         # if hanoi invader value is past halfway of buffer slots, there will
         # only be two total incidence reservation ring buffer slots and only
-        # one "to-be-  dropped" during current invasion...
+        # one "to-be-dropped" during current invasion...
         # fractional degradation is meaningless, mark ineligible for fractional
         # degradation to fall back to simpler "drop half at a time" impl
         # possibly redundant with check below

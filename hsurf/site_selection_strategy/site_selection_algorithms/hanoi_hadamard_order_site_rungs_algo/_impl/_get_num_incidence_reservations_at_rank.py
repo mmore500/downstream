@@ -13,6 +13,7 @@ def get_num_incidence_reservations_at_rank(
 
     See `get_num_sites_reserved_per_incidence_at_rank` for details.
     """
+    assert rank < get_surface_rank_capacity(surface_size)
     reservation_size = get_num_sites_reserved_per_incidence_at_rank(rank)
     num_reservations = fast_pow2_divide(surface_size, reservation_size)
     # equiv assert surface_size % reservation_size == 0

@@ -67,9 +67,12 @@ def calc_resident_hanoi_context(
         # case 1: if we don't currently provide enough reservations for
         # candidate_reservation_index it's possible that we did in the past...
         # find focal_rank as the very last rank with enough reservations
-        if get_num_reservations_provided(
-            candidate_hanoi_value, surface_size, rank
-        ) <= candidate_reservation_index:
+        if (
+            get_num_reservations_provided(
+                candidate_hanoi_value, surface_size, rank
+            )
+            <= candidate_reservation_index
+        ):
             # deadline_rank: one past the last time that candidate hanoi value
             # could have possibly been deposited at site (because at this point
             # the incidence reservation buffer position associated with site
