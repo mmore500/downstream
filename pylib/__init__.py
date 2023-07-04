@@ -28,6 +28,7 @@ from .log_args_and_result import log_args_and_result
 from .modulo import modulo
 from .prepend_cmap_with_color import prepend_cmap_with_color
 from .round_to_one_sigfig import round_to_one_sigfig
+from .sign import sign
 from .tee_release import tee_release
 
 __all__ = [
@@ -55,6 +56,7 @@ __all__ = [
     "longevity_ordering_piecewise_ascending",
     "longevity_ordering_descending",
     "oeis",
+    "sign",
     "site_selection_eval",
     "site_selection_viz",
     "tee_release",

@@ -1,5 +1,7 @@
 import math
 
+from .sign import sign
+
 
 def fast_pow2_divide(dividend: int, divisor: int) -> int:
     """Perform fast division using bitwise operations.
@@ -36,4 +38,4 @@ def fast_pow2_divide(dividend: int, divisor: int) -> int:
     shift_amount = (divisor - 1).bit_count()
 
     # Perform fast division using right shift
-    return math.copysign(abs(dividend) >> shift_amount, dividend)
+    return sign(dividend) * (abs(dividend) >> shift_amount)
