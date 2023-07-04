@@ -2,6 +2,7 @@ import typing
 
 from deprecated import deprecated
 
+from ......pylib import fast_pow2_mod
 from ._iter_candidate_reservation_sizes import iter_candidate_reservation_sizes
 
 
@@ -25,5 +26,5 @@ def iter_candidate_hanoi_occupants(
 
     # this is going BACK in time
     for candidate_reservation_size in iter_candidate_reservation_sizes(rank):
-        candidate_hanoi_value = site % candidate_reservation_size
+        candidate_hanoi_value = fast_pow2_mod(site, candidate_reservation_size)
         yield candidate_hanoi_value

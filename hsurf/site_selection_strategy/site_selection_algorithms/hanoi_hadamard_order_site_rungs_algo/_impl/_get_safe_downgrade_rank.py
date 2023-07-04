@@ -1,6 +1,6 @@
 from deprecated.sphinx import deprecated
 
-from .....pylib import fast_pow2_divide, hanoi, modulo
+from .....pylib import fast_pow2_divide, fast_pow2_mod, hanoi, modulo
 
 
 @deprecated(
@@ -66,7 +66,7 @@ def get_safe_downgrade_rank(
 
     assert cycle_num_ranks
     assert required_cycle_rank_position < cycle_num_ranks
-    assert required_lag % cadence == 0
+    assert fast_pow2_mod(required_lag, cadence) == 0
     # oc is offset corrected
     end_rank_oc = end_rank - offset
 
@@ -128,7 +128,7 @@ def get_safe_downgrade_rank(
         )
     ) % cycle_num_ranks == 2
 
-    assert cycle_num_ranks % cadence == 0
+    assert fast_pow2_mod(cycle_num_ranks, cadence) == 0
     if tt_below_oc + offset >= 0:
         assert tt_below_oc % cadence == 0
         assert tt_below_oc % cycle_num_ranks == 0
@@ -139,7 +139,7 @@ def get_safe_downgrade_rank(
             - 1
         ) % fast_pow2_divide(cycle_num_ranks, cadence) == 0
     if downgrade_rank >= 0:
-        assert (downgrade_rank + cadence - offset) % cadence == 0
+        assert fast_pow2_mod(downgrade_rank + cadence - offset, cadence) == 0
         assert (
             hanoi.get_incidence_count_of_hanoi_value_through_index(
                 hanoi_value, downgrade_rank

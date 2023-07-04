@@ -2,7 +2,7 @@ import sys
 
 from deprecated.sphinx import deprecated
 
-from .....pylib import fast_pow2_divide, hanoi
+from .....pylib import fast_pow2_divide, fast_pow2_mod, hanoi
 from ._get_regime_num_reservations_available import (
     get_regime_num_reservations_available,
 )
@@ -38,10 +38,10 @@ def get_regime_reservation_downgrade_rank(
 
     cycle_num_ranks = big_tour_time
     required_cycle_rank_position = fast_pow2_divide(big_tour_time, 2) - cadence
-    assert required_cycle_rank_position % cadence == 0
+    assert fast_pow2_mod(required_cycle_rank_position, cadence) == 0
     assert required_cycle_rank_position < cycle_num_ranks
     required_lag = fast_pow2_divide(big_tour_time, 2)
-    assert required_lag % cadence == 0
+    assert fast_pow2_mod(required_lag, cadence) == 0
 
     downgrade_rank = get_safe_downgrade_rank(
         cycle_num_ranks=cycle_num_ranks,

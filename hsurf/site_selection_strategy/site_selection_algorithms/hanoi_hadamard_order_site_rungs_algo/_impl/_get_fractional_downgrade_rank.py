@@ -3,7 +3,7 @@ import typing
 
 from deprecated.sphinx import deprecated
 
-from .....pylib import calc_dyadic_lcm_upper_bound, hanoi
+from .....pylib import calc_dyadic_lcm_upper_bound, fast_pow2_mod, hanoi
 from ._get_safe_downgrade_rank import get_safe_downgrade_rank
 
 
@@ -41,10 +41,10 @@ def get_fractional_downgrade_rank(
     cycle_num_ranks = big_tour_time
     required_cycle_rank_position = 0
 
-    assert required_cycle_rank_position % cadence == 0
+    assert fast_pow2_mod(required_cycle_rank_position, cadence) == 0
     assert required_cycle_rank_position < cycle_num_ranks
     required_lag = (state["tour size"] - state["next subtrahend"]) * cadence
-    assert required_lag % cadence == 0
+    assert fast_pow2_mod(required_lag, cadence) == 0
     res = get_safe_downgrade_rank(
         cycle_num_ranks=cycle_num_ranks,
         required_cycle_rank_position=required_cycle_rank_position,
