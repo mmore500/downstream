@@ -78,7 +78,7 @@ def get_fractional_downgrade_state(
     # PART I: DETERMIINE ELIGIBILTY FOR FRACTIONAL DOWNGRADE
     # ======================================================
     # if ineligible for a fractional (site-runged) downgrade, external logic
-    # will fall back to incidence-runged downgrade
+    # will fall back to term-runged downgrade
 
     # get the first invading hanoi value that may (or may not) have started
     # ivading but hasn't yet wrapped up invading
@@ -254,7 +254,7 @@ def get_fractional_downgrade_state(
     assert granularized_next_subtrahend >= raw_next_subtrahend
 
     # note: negative downgrade rank not allowed
-    # we should have delegated to the simpler incidence-runged implementation
+    # we should have delegated to the simpler term-runged implementation
     # (which may end up requesting a negative downgrade rank itself)
     assert (
         0
