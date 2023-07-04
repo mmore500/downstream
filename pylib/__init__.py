@@ -19,6 +19,7 @@ from .calc_dyadic_lcm_upper_bound import calc_dyadic_lcm_upper_bound
 from .count_factors_of_2 import count_factors_of_2
 from .enforce_typing import enforce_typing
 from .fast_pow2_divide import fast_pow2_divide
+from .fast_pow2_mod import fast_pow2_mod
 from .get_powersof2triangle_val_at_index import (
     get_powersof2triangle_val_at_index,
 )
@@ -40,6 +41,7 @@ __all__ = [
     "count_factors_of_2",
     "enforce_typing",
     "fast_pow2_divide",
+    "fast_pow2_mod",
     "get_powersof2triangle_val_at_index",
     "jupyter_hide_toggle",
     "Literal",

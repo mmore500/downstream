@@ -12,7 +12,7 @@ def fast_pow2_divide(dividend: int, divisor: int) -> int:
     Returns
     -------
     int
-        The result of dividing the dividend by the divisor.
+        The quotient of dividing the dividend by the divisor.
 
     Examples
     --------
