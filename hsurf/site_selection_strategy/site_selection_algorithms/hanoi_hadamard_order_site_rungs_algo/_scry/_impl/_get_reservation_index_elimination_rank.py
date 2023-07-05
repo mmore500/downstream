@@ -97,12 +97,16 @@ def get_reservation_index_elimination_rank(
 
         epoch_founding_hanoi_value = fast_pow2_divide(
             surface_size,
-            4 * bit_ceil(reservation_index),
-        ) + hanoi_value - bool(hanoi_value)
+            2 * bit_ceil(reservation_index),
+        ) + hanoi_value
         lower_bound = hanoi.get_index_of_hanoi_value_nth_incidence(
             hanoi_value, 0
         )
         assert lower_bound >= 0
+        # note that this existing lower bound is broken due to #5
+        # so, use most conservative lower bound
+        # also, not very confident in this lower bound above, needs testing
+        lower_bound = first_incidence_rank
         assert not predicate(lower_bound)
 
         res = inch.binary_search(predicate, lower_bound, ansatz)
