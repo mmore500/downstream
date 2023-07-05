@@ -124,7 +124,6 @@ def get_fractional_downgrade_state(
         # ring buffer slot (i.e., two total slots), fractional degradation is
         # meaningless...
         # fall back to simpler "drop half at a time" impl to drop single slot
-        # possibly redundant with check above
         if num_reservations == 1:
             return None
 
