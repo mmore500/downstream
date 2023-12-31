@@ -26,8 +26,8 @@ def get_first_resolved_resident_rank_inconsistency(
             )
             if actual_timestamp != expected_timestamp:
                 return {
-                    "actual deposition rank": actual_deposition_rank,
-                    "expected deposition rank": expected_deposition_rank,
+                    "actual deposition rank": actual_timestamp,
+                    "expected deposition rank": expected_timestamp,
                     "generation": generation + 1,
                     "site": site,
                 }
