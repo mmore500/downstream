@@ -1,6 +1,6 @@
 from deprecated.sphinx import deprecated
 
-from ..... import pylib
+from .....pylib import fast_pow2_divide, fast_pow2_mod, hanoi, modulo
 
 
 @deprecated(
@@ -66,7 +66,7 @@ def get_safe_downgrade_rank(
 
     assert cycle_num_ranks
     assert required_cycle_rank_position < cycle_num_ranks
-    assert required_lag % cadence == 0
+    assert fast_pow2_mod(required_lag, cadence) == 0
     # oc is offset corrected
     end_rank_oc = end_rank - offset
 
@@ -94,10 +94,8 @@ def get_safe_downgrade_rank(
     intermediate_oc = deadline_rank_oc - required_cycle_rank_position
     assert deadline_rank_oc - intermediate_oc <= cycle_num_ranks
 
-    tt_below_oc = intermediate_oc - pylib.modulo(
-        intermediate_oc, cycle_num_ranks
-    )
-    assert tt_below_oc % cadence == 0
+    tt_below_oc = intermediate_oc - modulo(intermediate_oc, cycle_num_ranks)
+    assert fast_pow2_mod(tt_below_oc, cadence) == 0
     assert tt_below_oc % cycle_num_ranks == 0
     assert (
         deadline_rank_oc - tt_below_oc
@@ -106,7 +104,7 @@ def get_safe_downgrade_rank(
 
     goal_oc = tt_below_oc + required_cycle_rank_position
     assert goal_oc % cycle_num_ranks == required_cycle_rank_position
-    assert goal_oc % cadence == 0
+    assert fast_pow2_mod(goal_oc, cadence) == 0
     assert goal_oc <= deadline_rank_oc
     assert goal_oc - deadline_rank_oc <= cycle_num_ranks
 
@@ -118,37 +116,37 @@ def get_safe_downgrade_rank(
         <= cycle_num_ranks + required_lag
     )
 
-    assert cycle_num_ranks % cadence == 0
+    assert fast_pow2_mod(cycle_num_ranks, cadence) == 0
     assert (
-        pylib.hanoi.get_incidence_count_of_hanoi_value_through_index(
+        hanoi.get_incidence_count_of_hanoi_value_through_index(
             hanoi_value, offset
         )
     ) % cycle_num_ranks == 1
     assert (
-        pylib.hanoi.get_incidence_count_of_hanoi_value_through_index(
+        hanoi.get_incidence_count_of_hanoi_value_through_index(
             hanoi_value, offset + cadence
         )
     ) % cycle_num_ranks == 2
 
-    assert cycle_num_ranks % cadence == 0
+    assert fast_pow2_mod(cycle_num_ranks, cadence) == 0
     if tt_below_oc + offset >= 0:
-        assert tt_below_oc % cadence == 0
+        assert fast_pow2_mod(tt_below_oc, cadence) == 0
         assert tt_below_oc % cycle_num_ranks == 0
         assert (
-            pylib.hanoi.get_incidence_count_of_hanoi_value_through_index(
+            hanoi.get_incidence_count_of_hanoi_value_through_index(
                 hanoi_value, tt_below_oc + offset
             )
             - 1
-        ) % (cycle_num_ranks // cadence) == 0
+        ) % fast_pow2_divide(cycle_num_ranks, cadence) == 0
     if downgrade_rank >= 0:
-        assert (downgrade_rank + cadence - offset) % cadence == 0
+        assert fast_pow2_mod(downgrade_rank + cadence - offset, cadence) == 0
         assert (
-            pylib.hanoi.get_incidence_count_of_hanoi_value_through_index(
+            hanoi.get_incidence_count_of_hanoi_value_through_index(
                 hanoi_value, downgrade_rank
             )
             - 1
-        ) % (cycle_num_ranks // cadence) == (
-            required_cycle_rank_position // cadence
+        ) % fast_pow2_divide(cycle_num_ranks, cadence) == fast_pow2_divide(
+            required_cycle_rank_position, cadence
         )
 
     return downgrade_rank

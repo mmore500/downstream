@@ -6,11 +6,10 @@ from hsurf.site_selection_strategy.site_selection_algorithms.hanoi_hadamard_orde
 )
 
 
-@pytest.mark.parametrize("site", range(64))
 @pytest.mark.parametrize("rank", range(0, 2**10, 2**8 + 1))
-def test_iter_candidate_reservation_sizes(site: int, rank: int):
+def test_iter_candidate_reservation_sizes(rank: int):
     # just a smoke test
-    res = [*iter_candidate_reservation_sizes(site, rank)]
+    res = [*iter_candidate_reservation_sizes(rank)]
     assert len(res)
     assert all(isinstance(x, int) for x in res)
     assert hstrat_auxlib.is_strictly_decreasing(res)

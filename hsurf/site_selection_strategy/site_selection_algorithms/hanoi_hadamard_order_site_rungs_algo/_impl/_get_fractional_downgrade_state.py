@@ -2,7 +2,7 @@ import typing
 
 from deprecated.sphinx import deprecated
 
-from .....pylib import hanoi
+from .....pylib import fast_pow2_divide, hanoi
 from ._get_num_incidence_reservations_at_rank import (
     get_num_incidence_reservations_at_rank,
 )
@@ -19,7 +19,10 @@ from ._iter_hanoi_invader_values import iter_hanoi_invader_values
     version="0.0.0",
 )
 def get_fractional_downgrade_state(
-    hanoi_value: int, surface_size: int, rank: int
+    hanoi_value: int,
+    surface_size: int,
+    rank: int,
+    granule_size_: int = 1,
 ) -> typing.Optional[typing.Dict]:
     """Dispatches fractional reservation buffer degradation (i.e., dropping
     incidence reservation ring buffer slots less than half at a time).
@@ -78,23 +81,14 @@ def get_fractional_downgrade_state(
     # PART I: DETERMIINE ELIGIBILTY FOR FRACTIONAL DOWNGRADE
     # ======================================================
     # if ineligible for a fractional (site-runged) downgrade, external logic
-    # will fall back to incidence-runged downgrade
+    # will fall back to term-runged downgrade
 
     # get the first invading hanoi value that may (or may not) have started
-    # ivading but hasn't yet wrapped up invading
+    # invading but hasn't yet wrapped up invading
     # (if it has completed invading, go to the next candidate invader value)
     for invading_hanoi_value in iter_hanoi_invader_values(hanoi_value):
-        if invading_hanoi_value >= 2**surface_size // 2:
-            # needs cleanup
-            # this conditional is definitely miswritten and will never fire
-            # to make sure, try putting an assert False in here
-            # think this was maybe intended to cover the cases covered in the
-            # for loop below where the number of hanoi reservations has
-            # dwindled so low (e.g., 2) that fractional downgrade is
-            # effectively meaningless?
-            return None
         if not has_hanoi_value_filled_first_reservation_layer(
-            invading_hanoi_value, surface_size, rank
+            invading_hanoi_value, surface_size, rank, granule_size_
         ):
             break
 
@@ -102,7 +96,8 @@ def get_fractional_downgrade_state(
 
     # check for fractional downgrade eligibility
     # if current invasion cycle is ineligible for fractional downgrade, but the
-    # current invasion has started (so the fallback downgrade would hve
+    # current invasion has started (so the fallback downgrade would have
+    # dispatched)
     for attempt in 1, 2:
         invader_cadence = hanoi.get_hanoi_value_index_cadence(
             invading_hanoi_value
@@ -113,11 +108,11 @@ def get_fractional_downgrade_state(
 
         # if hanoi invader value is past halfway of buffer slots, there will
         # only be two total incidence reservation ring buffer slots and only
-        # one "to-be-  dropped" during current invasion...
+        # one "to-be-dropped" during current invasion...
         # fractional degradation is meaningless, mark ineligible for fractional
-        # degradation to fall back to simpler "drop half at a time" iml
+        # degradation to fall back to simpler "drop half at a time" impl
         # possibly redundant with check below
-        if invading_hanoi_value > surface_size // 2:
+        if invading_hanoi_value > fast_pow2_divide(surface_size, 2):
             return None
 
         # first incidence of invading hanoi value
@@ -132,7 +127,6 @@ def get_fractional_downgrade_state(
         # ring buffer slot (i.e., two total slots), fractional degradation is
         # meaningless...
         # fall back to simpler "drop half at a time" impl to drop single slot
-        # possibly redundant with check above
         if num_reservations == 1:
             return None
 
@@ -141,8 +135,8 @@ def get_fractional_downgrade_state(
 
         # how many ranks to make a complete circuit through the ring buffer?
         protagonist_tour_time = tour_size * protagonist_cadence
-        num_protagonist_cycles_per_invader_cadence = (
-            invader_cadence // protagonist_tour_time
+        num_protagonist_cycles_per_invader_cadence = fast_pow2_divide(
+            invader_cadence, protagonist_tour_time
         )
         if num_protagonist_cycles_per_invader_cadence >= (
             # see test_calc_dyadic_lcm_upper_bound.py
@@ -183,12 +177,24 @@ def get_fractional_downgrade_state(
     # num_granules * tour_size * 2 == num_protagonist_cycles_per_invader_cadence
     # num_granules == num_protagonist_cycles_per_invader_cadence // (tour_size * 2)
     num_granules = min(
-        num_protagonist_cycles_per_invader_cadence // (tour_size * 2),
+        fast_pow2_divide(
+            num_protagonist_cycles_per_invader_cadence, (tour_size * 2)
+        ),
         num_reservations,
     )
     assert 1 < num_granules <= num_reservations
-    granule_size = num_reservations // num_granules
+    granule_size = fast_pow2_divide(num_reservations, num_granules)
     assert granule_size
+
+    # previous implementation always used granule size 1, but sometimes
+    # didn't tie it to an actual change in reservation count (nop)
+    # this is a nasty hack to take true granule size into account,
+    # TODO: investigate whether this allows for laxer restrictions on
+    # fractional downgrade eligiblity
+    if granule_size != 1 and granule_size_ == 1:
+        return get_fractional_downgrade_state(
+            hanoi_value, surface_size, rank, granule_size_=granule_size
+        )
 
     # PART III: DETERMINE CURRENT STAGE WITHIN FRACTIONAL DOWNGRADE PROCESS
     # ========================================================================
@@ -226,55 +232,46 @@ def get_fractional_downgrade_state(
             rank,
         )
     )
-    raw_next_subtrahend = raw_current_subtrahend + 1
-    assert raw_next_subtrahend > raw_current_subtrahend
 
     # granule is measured in "raw" slot counts contained within a chunk
-    current_subtrahend_granule = (
+    current_subtrahend_granule = fast_pow2_divide(
         # adding granule size - 1 rounds up
-        raw_current_subtrahend
-        + granule_size
-        - 1
-    ) // granule_size
+        raw_current_subtrahend + granule_size - 1,
+        granule_size,
+    )
     assert current_subtrahend_granule <= raw_current_subtrahend
     assert bool(current_subtrahend_granule) == bool(raw_current_subtrahend)
-
-    next_subtrahend_granule = (
-        # adding granule size - 1 rounds up
-        raw_next_subtrahend
-        + granule_size
-        - 1
-    ) // granule_size
-    assert next_subtrahend_granule <= raw_next_subtrahend
-    assert bool(next_subtrahend_granule) == bool(raw_next_subtrahend)
 
     # granularized subtrahend measured in "raw" slot count,
     # will be an even multiple of chunk size
     granularized_current_subtrahend = current_subtrahend_granule * granule_size
     assert granularized_current_subtrahend >= raw_current_subtrahend
 
-    # note that granularized current and next subtrahend can be equal
-    # this works (downgrade step is a nop) but there might be a better paradigm
-    # that could be refactored to
-    # (in fact, this might enable more efficient granularization by taking into
-    # account that granularization increases the time between invasions that
-    # must be aligned at)
-    granularized_next_subtrahend = next_subtrahend_granule * granule_size
-    assert granularized_next_subtrahend >= raw_next_subtrahend
+    granularized_next_subtrahend = (
+        granularized_current_subtrahend + granule_size
+    )
+    assert granularized_next_subtrahend > granularized_current_subtrahend
 
     # note: negative downgrade rank not allowed
-    # we should have delegated to the simpler incidence-runged implementation
+    # we should have delegated to the simpler term-runged implementation
     # (which may end up requesting a negative downgrade rank itself)
     assert (
         0
         <= granularized_current_subtrahend
-        <= granularized_next_subtrahend
+        < granularized_next_subtrahend
         <= num_reservations
     )
 
-    upcoming_invader_rank = hanoi.get_index_of_hanoi_value_next_incidence(
+    if hanoi.get_incidence_count_of_hanoi_value_through_index(
         invading_hanoi_value, rank
-    )
+    ):
+        upcoming_invader_rank = hanoi.get_index_of_hanoi_value_next_incidence(
+            invading_hanoi_value, rank, granule_size
+        )
+    else:
+        upcoming_invader_rank = hanoi.get_index_of_hanoi_value_nth_incidence(
+            invading_hanoi_value, 0
+        )
     # just a sanity check...
     # upcoming invader rank should always be greater than current rank
     assert upcoming_invader_rank > rank

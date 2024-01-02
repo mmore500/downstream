@@ -15,10 +15,14 @@ from ._get_regime_num_reservations_provided import (
     reason="Needs rename to follow 'site rung' terminology.",
     version="0.0.0",
 )
-@functools.lru_cache(maxsize=8192)
+@functools.lru_cache(maxsize=8192)  # optimization, not functionally necessary
 def get_num_reservations_provided(
     hanoi_value: int, surface_size: int, rank: int
 ) -> int:
+    """Determine incidence reservation buffer positions provided for
+    depositions associated with `hanoi_value` at rank `rank`, under fractional
+    incrementaiton if eligible and otherwise falling back to coarser non-
+    fractional incrementation."""
     fractional_downgrade_state = get_fractional_downgrade_state(
         hanoi_value, surface_size, rank
     )

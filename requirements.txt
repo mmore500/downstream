@@ -77,7 +77,7 @@ hurry-filesize==0.9
     # via nbmetalog
 iniconfig==2.0.0
     # via pytest
-interval-search==0.3.1
+interval-search==0.5.0
     # via
     #   -r requirements.in
     #   hstrat

@@ -1,6 +1,6 @@
 from deprecated import deprecated
 
-from .....pylib import hanoi
+from .....pylib import fast_pow2_divide, hanoi
 from ._get_num_sites_reserved_per_incidence_at_rank import (
     get_num_sites_reserved_per_incidence_at_rank,
 )
@@ -21,8 +21,8 @@ def is_2x_reservation_eligible(
     reservation_width = get_num_sites_reserved_per_incidence_at_rank(rank)
     lb_inclusive = (
         hanoi.get_max_hanoi_value_through_index(rank)
-        - reservation_width // 2
+        - fast_pow2_divide(reservation_width, 2)
         + 1
     )
-    ub_exclusive = reservation_width // 2
+    ub_exclusive = fast_pow2_divide(reservation_width, 2)
     return lb_inclusive <= hanoi_value < ub_exclusive

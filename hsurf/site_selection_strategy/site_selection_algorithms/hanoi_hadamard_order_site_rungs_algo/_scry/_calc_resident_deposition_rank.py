@@ -1,66 +1,41 @@
-from .....pylib import hanoi
+import opytional as opyt
+
 from ._impl import (
     calc_rank_of_deposited_hanoi_value,
-    get_reservation_index_elimination_rank,
-    iter_candidate_hanoi_occupants,
-    iter_candidate_reservation_indices,
+    calc_resident_hanoi_context,
 )
 
 
 def calc_resident_deposition_rank(
     site: int, surface_size: int, num_depositions: int
 ) -> int:
+    """When `num_depositions` deposition cycles have elapsed, what is the
+    deposition rank of the stratum resident at site `site`?
 
-    if num_depositions == 0:
-        return 0
+    Somewhat (conceptually) inverse to `pick_deposition_site`.
 
-    rank = num_depositions - 1
-
-    for candidate_hanoi_value, candidate_reservation_index in zip(
-        iter_candidate_hanoi_occupants(site, rank),
-        iter_candidate_reservation_indices(site, surface_size, rank),
-    ):
-        deadline_rank = get_reservation_index_elimination_rank(
-            candidate_hanoi_value,
-            candidate_reservation_index,
+    Returns 0 if the resident stratum traces back to original randomization of
+    the surface prior to any algorithm-determined stratum depositions.
+    """
+    resident_hanoi_context = calc_resident_hanoi_context(
+        site, surface_size, num_depositions
+    )
+    # candidate_hanoi_value is the hanoi value associated with the
+    # deposition resident at site
+    # ... use this information to deduce the rank at which the resident
+    # deposition at site was deposited
+    res = opyt.apply_if_or_value(
+        resident_hanoi_context,
+        lambda context: calc_rank_of_deposited_hanoi_value(
+            context["hanoi value"],
+            context["reservation index"],
             surface_size,
-        )
-        if deadline_rank is None:
-            continue  # could this be a break?
-
-        assert deadline_rank, {
-            "candidate_hanoi_value": candidate_hanoi_value,
-            "candidate_reservation_index": candidate_reservation_index,
-            "rank": rank,
-            "site": site,
-            "surface_size": surface_size,
-        }
-
-        focal_rank = min(rank, deadline_rank - 1)
-        assert focal_rank <= rank
-
-        hanoi_count = hanoi.get_incidence_count_of_hanoi_value_through_index(
-            candidate_hanoi_value,
-            focal_rank,
-        )
-        if hanoi_count > candidate_reservation_index:
-            res = calc_rank_of_deposited_hanoi_value(
-                candidate_hanoi_value,
-                candidate_reservation_index,
-                surface_size,
-                focal_rank,
-            )
-            assert res <= rank, {
-                "candidate_hanoi_value": candidate_hanoi_value,
-                "candidate_reservation_index": candidate_reservation_index,
-                "deadline_rank": deadline_rank,
-                "focal_rank": focal_rank,
-                "hanoi_count": hanoi_count,
-                "rank": rank,
-                "res": res,
-                "site": site,
-                "surface_size": surface_size,
-            }
-            return res
-
-    return 0
+            context["focal rank"],
+        ),
+        0,  # fallback value: no algorithm deposition at site yet
+    )
+    if num_depositions:
+        assert res < num_depositions
+    else:
+        assert res == 0
+    return res

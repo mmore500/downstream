@@ -7,4 +7,5 @@ def get_hanoi_value_incidence_at_index(n: int) -> int:
     Assumes zero-indexing convention. See `get_hanoi_value_at_index` for notes
     on zero-based variant of Hanoi sequence used.
     """
-    return n // 2 ** (get_hanoi_value_at_index(n) + 1)
+    # equiv to n // 2 ** (get_hanoi_value_at_index(n) + 1)
+    return n >> (get_hanoi_value_at_index(n) + 1)

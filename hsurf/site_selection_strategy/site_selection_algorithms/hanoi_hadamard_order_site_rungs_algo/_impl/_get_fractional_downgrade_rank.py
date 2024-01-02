@@ -3,7 +3,7 @@ import typing
 
 from deprecated.sphinx import deprecated
 
-from .....pylib import calc_dyadic_lcm_upper_bound, hanoi
+from .....pylib import calc_dyadic_lcm_upper_bound, fast_pow2_mod, hanoi
 from ._get_safe_downgrade_rank import get_safe_downgrade_rank
 
 
@@ -14,9 +14,14 @@ from ._get_safe_downgrade_rank import get_safe_downgrade_rank
 def get_fractional_downgrade_rank(
     hanoi_value: int,
     surface_size: int,
-    rank: int,
     fractional_downgrade_state: typing.Dict,
 ) -> int:
+    """At what rank should reservations provided drop down to the next-lower
+    rung (i.e., decrease by one) under the fractional incrementation mode?
+
+    Manages timing to ensure "safe" transitions so that the oldest values are
+    contained within dropped incidence reservation buffer positions.
+    """
     state = fractional_downgrade_state
 
     cadence = hanoi.get_hanoi_value_index_cadence(hanoi_value)
@@ -35,10 +40,10 @@ def get_fractional_downgrade_rank(
     cycle_num_ranks = big_tour_time
     required_cycle_rank_position = 0
 
-    assert required_cycle_rank_position % cadence == 0
+    assert fast_pow2_mod(required_cycle_rank_position, cadence) == 0
     assert required_cycle_rank_position < cycle_num_ranks
     required_lag = (state["tour size"] - state["next subtrahend"]) * cadence
-    assert required_lag % cadence == 0
+    assert fast_pow2_mod(required_lag, cadence) == 0
     res = get_safe_downgrade_rank(
         cycle_num_ranks=cycle_num_ranks,
         required_cycle_rank_position=required_cycle_rank_position,

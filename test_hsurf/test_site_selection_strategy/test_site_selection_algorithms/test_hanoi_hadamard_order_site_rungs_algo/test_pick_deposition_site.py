@@ -31,7 +31,7 @@ def test_pick_deposition_site_hanoi_value_overwrite_order(
             algo._impl.get_surface_rank_capacity(surface_size) - 1,
         ),
     )
-    assert res is None, res
+    assert res is None, str(res)
 
 
 @pytest.mark.parametrize("surface_size", [2**exp for exp in range(2, 12)])
@@ -52,4 +52,4 @@ def test_pick_deposition_site_incidence_reservation_drop_order(
             algo._impl.get_surface_rank_capacity(surface_size) - 1,
         ),
     )
-    assert res is None, res
+    assert res is None, str(res)
