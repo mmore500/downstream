@@ -14,5 +14,5 @@ def iter_hanoi_invader_values(hanoi_value: int) -> typing.Iterator[int]:
     Note that this sequence is independent of `surface_size`.
     """
     for i in it.count():
-        # (1 >> i) equiv 2**i
+        # (1 << i) equiv 2**i
         yield hanoi_value + bit_ceil(hanoi_value + 1) * (1 << i)
