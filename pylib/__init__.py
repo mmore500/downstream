@@ -10,6 +10,7 @@ from . import (
 )
 from .Literal import Literal
 from .bit_ceil import bit_ceil
+from .bit_count_immediate_zeros import bit_count_immediate_zeros
 from .bit_decode_gray import bit_decode_gray
 from .bit_drop_msb import bit_drop_msb
 from .bit_encode_gray import bit_encode_gray
@@ -30,6 +31,7 @@ from .tee_release import tee_release
 
 __all__ = [
     "bit_ceil",
+    "bit_count_immediate_zeros",
     "bit_drop_msb",
     "bit_decode_gray",
     "bit_encode_gray",
