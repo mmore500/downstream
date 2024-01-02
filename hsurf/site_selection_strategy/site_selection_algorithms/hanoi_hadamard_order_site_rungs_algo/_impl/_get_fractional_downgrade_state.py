@@ -19,7 +19,10 @@ from ._iter_hanoi_invader_values import iter_hanoi_invader_values
     version="0.0.0",
 )
 def get_fractional_downgrade_state(
-    hanoi_value: int, surface_size: int, rank: int, granule_size_: int = 1,
+    hanoi_value: int,
+    surface_size: int,
+    rank: int,
+    granule_size_: int = 1,
 ) -> typing.Optional[typing.Dict]:
     """Dispatches fractional reservation buffer degradation (i.e., dropping
     incidence reservation ring buffer slots less than half at a time).
@@ -190,9 +193,8 @@ def get_fractional_downgrade_state(
     # fractional downgrade eligiblity
     if granule_size != 1 and granule_size_ == 1:
         return get_fractional_downgrade_state(
-            hanoi_value, surface_size, rank, granule_size_ = granule_size
+            hanoi_value, surface_size, rank, granule_size_=granule_size
         )
-
 
     # PART III: DETERMINE CURRENT STAGE WITHIN FRACTIONAL DOWNGRADE PROCESS
     # ========================================================================

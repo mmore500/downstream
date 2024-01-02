@@ -5,7 +5,9 @@ from ._get_num_sites_reserved_per_incidence_at_rank import (
 from ._get_surface_rank_capacity import get_surface_rank_capacity
 
 
-def get_num_incidence_reservations_at_rank(rank: int, surface_size: int) -> int:
+def get_num_incidence_reservations_at_rank(
+    rank: int, surface_size: int
+) -> int:
     """How many incidence reservations are maintained, not taking into account
     any gradual dwindling associated with incrementation or fractional
     incrementation?

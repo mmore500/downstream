@@ -26,6 +26,7 @@ def has_hanoi_value_filled_first_reservation_layer(
         hanoi.get_incidence_count_of_hanoi_value_through_index(
             hanoi_value,
             rank,
-        ) + granule_size
+        )
+        + granule_size
         < first_layer_size + 1
     )
