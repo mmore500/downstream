@@ -1,6 +1,6 @@
 from deprecated.sphinx import deprecated
 
-from .....pylib import fast_pow2_divide, hanoi
+from .....pylib import fast_pow2_divide
 from ._get_regime_num_reservations_available import (
     get_regime_num_reservations_available,
 )

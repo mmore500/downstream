@@ -1,4 +1,4 @@
-from .....pylib import bit_ceil, fast_pow2_mod, hanoi
+from .....pylib import bit_ceil, hanoi
 from .....pylib import longevity_ordering_descending as hadamard_order
 from .._impl import get_num_reservations_provided, get_surface_rank_capacity
 

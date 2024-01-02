@@ -95,10 +95,6 @@ def get_reservation_index_elimination_rank(
         assert ansatz <= upper_bound_inclusive
         assert predicate(ansatz)
 
-        epoch_founding_hanoi_value = fast_pow2_divide(
-            surface_size,
-            2 * bit_ceil(reservation_index),
-        ) + hanoi_value
         lower_bound = hanoi.get_index_of_hanoi_value_nth_incidence(
             hanoi_value, 0
         )

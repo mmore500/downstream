@@ -1,13 +1,9 @@
 import typing
 
 from deprecated.sphinx import deprecated
-import opytional as opyt
 
 from ......pylib import hanoi
 from ..._impl import get_num_reservations_provided
-from ._calc_rank_of_deposited_hanoi_value import (
-    calc_rank_of_deposited_hanoi_value,
-)
 from ._get_reservation_index_elimination_rank import (
     get_reservation_index_elimination_rank,
 )
@@ -56,7 +52,6 @@ def calc_resident_hanoi_context(
         iter_candidate_reservation_indices(site, surface_size, rank),
     )
     for candidate_hanoi_value, candidate_reservation_index in candidate_zip:
-
         # focal rank: the very last possible time when a deposition of
         # candidate_hanoi_value could have been performed onto site
         # (at subsequent time points, that site is dropped from
