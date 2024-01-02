@@ -23,7 +23,7 @@ def get_regime_num_reservations_provided(
 
     Extends `get_regime_num_reservations_available` to time downgrading (i.e.,
     halving the incidence reservation buffer size) so that it occurs "safely"
-    when athe most recent deposition is at the last site that will be retained
+    when the most recent deposition is at the last site that will be retained
     after degradation (so the next deposition will be at semantic incidence
     reseration buffer position zero).
     """
