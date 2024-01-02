@@ -223,12 +223,8 @@ def test_calc_resident_deposition_rank_unit():
 
 @pytest.mark.parametrize(
     "surface_size",
-    [
-        2**x for x in range(2, 6)
-    ] + [
-        pytest.param(2**x, marks=pytest.mark.heavy)
-        for x in range(6, 11)
-    ],
+    [2**x for x in range(2, 6)]
+    + [pytest.param(2**x, marks=pytest.mark.heavy) for x in range(6, 11)],
 )
 @pytest.mark.parametrize(
     "num_generations_bidder",

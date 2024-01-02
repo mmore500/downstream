@@ -1,8 +1,8 @@
 import itertools as it
 
 import numpy as np
-import pylib
 
+import pylib
 
 # fmt: off
 # https://oeis.org/A290255
