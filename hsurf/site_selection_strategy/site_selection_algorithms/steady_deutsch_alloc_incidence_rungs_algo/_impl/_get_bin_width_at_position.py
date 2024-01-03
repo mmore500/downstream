@@ -1,3 +1,5 @@
+import itertools as it
+
 import interval_search as inch
 import opytional as opyt
 
@@ -7,12 +9,18 @@ from ._get_num_bins import get_num_bins
 
 
 def get_bin_width_at_position(position: int, surface_size: int) -> int:
-    return opyt.apply_if_or_value(
-        inch.binary_search(
-            lambda i: get_nth_bin_position(i + 1, surface_size) > position,
-            0,
-            get_num_bins(surface_size) - 2,
-        ),
-        lambda x: get_nth_bin_width(x, surface_size),
-        1,
-    )
+    # related https://oeis.org/A065120
+    first_bin_width = get_nth_bin_width(0, surface_size)
+
+    position -= first_bin_width
+    if position < 0:
+        return first_bin_width
+
+    for i in it.count(1):
+        bin_width = first_bin_width - i
+        bin_count = 1 << (i - 1)
+        position -= bin_width * bin_count
+        if position < 0:
+            return bin_width
+
+    return 1
