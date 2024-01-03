@@ -38,6 +38,9 @@ def test_pick_deposition_site_hanoi_value_overwrite_order(
     surface_hanoi_values = [-1] * surface_size
     for rank in range(num_generations):
         target_site = algo.pick_deposition_site(rank, surface_size)
+        if rank == 0:  # deal with special-casing the 0th deposition
+            continue
+        rank -= 1  # shift back to pretend like no special-case 0th deposition
         deposited_hanoi_value = get_hanoi_value_at_index(rank)
         deposited_hanoi_incidence = (
             get_incidence_count_of_hanoi_value_through_index(
