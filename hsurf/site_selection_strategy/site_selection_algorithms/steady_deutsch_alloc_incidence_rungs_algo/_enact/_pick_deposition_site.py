@@ -1,5 +1,7 @@
-from .....pylib.hanoi import get_hanoi_value_incidence_at_index
-from .....pylib.hanoi import get_hanoi_value_at_index
+from .....pylib.hanoi import (
+    get_hanoi_value_at_index,
+    get_hanoi_value_incidence_at_index,
+)
 from .._impl import get_nth_bin_position, get_nth_bin_width
 
 
