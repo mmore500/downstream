@@ -15,7 +15,7 @@ from hsurf.pylib.hanoi import (
         *range(300),
         *map(int, np.linspace(0, 2**62, 10**2, dtype=int)),
         *map(int, np.geomspace(1, 2**62, 10**2, dtype=int)),
-        *map(int, np.random.randint(0, 2**62, 10**2)),
+        *map(int, np.random.RandomState(seed=1).randint(0, 2**62, 10**2)),
     ],
 )
 def test_pick_deposition_site_smoke(surface_size: int, rank: int) -> int:
