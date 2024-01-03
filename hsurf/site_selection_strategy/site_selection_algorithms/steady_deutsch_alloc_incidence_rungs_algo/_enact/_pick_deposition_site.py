@@ -1,11 +1,10 @@
-from .....pylib import fast_pow2_mod
 from .....pylib.hanoi import (
     get_hanoi_value_at_index,
     get_hanoi_value_incidence_at_index,
-    get_incidence_count_of_hanoi_value_through_index,
-    get_max_hanoi_value_through_index,
     get_hanoi_value_index_offset,
+    get_incidence_count_of_hanoi_value_through_index,
     get_index_of_hanoi_value_next_incidence,
+    get_max_hanoi_value_through_index,
 )
 from .._impl import get_nth_bin_position, get_nth_bin_width
 
@@ -55,7 +54,9 @@ def pick_deposition_site(
         )
         next_active_rank = smallest_active_hanoi_rank
 
-        active_cadence = get_hanoi_value_index_offset(smallest_active_hanoi) + 1
+        active_cadence = (
+            get_hanoi_value_index_offset(smallest_active_hanoi) + 1
+        )
         assert active_cadence.bit_count() == 1  # expect power of 2
         if next_active_rank - rank > active_cadence:
             next_active_rank -= active_cadence

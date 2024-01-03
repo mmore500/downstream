@@ -8,7 +8,9 @@ from hsurf.site_selection_strategy.site_selection_algorithms.tilted_hadamard_ord
 
 @pytest.mark.parametrize("surface_size", [16, 32, 64])
 @pytest.mark.parametrize("rank", range(0, 2**10, 2**8 + 1))
-def test_iter_candidate_reservation_indices_smoke(surface_size: int, rank: int):
+def test_iter_candidate_reservation_indices_smoke(
+    surface_size: int, rank: int
+):
     for site in range(surface_size):
         # just a smoke test
         res = [*iter_candidate_reservation_indices(site, surface_size, rank)]

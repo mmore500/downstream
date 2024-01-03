@@ -5,7 +5,8 @@ from hsurf.site_selection_strategy.site_selection_algorithms.tilted_hadamard_ord
 
 def test_get_num_sites_reserved_per_incidence_at_rank():
     assert [
-        get_num_sites_reserved_per_incidence_at_rank(rank) for rank in range(17)
+        get_num_sites_reserved_per_incidence_at_rank(rank)
+        for rank in range(17)
     ] == [
         # hanoi sequence (1-based):
         1,  # 1,

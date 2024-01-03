@@ -1,4 +1,3 @@
-import numpy as np
 import pytest
 
 from hsurf.site_selection_strategy.site_selection_algorithms.steady_deutsch_alloc_incidence_rungs_algo._impl import (

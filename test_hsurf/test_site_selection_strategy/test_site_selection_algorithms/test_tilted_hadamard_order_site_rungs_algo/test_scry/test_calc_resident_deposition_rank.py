@@ -249,7 +249,9 @@ def test_calc_resident_deposition_rank_integration(
         target_site = algo.pick_deposition_site(rank, surface_size)
         surface_deposition_ranks[target_site] = rank
 
-        for site, actual_deposition_rank in enumerate(surface_deposition_ranks):
+        for site, actual_deposition_rank in enumerate(
+            surface_deposition_ranks
+        ):
             calculated_deposition_rank = algo.calc_resident_deposition_rank(
                 site,
                 surface_size,
