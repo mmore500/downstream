@@ -44,4 +44,20 @@ def get_bin_width_at_position(
     ansatz_position = get_nth_segment_position(ansatz_segment, surface_size)
     correction = position < ansatz_position
 
+    # test if member of https://oeis.org/A000295
+    # see also https://oeis.org/A083058 viz Robert G. Wilson v, Apr 19 2006
+    eligible_extra_correction = leading_ones == oeis.get_a083058_value_at_index(
+        A083058_index + 1
+    )
+    assert (
+        leading_ones >= 502  # only explicitly test up to 502
+        or (leading_ones in (1, 4, 11, 26, 57, 120, 247))
+        == eligible_extra_correction
+    )
+    if eligible_extra_correction:
+        assert ansatz_segment
+        correction += position < (
+            get_nth_segment_position(ansatz_segment - 1, surface_size)
+        )
+
     return ansatz_segment_from_end + 1 + correction
