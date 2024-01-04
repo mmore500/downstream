@@ -1,23 +1,39 @@
-import itertools as it
-
+from .....pylib import bit_count_leading_ones, oeis
 from ._get_nth_bin_width import get_nth_bin_width
+from ._get_nth_segment_position import get_nth_segment_position
+from ._get_num_positions import get_num_positions
+from ._get_num_segments import get_num_segments
 
 
-def get_bin_width_at_position(position: int, surface_size: int) -> int:
-    # related https://oeis.org/A065120
-    first_bin_width = get_nth_bin_width(0, surface_size)
+def get_bin_width_at_position(
+    position: int,
+    surface_size: int,
+) -> int:
+    position_from_end = get_num_positions(surface_size) - 1 - position
+    assert 0 <= position_from_end < get_num_positions(surface_size)
 
-    position -= first_bin_width
-    if position < 0:
-        return first_bin_width
+    # must special case....
+    # ... the 0th bin because the leading ones jump arbitrarily at very end
+    if position < get_nth_bin_width(0, surface_size):
+        return get_nth_bin_width(0, surface_size)
+    # ... the bins in the rear of the leading ones only become monotonic
+    # after reaching final order of magnitude, i.e., half the surface size
+    elif position_from_end.bit_length() < surface_size.bit_length() - 2:
+        return 1
+    elif position_from_end.bit_length() < surface_size.bit_length() - 1:
+        return 2
 
-    # reset after special-casing the zeroth bin
-    traversed = 0
-    for i in it.count(1):
-        bin_width = first_bin_width - i
-        bin_count = 1 << (i - 1)
-        traversed += bin_width * bin_count
-        if position < traversed:
-            return bin_width
+    leading_ones = bit_count_leading_ones(position_from_end)
+    A083058_index = oeis.get_a083058_index_of_value(leading_ones)
+    assert oeis.get_a083058_value_at_index(A083058_index) == leading_ones
+    assert oeis.get_a083058_value_at_index(A083058_index - 1) < leading_ones
+    assert oeis.get_a083058_value_at_index(A083058_index + 1) >= leading_ones
+    assert oeis.get_a083058_value_at_index(A083058_index + 2) > leading_ones
 
-    return 1
+    # this estimate is correct, or an underestimate
+    # never an overestimate
+    ansatz_segment_from_end = A083058_index - 2  # w/ -1 to convert to 0-indexed
+    assert 0 <= ansatz_segment_from_end
+    assert ansatz_segment_from_end < get_num_segments(surface_size)
+
+    return ansatz_segment_from_end + 1

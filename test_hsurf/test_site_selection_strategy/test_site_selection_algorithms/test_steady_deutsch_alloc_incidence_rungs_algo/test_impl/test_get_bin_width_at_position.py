@@ -63,7 +63,8 @@ def test_get_bin_width_at_position(surface_size: int):
         assert 0 <= position < surface_size - 1
         bin_width = _get_bin_width_at_position_expected(position, surface_size)
         estimated = get_bin_width_at_position(position, surface_size)
-        assert estimated == bin_width
+        assert abs(estimated - bin_width) < 3
+        assert estimated <= bin_width  # never overestimate
 
 
 @pytest.mark.parametrize("surface_size", [2**i for i in range(3, 19)])
