@@ -9,7 +9,7 @@ from hsurf.site_selection_strategy.site_selection_algorithms.steady_deutsch_allo
 
 
 @pytest.mark.parametrize("surface_size", [2**i for i in range(20)])
-def test_get_nth_bin_width(surface_size: int):
+def test_get_nth_bin_position(surface_size: int):
     bins = [
         get_nth_bin_width(n, surface_size)
         for n in range(get_num_bins(surface_size))
