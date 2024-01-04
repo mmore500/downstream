@@ -11,11 +11,13 @@ def get_bin_width_at_position(position: int, surface_size: int) -> int:
     if position < 0:
         return first_bin_width
 
+    # reset after special-casing the zeroth bin
+    traversed = 0
     for i in it.count(1):
         bin_width = first_bin_width - i
         bin_count = 1 << (i - 1)
-        position -= bin_width * bin_count
-        if position < 0:
+        traversed += bin_width * bin_count
+        if position < traversed:
             return bin_width
 
     return 1
