@@ -1,10 +1,13 @@
 from .....pylib import bit_floor
 
+from ._get_num_bins import get_num_bins
+
 
 def get_nth_bin_position(n: int, surface_size: int) -> int:
     # with bin positions distributed per get_nth_bin_width, how many positions
     # over does the nth bin start?
     # this is the sum of the widths of all bins before the nth bin
+    assert 0 <= n < get_num_bins(surface_size)
 
     if n == 0:
         return 0
