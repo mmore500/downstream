@@ -8,8 +8,8 @@ from ._get_num_segments import get_num_segments
 __all__ = [
     "get_bin_number_of_position",
     "get_bin_width_at_position",
-    "get_num_bins",
-    "get_num_segments",
     "get_nth_bin_position",
     "get_nth_bin_width",
+    "get_num_bins",
+    "get_num_segments",
 ]
