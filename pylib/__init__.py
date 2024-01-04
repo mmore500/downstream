@@ -15,6 +15,7 @@ from .bit_decode_gray import bit_decode_gray
 from .bit_drop_msb import bit_drop_msb
 from .bit_encode_gray import bit_encode_gray
 from .bit_floor import bit_floor
+from .bit_invert import bit_invert
 from .bit_reverse import bit_reverse
 from .calc_dyadic_lcm_upper_bound import calc_dyadic_lcm_upper_bound
 from .count_factors_of_2 import count_factors_of_2
@@ -37,6 +38,7 @@ __all__ = [
     "bit_count_immediate_zeros",
     "bit_drop_msb",
     "bit_decode_gray",
+    "bit_invert",
     "bit_encode_gray",
     "bit_floor",
     "bit_reverse",
