@@ -36,4 +36,12 @@ def get_bin_width_at_position(
     assert 0 <= ansatz_segment_from_end
     assert ansatz_segment_from_end < get_num_segments(surface_size)
 
-    return ansatz_segment_from_end + 1
+    ansatz_segment = (
+        get_num_segments(surface_size) - 1 - ansatz_segment_from_end
+    )
+    assert 1 <= ansatz_segment < get_num_segments(surface_size) - 1
+
+    ansatz_position = get_nth_segment_position(ansatz_segment, surface_size)
+    correction = position < ansatz_position
+
+    return ansatz_segment_from_end + 1 + correction
