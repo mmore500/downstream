@@ -22,12 +22,15 @@ def calc_resident_deposition_rank_wrt_bin(
 
     Implementation detail for scry algorithms.
     """
+    if num_depositions == 0:
+        return 0
+
     bin_width = get_nth_bin_width(bin_number, _surface_size)
     assert 0 <= within_bin_index < bin_width
 
     most_recent_bin_invader_hanoi_value = (
         get_min_hanoi_value_with_incidence_at_least(
-            bin_number, num_depositions - 2  # -1 for special case 0 offset
+            bin_number, num_depositions - 1
         )
     )
     if most_recent_bin_invader_hanoi_value is None:
@@ -66,11 +69,8 @@ def calc_resident_deposition_rank_wrt_bin(
         <= most_recent_bin_invader_hanoi_value
     )
     assert 0 <= bin_number < get_num_bins(_surface_size)
-    res = (
-        get_index_of_hanoi_value_nth_incidence(
-            most_recent_site_invader_hanoi_value, bin_number
-        )
-        + 1
-    )  # +1 adds offset for special-casing of zeroth entry
-    assert 1 <= res < num_depositions
+    res = get_index_of_hanoi_value_nth_incidence(
+        most_recent_site_invader_hanoi_value, bin_number
+    )
+    assert 0 <= res < num_depositions
     return res

@@ -14,10 +14,6 @@ def pick_deposition_site(
 ) -> int:
     assert surface_size.bit_count() == 1  # assume power of 2 surface size
 
-    if rank == 0:  # handle permanent deposition into site zero as special case
-        return 0
-    rank -= 1
-
     hanoi_value = get_hanoi_value_at_index(rank)
     hanoi_incidence = get_hanoi_value_incidence_at_index(rank)
 
@@ -66,7 +62,7 @@ def pick_deposition_site(
             get_hanoi_value_at_index(next_active_rank) >= smallest_active_hanoi
         )
         return pick_deposition_site(
-            next_active_rank + 1,  # undo shift down by one
+            next_active_rank,
             surface_size=surface_size,
             _recursion_depth=_recursion_depth + 1,
         )

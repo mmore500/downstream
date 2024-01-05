@@ -17,6 +17,9 @@ def calc_resident_deposition_rank(
     Returns 0 if the resident stratum traces back to original randomization of
     the surface prior to any algorithm-determined stratum depositions.
     """
+    if num_depositions == 0:
+        return 0
+
     # handle chaff
     if site == pick_deposition_site(num_depositions - 1, surface_size):
         return num_depositions - 1
