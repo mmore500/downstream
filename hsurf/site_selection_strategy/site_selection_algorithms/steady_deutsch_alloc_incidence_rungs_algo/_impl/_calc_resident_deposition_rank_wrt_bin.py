@@ -20,7 +20,10 @@ def calc_resident_deposition_rank_wrt_bin(
     Returns 0 if the resident stratum traces back to original randomization of
     the surface prior to any algorithm-determined stratum depositions.
 
-    Implementation detail for scry algorithms.
+    Implementation detail for scry algorithms. Note: does NOT take into account
+    "chaff" depositions, i.e., depositions placed onto the surface for expired
+    hanoi values using lookahead to the next site where a non-expired deposition
+    will be made.
     """
     if num_depositions == 0:
         return 0

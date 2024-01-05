@@ -20,7 +20,8 @@ def calc_resident_deposition_rank(
     if num_depositions == 0:
         return 0
 
-    # handle chaff
+    # handle chaff, a.k.a., depositions placed onto the surface for expired
+    # hanoi values using lookahead to next unexpired hanoi value
     if site == pick_deposition_site(num_depositions - 1, surface_size):
         return num_depositions - 1
 
