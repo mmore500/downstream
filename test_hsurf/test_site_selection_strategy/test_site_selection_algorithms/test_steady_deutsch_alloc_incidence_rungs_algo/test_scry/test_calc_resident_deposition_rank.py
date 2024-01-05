@@ -1,3 +1,4 @@
+import itertools as it
 import typing
 
 import pytest
@@ -27,19 +28,31 @@ def test_calc_resident_deposition_rank_integration(
     num_generations = num_generations_bidder(surface_size)
     surface_deposition_ranks = [0] * surface_size
     for rank in range(num_generations):
-        target_site = algo.pick_deposition_site(rank, surface_size)
-        surface_deposition_ranks[target_site] = rank
-
         for site, actual_deposition_rank in enumerate(surface_deposition_ranks):
             calculated_deposition_rank = algo.calc_resident_deposition_rank(
                 site,
                 surface_size,
-                rank + 1,
+                rank,
             )
             assert calculated_deposition_rank == actual_deposition_rank, {
                 "actual deposition rank": actual_deposition_rank,
                 "calculated deposition rank": calculated_deposition_rank,
-                "num depositions": rank + 1,
+                "num depositions": rank,
                 "rank": rank,
                 "site": site,
             }
+
+        assert all(
+            it.starmap(
+                int.__eq__,
+                zip(
+                    [*algo.iter_resident_deposition_ranks(surface_size, rank)],
+                    surface_deposition_ranks,
+                    strict=True,
+                ),
+            )
+        )
+
+        # update surface
+        target_site = algo.pick_deposition_site(rank, surface_size)
+        surface_deposition_ranks[target_site] = rank
