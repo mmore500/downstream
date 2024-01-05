@@ -5,6 +5,7 @@ from hsurf.site_selection_strategy.site_selection_algorithms.steady_deutsch_allo
     get_nth_bin_position,
     get_nth_bin_width,
     get_num_bins,
+    get_num_positions,
 )
 
 
@@ -19,5 +20,7 @@ def test_get_nth_bin_position(surface_size: int):
         *np.cumsum(bins),
     ] == [  # calculate expected positions from widths
         get_nth_bin_position(n, surface_size)
-        for n in range(get_num_bins(surface_size) + 1)
+        for n in range(get_num_bins(surface_size))
+    ] + [
+        get_num_positions(surface_size)
     ]
