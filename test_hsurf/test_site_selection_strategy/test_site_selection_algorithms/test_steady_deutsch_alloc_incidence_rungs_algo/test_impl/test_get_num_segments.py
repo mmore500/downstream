@@ -16,6 +16,7 @@ def test_get_num_segments(surface_size: int):
 
     num_positions = surface_size - 1
     segments = set(
-        get_bin_width_at_position(i, surface_size) for i in range(num_positions)
+        get_bin_width_at_position(i, surface_size)
+        for i in range(num_positions)
     )
     assert len(segments) == get_num_segments(surface_size)

@@ -2,7 +2,6 @@ import interval_search as inch
 import opytional as opyt
 import pytest
 
-from pylib import oeis
 from hsurf.site_selection_strategy.site_selection_algorithms.steady_deutsch_alloc_incidence_rungs_algo._impl import (
     get_bin_width_at_position,
     get_nth_bin_position,

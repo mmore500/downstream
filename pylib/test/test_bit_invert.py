@@ -1,6 +1,6 @@
-from pylib import bit_invert
-
 import pytest
+
+from pylib import bit_invert
 
 
 @pytest.mark.parametrize(

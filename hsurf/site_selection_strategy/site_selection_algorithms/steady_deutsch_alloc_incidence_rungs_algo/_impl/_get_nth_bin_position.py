@@ -1,5 +1,4 @@
 from .....pylib import bit_floor
-
 from ._get_num_bins import get_num_bins
 
 
