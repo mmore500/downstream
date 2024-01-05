@@ -1,10 +1,11 @@
 import itertools as it
 import typing
 
-from ._get_nth_bin_width import get_nth_bin_width
+from ._get_nth_segment_width import (
+    get_nth_segment_bin_count,
+    get_nth_segment_bin_width,
+)
 from ._get_num_segments import get_num_segments
-from ._get_nth_segment_width import get_nth_segment_bin_count
-from ._get_nth_segment_width import get_nth_segment_bin_width
 
 
 def iter_bin_coords(

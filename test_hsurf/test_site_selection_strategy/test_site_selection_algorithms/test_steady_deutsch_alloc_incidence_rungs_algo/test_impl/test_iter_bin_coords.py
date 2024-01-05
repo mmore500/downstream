@@ -3,10 +3,10 @@ import itertools as it
 import pytest
 
 from hsurf.site_selection_strategy.site_selection_algorithms.steady_deutsch_alloc_incidence_rungs_algo._impl import (
-    iter_bin_coords,
-    get_bin_offset_at_position,
     get_bin_number_of_position,
+    get_bin_offset_at_position,
     get_num_positions,
+    iter_bin_coords,
 )
 
 
