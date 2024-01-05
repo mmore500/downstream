@@ -1,13 +1,15 @@
 from . import (
-    hanoi_cooltuk_order_term_rungs_algo,
-    hanoi_grundy_order_incidence_rungs_algo,
-    hanoi_grundy_order_term_rungs_algo,
-    hanoi_hadamard_order_site_rungs_algo,
+    steady_deutsch_alloc_incidence_rungs_algo,
+    tilted_cooltuk_order_term_rungs_algo,
+    tilted_grundy_order_incidence_rungs_algo,
+    tilted_grundy_order_term_rungs_algo,
+    tilted_hadamard_order_site_rungs_algo,
 )
 
 __all__ = [
-    "hanoi_cooltuk_order_term_rungs_algo",
-    "hanoi_grundy_order_incidence_rungs_algo",
-    "hanoi_grundy_order_term_rungs_algo",
-    "hanoi_hadamard_order_site_rungs_algo",
+    "steady_deutsch_alloc_incidence_rungs_algo",
+    "tilted_cooltuk_order_term_rungs_algo",
+    "tilted_grundy_order_incidence_rungs_algo",
+    "tilted_grundy_order_term_rungs_algo",
+    "tilted_hadamard_order_site_rungs_algo",
 ]

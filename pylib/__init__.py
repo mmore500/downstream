@@ -11,10 +11,12 @@ from . import (
 from .Literal import Literal
 from .bit_ceil import bit_ceil
 from .bit_count_immediate_zeros import bit_count_immediate_zeros
+from .bit_count_leading_ones import bit_count_leading_ones
 from .bit_decode_gray import bit_decode_gray
 from .bit_drop_msb import bit_drop_msb
 from .bit_encode_gray import bit_encode_gray
 from .bit_floor import bit_floor
+from .bit_invert import bit_invert
 from .bit_reverse import bit_reverse
 from .calc_dyadic_lcm_upper_bound import calc_dyadic_lcm_upper_bound
 from .count_factors_of_2 import count_factors_of_2
@@ -35,8 +37,10 @@ from .tee_release import tee_release
 __all__ = [
     "bit_ceil",
     "bit_count_immediate_zeros",
+    "bit_count_leading_ones",
     "bit_drop_msb",
     "bit_decode_gray",
+    "bit_invert",
     "bit_encode_gray",
     "bit_floor",
     "bit_reverse",
