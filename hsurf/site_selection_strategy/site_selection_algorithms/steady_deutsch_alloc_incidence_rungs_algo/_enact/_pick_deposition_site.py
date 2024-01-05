@@ -13,6 +13,8 @@ def pick_deposition_site(
     rank: int, surface_size: int, _recursion_depth: bool = 0
 ) -> int:
     assert surface_size.bit_count() == 1  # assume power of 2 surface size
+    # because 0 is special-cased for preservation...
+    assert surface_size > 1  # ... need at least somewhere to put depositions
 
     hanoi_value = get_hanoi_value_at_index(rank)
     hanoi_incidence = get_hanoi_value_incidence_at_index(rank)

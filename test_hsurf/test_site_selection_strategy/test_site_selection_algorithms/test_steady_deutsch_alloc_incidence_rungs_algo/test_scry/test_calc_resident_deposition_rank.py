@@ -7,7 +7,7 @@ from hsurf.hsurf import steady_deutsch_alloc_incidence_rungs_algo as algo
 
 @pytest.mark.parametrize(
     "surface_size",
-    [2**x for x in range(2, 10)]
+    [2**x for x in range(1, 10)]
     + [pytest.param(2**x, marks=pytest.mark.heavy) for x in range(6, 11)],
 )
 @pytest.mark.parametrize(
