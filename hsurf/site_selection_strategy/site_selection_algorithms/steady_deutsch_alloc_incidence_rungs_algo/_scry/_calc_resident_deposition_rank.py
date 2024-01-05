@@ -1,13 +1,8 @@
-from .....pylib.hanoi import (
-    get_index_of_hanoi_value_nth_incidence,
-    get_min_hanoi_value_with_incidence_at_least,
-)
 from .._enact import pick_deposition_site
 from .._impl import (
+    calc_resident_deposition_rank_wrt_bin,
     get_bin_number_of_position,
     get_nth_bin_position,
-    get_nth_bin_width,
-    get_num_bins,
 )
 
 
@@ -31,56 +26,8 @@ def calc_resident_deposition_rank(
     site -= 1  # handle special-cased position zero
 
     bin_number = get_bin_number_of_position(site, surface_size)
-    bin_width = get_nth_bin_width(bin_number, surface_size)
     within_bin_index = site - get_nth_bin_position(bin_number, surface_size)
-    assert 0 <= within_bin_index < bin_width
 
-    most_recent_bin_invader_hanoi_value = (
-        get_min_hanoi_value_with_incidence_at_least(
-            bin_number, num_depositions - 2  # -1 for special case 0 offset
-        )
+    return calc_resident_deposition_rank_wrt_bin(
+        bin_number, within_bin_index, num_depositions, surface_size
     )
-    if most_recent_bin_invader_hanoi_value is None:
-        return 0
-
-    _most_recent_bin_invader_hanoi_value_bin_index = (
-        most_recent_bin_invader_hanoi_value % bin_width
-    )
-    _most_recent_bin_root_invader_hanoi_value = (
-        most_recent_bin_invader_hanoi_value
-        - _most_recent_bin_invader_hanoi_value_bin_index
-    )
-    assert (
-        _most_recent_bin_root_invader_hanoi_value
-        <= most_recent_bin_invader_hanoi_value
-    )
-    assert (
-        most_recent_bin_invader_hanoi_value
-        - _most_recent_bin_root_invader_hanoi_value
-        < bin_width
-    )
-    most_recent_site_invader_hanoi_value = (
-        (most_recent_bin_invader_hanoi_value - within_bin_index)
-        - (most_recent_bin_invader_hanoi_value - within_bin_index) % bin_width
-    ) + within_bin_index
-    if most_recent_site_invader_hanoi_value < 0:
-        return 0
-    assert (
-        most_recent_bin_invader_hanoi_value - bin_width
-        < _most_recent_bin_root_invader_hanoi_value
-        <= most_recent_bin_invader_hanoi_value
-    )
-    assert most_recent_site_invader_hanoi_value % bin_width == within_bin_index
-    assert (
-        most_recent_site_invader_hanoi_value
-        <= most_recent_bin_invader_hanoi_value
-    )
-    assert 0 <= bin_number < get_num_bins(surface_size)
-    res = (
-        get_index_of_hanoi_value_nth_incidence(
-            most_recent_site_invader_hanoi_value, bin_number
-        )
-        + 1
-    )  # +1 adds offset for special-casing of zeroth entry
-    assert 1 <= res < num_depositions
-    return res
