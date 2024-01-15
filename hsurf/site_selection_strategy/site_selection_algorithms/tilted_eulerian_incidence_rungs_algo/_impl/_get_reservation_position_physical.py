@@ -1,0 +1,20 @@
+from .....pylib import oeis
+
+
+def get_reservation_position_physical(
+    reservation: int, surface_size: int
+) -> int:
+    """Return the zeroth site of the given reservation, indexed in physical
+    order at rank 0."""
+    assert surface_size.bit_count() == 1  # power of 2
+    assert 0 <= reservation < surface_size // 2
+
+    if reservation == 0:  # special case
+        return 0
+
+    base = 2 * reservation
+
+    last_reservation = (surface_size << 1) - 1
+    offset = oeis.get_a048881_value_at_index(last_reservation - reservation)
+
+    return base + offset - 2
