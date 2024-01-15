@@ -15,7 +15,7 @@ def _expected8(rank: int) -> int:
         return 1
 
 
-def test_get_global_epoch8():
+def test_get_global_num_reservations8():
     surface_size = 8
     for rank in range(2**8):
         assert get_global_num_reservations(rank, surface_size) == _expected8(
@@ -34,7 +34,7 @@ def _expected16(rank: int) -> int:
         return 1
 
 
-def test_get_global_epoch16():
+def test_get_global_num_reservations16():
     surface_size = 16
     for rank in range(2**16):
         assert get_global_num_reservations(rank, surface_size) == _expected16(
@@ -55,7 +55,7 @@ def _expected32(rank: int) -> int:
         return 1
 
 
-def test_get_global_epoch32():
+def test_get_global_num_reservations32():
     surface_size = 32
     for rank in range(2**16):
         assert get_global_num_reservations(rank, surface_size) == _expected32(
@@ -84,7 +84,7 @@ def _expected64(rank: int) -> int:
         return 1
 
 
-def test_get_global_epoch64():
+def test_get_global_num_reservations64():
     surface_size = 64
     for rank in range(2**16):
         assert get_global_num_reservations(rank, surface_size) == _expected64(
