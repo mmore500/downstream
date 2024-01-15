@@ -1,5 +1,8 @@
 from .....pylib import fast_pow2_mod, hanoi
-from .._impl import get_hanoi_num_reservations, get_reservation_position_logical
+from .._impl import (
+    get_hanoi_num_reservations,
+    get_reservation_position_logical,
+)
 
 
 def pick_deposition_site(
