@@ -21,7 +21,8 @@ def apply_pseudo_linear_yticks(ax: mpl_axes.Axes) -> mpl_axes.Axes:
     labels = [label.get_text() for label in ax.get_yticklabels()]
 
     # Create a dictionary from ticks and labels.
-    # This will automatically remove duplicates because keys in a dictionary must be unique.
+    # This will automatically remove duplicates because keys in a dictionary
+    # must be unique.
     unique_ticks_and_labels = dict(reversed([*zip(labels, ticks)]))
     assert len(unique_ticks_and_labels) < len(labels)
 
