@@ -6,7 +6,6 @@ from ._get_reservation_position_physical import (
     get_reservation_position_physical,
 )
 
-
 __all__ = [
     "get_global_epoch",
     "get_global_num_reservations",
