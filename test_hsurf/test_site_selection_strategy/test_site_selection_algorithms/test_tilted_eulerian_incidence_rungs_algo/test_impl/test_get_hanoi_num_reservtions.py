@@ -12,15 +12,24 @@ def test_get_hanoi_num_reservations8():
     for rank in range(2**8):
         hnr = get_hanoi_num_reservations(rank, surface_size)
         gnr = get_global_num_reservations(rank, surface_size)
-        assert hnr in (gnr, gnr * 2)
+        assert hnr.bit_count() == 1
+        assert hnr <= gnr * 2
 
     for rank in range(7):
         assert hanoi.get_max_hanoi_value_through_index(rank) <= 2
-        assert get_hanoi_num_reservations(rank, surface_size) == 4
+        if hanoi.get_hanoi_value_at_index(rank) == 0:
+            assert get_hanoi_num_reservations(rank, surface_size) == 4
+        elif hanoi.get_hanoi_value_at_index(rank) == 1:
+            assert get_hanoi_num_reservations(rank, surface_size) == 2
+        else:
+            assert get_hanoi_num_reservations(rank, surface_size) == 1
 
     for rank in range(7, 15):
         assert hanoi.get_max_hanoi_value_through_index(rank) == 3
-        assert get_hanoi_num_reservations(rank, surface_size) == 2
+        if hanoi.get_hanoi_value_at_index(rank) in (0, 1, 2):
+            assert get_hanoi_num_reservations(rank, surface_size) == 2
+        else:
+            assert get_hanoi_num_reservations(rank, surface_size) == 1
 
     for rank in range(15, 31):
         assert hanoi.get_max_hanoi_value_through_index(rank) == 4
@@ -46,7 +55,8 @@ def test_get_hanoi_num_reservations16():
     for rank in range(2**16):
         hnr = get_hanoi_num_reservations(rank, surface_size)
         gnr = get_global_num_reservations(rank, surface_size)
-        assert hnr in (gnr, gnr * 2)
+        assert hnr.bit_count() == 1
+        assert hnr <= gnr * 2
 
 
 def test_get_hanoi_num_reservations32():
@@ -54,13 +64,15 @@ def test_get_hanoi_num_reservations32():
     for rank in range(2**16):
         hnr = get_hanoi_num_reservations(rank, surface_size)
         gnr = get_global_num_reservations(rank, surface_size)
-        assert hnr in (gnr, gnr * 2)
+        assert hnr.bit_count() == 1
+        assert hnr <= gnr * 2
 
     for rank in np.random.randint(0, 2**32, size=10000):
         rank = int(rank)
         hnr = get_hanoi_num_reservations(rank, surface_size)
         gnr = get_global_num_reservations(rank, surface_size)
-        assert hnr in (gnr, gnr * 2)
+        assert hnr.bit_count() == 1
+        assert hnr <= gnr * 2
 
 
 def test_get_hanoi_num_reservations64():
@@ -68,10 +80,12 @@ def test_get_hanoi_num_reservations64():
     for rank in range(2**16):
         hnr = get_hanoi_num_reservations(rank, surface_size)
         gnr = get_global_num_reservations(rank, surface_size)
-        assert hnr in (gnr, gnr * 2)
+        assert hnr.bit_count() == 1
+        assert hnr <= gnr * 2
 
     for rank in np.random.randint(0, 2**63, size=10000):  # signed precision
         rank = int(rank)
         hnr = get_hanoi_num_reservations(rank, surface_size)
         gnr = get_global_num_reservations(rank, surface_size)
-        assert hnr in (gnr, gnr * 2)
+        assert hnr.bit_count() == 1
+        assert hnr <= gnr * 2
