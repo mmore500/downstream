@@ -3,42 +3,42 @@ from hsurf.site_selection_strategy.site_selection_algorithms.tilted_eulerian_inc
 )
 
 expected8 = [
-    6,  # 0*
-    5,  # 1
+    4,  # 0
+    1,  # 1
     3,  # 2
-    2,  # 3*
-    4,  # 4
-    1,  # 5
+    2,  # 3
+    6,  # 4
+    5,  # 5
     0,  # 6
     3,  # 7
     4,  # 8
-    5,  # 9
+    1,  # 9
     0,  # 10
-    2,  # 11*
+    6,  # 11
     4,  # 12
-    1,  # 13
+    5,  # 13
     0,  # 14
     4,  # 15
     0,  # 16
-    5,  # 17
+    1,  # 17
     0,  # 18
-    6,  # 19*
+    2,  # 19
     0,  # 20
-    1,  # 21
+    5,  # 21
     0,  # 22
     3,  # 23
     0,  # 24
-    5,  # 25
+    1,  # 25
     0,  # 26
-    2,  # 27*
+    6,  # 27
     0,  # 28
-    1,  # 29
+    5,  # 29
     0,  # 30
     5,  # 31
     0,  # 32
     1,  # 33
     0,  # 34
-    6,  # 35*
+    2,  # 35
     0,  # 36
     1,  # 37
     0,  # 38
@@ -46,7 +46,7 @@ expected8 = [
     0,  # 40
     1,  # 41
     0,  # 42
-    2,  # 43*
+    6,  # 43
     0,  # 44
     1,  # 45
     0,  # 46
@@ -54,7 +54,7 @@ expected8 = [
     0,  # 48
     1,  # 49
     0,  # 50
-    6,  # 51*
+    2,  # 51
     0,  # 52
     1,  # 53
     0,  # 54
@@ -62,7 +62,7 @@ expected8 = [
     0,  # 56
     1,  # 57
     0,  # 58
-    2,  # 59*
+    6,  # 59
     0,  # 60
     1,  # 61
     0,  # 62
@@ -135,5 +135,47 @@ expected8 = [
 
 def test_pick_deposition_site8():
     surface_size = 8
-    for rank in range(127):
+    for rank in range(len(expected8)):
         assert pick_deposition_site(rank, surface_size) == expected8[rank]
+
+
+expected16 = [
+    8,  # 0
+    1,  # 1
+    5,  # 2
+    2,  # 3
+    12,  # 4
+    9,  # 5
+    4,  # 6
+    3,  # 7
+    7,  # 8
+    6,  # 9
+    11,  # 10
+    10,  # 11
+    14,  # 12
+    13,  # 13
+    0,  # 14
+    4,  # 15
+    8,  # 16
+    1,  # 17
+    5,  # 18
+    7,  # 19
+    12,  # 20
+    9,  # 21
+    0,  # 22
+    11,  # 23
+    8,  # 24
+    6,  # 25
+    5,  # 26
+    14,  # 27
+    12,  # 28
+    13,  # 29
+    0,  # 30
+    5,  # 31
+]
+
+
+def test_pick_deposition_site16():
+    surface_size = 16
+    for rank in range(len(expected16)):
+        assert pick_deposition_site(rank, surface_size) == expected16[rank]
