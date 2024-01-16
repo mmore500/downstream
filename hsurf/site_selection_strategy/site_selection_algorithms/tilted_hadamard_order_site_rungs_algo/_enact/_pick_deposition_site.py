@@ -1,9 +1,18 @@
+import warnings
+
 from .....pylib import bit_ceil, hanoi
 from .....pylib import longevity_ordering_descending as hadamard_order
 from .._impl import get_num_reservations_provided, get_surface_rank_capacity
 
 
 def pick_deposition_site(rank: int, surface_size: int) -> int:
+    warnings.warn(
+        "This implementation is known flawed, "
+        "see https://github.com/mmore500/hstrat-surface-concept/issues/5 "
+        "and https://github.com/mmore500/hstrat-surface-concept/pull/6. "
+        "Prefer alternate 'eulerian' tilted implementation."
+    )
+
     if rank > get_surface_rank_capacity(surface_size):
         raise ValueError(
             f"{surface_size}-bit surface only valid "
