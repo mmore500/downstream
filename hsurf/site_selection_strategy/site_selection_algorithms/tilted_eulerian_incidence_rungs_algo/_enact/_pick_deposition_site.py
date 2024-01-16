@@ -31,22 +31,17 @@ def pick_deposition_site(
 
     incidence = hanoi.get_hanoi_value_incidence_at_index(rank)
     hanoi_value = hanoi.get_hanoi_value_at_index(rank)
-    hanoi0_correction = hanoi_value == 0
-    # special correction for size 8 surface
-    # necessary, but why?
-    if surface_size == 8:
-        hanoi1_correction = hanoi_value == 1
-        # special case prevent overflow... simpler than tightening
-        # get_hanoi_num_reservations
-        hanoi1_correction *= -(rank == 5) or 1
-    else:
-        hanoi1_correction = 0
-    reservation = fast_pow2_mod(
-        incidence + hanoi0_correction + hanoi1_correction, num_reservations
-    )
+
+    reservation = fast_pow2_mod(incidence, num_reservations)
     res = (
         get_reservation_position_logical(reservation, surface_size)
         + hanoi_value
     )
-    assert 0 <= res < surface_size - 1  # empty site at the end
+
+    # make first reservation one site longer, to fix elimination order with
+    # layering (i.e., delays invasion so that oldest values for a hanoi value
+    # are invaded into
+    if res > hanoi.get_max_hanoi_value_through_index(rank):
+        res += 1
+    assert 0 <= res < surface_size
     return res
