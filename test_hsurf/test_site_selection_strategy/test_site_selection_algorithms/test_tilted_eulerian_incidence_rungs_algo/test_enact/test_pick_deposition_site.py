@@ -6,9 +6,8 @@ from hsurf.site_selection_strategy.site_selection_algorithms.tilted_eulerian_inc
 from hsurf.site_selection_strategy.site_selection_algorithms.tilted_eulerian_incidence_rungs_algo._impl import (
     get_hanoi_num_reservations,
 )
-from pylib.site_selection_eval import make_surface_history_df
 from pylib import hanoi
-
+from pylib.site_selection_eval import make_surface_history_df
 
 expected8 = [
     0,  # 0:0
