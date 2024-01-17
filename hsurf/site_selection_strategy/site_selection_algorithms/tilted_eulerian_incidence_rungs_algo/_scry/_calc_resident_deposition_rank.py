@@ -97,6 +97,25 @@ def _handle_nonstale_case(site, rank, surface_size, hanoi_value):
             return res
 
 
+def _handle_stale_case(site, rank, surface_size, hanoi_value, _recursion_depth):
+    # if invaded, go back to right before invasion
+    epoch = get_global_epoch(rank, surface_size)
+    invasion_rank = calc_hanoi_invasion_rank(hanoi_value, epoch, surface_size)
+    if invasion_rank <= rank:
+        return calc_resident_deposition_rank(
+            site,
+            surface_size,
+            invasion_rank,  # +1/-1 cancel out
+            _recursion_depth + 1,
+        )
+
+    while rank and pick_deposition_site(rank, surface_size) != site:
+        rank -= 1
+
+    assert bool(site) == bool(rank)
+    return rank
+
+
 def calc_resident_deposition_rank(
     site: int,
     surface_size: int,
@@ -132,25 +151,10 @@ def calc_resident_deposition_rank(
     elif actual_hanoi_value == 0 and rank < surface_size - 1:
         # not yet deposited to case
         return 0
-
-    # if invaded, go back to right before invasion
-    epoch = get_global_epoch(rank, surface_size)
-    invasion_rank = calc_hanoi_invasion_rank(
-        actual_hanoi_value, epoch, surface_size
-    )
-    if invasion_rank <= rank:
-        return calc_resident_deposition_rank(
-            site,
-            surface_size,
-            invasion_rank,  # +1/-1 cancel out
-            _recursion_depth + 1,
+    else:
+        return _handle_stale_case(
+            site, rank, surface_size, actual_hanoi_value, _recursion_depth
         )
-
-    while rank and pick_deposition_site(rank, surface_size) != site:
-        rank -= 1
-
-    assert bool(site) == bool(rank)
-    return rank
 
 
 #     if num_depositions == 0:
