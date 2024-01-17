@@ -24,4 +24,4 @@ def get_site_reservation_index_physical(
 
     ansatz = get_site_genesis_reservation_index_physical(site, surface_size)
     epoch = get_global_epoch(rank, surface_size)
-    return fast_pow2_divide(ansatz, epoch + 1)
+    return fast_pow2_divide(ansatz, 1 << epoch)  # equiv 2 ** epoch
