@@ -14,6 +14,9 @@ def get_site_reservation_index_physical(
     """Get the physical index of the site's reservation at rank r.
 
     Physical in the sense of as laid out on the surface from left to right.
+
+    Does not take into account incidence-level runging (i.e., sweep over time
+    as new reservation grows).
     """
     assert surface_size.bit_count() == 1  # power of 2
     assert 0 <= site < surface_size
