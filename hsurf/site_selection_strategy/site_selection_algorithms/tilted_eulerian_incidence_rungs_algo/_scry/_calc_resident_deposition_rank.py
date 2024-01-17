@@ -135,6 +135,19 @@ def calc_resident_deposition_rank(
     elif actual_hanoi_value == 0 and rank < surface_size - 1:
         return 0
 
+    # if invaded, go back to right before invasion
+    epoch = get_global_epoch(rank, surface_size)
+    invasion_rank = calc_hanoi_invasion_rank(
+        actual_hanoi_value, epoch, surface_size
+    )
+    if invasion_rank <= rank:
+        return calc_resident_deposition_rank(
+            site,
+            surface_size,
+            invasion_rank,  # +1/-1 cancel out
+            _recursion_depth + 1,
+        )
+
     while rank and pick_deposition_site(rank, surface_size) != site:
         rank -= 1
 
