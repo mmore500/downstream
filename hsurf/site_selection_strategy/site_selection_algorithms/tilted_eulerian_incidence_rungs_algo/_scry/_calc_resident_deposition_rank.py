@@ -109,6 +109,17 @@ def _handle_stale_case(site, rank, surface_size, hanoi_value, _recursion_depth):
             _recursion_depth + 1,
         )
 
+    reservation = get_site_reservation_index_logical(site, rank, surface_size)
+    cehc = _get_cur_epoch_hanoi_count(hanoi_value, rank, surface_size)
+    if cehc <= reservation:
+        assert epoch
+        return calc_resident_deposition_rank(
+            site,
+            surface_size,
+            get_epoch_rank(epoch, surface_size),  # +1/-1 cancel out
+            _recursion_depth + 1,
+        )
+
     while rank and pick_deposition_site(rank, surface_size) != site:
         rank -= 1
 
