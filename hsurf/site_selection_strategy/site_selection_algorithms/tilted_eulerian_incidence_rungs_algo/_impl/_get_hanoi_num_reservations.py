@@ -1,3 +1,5 @@
+import typing
+
 from .....pylib import hanoi
 from ._get_global_epoch import get_global_epoch
 from ._get_global_num_reservations import get_global_num_reservations
@@ -6,7 +8,9 @@ from ._get_reservation_position_physical import (
 )
 
 
-def get_hanoi_num_reservations(rank: int, surface_size: int) -> int:
+def get_hanoi_num_reservations(
+    rank: int, surface_size: int, hanoi_value: typing.Optional[int] = None
+) -> int:
     """Return the number of reservations remaining at the given rank.
 
     Either the current global-level reservation count, or double it if the
@@ -17,7 +21,8 @@ def get_hanoi_num_reservations(rank: int, surface_size: int) -> int:
     if epoch == 0:
         return grc
 
-    hanoi_value = hanoi.get_hanoi_value_at_index(rank)
+    if hanoi_value is None:
+        hanoi_value = hanoi.get_hanoi_value_at_index(rank)
     max_uninvaded = (1 << epoch) - 2  # 0, 2, 6, 14, ...
     assert max_uninvaded >= 0
     if hanoi_value > max_uninvaded:
