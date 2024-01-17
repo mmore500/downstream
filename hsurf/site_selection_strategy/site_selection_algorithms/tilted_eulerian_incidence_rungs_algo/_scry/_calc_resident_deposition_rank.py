@@ -111,14 +111,13 @@ def calc_resident_deposition_rank(
         # )
         res = _finalize(actual_hanoi_value, reservation, num_reservations, rank)
         assert res < num_depositions
-        if pick_deposition_site(res, surface_size) == site:
+
+        cehc = _get_cur_epoch_hanoi_count(
+            actual_hanoi_value, rank, surface_size
+        )
+        if cehc > reservation:
             return res
         else:
-            cehc = _get_cur_epoch_hanoi_count(
-                actual_hanoi_value, rank, surface_size
-            )
-            assert cehc <= reservation
-
             while rank and pick_deposition_site(rank, surface_size) != site:
                 rank -= 1
             return rank
