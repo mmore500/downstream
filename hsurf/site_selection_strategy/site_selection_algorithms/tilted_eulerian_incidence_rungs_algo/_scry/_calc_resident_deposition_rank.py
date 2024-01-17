@@ -132,6 +132,8 @@ def calc_resident_deposition_rank(
                 return _finalize(
                     actual_hanoi_value, reservation, num_reservations, rank
                 )
+            else:
+                return res
             # while rank and pick_deposition_site(rank, surface_size) != site:
             #     rank -= 1
             # return rank
