@@ -14,6 +14,40 @@ from .._impl import (
 )
 
 
+def _finalize(
+    hanoi_value,
+    reservation,
+    num_reservations,
+    rank,
+):
+    assert reservation < num_reservations
+
+    incidence_seen = (
+        hanoi.get_incidence_count_of_hanoi_value_through_index(
+            hanoi_value, rank
+        )
+        - 1
+    )
+    assert incidence_seen >= 0
+
+    if incidence_seen < reservation:
+        return 0
+
+    site_incidence = (
+        incidence_seen
+        - fast_pow2_mod(incidence_seen, num_reservations)
+        + reservation
+    )
+    if site_incidence > incidence_seen:
+        site_incidence -= reservation
+    assert 0 <= site_incidence
+    assert site_incidence <= incidence_seen
+    res = hanoi.get_index_of_hanoi_value_nth_incidence(
+        hanoi_value, site_incidence
+    )
+    return res
+
+
 def calc_resident_deposition_rank(
     site: int,
     surface_size: int,
@@ -51,42 +85,14 @@ def calc_resident_deposition_rank(
         # assert num_reservations == get_hanoi_num_reservations(
         #     rank, surface_size, hanoi_value=actual_hanoi_value
         # )
-        incidence_seen = (
-            hanoi.get_incidence_count_of_hanoi_value_through_index(
-                actual_hanoi_value, rank
-            )
-            - 1
-        )
-        assert incidence_seen >= 0
-
-        if incidence_seen < reservation:
-            return 0
-
-        site_incidence = (
-            incidence_seen
-            - fast_pow2_mod(incidence_seen, num_reservations)
-            + reservation
-        )
-        if site_incidence > incidence_seen:
-            site_incidence -= reservation
-        assert 0 <= site_incidence
-        assert site_incidence <= incidence_seen
-        # print(
-        #     f"{site=}",
-        #     f"{rank=}",
-        #     f"{reservation=}",
-        #     f"{num_reservations=}",
-        #     f"{incidence_seen=}",
-        #     f"{actual_hanoi_value=}",
-        #     f"{_recursion_depth=}",
-        # )
-        res = hanoi.get_index_of_hanoi_value_nth_incidence(
-            actual_hanoi_value, site_incidence
-        )
+        res = _finalize(actual_hanoi_value, reservation, num_reservations, rank)
         assert res < num_depositions
         if pick_deposition_site(res, surface_size) == site:
             return res
         else:
+            while rank and pick_deposition_site(rank, surface_size) != site:
+                rank -= 1
+            return rank
             pass
             # epoch = get_global_epoch(rank, surface_size)
             # assert epoch
