@@ -1,3 +1,4 @@
+from ._calc_hanoi_invasion_rank import calc_hanoi_invasion_rank
 from ._calc_invading_hanoi_value import calc_invading_hanoi_value
 from ._calc_resident_hanoi_value import calc_resident_hanoi_value
 from ._get_epoch_rank import get_epoch_rank
@@ -22,6 +23,7 @@ from ._get_site_reservation_index_physical import (
 )
 
 __all__ = [
+    "calc_hanoi_invasion_rank",
     "calc_invading_hanoi_value",
     "calc_resident_hanoi_value",
     "get_epoch_rank",
