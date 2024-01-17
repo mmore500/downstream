@@ -38,10 +38,11 @@ def calc_resident_deposition_rank(
     actual_hanoi_value = calc_resident_hanoi_value(
         site, surface_size, num_depositions
     )
-
-    if actual_hanoi_value == get_site_hanoi_value_assigned(
+    assigned_hanoi_value = get_site_hanoi_value_assigned(
         site, rank, surface_size
-    ):
+    )
+
+    if actual_hanoi_value == assigned_hanoi_value:
         reservation = get_site_reservation_index_logical(
             site, rank, surface_size
         )
@@ -97,6 +98,9 @@ def calc_resident_deposition_rank(
             #     epoch_rank,  # +1/-1 cancel
             #     _recursion_depth + 1,
             # )
+
+    elif actual_hanoi_value == 0 and rank < surface_size - 1:
+        return 0
 
     while rank and pick_deposition_site(rank, surface_size) != site:
         rank -= 1
