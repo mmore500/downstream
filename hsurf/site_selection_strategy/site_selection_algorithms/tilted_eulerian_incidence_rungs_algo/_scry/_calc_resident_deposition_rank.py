@@ -45,6 +45,28 @@ def _finalize(
     res = hanoi.get_index_of_hanoi_value_nth_incidence(
         hanoi_value, site_incidence
     )
+
+    return res
+
+
+def _get_cur_epoch_hanoi_count(hanoi_value, rank, surface_size):
+    epoch = get_global_epoch(rank, surface_size)
+    epoch_rank = get_epoch_rank(epoch, surface_size)
+    assert epoch_rank <= rank
+
+    if epoch:
+        invasion_rank = calc_hanoi_invasion_rank(
+            hanoi_value, epoch, surface_size
+        )
+        if invasion_rank <= rank:
+            epoch_rank = invasion_rank
+
+    res = hanoi.get_incidence_count_of_hanoi_value_through_index(
+        hanoi_value, rank
+    ) - hanoi.get_incidence_count_of_hanoi_value_through_index(
+        hanoi_value, epoch_rank
+    )
+    assert res >= 0
     return res
 
 
@@ -80,7 +102,9 @@ def calc_resident_deposition_rank(
         reservation = get_site_reservation_index_logical(
             site, rank, surface_size
         )
-        num_reservations = get_global_num_reservations(rank, surface_size)
+        num_reservations = get_hanoi_num_reservations(
+            rank, surface_size, actual_hanoi_value
+        )
         assert reservation < num_reservations
         # assert num_reservations == get_hanoi_num_reservations(
         #     rank, surface_size, hanoi_value=actual_hanoi_value
@@ -90,6 +114,11 @@ def calc_resident_deposition_rank(
         if pick_deposition_site(res, surface_size) == site:
             return res
         else:
+            cehc = _get_cur_epoch_hanoi_count(
+                actual_hanoi_value, rank, surface_size
+            )
+            assert cehc <= reservation
+
             while rank and pick_deposition_site(rank, surface_size) != site:
                 rank -= 1
             return rank
