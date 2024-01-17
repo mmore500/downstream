@@ -8,6 +8,9 @@ from ._get_reservation_position_physical import (
 from ._get_site_genesis_reservation_index_physical import (
     get_site_genesis_reservation_index_physical,
 )
+from ._get_site_reservation_index_physical import (
+    get_site_reservation_index_physical,
+)
 
 __all__ = [
     "get_global_epoch",
@@ -16,4 +19,5 @@ __all__ = [
     "get_reservation_position_logical",
     "get_reservation_position_physical",
     "get_site_genesis_reservation_index_physical",
+    "get_site_reservation_index_physical",
 ]
