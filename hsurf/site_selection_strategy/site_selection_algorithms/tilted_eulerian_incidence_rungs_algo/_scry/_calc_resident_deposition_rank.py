@@ -74,6 +74,29 @@ def _get_cur_epoch_hanoi_count(hanoi_value, rank, surface_size):
     return res
 
 
+def _handle_nonstale_case(site, rank, surface_size, hanoi_value):
+    reservation = get_site_reservation_index_logical(site, rank, surface_size)
+    num_reservations = get_hanoi_num_reservations(
+        rank, surface_size, hanoi_value
+    )
+    assert reservation < num_reservations
+    res = _finalize(hanoi_value, reservation, num_reservations, rank)
+    assert res < rank + 1
+
+    cehc = _get_cur_epoch_hanoi_count(hanoi_value, rank, surface_size)
+    if cehc > reservation:
+        return res
+    else:
+        prev_epoch_rank = _get_epoch_rank(hanoi_value, rank, surface_size) - 1
+        if prev_epoch_rank >= 0:
+            num_reservations = get_hanoi_num_reservations(
+                prev_epoch_rank, surface_size, hanoi_value
+            )
+            return _finalize(hanoi_value, reservation, num_reservations, rank)
+        else:
+            return res
+
+
 def calc_resident_deposition_rank(
     site: int,
     surface_size: int,
@@ -103,36 +126,11 @@ def calc_resident_deposition_rank(
     )
 
     if actual_hanoi_value == assigned_hanoi_value:
-        reservation = get_site_reservation_index_logical(
-            site, rank, surface_size
+        return _handle_nonstale_case(
+            site, rank, surface_size, actual_hanoi_value
         )
-        num_reservations = get_hanoi_num_reservations(
-            rank, surface_size, actual_hanoi_value
-        )
-        assert reservation < num_reservations
-        res = _finalize(actual_hanoi_value, reservation, num_reservations, rank)
-        assert res < num_depositions
-
-        cehc = _get_cur_epoch_hanoi_count(
-            actual_hanoi_value, rank, surface_size
-        )
-        if cehc > reservation:
-            return res
-        else:
-            prev_epoch_rank = (
-                _get_epoch_rank(actual_hanoi_value, rank, surface_size) - 1
-            )
-            if prev_epoch_rank >= 0:
-                num_reservations = get_hanoi_num_reservations(
-                    prev_epoch_rank, surface_size, actual_hanoi_value
-                )
-                return _finalize(
-                    actual_hanoi_value, reservation, num_reservations, rank
-                )
-            else:
-                return res
-
     elif actual_hanoi_value == 0 and rank < surface_size - 1:
+        # not yet deposited to case
         return 0
 
     # if invaded, go back to right before invasion
