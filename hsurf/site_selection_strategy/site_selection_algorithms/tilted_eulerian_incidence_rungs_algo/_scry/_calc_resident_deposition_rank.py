@@ -110,9 +110,6 @@ def calc_resident_deposition_rank(
             rank, surface_size, actual_hanoi_value
         )
         assert reservation < num_reservations
-        # assert num_reservations == get_hanoi_num_reservations(
-        #     rank, surface_size, hanoi_value=actual_hanoi_value
-        # )
         res = _finalize(actual_hanoi_value, reservation, num_reservations, rank)
         assert res < num_depositions
 
@@ -134,20 +131,6 @@ def calc_resident_deposition_rank(
                 )
             else:
                 return res
-            # while rank and pick_deposition_site(rank, surface_size) != site:
-            #     rank -= 1
-            # return rank
-            # pass
-            # epoch = get_global_epoch(rank, surface_size)
-            # assert epoch
-            # epoch_rank = get_epoch_rank(epoch, surface_size)
-            # assert 0 < epoch_rank <= rank
-            # return calc_resident_deposition_rank(
-            #     site,
-            #     surface_size,
-            #     epoch_rank,  # +1/-1 cancel
-            #     _recursion_depth + 1,
-            # )
 
     elif actual_hanoi_value == 0 and rank < surface_size - 1:
         return 0
