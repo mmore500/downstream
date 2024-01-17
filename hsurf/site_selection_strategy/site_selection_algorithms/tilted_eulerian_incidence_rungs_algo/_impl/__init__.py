@@ -1,3 +1,4 @@
+from ._get_epoch_rank import get_epoch_rank
 from ._get_global_epoch import get_global_epoch
 from ._get_global_num_reservations import get_global_num_reservations
 from ._get_hanoi_num_reservations import get_hanoi_num_reservations
@@ -19,6 +20,7 @@ from ._get_site_reservation_index_physical import (
 )
 
 __all__ = [
+    "get_epoch_rank",
     "get_global_epoch",
     "get_global_num_reservations",
     "get_hanoi_num_reservations",
