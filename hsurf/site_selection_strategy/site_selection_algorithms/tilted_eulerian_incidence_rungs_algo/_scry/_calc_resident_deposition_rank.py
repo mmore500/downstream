@@ -138,6 +138,7 @@ def calc_resident_deposition_rank(
     while rank and pick_deposition_site(rank, surface_size) != site:
         rank -= 1
 
+    assert bool(site) == bool(rank)
     return rank
 
 
