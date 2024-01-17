@@ -11,7 +11,8 @@ def pick_deposition_site(
 ) -> int:
     """Pick the deposition site on a surface for a given rank.
 
-    This function calculates a deposition site based on the rank and the surface size. It uses Hanoi tower algorithm and fast power of 2 modulo calculations to determine the specific site.
+    This function calculates a deposition site based on the rank and the
+    surface size.
 
     Parameters
     ----------
@@ -25,15 +26,23 @@ def pick_deposition_site(
     Returns
     -------
     int
-        Deposition site within surface..
+        Deposition site within surface.
     """
     num_reservations = get_hanoi_num_reservations(rank, surface_size)
+
     incidence = hanoi.get_hanoi_value_incidence_at_index(rank)
-    reservation = fast_pow2_mod(-incidence - 1, num_reservations)
     hanoi_value = hanoi.get_hanoi_value_at_index(rank)
+
+    reservation = fast_pow2_mod(incidence, num_reservations)
     res = (
         get_reservation_position_logical(reservation, surface_size)
         + hanoi_value
     )
+
+    # make first reservation one site longer, to fix elimination order with
+    # layering (i.e., delays invasion so that oldest values for a hanoi value
+    # are invaded into
+    if res > hanoi.get_max_hanoi_value_through_index(rank):
+        res += 1
     assert 0 <= res < surface_size
     return res

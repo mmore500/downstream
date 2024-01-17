@@ -33,7 +33,6 @@ class SurfaceHistoryToStratumRetentionPolicyShim:
             self._surface_history_df["rank"] == num_strata_deposited
         ]
         return (
-            rank
+            rank if rank != -1 else 0
             for rank in at_rank_df["deposition rank"].unique()
-            if rank != -1
         )
