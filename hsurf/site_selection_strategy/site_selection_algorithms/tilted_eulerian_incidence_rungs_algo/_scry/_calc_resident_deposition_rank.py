@@ -39,7 +39,7 @@ def _finalize(
         + reservation
     )
     if site_incidence > incidence_seen:
-        site_incidence -= reservation
+        site_incidence -= num_reservations
     assert 0 <= site_incidence
     assert site_incidence <= incidence_seen
     res = hanoi.get_index_of_hanoi_value_nth_incidence(
