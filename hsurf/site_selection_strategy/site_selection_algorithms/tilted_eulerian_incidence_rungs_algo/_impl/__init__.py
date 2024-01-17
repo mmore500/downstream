@@ -1,3 +1,4 @@
+from ._calc_resident_hanoi_value import calc_resident_hanoi_value
 from ._get_epoch_rank import get_epoch_rank
 from ._get_global_epoch import get_global_epoch
 from ._get_global_num_reservations import get_global_num_reservations
@@ -20,6 +21,7 @@ from ._get_site_reservation_index_physical import (
 )
 
 __all__ = [
+    "calc_resident_hanoi_value",
     "get_epoch_rank",
     "get_global_epoch",
     "get_global_num_reservations",
