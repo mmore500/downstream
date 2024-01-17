@@ -39,10 +39,5 @@ def pick_deposition_site(
         + hanoi_value
     )
 
-    # make first reservation one site longer, to fix elimination order with
-    # layering (i.e., delays invasion so that oldest values for a hanoi value
-    # are invaded into
-    if res > hanoi.get_max_hanoi_value_through_index(rank):
-        res += 1
     assert 0 <= res < surface_size
     return res

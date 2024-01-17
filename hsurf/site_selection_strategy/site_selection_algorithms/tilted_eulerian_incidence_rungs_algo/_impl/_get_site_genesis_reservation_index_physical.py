@@ -20,7 +20,11 @@ def get_site_genesis_reservation_index_physical(
     assert surface_size.bit_count() == 1  # power of 2
     assert 0 <= site < surface_size
 
-    r0_size = get_reservation_position_physical(1, surface_size)  # excl extra
+    r0_size = (
+        # -1 excludes extra slot in reservation 0
+        get_reservation_position_physical(1, surface_size)
+        - 1
+    )
     base_index = hanoi.get_hanoi_value_index_offset(r0_size)
     base_value = oeis.get_a005187_value_at_index(base_index)
 

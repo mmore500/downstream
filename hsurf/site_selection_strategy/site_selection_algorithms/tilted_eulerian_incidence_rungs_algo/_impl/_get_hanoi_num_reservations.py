@@ -27,7 +27,11 @@ def get_hanoi_num_reservations(rank: int, surface_size: int) -> int:
     assert epoch > 0
     idx = 1 << (epoch - 1)  # 1, 2, 4, 8, ...
     assert idx > 0
-    reservation0_begin = get_reservation_position_physical(idx, surface_size)
+    reservation0_begin = (
+        # -1 undoes correction for extra reservation 0 slot
+        get_reservation_position_physical(idx, surface_size)
+        - 1
+    )
     reservation0_progress = reservation0_at - reservation0_begin
     if hanoi_value <= reservation0_progress:
         return grc

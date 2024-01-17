@@ -17,4 +17,9 @@ def get_reservation_position_physical(
     last_reservation = (surface_size << 1) - 1
     offset = oeis.get_a048881_value_at_index(last_reservation - reservation)
 
-    return base + offset - 2
+    # make first reservation one site longer, to fix elimination order with
+    # layering (i.e., delays invasion so that oldest values for a hanoi value
+    # are invaded into
+    layering_correction = bool(reservation)
+
+    return base + offset - 2 + layering_correction
