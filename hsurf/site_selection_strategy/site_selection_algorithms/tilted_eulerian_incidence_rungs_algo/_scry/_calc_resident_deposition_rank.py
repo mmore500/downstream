@@ -122,10 +122,20 @@ def calc_resident_deposition_rank(
         if cehc > reservation:
             return res
         else:
-            while rank and pick_deposition_site(rank, surface_size) != site:
-                rank -= 1
-            return rank
-            pass
+            prev_epoch_rank = (
+                _get_epoch_rank(actual_hanoi_value, rank, surface_size) - 1
+            )
+            if prev_epoch_rank >= 0:
+                num_reservations = get_hanoi_num_reservations(
+                    prev_epoch_rank, surface_size, actual_hanoi_value
+                )
+                return _finalize(
+                    actual_hanoi_value, reservation, num_reservations, rank
+                )
+            # while rank and pick_deposition_site(rank, surface_size) != site:
+            #     rank -= 1
+            # return rank
+            # pass
             # epoch = get_global_epoch(rank, surface_size)
             # assert epoch
             # epoch_rank = get_epoch_rank(epoch, surface_size)
