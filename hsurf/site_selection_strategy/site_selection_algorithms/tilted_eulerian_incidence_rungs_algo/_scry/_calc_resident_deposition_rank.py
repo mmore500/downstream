@@ -49,7 +49,7 @@ def _finalize(
     return res
 
 
-def _get_cur_epoch_hanoi_count(hanoi_value, rank, surface_size):
+def _get_epoch_rank(hanoi_value, rank, surface_size):
     epoch = get_global_epoch(rank, surface_size)
     epoch_rank = get_epoch_rank(epoch, surface_size)
     assert epoch_rank <= rank
@@ -60,7 +60,11 @@ def _get_cur_epoch_hanoi_count(hanoi_value, rank, surface_size):
         )
         if invasion_rank <= rank:
             epoch_rank = invasion_rank
+    return epoch_rank
 
+
+def _get_cur_epoch_hanoi_count(hanoi_value, rank, surface_size):
+    epoch_rank = _get_epoch_rank(hanoi_value, rank, surface_size)
     res = hanoi.get_incidence_count_of_hanoi_value_through_index(
         hanoi_value, rank
     ) - hanoi.get_incidence_count_of_hanoi_value_through_index(
