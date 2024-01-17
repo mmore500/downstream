@@ -7,7 +7,7 @@ def get_reservation_position_physical(
     """Return the zeroth site of the given reservation, indexed in physical
     order at rank 0."""
     assert surface_size.bit_count() == 1  # power of 2
-    assert 0 <= reservation < surface_size // 2
+    assert 0 <= reservation < surface_size // 2 or surface_size <= 2
 
     if reservation == 0:  # special case
         return 0
