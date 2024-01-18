@@ -9,5 +9,5 @@ def get_a005187_index_of_value(n: int) -> int:
     return inch.binary_search(
         lambda x: get_a005187_value_at_index(x + 1) > n,
         n >> 1,
-        (n >> 1) + n.bit_length(),
+        (n >> 1) + n.bit_count(),
     )
