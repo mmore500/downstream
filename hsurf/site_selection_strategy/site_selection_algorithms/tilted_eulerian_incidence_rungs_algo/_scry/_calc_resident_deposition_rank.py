@@ -45,7 +45,7 @@ def _finalize(
     res = hanoi.get_index_of_hanoi_value_nth_incidence(
         hanoi_value, site_incidence
     )
-
+    assert 0 <= res <= rank
     return res
 
 
@@ -81,7 +81,6 @@ def _handle_nonstale_case(site, rank, surface_size, hanoi_value):
     )
     assert reservation < num_reservations
     res = _finalize(hanoi_value, reservation, num_reservations, rank)
-    assert res < rank + 1
 
     cehc = _get_cur_epoch_hanoi_count(hanoi_value, rank, surface_size)
     if cehc > reservation:
@@ -120,11 +119,23 @@ def _handle_stale_case(site, rank, surface_size, hanoi_value, _recursion_depth):
             _recursion_depth + 1,
         )
 
-    while rank and pick_deposition_site(rank, surface_size) != site:
-        rank -= 1
+    assert epoch
+    epoch_rank = get_epoch_rank(epoch, surface_size)
+    assert epoch_rank
+    prev_epoch_rank = epoch_rank - 1
+    assert get_global_epoch(prev_epoch_rank, surface_size) == epoch - 1
+    num_reservations = get_hanoi_num_reservations(
+        prev_epoch_rank, surface_size, hanoi_value
+    )
+    assert num_reservations == 2 * get_global_num_reservations(
+        rank, surface_size
+    )
+    reservation = get_site_reservation_index_logical(
+        site, prev_epoch_rank, surface_size
+    )
 
-    assert bool(site) == bool(rank)
-    return rank
+    assert reservation < num_reservations
+    return _finalize(hanoi_value, reservation, num_reservations, rank)
 
 
 def calc_resident_deposition_rank(
