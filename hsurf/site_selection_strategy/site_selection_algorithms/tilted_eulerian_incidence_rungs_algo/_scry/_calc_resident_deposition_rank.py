@@ -16,7 +16,7 @@ def calc_resident_deposition_rank(
     site: int,
     surface_size: int,
     num_depositions: int,
-    _recursion_depth: int = 0,
+    _recursion_depth: int = 0,  # for debugging only
 ) -> int:
     """When `num_depositions` deposition cycles have elapsed, what is the
     deposition rank of the stratum resident at site `site`?
@@ -38,6 +38,7 @@ def calc_resident_deposition_rank(
     if actual_hanoi_value == get_site_hanoi_value_assigned(
         site, rank, surface_size
     ):
+        # case where this epoch's invading hanoi value is already present
         return _calc_resident_rank_nonstale_case(
             site, rank, surface_size, actual_hanoi_value
         )
@@ -45,6 +46,7 @@ def calc_resident_deposition_rank(
         # not-yet-deposited-to case
         return 0
     else:
+        # case where this epoch's invading hanoi value is not yet present
         return _calc_resident_rank_stale_case(
             site, rank, surface_size, actual_hanoi_value, _recursion_depth
         )
@@ -68,38 +70,42 @@ def _calc_rank_from_incidence(
     )
     assert incidence_seen >= 0
 
-    if incidence_seen < reservation:
-        return 0
+    if incidence_seen < reservation:  # reservation has not yet been reached
+        return 0  # undeposited-into case
 
+    # find last incidence at reservation, modulo num_reservations
     site_incidence = (
         incidence_seen
         - fast_pow2_mod(incidence_seen, num_reservations)
         + reservation
     )
-    if site_incidence > incidence_seen:
+    if site_incidence > incidence_seen:  # if needed, trim back below num seen
         site_incidence -= num_reservations
     assert 0 <= site_incidence
     assert site_incidence <= incidence_seen
-    res = hanoi.get_index_of_hanoi_value_nth_incidence(
+
+    incidence_rank = hanoi.get_index_of_hanoi_value_nth_incidence(
         hanoi_value, site_incidence
     )
-    assert 0 <= res <= rank
-    return res
+    assert 0 <= incidence_rank <= rank
+    return incidence_rank
 
 
-def _get_epoch_rank(hanoi_value, rank, surface_size):
+def _get_epoch_rank_incl_invasion(hanoi_value, rank, surface_size):
     """Get rank of previous epoch, taking invasion of focal hanoi value
     also as an epoch transition."""
     epoch = get_global_epoch(rank, surface_size)
+    if epoch == 0:  # cannot he invaded during epoch 0
+        return 0
+
+    # handle invasion of focal hanoi value, if necessary
+    invasion_rank = calc_hanoi_invasion_rank(hanoi_value, epoch, surface_size)
+    if invasion_rank <= rank:
+        return invasion_rank
+
+    # usual epoch turnover case
     epoch_rank = get_epoch_rank(epoch, surface_size)
     assert epoch_rank <= rank
-
-    if epoch:
-        invasion_rank = calc_hanoi_invasion_rank(
-            hanoi_value, epoch, surface_size
-        )
-        if invasion_rank <= rank:
-            epoch_rank = invasion_rank
     return epoch_rank
 
 
@@ -108,14 +114,14 @@ def _get_cur_epoch_hanoi_count(
 ) -> int:
     """How many instances of the focal hanoi value have been deposited during
     the current epoch?"""
-    epoch_rank = _get_epoch_rank(hanoi_value, rank, surface_size)
-    res = hanoi.get_incidence_count_of_hanoi_value_through_index(
+    epoch_rank = _get_epoch_rank_incl_invasion(hanoi_value, rank, surface_size)
+    incidence_diff = hanoi.get_incidence_count_of_hanoi_value_through_index(
         hanoi_value, rank
     ) - hanoi.get_incidence_count_of_hanoi_value_through_index(
         hanoi_value, epoch_rank
     )
-    assert res >= 0
-    return res
+    assert incidence_diff >= 0
+    return incidence_diff
 
 
 def _calc_resident_rank_nonstale_case(
@@ -128,24 +134,21 @@ def _calc_resident_rank_nonstale_case(
         rank, surface_size, hanoi_value
     )
     assert reservation < num_reservations
-    naive_rank = _calc_rank_from_incidence(
-        hanoi_value, reservation, num_reservations, rank
-    )
 
     cehc = _get_cur_epoch_hanoi_count(hanoi_value, rank, surface_size)
-    if cehc > reservation:
-        return naive_rank
-
-    prev_epoch_rank = _get_epoch_rank(hanoi_value, rank, surface_size) - 1
-    if prev_epoch_rank >= 0:
+    prev_epoch_rank = (
+        _get_epoch_rank_incl_invasion(hanoi_value, rank, surface_size) - 1
+    )
+    if cehc <= reservation and prev_epoch_rank >= 0:
+        # hanoi value has not yet reached reservation in current epoch,
+        # set num_reservations as prev epoch
         num_reservations = get_hanoi_num_reservations(
             prev_epoch_rank, surface_size, hanoi_value
         )
-        return _calc_rank_from_incidence(
-            hanoi_value, reservation, num_reservations, rank
-        )
 
-    return naive_rank
+    return _calc_rank_from_incidence(
+        hanoi_value, reservation, num_reservations, rank
+    )
 
 
 def _calc_resident_rank_stale_case(
@@ -170,24 +173,27 @@ def _calc_resident_rank_stale_case(
             _recursion_depth + 1,
         )
 
+    # if haven't reached reservation during current epoch
     reservation = get_site_reservation_index_logical(site, rank, surface_size)
     cehc = _get_cur_epoch_hanoi_count(hanoi_value, rank, surface_size)
     if cehc <= reservation:
         assert epoch
-        return calc_resident_deposition_rank(
+        return calc_resident_deposition_rank(  # recurse to main func
             site,
             surface_size,
             get_epoch_rank(epoch, surface_size),  # +1/-1 cancel out
             _recursion_depth + 1,
         )
 
+    # naive case
     assert epoch
+    # because stale and not-yet-invaded, has doubled reservation count still
     num_reservations = 2 * get_global_num_reservations(rank, surface_size)
     reservation = get_site_reservation_index_logical_at_epoch(
-        site, epoch - 1, surface_size
+        site, epoch - 1, surface_size  # recurse to main func
     )
-
     assert reservation < num_reservations
+
     return _calc_rank_from_incidence(
         hanoi_value, reservation, num_reservations, rank
     )
