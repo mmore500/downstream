@@ -11,6 +11,7 @@ from .._impl import (
     get_reservation_position_physical,
     get_site_hanoi_value_assigned,
     get_site_reservation_index_logical,
+    get_site_reservation_index_logical_at_epoch,
 )
 
 
@@ -120,18 +121,9 @@ def _handle_stale_case(site, rank, surface_size, hanoi_value, _recursion_depth):
         )
 
     assert epoch
-    epoch_rank = get_epoch_rank(epoch, surface_size)
-    assert epoch_rank
-    prev_epoch_rank = epoch_rank - 1
-    assert get_global_epoch(prev_epoch_rank, surface_size) == epoch - 1
-    num_reservations = get_hanoi_num_reservations(
-        prev_epoch_rank, surface_size, hanoi_value
-    )
-    assert num_reservations == 2 * get_global_num_reservations(
-        rank, surface_size
-    )
-    reservation = get_site_reservation_index_logical(
-        site, prev_epoch_rank, surface_size
+    num_reservations = 2 * get_global_num_reservations(rank, surface_size)
+    reservation = get_site_reservation_index_logical_at_epoch(
+        site, epoch - 1, surface_size
     )
 
     assert reservation < num_reservations
