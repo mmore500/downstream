@@ -14,6 +14,4 @@ def get_a130654_value_at_index(n: int) -> int:
     assert rebased >= 0
     hanoi_value = get_hanoi_value_at_index(rebased)
     hanoi_incidence = get_hanoi_value_incidence_at_index(rebased)
-    ## TODO fix hack
-    hack = 2**100000
-    return min(hanoi_value + 1, (hanoi_incidence + hack).bit_count())
+    return min(hanoi_value, hanoi_incidence.bit_count()) + 1
