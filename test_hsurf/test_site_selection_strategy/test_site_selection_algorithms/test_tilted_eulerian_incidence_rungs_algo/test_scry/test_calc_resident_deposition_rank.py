@@ -1,3 +1,4 @@
+import itertools as it
 import typing
 
 import pytest
@@ -49,16 +50,16 @@ def test_calc_resident_deposition_rank_integration(
                 },
             )
 
-        # assert all(
-        #     it.starmap(
-        #         int.__eq__,
-        #         zip(
-        #             [*algo.iter_resident_deposition_ranks(surface_size, rank)],
-        #             surface_deposition_ranks,
-        #             strict=True,
-        #         ),
-        #     )
-        # )
+        assert all(
+            it.starmap(
+                int.__eq__,
+                zip(
+                    [*algo.iter_resident_deposition_ranks(surface_size, rank)],
+                    surface_deposition_ranks,
+                    strict=True,
+                ),
+            )
+        )
 
         # update surface
         target_site = algo.pick_deposition_site(rank, surface_size)
