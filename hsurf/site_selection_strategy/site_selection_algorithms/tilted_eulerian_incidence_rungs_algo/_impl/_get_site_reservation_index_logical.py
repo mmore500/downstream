@@ -1,5 +1,4 @@
 from .....pylib import longevity_ordering_naive as lon
-
 from ._get_global_epoch import get_global_epoch
 from ._get_global_num_reservations import get_global_num_reservations_at_epoch
 from ._get_site_reservation_index_physical import (

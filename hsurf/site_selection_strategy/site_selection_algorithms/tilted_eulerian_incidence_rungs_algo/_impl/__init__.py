@@ -12,12 +12,10 @@ from ._get_reservation_position_logical import get_reservation_position_logical
 from ._get_reservation_position_physical import (
     get_reservation_position_physical,
 )
-from ._get_site_hanoi_value_assigned import (
-    get_site_hanoi_value_assigned,
-)
 from ._get_site_genesis_reservation_index_physical import (
     get_site_genesis_reservation_index_physical,
 )
+from ._get_site_hanoi_value_assigned import get_site_hanoi_value_assigned
 from ._get_site_reservation_index_logical import (
     get_site_reservation_index_logical,
     get_site_reservation_index_logical_at_epoch,

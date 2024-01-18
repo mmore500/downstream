@@ -1,5 +1,4 @@
 from .....pylib import fast_pow2_divide
-
 from ._get_global_epoch import get_global_epoch
 from ._get_site_genesis_reservation_index_physical import (
     get_site_genesis_reservation_index_physical,

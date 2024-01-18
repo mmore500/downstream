@@ -1,4 +1,4 @@
-from .....pylib import hanoi, fast_pow2_mod
+from .....pylib import fast_pow2_mod, hanoi
 from .._impl import (
     calc_hanoi_invasion_rank,
     calc_resident_hanoi_value,

@@ -1,4 +1,4 @@
-from .....pylib import hanoi, fast_pow2_mod
+from .....pylib import fast_pow2_mod, hanoi
 from ._get_epoch_rank import get_epoch_rank
 from ._get_global_epoch import get_global_epoch
 from ._get_global_num_reservations import get_global_num_reservations
