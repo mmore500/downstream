@@ -3,8 +3,6 @@ import typing
 import pytest
 
 from hsurf.site_selection_strategy.site_selection_algorithms.tilted_eulerian_incidence_rungs_algo._impl import (
-    get_epoch_rank,
-    get_site_reservation_index_logical,
     get_site_reservation_index_logical_at_epoch,
 )
 
