@@ -1,6 +1,4 @@
-from ._get_reservation_position_logical import (
-    get_reservation_position_logical,
-)
+from ._get_reservation_position_logical import get_reservation_position_logical
 from ._get_site_reservation_index_logical import (
     get_site_reservation_index_logical,
 )

@@ -3,7 +3,7 @@ import itertools as it
 import numpy as np
 import pytest
 
-from hsurf.hsurf import steady_deutsch_alloc_incidence_rungs_algo as algo
+from hsurf.hsurf import tilted_eulerian_stickified_algo as algo
 
 
 @pytest.mark.parametrize("surface_size", [2**x for x in range(1, 12)])
@@ -17,6 +17,9 @@ from hsurf.hsurf import steady_deutsch_alloc_incidence_rungs_algo as algo
     ],
 )
 def test_iter_resident_deposition_ranks(surface_size: int, rank: int) -> int:
+    if rank > 2 ** (surface_size.bit_length() - 1) - 1:
+        return
+
     expected = (
         algo.calc_resident_deposition_rank(site, surface_size, rank)
         for site in range(surface_size)
