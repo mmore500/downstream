@@ -1,21 +1,29 @@
+import typing
+
 from .....pylib import fast_pow2_mod, hanoi
 from ._get_epoch_rank import get_epoch_rank
 from ._get_global_epoch import get_global_epoch
 from ._get_global_num_reservations import get_global_num_reservations
-from ._get_site_hanoi_value_assigned import get_site_hanoi_value_assigned
-from ._get_site_reservation_index_logical import (
-    get_site_reservation_index_logical,
+from ._get_grip_reservation_index_logical import (
+    get_grip_reservation_index_logical,
 )
+from ._get_site_genesis_reservation_index_physical import (
+    get_site_genesis_reservation_index_physical,
+)
+from ._get_site_hanoi_value_assigned import get_site_hanoi_value_assigned
 
 
 def calc_resident_hanoi_value(
     site: int,
     surface_size: int,
     num_depositions: int,
+    grip: typing.Optional[int] = None,
     _recursion_depth: int = 0,  # only for debugging/validation
 ) -> int:
     """When `num_depositions` deposition cycles have elapsed, what is the
     hanoi value of the stratum resident at site `site`?
+
+    "grip" stands for genesis reservation index physical of a site.
 
     Implementation detail for `calc_resident_deposition_rank`.
 
@@ -25,6 +33,9 @@ def calc_resident_hanoi_value(
 
     assert _recursion_depth <= 1  # should recurse at most once
 
+    if grip is None:
+        grip = get_site_genesis_reservation_index_physical(site, surface_size)
+
     if num_depositions == 0:
         return 0
     rank = num_depositions - 1
@@ -32,7 +43,7 @@ def calc_resident_hanoi_value(
     epoch_rank = get_epoch_rank(epoch, surface_size)
 
     num_reservations = get_global_num_reservations(rank, surface_size)
-    reservation = get_site_reservation_index_logical(site, rank, surface_size)
+    reservation = get_grip_reservation_index_logical(grip, rank, surface_size)
     ansatz_hanoi = get_site_hanoi_value_assigned(site, rank, surface_size)
     num_seen = hanoi.get_incidence_count_of_hanoi_value_through_index(
         ansatz_hanoi, rank
