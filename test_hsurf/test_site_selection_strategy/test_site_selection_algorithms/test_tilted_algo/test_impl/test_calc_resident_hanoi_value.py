@@ -3,11 +3,11 @@ import typing
 import pytest
 
 from hsurf.hsurf import tilted_algo as algo
+from hsurf.pylib import hanoi
 from hsurf.site_selection_strategy.site_selection_algorithms.tilted_algo._impl import (
     calc_resident_hanoi_value,
     get_site_genesis_reservation_index_physical,
 )
-from pylib import hanoi
 
 
 @pytest.mark.parametrize(

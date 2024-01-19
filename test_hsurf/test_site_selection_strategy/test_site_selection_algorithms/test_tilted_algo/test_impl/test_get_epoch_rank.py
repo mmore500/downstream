@@ -1,7 +1,7 @@
+from hsurf.pylib import get_hanoi_value_index_offset
 from hsurf.site_selection_strategy.site_selection_algorithms.tilted_algo._impl import (
     get_epoch_rank,
 )
-from pylib.hanoi import get_hanoi_value_index_offset
 
 
 def test_get_epoch_rank8():

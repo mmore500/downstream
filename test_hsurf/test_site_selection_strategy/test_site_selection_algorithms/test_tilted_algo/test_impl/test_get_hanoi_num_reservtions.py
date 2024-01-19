@@ -1,10 +1,10 @@
 import numpy as np
 
+from hsurf.pylib import hanoi
 from hsurf.site_selection_strategy.site_selection_algorithms.tilted_algo._impl import (
     get_global_num_reservations,
     get_hanoi_num_reservations,
 )
-from pylib import hanoi
 
 
 def test_get_hanoi_num_reservations8():

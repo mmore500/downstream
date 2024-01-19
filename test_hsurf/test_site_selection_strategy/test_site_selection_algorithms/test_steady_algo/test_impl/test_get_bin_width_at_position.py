@@ -2,6 +2,7 @@ import interval_search as inch
 import opytional as opyt
 import pytest
 
+from hsurf.pylib import bit_count_leading_ones, oeis
 from hsurf.site_selection_strategy.site_selection_algorithms.steady_algo._impl import (
     get_bin_width_at_position,
     get_nth_bin_position,
@@ -9,7 +10,6 @@ from hsurf.site_selection_strategy.site_selection_algorithms.steady_algo._impl i
     get_num_bins,
     get_num_positions,
 )
-from pylib import bit_count_leading_ones, oeis
 
 
 def _get_bin_number_of_position_expected(

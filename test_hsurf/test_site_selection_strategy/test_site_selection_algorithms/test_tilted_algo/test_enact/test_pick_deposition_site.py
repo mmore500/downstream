@@ -1,13 +1,13 @@
 import pytest
 
+from hsurf.pylib import hanoi
+from hsurf.pylib.site_selection_eval import make_surface_history_df
 from hsurf.site_selection_strategy.site_selection_algorithms.tilted_algo import (
     pick_deposition_site,
 )
 from hsurf.site_selection_strategy.site_selection_algorithms.tilted_algo._impl import (
     get_hanoi_num_reservations,
 )
-from pylib import hanoi
-from pylib.site_selection_eval import make_surface_history_df
 
 expected8 = [
     0,  # 0:0

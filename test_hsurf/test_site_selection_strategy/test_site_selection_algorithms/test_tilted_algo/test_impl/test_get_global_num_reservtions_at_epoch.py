@@ -1,10 +1,10 @@
 import numpy as np
 
+from hsurf.pylib.hanoi import get_hanoi_value_index_offset
 from hsurf.site_selection_strategy.site_selection_algorithms.tilted_algo._impl import (
     get_global_epoch,
     get_global_num_reservations_at_epoch,
 )
-from pylib.hanoi import get_hanoi_value_index_offset
 
 
 def _expected8(rank: int) -> int:
