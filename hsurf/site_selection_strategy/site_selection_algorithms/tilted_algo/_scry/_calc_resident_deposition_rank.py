@@ -26,7 +26,7 @@ def calc_resident_deposition_rank(
     deposition rank of the stratum resident at site `site`?
 
     "grip" stands for genesis reservation index physical of a site. This
-    argument may be passed optionally, as an optiimization --- i.e., when
+    argument may be passed optionally, as an optimization --- i.e., when
     calling via `iter_resident_deposition_ranks`.
 
     Somewhat (conceptually) inverse to `pick_deposition_site`.
