@@ -166,7 +166,7 @@ def _calc_resident_rank_stale_case(
     epoch = get_global_epoch(rank, surface_size)
     invasion_rank = calc_hanoi_invasion_rank(hanoi_value, epoch, surface_size)
     if invasion_rank <= rank:
-        return calc_resident_deposition_rank(
+        return calc_resident_deposition_rank(  # recurse to main func
             site,
             surface_size,
             invasion_rank,  # +1/-1 cancel out
@@ -190,7 +190,7 @@ def _calc_resident_rank_stale_case(
     # because stale and not-yet-invaded, has doubled reservation count still
     num_reservations = 2 * get_global_num_reservations(rank, surface_size)
     reservation = get_site_reservation_index_logical_at_epoch(
-        site, epoch - 1, surface_size  # recurse to main func
+        site, epoch - 1, surface_size
     )
     assert reservation < num_reservations
 
