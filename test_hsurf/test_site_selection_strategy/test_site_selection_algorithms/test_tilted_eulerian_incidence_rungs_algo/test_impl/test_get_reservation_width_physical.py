@@ -1,5 +1,3 @@
-import itertools as it
-
 from hsurf.site_selection_strategy.site_selection_algorithms.tilted_eulerian_incidence_rungs_algo._impl import (
     get_reservation_width_physical,
 )
