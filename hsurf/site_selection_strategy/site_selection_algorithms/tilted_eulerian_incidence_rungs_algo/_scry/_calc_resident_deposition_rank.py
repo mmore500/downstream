@@ -1,3 +1,5 @@
+import typing
+
 from .....pylib import fast_pow2_mod, hanoi
 from .._impl import (
     calc_hanoi_invasion_rank,
@@ -5,10 +7,11 @@ from .._impl import (
     get_epoch_rank,
     get_global_epoch,
     get_global_num_reservations,
+    get_grip_reservation_index_logical,
+    get_grip_reservation_index_logical_at_epoch,
     get_hanoi_num_reservations,
+    get_site_genesis_reservation_index_physical,
     get_site_hanoi_value_assigned,
-    get_site_reservation_index_logical,
-    get_site_reservation_index_logical_at_epoch,
 )
 
 
@@ -16,10 +19,15 @@ def calc_resident_deposition_rank(
     site: int,
     surface_size: int,
     num_depositions: int,
+    grip: typing.Optional[int] = None,
     _recursion_depth: int = 0,  # for debugging only
 ) -> int:
     """When `num_depositions` deposition cycles have elapsed, what is the
     deposition rank of the stratum resident at site `site`?
+
+    "grip" stands for genesis reservation index physical of a site. This
+    argument may be passed optionally, as an optiimization --- i.e., when
+    calling via `iter_resident_deposition_ranks`.
 
     Somewhat (conceptually) inverse to `pick_deposition_site`.
 
@@ -32,15 +40,18 @@ def calc_resident_deposition_rank(
         return 0
     rank = num_depositions - 1
 
+    if grip is None:
+        grip = get_site_genesis_reservation_index_physical(site, surface_size)
+
     actual_hanoi_value = calc_resident_hanoi_value(
-        site, surface_size, num_depositions
+        site, surface_size, num_depositions, grip=grip
     )
     if actual_hanoi_value == get_site_hanoi_value_assigned(
-        site, rank, surface_size
+        site, rank, surface_size, grip=grip
     ):
         # case where this epoch's invading hanoi value is already present
         return _calc_resident_rank_nonstale_case(
-            site, rank, surface_size, actual_hanoi_value
+            grip, rank, surface_size, actual_hanoi_value
         )
     elif actual_hanoi_value == 0 and rank < surface_size - 1:
         # not-yet-deposited-to case
@@ -48,7 +59,7 @@ def calc_resident_deposition_rank(
     else:
         # case where this epoch's invading hanoi value is not yet present
         return _calc_resident_rank_stale_case(
-            site, rank, surface_size, actual_hanoi_value, _recursion_depth
+            site, rank, surface_size, actual_hanoi_value, grip, _recursion_depth
         )
 
 
@@ -125,11 +136,11 @@ def _get_cur_epoch_hanoi_count(
 
 
 def _calc_resident_rank_nonstale_case(
-    site: int, rank: int, surface_size: int, hanoi_value: int
+    grip: int, rank: int, surface_size: int, hanoi_value: int
 ) -> int:
     """Implementation detial for case where ranks with this epoch's hanoi value
     are in place at site."""
-    reservation = get_site_reservation_index_logical(site, rank, surface_size)
+    reservation = get_grip_reservation_index_logical(grip, rank, surface_size)
     num_reservations = get_hanoi_num_reservations(
         rank, surface_size, hanoi_value
     )
@@ -156,6 +167,7 @@ def _calc_resident_rank_stale_case(
     rank: int,
     surface_size: int,
     hanoi_value: int,
+    grip: int,
     _recursion_depth: int,  # just for debugging
 ) -> int:
     """Implementation detial for case where ranks with this epoch's hanoi value
@@ -170,11 +182,16 @@ def _calc_resident_rank_stale_case(
             site,
             surface_size,
             invasion_rank,  # +1/-1 cancel out
-            _recursion_depth + 1,
+            grip=grip,
+            _recursion_depth=_recursion_depth + 1,
         )
 
     # if haven't reached reservation during current epoch
-    reservation = get_site_reservation_index_logical(site, rank, surface_size)
+    reservation = get_grip_reservation_index_logical(
+        grip,
+        rank,
+        surface_size,
+    )
     cehc = _get_cur_epoch_hanoi_count(hanoi_value, rank, surface_size)
     if cehc <= reservation:
         assert epoch
@@ -182,15 +199,16 @@ def _calc_resident_rank_stale_case(
             site,
             surface_size,
             get_epoch_rank(epoch, surface_size),  # +1/-1 cancel out
-            _recursion_depth + 1,
+            grip=grip,
+            _recursion_depth=_recursion_depth + 1,
         )
 
     # naive case
     assert epoch
     # because stale and not-yet-invaded, has doubled reservation count still
     num_reservations = 2 * get_global_num_reservations(rank, surface_size)
-    reservation = get_site_reservation_index_logical_at_epoch(
-        site, epoch - 1, surface_size
+    reservation = get_grip_reservation_index_logical_at_epoch(
+        grip, epoch - 1, surface_size
     )
     assert reservation < num_reservations
 
