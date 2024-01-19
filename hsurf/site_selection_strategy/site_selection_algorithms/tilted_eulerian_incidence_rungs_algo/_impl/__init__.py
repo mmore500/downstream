@@ -7,6 +7,14 @@ from ._get_global_num_reservations import (
     get_global_num_reservations,
     get_global_num_reservations_at_epoch,
 )
+from ._get_grip_reservation_index_logical import (
+    get_grip_reservation_index_logical,
+    get_grip_reservation_index_logical_at_epoch,
+)
+from ._get_grip_reservation_index_physical import (
+    get_grip_reservation_index_physical,
+    get_grip_reservation_index_physical_at_epoch,
+)
 from ._get_hanoi_num_reservations import get_hanoi_num_reservations
 from ._get_reservation_position_logical import get_reservation_position_logical
 from ._get_reservation_position_physical import (
@@ -33,6 +41,10 @@ __all__ = [
     "get_global_epoch",
     "get_global_num_reservations",
     "get_global_num_reservations_at_epoch",
+    "get_grip_reservation_index_logical",
+    "get_grip_reservation_index_logical_at_epoch",
+    "get_grip_reservation_index_physical",
+    "get_grip_reservation_index_physical_at_epoch",
     "get_hanoi_num_reservations",
     "get_reservation_position_logical",
     "get_reservation_position_physical",

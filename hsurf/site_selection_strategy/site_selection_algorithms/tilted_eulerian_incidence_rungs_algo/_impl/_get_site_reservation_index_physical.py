@@ -1,5 +1,7 @@
-from .....pylib import fast_pow2_divide
-from ._get_global_epoch import get_global_epoch
+from ._get_grip_reservation_index_physical import (
+    get_grip_reservation_index_physical,
+    get_grip_reservation_index_physical_at_epoch,
+)
 from ._get_site_genesis_reservation_index_physical import (
     get_site_genesis_reservation_index_physical,
 )
@@ -17,10 +19,8 @@ def get_site_reservation_index_physical(
     Does not take into account incidence-level runging (i.e., sweep over time
     as new reservation grows).
     """
-    epoch = get_global_epoch(rank, surface_size)
-    return get_site_reservation_index_physical_at_epoch(
-        site, epoch, surface_size
-    )
+    grip = get_site_genesis_reservation_index_physical(site, surface_size)
+    return get_grip_reservation_index_physical(grip, rank, surface_size)
 
 
 def get_site_reservation_index_physical_at_epoch(
@@ -35,9 +35,7 @@ def get_site_reservation_index_physical_at_epoch(
     Does not take into account incidence-level runging (i.e., sweep over time
     as new reservation grows).
     """
-    assert surface_size.bit_count() == 1  # power of 2
-    assert 0 <= site < surface_size
-    assert epoch >= 0
-
-    ansatz = get_site_genesis_reservation_index_physical(site, surface_size)
-    return fast_pow2_divide(ansatz, 1 << epoch)  # equiv 2 ** epoch
+    grip = get_site_genesis_reservation_index_physical(site, surface_size)
+    return get_grip_reservation_index_physical_at_epoch(
+        grip, epoch, surface_size
+    )
