@@ -1,5 +1,7 @@
+import itertools as it
 import typing
 
+from ..tilted_algo._impl import get_reservation_width_physical
 from ._calc_resident_deposition_rank import calc_resident_deposition_rank
 
 
@@ -16,6 +18,14 @@ def iter_resident_deposition_ranks(
 
     Somewhat (conceptually) inverse to `pick_deposition_site`.
     """
-    # naive implementation for now
-    for site in range(surface_size):
-        yield calc_resident_deposition_rank(site, surface_size, num_depositions)
+    num_reservations = surface_size >> 1
+
+    site_counter = it.count()
+    for reservation in range(num_reservations):
+        width = get_reservation_width_physical(reservation, surface_size)
+        for site in it.islice(site_counter, width):
+            yield calc_resident_deposition_rank(
+                site, surface_size, num_depositions, grip=reservation
+            )
+
+    assert next(site_counter) == surface_size
