@@ -4,6 +4,9 @@ import typing
 import pytest
 
 from hsurf.hsurf import tilted_sticky_algo as algo
+from hsurf.site_selection_strategy.site_selection_algorithms.tilted_algo._impl import (
+    get_site_genesis_reservation_index_physical,
+)
 
 
 @pytest.mark.parametrize(
@@ -21,9 +24,14 @@ from hsurf.hsurf import tilted_sticky_algo as algo
         ),
     ],
 )
+@pytest.mark.parametrize(
+    "get_grip",
+    [get_site_genesis_reservation_index_physical, lambda site, size: None],
+)
 def test_calc_resident_deposition_rank_integration(
     surface_size: int,
     num_generations_bidder: typing.Callable,
+    get_grip: typing.Callable,
 ):
     num_generations = min(
         num_generations_bidder(surface_size),
@@ -36,6 +44,7 @@ def test_calc_resident_deposition_rank_integration(
                 site,
                 surface_size,
                 rank,
+                grip=get_grip(site, surface_size),
             )
             assert calculated_deposition_rank == actual_deposition_rank, {
                 "actual deposition rank": actual_deposition_rank,
