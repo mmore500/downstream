@@ -4,6 +4,7 @@ import pytest
 
 from hsurf.site_selection_strategy.site_selection_algorithms.tilted_eulerian_incidence_rungs_algo._impl import (
     get_site_hanoi_value_assigned,
+    get_site_genesis_reservation_index_physical,
 )
 
 
@@ -15,14 +16,21 @@ from hsurf.site_selection_strategy.site_selection_algorithms.tilted_eulerian_inc
         [0, 1, 2, 0],
     ],
 )
+@pytest.mark.parametrize(
+    "get_grip",
+    [get_site_genesis_reservation_index_physical, lambda site, size: None],
+)
 def test_get_site_hanoi_value_assigned_epoch0(
-    expected: typing.List[int],
+    expected: typing.List[int], get_grip: typing.Callable
 ):
-    assert len(expected).bit_count() == 1  # power of 2
-    for rank in range(len(expected) - 1):
+    surface_size = len(expected)
+    assert surface_size.bit_count() == 1  # power of 2
+    for rank in range(surface_size - 1):
         actual = [
-            get_site_hanoi_value_assigned(site, rank, len(expected))
-            for site in range(len(expected))
+            get_site_hanoi_value_assigned(
+                site, rank, surface_size, grip=get_grip(site, surface_size)
+            )
+            for site in range(surface_size)
         ]
         assert expected == actual
 
@@ -35,13 +43,20 @@ def test_get_site_hanoi_value_assigned_epoch0(
         [0, 1, 2, 3],
     ],
 )
+@pytest.mark.parametrize(
+    "get_grip",
+    [get_site_genesis_reservation_index_physical, lambda site, size: None],
+)
 def test_get_site_hanoi_value_assigned_epoch1(
-    expected: typing.List[int],
+    expected: typing.List[int], get_grip: typing.Callable
 ):
-    assert len(expected).bit_count() == 1  # power of 2
-    for rank in range(len(expected), 2 * len(expected) - 1):
+    surface_size = len(expected)
+    assert surface_size.bit_count() == 1  # power of 2
+    for rank in range(surface_size, 2 * surface_size - 1):
         actual = [
-            get_site_hanoi_value_assigned(site, rank, len(expected))
-            for site in range(len(expected))
+            get_site_hanoi_value_assigned(
+                site, rank, surface_size, grip=get_grip(site, surface_size)
+            )
+            for site in range(surface_size)
         ]
         assert expected == actual, rank
