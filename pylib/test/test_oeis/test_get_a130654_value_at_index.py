@@ -1,8 +1,8 @@
-import pylib
-
-import pandas as pd
 import os
 
+import pandas as pd
+
+import pylib
 
 # https://oeis.org/A130654/list
 data = [

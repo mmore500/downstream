@@ -1,8 +1,8 @@
 import itertools as it
 import typing
 
-from ._calc_resident_deposition_rank import calc_resident_deposition_rank
 from .._impl import get_reservation_width_physical
+from ._calc_resident_deposition_rank import calc_resident_deposition_rank
 
 
 def iter_resident_deposition_ranks(
