@@ -14,6 +14,7 @@ def get_reservation_position_physical(
 
     base = 2 * reservation
 
+    # don't remember why isn't >>1 (halve)...
     last_reservation = (surface_size << 1) - 1
     offset = oeis.get_a048881_value_at_index(last_reservation - reservation)
 
