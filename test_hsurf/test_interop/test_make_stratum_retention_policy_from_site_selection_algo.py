@@ -110,3 +110,30 @@ def test_CalcNumStrataRetainedUpperBound(
         assert policy.CalcNumStrataRetainedExact(
             rank
         ) <= policy.CalcNumStrataRetainedUpperBound(rank)
+
+
+@pytest.mark.parametrize(
+    "interop_algo",
+    [
+        hsurf.stratum_retention_interop_steady_algo,
+        hsurf.stratum_retention_interop_tilted_algo,
+        hsurf.stratum_retention_interop_tilted_sticky_algo,
+    ],
+)
+@pytest.mark.parametrize(
+    "surface_size",
+    [8, 16],
+)
+def test_IterRetainedRanks(interop_algo: types.ModuleType, surface_size: int):
+    policy = interop_algo.Policy(surface_size)
+
+    assert [*policy.IterRetainedRanks(0)] == []
+    for rank in range(1, 200):
+        column_ranks = [*policy.IterRetainedRanks(rank)]
+        assert column_ranks == sorted(
+            set(  # have to deduplicate rank 0 entries
+                interop_algo._site_selection_algo.iter_resident_deposition_ranks(
+                    surface_size, rank
+                ),
+            ),
+        )
