@@ -156,11 +156,11 @@ def make_stratum_retention_policy_from_site_selection_algo(
             if num_stratum_depositions_completed + 1 >= surface_size:
                 prev_ranks = algo.iter_resident_deposition_ranks(
                     surface_size,
-                    num_stratum_depositions_completed - 1,
+                    num_stratum_depositions_completed,
                 )
                 next_ranks = algo.iter_resident_deposition_ranks(
                     surface_size,
-                    num_stratum_depositions_completed,
+                    num_stratum_depositions_completed + 1,
                 )
                 lost_ranks = set(prev_ranks) - set(next_ranks)
                 # one deposition is at most one rank lost
