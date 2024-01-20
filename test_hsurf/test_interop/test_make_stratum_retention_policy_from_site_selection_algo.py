@@ -155,11 +155,13 @@ def test_IterRetainedRanks(interop_algo: types.ModuleType, surface_size: int):
 def test_hstrat_test_drive_integration(
     interop_algo: types.ModuleType, surface_size: int
 ):
+    population_size = 1024
+    num_generations = 1000
     alife_df = hstrat.evolve_fitness_trait_population(
         num_islands=4,
         num_niches=4,
-        num_generations=1000,
-        population_size=1024,
+        num_generations=num_generations,
+        population_size=population_size,
         tournament_size=1,
     )
 
@@ -168,4 +170,9 @@ def test_hstrat_test_drive_integration(
         seed_column=hstrat.HereditaryStratigraphicColumn(
             interop_algo.Policy(surface_size)
         ),
+    )
+    assert len(extant_population) == population_size
+    assert all(
+        c.GetNumStrataDeposited() == num_generations + 2
+        for c in extant_population
     )
