@@ -32,3 +32,26 @@ def test_GenDropRanks(interop_algo: types.ModuleType, surface_size: int):
                 site, surface_size, rank - 1
             )
         ]
+
+
+@pytest.mark.parametrize(
+    "interop_algo",
+    [
+        hsurf.stratum_retention_interop_steady_algo,
+        hsurf.stratum_retention_interop_tilted_algo,
+        hsurf.stratum_retention_interop_tilted_sticky_algo,
+    ],
+)
+@pytest.mark.parametrize(
+    "surface_size",
+    [8, 16],
+)
+def test_CalcNumStrataRetainedExact(
+    interop_algo: types.ModuleType, surface_size: int
+):
+    policy = interop_algo.Policy(surface_size)
+
+    for rank in range(200):
+        assert policy.CalcNumStrataRetainedExact(rank) == min(
+            rank, surface_size
+        )
