@@ -35,31 +35,7 @@ keywords = [
 requires-python = ">=3.10"
 version = "0.0.0"
 
-[project.readme]
-file = "README.md"
-content-type = "text/markdown"
-
-[project.urls]
-homepage = "https://github.com/mmore500/hstrat-surface-concept.git"
-# documentation = "https://hstrat.readthedocs.io"
-repository = "https://github.com/mmore500/hstrat-surface-concept"
-
-[tool.setuptools]
-include-package-data = true
-
-[tool.setuptools.packages.find]
-exclude = ["tests", "tests.*", "test_hsurf", "pylib.test", "pylib.test.*"]
-namespaces = false
-
-# adapted from https://tox.wiki/en/latest/example/package.html
-[build-system]
-build-backend = "setuptools.build_meta"
-requires = [
-  "cython>=0.29",
-  "setuptools >= 35.0.2",
-  "setuptools_scm >= 2.0.0, <3",
-]
-
+[project.optional-dependencies]
 testing = [
   "black==22.10.0",
   "IPython==7.31.1",
@@ -84,6 +60,31 @@ release = [
 #   "Sphinx==4.4.0",
 #   "sphinx_rtd_theme==1.0.0",
 # ]
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[project.urls]
+homepage = "https://github.com/mmore500/hstrat-surface-concept.git"
+# documentation = "https://hstrat.readthedocs.io"
+repository = "https://github.com/mmore500/hstrat-surface-concept"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+exclude = ["tests", "tests.*", "test_hsurf", "pylib.test", "pylib.test.*"]
+namespaces = false
+
+# adapted from https://tox.wiki/en/latest/example/package.html
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = [
+  "cython>=0.29",
+  "setuptools >= 35.0.2",
+  "setuptools_scm >= 2.0.0, <3",
+]
 
 [tool.black]
 line_length = 79
