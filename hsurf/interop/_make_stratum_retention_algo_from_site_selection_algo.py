@@ -199,10 +199,35 @@ def make_stratum_retention_algo_from_site_selection_algo(
             assert 0 <= last_zero < len(ranks)
             yield from ranks[last_zero:]
 
+    class CalcNumStrataRetainedUpperBoundFtor:
+        def __init__(
+            self: "CalcNumStrataRetainedUpperBoundFtor",
+            policy_spec: typing.Optional[PolicySpec],
+        ) -> None:
+            pass
+
+        def __eq__(
+            self: "CalcNumStrataRetainedUpperBoundFtor",
+            other: typing.Any,
+        ) -> bool:
+            return isinstance(other, self.__class__)
+
+        def __call__(
+            self: "CalcNumStrataRetainedUpperBoundFtor",
+            policy: PolicyCouplerBase,
+            num_strata_deposited: int,
+        ) -> typing.Iterator[int]:
+            surface_size = policy.GetSpec().GetSurfaceSize()
+            return min(
+                num_strata_deposited,
+                surface_size,
+            )
+
     return PolicyCouplerFactory(
         policy_spec_t=PolicySpec,
         gen_drop_ranks_ftor_t=GenDropRanksFtor,
         calc_num_strata_retained_exact_ftor_t=CalcNumStrataRetainedExactFtor,
         calc_rank_at_column_index_ftor_t=CalcRankAtColumnIndexFtor,
         iter_retained_ranks_ftor_t=IterRetainedRanksFtor,
+        calc_num_strata_retained_upper_bound_ftor_t=CalcNumStrataRetainedUpperBoundFtor,
     )
