@@ -17,7 +17,7 @@ hsurf provides efficient, constant-space instrumentation for heredity stratigrap
 
 ## Installation
 
-`python3 -m pip install git+https://github.com/mmore500/hstrat-surface-concept.git@v0.1.0#egg=hsurf`
+`python3 -m pip install "git+https://github.com/mmore500/hstrat-surface-concept.git@v0.1.0#egg=hsurf"`
 
 ## Documentation
 
