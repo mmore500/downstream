@@ -1,3 +1,4 @@
+import types
 import typing
 
 from hstrat.stratum_retention_strategy.stratum_retention_algorithms._detail import (
@@ -9,7 +10,7 @@ import more_itertools as mit
 
 
 def make_stratum_retention_policy_from_site_selection_algo(
-    site_selection_algo: typing.Any,  # TODO type hint module
+    site_selection_algo: types.ModuleType,
 ) -> PolicyCouplerBase:
     """Create object infrastructure for a stratum retention policy equivalent
     to provided surface site selection algorithm."""
