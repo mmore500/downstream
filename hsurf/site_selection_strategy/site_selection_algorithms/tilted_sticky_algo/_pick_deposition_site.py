@@ -1,6 +1,4 @@
-from ..tilted_algo import (
-    pick_deposition_site as impl_pick_deposition_site,
-)
+from ..tilted_algo import pick_deposition_site as impl_pick_deposition_site
 
 
 def pick_deposition_site(
