@@ -1,3 +1,4 @@
+import numbers
 import types
 import typing
 
@@ -136,7 +137,16 @@ def make_stratum_retention_policy_from_site_selection_algo(
             self: "GenDropRanksFtor",
             policy: PolicyCouplerBase,
             num_stratum_depositions_completed: int,
+            retained_ranks: typing.Optional[typing.Iterable[int]] = None,
         ) -> typing.Iterator[int]:
+            # convert for compat with numpy dtypes
+            assert isinstance(
+                num_stratum_depositions_completed, numbers.Integral
+            )
+            num_stratum_depositions_completed = int(
+                num_stratum_depositions_completed,
+            )
+
             if num_stratum_depositions_completed == 0:
                 return
 
@@ -185,6 +195,10 @@ def make_stratum_retention_policy_from_site_selection_algo(
             policy: PolicyCouplerBase,
             num_strata_deposited: int,
         ) -> typing.Iterator[int]:
+            # convert for compat with numpy dtypes
+            assert isinstance(num_strata_deposited, numbers.Integral)
+            num_strata_deposited = int(num_strata_deposited)
+
             if num_strata_deposited == 0:
                 return
             algo = site_selection_algo

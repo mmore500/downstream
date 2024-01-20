@@ -1,5 +1,6 @@
 import types
 
+from hstrat import hstrat
 import pytest
 
 from hsurf import hsurf
@@ -137,3 +138,34 @@ def test_IterRetainedRanks(interop_algo: types.ModuleType, surface_size: int):
                 ),
             ),
         )
+
+
+@pytest.mark.parametrize(
+    "interop_algo",
+    [
+        hsurf.stratum_retention_interop_steady_algo,
+        hsurf.stratum_retention_interop_tilted_algo,
+        hsurf.stratum_retention_interop_tilted_sticky_algo,
+    ],
+)
+@pytest.mark.parametrize(
+    "surface_size",
+    [8, 16],
+)
+def test_hstrat_test_drive_integration(
+    interop_algo: types.ModuleType, surface_size: int
+):
+    alife_df = hstrat.evolve_fitness_trait_population(
+        num_islands=4,
+        num_niches=4,
+        num_generations=1000,
+        population_size=1024,
+        tournament_size=1,
+    )
+
+    extant_population = hstrat.descend_template_phylogeny_alifestd(
+        alife_df,
+        seed_column=hstrat.HereditaryStratigraphicColumn(
+            interop_algo.Policy(surface_size)
+        ),
+    )
