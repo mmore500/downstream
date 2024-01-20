@@ -18,6 +18,7 @@ dependencies = [
   "hstrat>=1.7.4",
   "interval_search>=0.5.2",
   "matplotlib",
+  "more_itertools",
   "numpy",
   "opytional",
   "pandas",
