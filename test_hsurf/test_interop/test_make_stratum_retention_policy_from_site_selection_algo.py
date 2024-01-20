@@ -87,3 +87,26 @@ def test_CalcRankAtColumnIndex(
                 ),
             ),
         )
+
+
+@pytest.mark.parametrize(
+    "interop_algo",
+    [
+        hsurf.stratum_retention_interop_steady_algo,
+        hsurf.stratum_retention_interop_tilted_algo,
+        hsurf.stratum_retention_interop_tilted_sticky_algo,
+    ],
+)
+@pytest.mark.parametrize(
+    "surface_size",
+    [8, 16],
+)
+def test_CalcNumStrataRetainedUpperBound(
+    interop_algo: types.ModuleType, surface_size: int
+):
+    policy = interop_algo.Policy(surface_size)
+
+    for rank in range(200):
+        assert policy.CalcNumStrataRetainedExact(
+            rank
+        ) <= policy.CalcNumStrataRetainedUpperBound(rank)
