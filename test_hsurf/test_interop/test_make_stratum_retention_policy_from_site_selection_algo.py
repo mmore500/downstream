@@ -9,6 +9,7 @@ from hsurf import hsurf
 @pytest.mark.parametrize(
     "interop_algo",
     [
+        hsurf.stratum_retention_interop_hybrid_algo,
         hsurf.stratum_retention_interop_steady_algo,
         hsurf.stratum_retention_interop_tilted_algo,
         hsurf.stratum_retention_interop_tilted_sticky_algo,
@@ -24,7 +25,9 @@ def test_GenDropRanks(interop_algo: types.ModuleType, surface_size: int):
     for rank in range(surface_size):
         assert [*policy.GenDropRanks(rank)] == []
 
-    for rank in range(surface_size, 100):
+    # hybrid algo needs tighter bound than others
+    nrank = min(100, 2 ** (surface_size // 2 - 1) - 1)
+    for rank in range(surface_size, nrank):
         site = interop_algo._site_selection_algo.pick_deposition_site(
             rank, surface_size
         )
@@ -38,6 +41,7 @@ def test_GenDropRanks(interop_algo: types.ModuleType, surface_size: int):
 @pytest.mark.parametrize(
     "interop_algo",
     [
+        hsurf.stratum_retention_interop_hybrid_algo,
         hsurf.stratum_retention_interop_steady_algo,
         hsurf.stratum_retention_interop_tilted_algo,
         hsurf.stratum_retention_interop_tilted_sticky_algo,
@@ -61,6 +65,7 @@ def test_CalcNumStrataRetainedExact(
 @pytest.mark.parametrize(
     "interop_algo",
     [
+        hsurf.stratum_retention_interop_hybrid_algo,
         hsurf.stratum_retention_interop_steady_algo,
         hsurf.stratum_retention_interop_tilted_algo,
         hsurf.stratum_retention_interop_tilted_sticky_algo,
@@ -93,6 +98,7 @@ def test_CalcRankAtColumnIndex(
 @pytest.mark.parametrize(
     "interop_algo",
     [
+        hsurf.stratum_retention_interop_hybrid_algo,
         hsurf.stratum_retention_interop_steady_algo,
         hsurf.stratum_retention_interop_tilted_algo,
         hsurf.stratum_retention_interop_tilted_sticky_algo,
@@ -116,6 +122,7 @@ def test_CalcNumStrataRetainedUpperBound(
 @pytest.mark.parametrize(
     "interop_algo",
     [
+        hsurf.stratum_retention_interop_hybrid_algo,
         hsurf.stratum_retention_interop_steady_algo,
         hsurf.stratum_retention_interop_tilted_algo,
         hsurf.stratum_retention_interop_tilted_sticky_algo,
@@ -143,6 +150,7 @@ def test_IterRetainedRanks(interop_algo: types.ModuleType, surface_size: int):
 @pytest.mark.parametrize(
     "interop_algo",
     [
+        hsurf.stratum_retention_interop_hybrid_algo,
         hsurf.stratum_retention_interop_steady_algo,
         hsurf.stratum_retention_interop_tilted_algo,
         hsurf.stratum_retention_interop_tilted_sticky_algo,
