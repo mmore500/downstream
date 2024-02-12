@@ -1,6 +1,6 @@
 # Hereditary Stratigraphic Surface Concept
 
-[![GitHub Actions Status](https://github.com/mmore500/hstrat-surface-concept/actions/workflows/CI/badge.svg)](https://github.com/mmore500/hstrat-surface-concept/actions/workflows/CI/)
+[![CI](https://github.com/mmore500/hstrat-surface-concept/actions/workflows/ci.yaml/badge.svg)](https://github.com/mmore500/hstrat-surface-concept/actions/workflows/ci.yaml)
 <!-- [![Documentation Status](https://readthedocs.org/projects/hstrat-surface-concept/badge/?version=latest)](https://hstrat-surface-concept.readthedocs.io/en/latest/?badge=latest) -->
 <!-- [![documentation coverage](https://img.shields.io/endpoint?url=https%3A%2F%2Fmmore500.github.io%2Fhstrat-surface-concept%2Fdocumentation-coverage-badge.json)](https://hstrat-surface-concept.readthedocs.io/en/latest/) -->
 <!-- [![code coverage status](https://codecov.io/gh/mmore500/hstrat-surface-concept/branch/master/graph/badge.svg)](https://codecov.io/gh/mmore500/hstrat-surface-concept) -->
