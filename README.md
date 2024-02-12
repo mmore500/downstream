@@ -1,11 +1,11 @@
 # Hereditary Stratigraphic Surface Concept
 
 [![CI](https://github.com/mmore500/hstrat-surface-concept/actions/workflows/ci.yaml/badge.svg)](https://github.com/mmore500/hstrat-surface-concept/actions/workflows/ci.yaml)
+[![GitHub stars](https://img.shields.io/github/stars/mmore500/hstrat-surface-concept.svg?style=flat-square&logo=github&label=Stars&logoColor=white)](https://github.com/mmore500/hstrat-surface-concept)
 <!-- [![Documentation Status](https://readthedocs.org/projects/hstrat-surface-concept/badge/?version=latest)](https://hstrat-surface-concept.readthedocs.io/en/latest/?badge=latest) -->
 <!-- [![documentation coverage](https://img.shields.io/endpoint?url=https%3A%2F%2Fmmore500.github.io%2Fhstrat-surface-concept%2Fdocumentation-coverage-badge.json)](https://hstrat-surface-concept.readthedocs.io/en/latest/) -->
 <!-- [![code coverage status](https://codecov.io/gh/mmore500/hstrat-surface-concept/branch/master/graph/badge.svg)](https://codecov.io/gh/mmore500/hstrat-surface-concept) -->
 <!-- [![dotos](https://img.shields.io/endpoint?url=https%3A%2F%2Fmmore500.com%2Fhstrat-surface-concept%2Fdoto-badge.json)](https://github.com/mmore500/hstrat-surface-concept/search?q=todo+OR+fixme&type=) -->
-[![GitHub stars](https://img.shields.io/github/stars/mmore500/hstrat-surface-concept.svg?style=flat-square&logo=github&label=Stars&logoColor=white)](https://github.com/mmore500/hstrat-surface-concept)
 
 hsurf provides efficient, constant-space instrumentation for heredity stratigraphic phylogenetic inference over distributed digital evolution populations.
 
