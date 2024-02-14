@@ -7,9 +7,9 @@ from ..longevity_ordering_common import (
 
 # related to https://oeis.org/A181733
 # see also https://oeis.org/A139709 and https://oeis.org/A092323
-def get_longevity_mapped_position_of_index(
-    index: int, num_indices: int
-) -> int:
+def get_longevity_mapped_position_of_index(index: int, num_indices: int) -> int:
+    """Which physical site in the sequence does the `index`th logical entry map
+    to?"""
     longevity_level = get_longevity_level_of_index(index)
 
     # see get_powersof2triangle_val_at_index

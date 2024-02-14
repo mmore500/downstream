@@ -7,6 +7,7 @@ def get_longevity_index_of_mapped_position(
     mapped_position: int,
     num_positions: int,
 ) -> int:
+    """What logical index is assigned to the `n`th physical site?"""
     longevity_level = get_longevity_level_of_mapped_position(
         mapped_position,
         num_positions,

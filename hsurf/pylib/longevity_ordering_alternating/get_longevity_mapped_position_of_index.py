@@ -16,6 +16,8 @@ def get_longevity_mapped_position_of_index(
     num_indices: int,
     polarity: bool,
 ) -> int:
+    """Which physical site in the sequence does the `index`th logical entry map
+    to?"""
     longevity_level = get_longevity_level_of_index(index)
     position_within_level = (
         get_powersof2triangle_val_at_index(index - 1) if index else 0
