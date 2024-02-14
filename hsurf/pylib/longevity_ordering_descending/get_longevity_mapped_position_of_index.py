@@ -9,6 +9,8 @@ def get_longevity_mapped_position_of_index(
     index: int,
     num_indices: int,
 ) -> int:
+    """Which physical site in the sequence does the `index`th logical entry map
+    to?"""
     longevity_level = get_longevity_level_of_index(index)
 
     subtrahend = 2**longevity_level // 2
