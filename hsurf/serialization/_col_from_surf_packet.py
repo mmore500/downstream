@@ -1,7 +1,7 @@
 import typing
 
 from hstrat import hstrat
-from hstrat.serialization._impl import (
+from hstrat.serialization._impl._DEFAULT_PACKET_NUM_STRATA_DEPOSITED_BYTE_WIDTH import (
     DEFAULT_PACKET_NUM_STRATA_DEPOSITED_BYTE_WIDTH,
 )
 import typing_extensions
