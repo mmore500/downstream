@@ -71,7 +71,7 @@ gitdb==4.0.10
     # via gitpython
 gitpython==3.1.31
     # via lyncs-setuptools
-hstrat==1.7.4
+hstrat==1.11.1
     # via -r requirements.in
 hurry-filesize==0.9
     # via nbmetalog
@@ -192,8 +192,10 @@ numpy==1.23.5
     #   matplotlib
     #   pandas
     #   pandera
+    #   patsy
     #   scipy
     #   seaborn
+    #   statsmodels
     #   teeplot
 opytional==0.1.0
     # via
@@ -211,6 +213,7 @@ packaging==23.1
     #   nbconvert
     #   pandera
     #   pytest
+    #   statsmodels
 pandas==1.5.2
     # via
     #   -r requirements.in
@@ -219,6 +222,7 @@ pandas==1.5.2
     #   nbmetalog
     #   pandera
     #   seaborn
+    #   statsmodels
     #   teeplot
 pandera==0.15.1
     # via hstrat
@@ -228,6 +232,8 @@ parso==0.8.3
     # via jedi
 pathspec==0.11.1
     # via black
+patsy==0.5.6
+    # via statsmodels
 pexpect==4.8.0
     # via ipython
 pickleshare==0.7.5
@@ -290,7 +296,9 @@ ruff==0.0.260
 safe-assert==0.4.0
     # via hstrat
 scipy==1.10.1
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   statsmodels
 seaborn==0.12.1
     # via
     #   -r requirements.in
@@ -299,6 +307,7 @@ six==1.16.0
     # via
     #   anytree
     #   bleach
+    #   patsy
     #   python-dateutil
 smmap==5.0.0
     # via gitdb
@@ -308,6 +317,8 @@ sortedcontainers==2.4.0
     #   hstrat
 soupsieve==2.4.1
     # via beautifulsoup4
+statsmodels==0.14.1
+    # via hstrat
 teeplot==0.5.0
     # via -r requirements.in
 text-unidecode==1.3
@@ -339,8 +350,9 @@ traitlets==5.9.0
     #   nbformat
 typeguard==4.0.0
     # via pandera
-typing-extensions==4.6.3
+typing-extensions==4.10.0
     # via
+    #   hstrat
     #   pydantic
     #   typeguard
     #   typing-inspect

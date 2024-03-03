@@ -1,6 +1,6 @@
 black==22.10.0
 Deprecated==1.2.13
-hstrat==1.7.4
+hstrat==1.11.1
 interval_search==0.5.2
 IPython==7.31.1
 isort==5.12.0
