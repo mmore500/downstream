@@ -19,6 +19,7 @@ def make_stratum_retention_policy_from_site_selection_algo(
     class PolicySpec(PolicySpecBase):
         """Contains all policy parameters, if any."""
 
+        _site_selection_algo: types.ModuleType = site_selection_algo
         _surface_size: int
 
         def __init__(
@@ -116,9 +117,15 @@ def make_stratum_retention_policy_from_site_selection_algo(
             index: int,
             num_strata_deposited: int,
         ) -> int:
-            return mit.nth(
-                policy.IterRetainedRanks(num_strata_deposited), index
-            )
+            if (
+                not 0
+                <= index
+                < policy.CalcNumStrataRetainedExact(num_strata_deposited)
+            ):
+                raise IndexError
+            res = mit.nth(policy.IterRetainedRanks(num_strata_deposited), index)
+            assert res is not None
+            return res
 
     class GenDropRanksFtor:
         def __init__(
@@ -157,25 +164,17 @@ def make_stratum_retention_policy_from_site_selection_algo(
                 num_stratum_depositions_completed, surface_size
             )
             target_rank = algo.calc_resident_deposition_rank(
-                target_site, surface_size, num_stratum_depositions_completed - 1
+                target_site, surface_size, num_stratum_depositions_completed
             )
             if target_rank != 0:
                 yield target_rank
                 return
-
-            if num_stratum_depositions_completed + 1 >= surface_size:
-                prev_ranks = algo.iter_resident_deposition_ranks(
-                    surface_size,
-                    num_stratum_depositions_completed,
-                )
-                next_ranks = algo.iter_resident_deposition_ranks(
-                    surface_size,
-                    num_stratum_depositions_completed + 1,
-                )
-                lost_ranks = set(prev_ranks) - set(next_ranks)
-                # one deposition is at most one rank lost
-                assert len(lost_ranks) <= 1
-                yield from lost_ranks
+            elif 0 not in algo.iter_resident_deposition_ranks(
+                surface_size,
+                num_stratum_depositions_completed + 1,
+            ):
+                yield 0
+                return
 
     class IterRetainedRanksFtor:
         def __init__(

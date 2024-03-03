@@ -33,7 +33,7 @@ def test_GenDropRanks(interop_algo: types.ModuleType, surface_size: int):
         )
         assert [*policy.GenDropRanks(rank)] == [
             interop_algo._site_selection_algo.calc_resident_deposition_rank(
-                site, surface_size, rank - 1
+                site, surface_size, rank
             )
         ]
 
@@ -184,3 +184,40 @@ def test_hstrat_test_drive_integration(
         c.GetNumStrataDeposited() == num_generations + 2
         for c in extant_population
     )
+
+
+@pytest.mark.parametrize(
+    "always_store_rank_in_stratum",
+    [True, False],
+)
+@pytest.mark.parametrize(
+    "interop_algo",
+    [
+        hsurf.stratum_retention_interop_hybrid_algo,
+        hsurf.stratum_retention_interop_steady_algo,
+        hsurf.stratum_retention_interop_tilted_algo,
+        hsurf.stratum_retention_interop_tilted_sticky_algo,
+    ],
+)
+@pytest.mark.parametrize(
+    "surface_size",
+    [8, 32, 64],
+)
+def test_hstrat_column_integration(
+    always_store_rank_in_stratum: bool,
+    interop_algo: types.ModuleType,
+    surface_size: int,
+):
+    column = hstrat.HereditaryStratigraphicColumn(
+        always_store_rank_in_stratum=always_store_rank_in_stratum,
+        stratum_differentia_bit_width=8,
+        stratum_retention_policy=interop_algo.Policy(surface_size),
+    )
+    policy = column._stratum_retention_policy
+    ssa = policy.GetSpec()._site_selection_algo
+    nrank = min(100, 2 ** (surface_size // 2 - 1) - 1)
+    for g in range(nrank - 1):
+        assert set(column.IterRetainedRanks()) == set(
+            ssa.iter_resident_deposition_ranks(surface_size, g + 1),
+        )
+        column.DepositStratum()
