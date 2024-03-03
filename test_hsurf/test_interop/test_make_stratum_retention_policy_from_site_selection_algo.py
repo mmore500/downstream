@@ -221,3 +221,24 @@ def test_hstrat_column_integration(
             ssa.iter_resident_deposition_ranks(surface_size, g + 1),
         )
         column.DepositStratum()
+
+
+def test_eq():
+    assert hsurf.stratum_retention_interop_hybrid_algo.Policy(
+        8
+    ) != hsurf.stratum_retention_interop_hybrid_algo.Policy(16)
+
+    assert hsurf.stratum_retention_interop_hybrid_algo.Policy(
+        8
+    ) == hsurf.stratum_retention_interop_hybrid_algo.Policy(8)
+
+    assert hsurf.stratum_retention_interop_tilted_sticky_algo.Policy(
+        8
+    ) != hsurf.stratum_retention_interop_hybrid_algo.Policy(8)
+
+    assert hsurf.stratum_retention_interop_tilted_algo.Policy(
+        64
+    ) == hsurf.stratum_retention_interop_tilted_algo.Policy(64)
+
+    policy = hsurf.stratum_retention_interop_tilted_algo.Policy(32)
+    assert policy == policy
