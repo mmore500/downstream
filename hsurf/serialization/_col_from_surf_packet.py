@@ -1,3 +1,4 @@
+import types
 import typing
 
 from hstrat import hstrat
@@ -15,7 +16,7 @@ from ._sort_differentiae_by_deposition_rank import (
 def col_from_surf_packet(
     packet: typing_extensions.Buffer,
     differentia_bit_width: int,
-    site_selection_algo: typing.Callable,
+    site_selection_algo: types.ModuleType,
     differentiae_byte_bit_order: typing.Literal["big", "little"] = "big",
     num_strata_deposited_byte_order: typing.Literal["big", "little"] = "big",
     num_strata_deposited_byte_width: int = (
