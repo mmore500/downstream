@@ -10,15 +10,40 @@ from hstrat.stratum_retention_strategy.stratum_retention_algorithms._detail impo
 import more_itertools as mit
 
 
+class _PolicySpecBase:
+    pass
+
+
+class _GenDropRanksFtorBase:
+    pass
+
+
+class _CalcNumStrataRetainedExactFtorBase:
+    pass
+
+
+class _CalcRankAtColumnIndexFtorBase:
+    pass
+
+
+class _IterRetainedRanksFtorBase:
+    pass
+
+
+class _CalcNumStrataRetainedUpperBoundFtorBase:
+    pass
+
+
 def make_stratum_retention_policy_from_site_selection_algo(
     site_selection_algo: types.ModuleType,
 ) -> PolicyCouplerBase:
     """Create object infrastructure for a stratum retention policy equivalent
     to provided surface site selection algorithm."""
 
-    class PolicySpec(PolicySpecBase):
+    class PolicySpec(PolicySpecBase, _PolicySpecBase):
         """Contains all policy parameters, if any."""
 
+        _site_selection_algo: types.ModuleType = site_selection_algo
         _surface_size: int
 
         def __init__(
@@ -36,9 +61,13 @@ def make_stratum_retention_policy_from_site_selection_algo(
             self._surface_size = surface_size
 
         def __eq__(self: "PolicySpec", other: typing.Any) -> bool:
-            return isinstance(other, self.__class__) and (
+            return isinstance(other, _PolicySpecBase) and (
                 self._surface_size,
-            ) == (other._surface_size,)
+                self._site_selection_algo,
+            ) == (
+                other._surface_size,
+                other._site_selection_algo,
+            )
 
         def __repr__(self: "PolicySpec") -> str:
             return f"""{
@@ -75,7 +104,7 @@ def make_stratum_retention_policy_from_site_selection_algo(
             """Get human-readable name for underlying retention algorithm."""
             return site_selection_algo.__name__.replace("_", " ")
 
-    class CalcNumStrataRetainedExactFtor:
+    class CalcNumStrataRetainedExactFtor(_CalcNumStrataRetainedExactFtorBase):
         def __init__(
             self: "CalcNumStrataRetainedExactFtor",
             policy_spec: typing.Optional[PolicySpec],
@@ -86,7 +115,7 @@ def make_stratum_retention_policy_from_site_selection_algo(
             self: "CalcNumStrataRetainedExactFtor",
             other: typing.Any,
         ) -> bool:
-            return isinstance(other, self.__class__)
+            return isinstance(other, _CalcNumStrataRetainedExactFtorBase)
 
         def __call__(
             self: "CalcNumStrataRetainedExactFtor",
@@ -97,7 +126,7 @@ def make_stratum_retention_policy_from_site_selection_algo(
                 1 for __ in policy.IterRetainedRanks(num_strata_deposited)
             )
 
-    class CalcRankAtColumnIndexFtor:
+    class CalcRankAtColumnIndexFtor(_CalcRankAtColumnIndexFtorBase):
         def __init__(
             self: "CalcRankAtColumnIndexFtor",
             policy_spec: typing.Optional[PolicySpec],
@@ -108,7 +137,7 @@ def make_stratum_retention_policy_from_site_selection_algo(
             self: "CalcRankAtColumnIndexFtor",
             other: typing.Any,
         ) -> bool:
-            return isinstance(other, self.__class__)
+            return isinstance(other, _CalcRankAtColumnIndexFtorBase)
 
         def __call__(
             self: "CalcRankAtColumnIndexFtor",
@@ -116,11 +145,17 @@ def make_stratum_retention_policy_from_site_selection_algo(
             index: int,
             num_strata_deposited: int,
         ) -> int:
-            return mit.nth(
-                policy.IterRetainedRanks(num_strata_deposited), index
-            )
+            if (
+                not 0
+                <= index
+                < policy.CalcNumStrataRetainedExact(num_strata_deposited)
+            ):
+                raise IndexError
+            res = mit.nth(policy.IterRetainedRanks(num_strata_deposited), index)
+            assert res is not None
+            return res
 
-    class GenDropRanksFtor:
+    class GenDropRanksFtor(_GenDropRanksFtorBase):
         def __init__(
             self: "GenDropRanksFtor",
             policy_spec: typing.Optional[PolicySpec],
@@ -131,7 +166,7 @@ def make_stratum_retention_policy_from_site_selection_algo(
             self: "GenDropRanksFtor",
             other: typing.Any,
         ) -> bool:
-            return isinstance(other, self.__class__)
+            return isinstance(other, _GenDropRanksFtorBase)
 
         def __call__(
             self: "GenDropRanksFtor",
@@ -157,27 +192,19 @@ def make_stratum_retention_policy_from_site_selection_algo(
                 num_stratum_depositions_completed, surface_size
             )
             target_rank = algo.calc_resident_deposition_rank(
-                target_site, surface_size, num_stratum_depositions_completed - 1
+                target_site, surface_size, num_stratum_depositions_completed
             )
             if target_rank != 0:
                 yield target_rank
                 return
+            elif 0 not in algo.iter_resident_deposition_ranks(
+                surface_size,
+                num_stratum_depositions_completed + 1,
+            ):
+                yield 0
+                return
 
-            if num_stratum_depositions_completed + 1 >= surface_size:
-                prev_ranks = algo.iter_resident_deposition_ranks(
-                    surface_size,
-                    num_stratum_depositions_completed,
-                )
-                next_ranks = algo.iter_resident_deposition_ranks(
-                    surface_size,
-                    num_stratum_depositions_completed + 1,
-                )
-                lost_ranks = set(prev_ranks) - set(next_ranks)
-                # one deposition is at most one rank lost
-                assert len(lost_ranks) <= 1
-                yield from lost_ranks
-
-    class IterRetainedRanksFtor:
+    class IterRetainedRanksFtor(_IterRetainedRanksFtorBase):
         def __init__(
             self: "IterRetainedRanksFtor",
             policy_spec: typing.Optional[PolicySpec],
@@ -188,7 +215,7 @@ def make_stratum_retention_policy_from_site_selection_algo(
             self: "IterRetainedRanksFtor",
             other: typing.Any,
         ) -> bool:
-            return isinstance(other, self.__class__)
+            return isinstance(other, _IterRetainedRanksFtorBase)
 
         def __call__(
             self: "IterRetainedRanksFtor",
@@ -213,7 +240,9 @@ def make_stratum_retention_policy_from_site_selection_algo(
             assert 0 <= last_zero < len(ranks)
             yield from ranks[last_zero:]
 
-    class CalcNumStrataRetainedUpperBoundFtor:
+    class CalcNumStrataRetainedUpperBoundFtor(
+        _CalcNumStrataRetainedUpperBoundFtorBase,
+    ):
         def __init__(
             self: "CalcNumStrataRetainedUpperBoundFtor",
             policy_spec: typing.Optional[PolicySpec],
@@ -224,7 +253,7 @@ def make_stratum_retention_policy_from_site_selection_algo(
             self: "CalcNumStrataRetainedUpperBoundFtor",
             other: typing.Any,
         ) -> bool:
-            return isinstance(other, self.__class__)
+            return isinstance(other, _CalcNumStrataRetainedUpperBoundFtorBase)
 
         def __call__(
             self: "CalcNumStrataRetainedUpperBoundFtor",

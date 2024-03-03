@@ -10,5 +10,6 @@ from . import genome_instrumentation, interop, site_selection_strategy
 __all__ = [
     "interop",
     "genome_instrumentation",
+    "serialization",
     "site_selection_strategy",
 ]
