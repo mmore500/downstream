@@ -25,9 +25,9 @@ def col_from_surf_packet(
     """Deserialize hsurf data into a `HereditaryStratigraphicColumn` from a
     differentia packet and column configuration specification information.
 
-    Differentia packet should contain (1) a stratum deposition count followed
-    by (2) binary-packed differentia values. Each component must align evenly
-    with byte boundaries.
+    Packet should contain (1) a stratum deposition count followed by (2)
+    binary-packed differentia values. Each component must align evenly with
+    byte boundaries.
     """
 
     num_strata_deposited = int.from_bytes(
