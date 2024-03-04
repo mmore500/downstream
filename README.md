@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/mmore500/hstrat-surface-concept/actions/workflows/ci.yaml/badge.svg)](https://github.com/mmore500/hstrat-surface-concept/actions/workflows/ci.yaml)
 [![GitHub stars](https://img.shields.io/github/stars/mmore500/hstrat-surface-concept.svg?style=flat-square&logo=github&label=Stars&logoColor=white)](https://github.com/mmore500/hstrat-surface-concept)
+[![DOI](https://zenodo.org/badge/652063401.svg)](https://zenodo.org/doi/10.5281/zenodo.10779240)
 <!-- [![Documentation Status](https://readthedocs.org/projects/hstrat-surface-concept/badge/?version=latest)](https://hstrat-surface-concept.readthedocs.io/en/latest/?badge=latest) -->
 <!-- [![documentation coverage](https://img.shields.io/endpoint?url=https%3A%2F%2Fmmore500.github.io%2Fhstrat-surface-concept%2Fdocumentation-coverage-badge.json)](https://hstrat-surface-concept.readthedocs.io/en/latest/) -->
 <!-- [![code coverage status](https://codecov.io/gh/mmore500/hstrat-surface-concept/branch/master/graph/badge.svg)](https://codecov.io/gh/mmore500/hstrat-surface-concept) -->
@@ -33,6 +34,26 @@ This repository hosts prototype code for algorithm development of a lightweight 
 Code here is designed for use in conjunction with the mainline [`hstrat` package](https://github.com/mmore500/hstrat).
 Long-term, code in this repository will migrate to the `hstrat` package and this will remain only to ensure records (and reproducibility) of prototype work.
 
+## Citing
+
+If pecking contributes to a scientific publication, please cite it as
+
+> Matthew Andres Moreno. (2024). mmore500/hstrat-surface-concept. Zenodo. https://zenodo.org/doi/10.5281/zenodo.10779240
+
+```bibtex
+@software{moreno2024hsurf,
+  author = {Matthew Andres Moreno},
+  title = {mmore500/hstrat-surface-concept},
+  month = mar,
+  year = 2024,
+  publisher = {Zenodo},
+  doi = {10.5281/zenodo.10779240},
+  url = {https://zenodo.org/doi/10.5281/zenodo.10779240}
+}
+```
+
+Consider also citing [hstrat](https://hstrat.readthedocs.io/en/stable/citing.html).
+And don't forget to leave a [star on GitHub](https://github.com/mmore500/hstrat-surface-concept/stargazers)!
 
 ## Credits
 
