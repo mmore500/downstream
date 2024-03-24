@@ -27,7 +27,7 @@ To install from PyPi with pip, run
 
 To install the latest release directly from GitHub, run
 
-`python3 -m pip install "git+https://github.com/mmore500/downstream.git@v0.4.3#egg=downstream"`
+`python3 -m pip install "git+https://github.com/mmore500/downstream.git@v0.4.4#egg=downstream"`
 
 ## Documentation
 
