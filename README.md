@@ -26,16 +26,8 @@ downstream provides efficient, constant-space implementations of stream curation
 ## Documentation
 
 Slide deck & graphics for this project are at <https://hopth.ru/ce>.
-Some notes are in the template manuscript skeleton in `tex/`, which is built via GitHub actions and can be downloaded as an artifact.
 
 See `https://github.com/mmore500/hstrat-surface-concept` for usage examples.
-
-## Roadmap
-
-This repository hosts prototype code for algorithm development of a lightweight fixed-length hereditary stratigraphy data structure.
-
-Code here is designed for use in conjunction with the mainline [`hstrat` package](https://github.com/mmore500/hstrat).
-Long-term, code in this repository will migrate to the `hstrat` package and this will remain only to ensure records (and reproducibility) of prototype work.
 
 ## Citing
 
