@@ -21,7 +21,7 @@ downstream provides efficient, constant-space implementations of stream curation
 
 ## Installation
 
-`python3 -m pip install "git+https://github.com/mmore500/downstream.git@v0.3.0#egg=hsurf"`
+`python3 -m pip install "git+https://github.com/mmore500/downstream.git@v0.3.0#egg=downstream"`
 
 ## Documentation
 

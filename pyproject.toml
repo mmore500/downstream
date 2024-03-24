@@ -27,11 +27,11 @@ dependencies = [
   "seaborn",
   "teeplot>=0.5.0",
 ]
-description = "hsurf provides efficient, constant-space instrumentation for heredity stratigraphic phylogenetic inference over distributed digital evolution populations."
+description = "downstream provides efficient, constant-space instrumentation for heredity stratigraphic phylogenetic inference over distributed digital evolution populations."
 license = {text = "MIT license"}
-name  =  "hsurf"
+name  =  "downstream"
 keywords = [
-  "hsurf",
+  "downstream",
 ]
 requires-python = ">=3.10"
 version = "0.3.0"
@@ -75,7 +75,7 @@ repository = "https://github.com/mmore500/downstream"
 include-package-data = true
 
 [tool.setuptools.packages.find]
-exclude = ["tests", "tests.*", "test_hsurf", "pylib.test", "pylib.test.*"]
+exclude = ["tests", "tests.*", "test_downstream", "pylib.test", "pylib.test.*"]
 namespaces = false
 
 # adapted from https://tox.wiki/en/latest/example/package.html
