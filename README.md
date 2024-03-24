@@ -2,10 +2,10 @@
 
 [![CI](https://github.com/mmore500/downstream/actions/workflows/ci.yaml/badge.svg)](https://github.com/mmore500/downstream/actions/workflows/ci.yaml)
 [![GitHub stars](https://img.shields.io/github/stars/mmore500/downstream.svg?style=flat-square&logo=github&label=Stars&logoColor=white)](https://github.com/mmore500/downstream)
-<!-- [
+[
 ![PyPi](https://img.shields.io/pypi/v/downstream.svg)
-](https://pypi.python.org/pypi/downstream) -->
-<!-- [![DOI](https://zenodo.org/badge/652063401.svg)](https://zenodo.org/doi/10.5281/zenodo.10779240) -->
+](https://pypi.python.org/pypi/downstream)
+[![DOI](https://zenodo.org/badge/776865597.svg)](https://zenodo.org/doi/10.5281/zenodo.10866541)
 <!-- [![Documentation Status](https://readthedocs.org/projects/downstream/badge/?version=latest)](https://downstream.readthedocs.io/en/latest/?badge=latest) -->
 <!-- [![documentation coverage](https://img.shields.io/endpoint?url=https%3A%2F%2Fmmore500.github.io%2Fdownstream%2Fdocumentation-coverage-badge.json)](https://downstream.readthedocs.io/en/latest/) -->
 <!-- [![code coverage status](https://codecov.io/gh/mmore500/downstream/branch/master/graph/badge.svg)](https://codecov.io/gh/mmore500/downstream) -->
@@ -21,6 +21,12 @@ downstream provides efficient, constant-space implementations of stream curation
 
 ## Installation
 
+To install from PyPi with pip, run
+
+`python3 -m pip install downstream`
+
+To install the latest release directly from GitHub, run
+
 `python3 -m pip install "git+https://github.com/mmore500/downstream.git@v0.4.2#egg=downstream"`
 
 ## Documentation
@@ -33,7 +39,7 @@ See `https://github.com/mmore500/hstrat-surface-concept` for usage examples.
 
 If downstream contributes to a scientific publication, please cite it as
 
-> Matthew Andres Moreno. (2024). mmore500/downstream. Zenodo. https://zenodo.org/doi/TODO
+> Matthew Andres Moreno. (2024). mmore500/downstream. Zenodo. https://zenodo.org/doi/10.5281/zenodo.10866541
 
 ```bibtex
 @software{moreno2024downstream,
@@ -43,11 +49,10 @@ If downstream contributes to a scientific publication, please cite it as
   year = 2024,
   publisher = {Zenodo},
   doi = {TODO},
-  url = {https://zenodo.org/doi/TODO}
+  url = {https://zenodo.org/doi/10.5281/zenodo.10866541}
 }
 ```
 
-Consider also citing [hstrat](https://hstrat.readthedocs.io/en/stable/citing.html).
 And don't forget to leave a [star on GitHub](https://github.com/mmore500/downstream/stargazers)!
 
 ## Credits
