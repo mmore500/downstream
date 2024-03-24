@@ -27,7 +27,7 @@ dependencies = [
   "seaborn",
   "teeplot>=0.5.0",
 ]
-description = "downstream provides efficient, constant-space instrumentation for heredity stratigraphic phylogenetic inference over distributed digital evolution populations."
+description = "downstream provides efficient, constant-space algorithms for stream curation"
 license = {text = "MIT license"}
 name  =  "downstream"
 keywords = [
