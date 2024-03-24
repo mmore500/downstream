@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# hstrat-surface-concept documentation build configuration file, created by
+# downstream documentation build configuration file, created by
 # sphinx-quickstart on Fri Jun  9 13:47:02 2017.
 #
 # This file is execfile()d with the current directory set to its
@@ -75,8 +75,8 @@ source_suffix = [".rst", ".md"]
 master_doc = "index"
 
 # General information about the project.
-project = "Hereditary Stratigraphic Surface Concept"
-copyright = "2023, Matthew Andres Moreno"
+project = "downstream"
+copyright = "2024, Matthew Andres Moreno"
 author = "Matthew Andres Moreno"
 
 # The version info for the project you're documenting, acts as replacement
@@ -128,7 +128,7 @@ html_static_path = ["_static"]
 # -- Options for HTMLHelp output ---------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = "hstrat-surface-conceptdoc"
+htmlhelp_basename = "downstreamdoc"
 
 
 # -- Options for LaTeX output ------------------------------------------
@@ -154,7 +154,7 @@ latex_elements = {
 latex_documents = [
     (
         master_doc,
-        "hstrat-surface-concept.tex",
+        "downstream.tex",
         "Hereditary Stratigraphic Surface Concept Documentation",
         "Matthew Andres Moreno",
         "manual",
@@ -169,7 +169,7 @@ latex_documents = [
 man_pages = [
     (
         master_doc,
-        "hstrat-surface-concept",
+        "downstream",
         "Hereditary Stratigraphic Surface Concept Documentation",
         [author],
         1,
@@ -185,10 +185,10 @@ man_pages = [
 texinfo_documents = [
     (
         master_doc,
-        "hstrat-surface-concept",
+        "downstream",
         "Hereditary Stratigraphic Surface Concept Documentation",
         author,
-        "hstrat-surface-concept",
+        "downstream",
         "One line description of project.",
         "Miscellaneous",
     ),

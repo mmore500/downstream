@@ -9,7 +9,7 @@ We love your input! We want to make contributing to this project as easy and tra
 
 ## Reporting Bugs
 
-To report bugs, please [open an issue on Github](https://github.com/mmore500/hstrat-surface-concept/issues)
+To report bugs, please [open an issue on Github](https://github.com/mmore500/downstream/issues)
 clearly stating the observed (buggy) behavior (screenshots are encouraged), the desired behavior,
 which operating system and compiler you're using (including version), and any additional information that might
 help us fix the bug. If possible, please provide a minimum example that reproduces the bug.
@@ -32,11 +32,11 @@ articles, and such.
 
 ## Requesting features
 
-We welcome suggestions for how to make this project better! To give us your ideas, [open an issue on Github](https://github.com/mmore500/hstrat-surface-concept/issues).
+We welcome suggestions for how to make this project better! To give us your ideas, [open an issue on Github](https://github.com/mmore500/downstream/issues).
 
 ## Submit Feedback
 
-The best way to send feedback is to file an issue at https://github.com/mmore500/hstrat-surface-concept/issues.
+The best way to send feedback is to file an issue at https://github.com/mmore500/downstream/issues.
 
 If you are proposing a feature:
 

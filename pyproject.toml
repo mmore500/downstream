@@ -67,9 +67,9 @@ file = "README.md"
 content-type = "text/markdown"
 
 [project.urls]
-homepage = "https://github.com/mmore500/hstrat-surface-concept.git"
+homepage = "https://github.com/mmore500/downstream.git"
 # documentation = "https://hstrat.readthedocs.io"
-repository = "https://github.com/mmore500/hstrat-surface-concept"
+repository = "https://github.com/mmore500/downstream"
 
 [tool.setuptools]
 include-package-data = true
