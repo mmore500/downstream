@@ -71,7 +71,7 @@ repository = "https://github.com/mmore500/downstream"
 include-package-data = true
 
 [tool.setuptools.packages.find]
-exclude = ["tests", "tests.*", "test_downstream", "pylib.test", "pylib.test.*"]
+exclude = ["tests", "tests.*", "test_downstream", "pylib.test", "pylib.test.*", "pylib"]
 namespaces = false
 
 # adapted from https://tox.wiki/en/latest/example/package.html
