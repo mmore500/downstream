@@ -48,7 +48,7 @@ If downstream contributes to a scientific publication, please cite it as
   month = mar,
   year = 2024,
   publisher = {Zenodo},
-  doi = {TODO},
+  doi = {10.5281/zenodo.10866541},
   url = {https://zenodo.org/doi/10.5281/zenodo.10866541}
 }
 ```
