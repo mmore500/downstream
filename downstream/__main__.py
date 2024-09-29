@@ -1,6 +1,6 @@
 import subprocess
 import json
-from steady_site_selection import steady_site_selection
+from ..test_downstream.steady_site_selection import steady_site_selection
 import time
 import multiprocessing as mp
 from itertools import repeat
