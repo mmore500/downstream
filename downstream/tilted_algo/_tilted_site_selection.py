@@ -1,23 +1,5 @@
 import typing
-from downstream.utils import bit_floor, ctz
-
-def modpow2(dividend: int, divisor: int) -> int:
-    """Perform fast mod using bitwise operations.
-
-    Parameters
-    ----------
-    dividend : int
-        The dividend of the mod operation. Must be a positive integer.
-    divisor : int
-        The divisor of the mod operation. Must be a positive integer and a
-        power of 2.
-
-    Returns
-    -------
-    int
-        The remainder of dividing the dividend by the divisor.
-    """
-    return dividend & (divisor - 1)
+from downstream.utils import bit_floor, ctz, modpow2
 
 
 def tilted_site_selection(S: int, T: int) -> typing.Optional[int]:
