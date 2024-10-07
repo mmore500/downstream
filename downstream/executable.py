@@ -54,13 +54,12 @@ def steady_site_selection(S: int, T: int) -> typing.Optional[int]:
     p = h % w  # Within-segment offset
     return k_b + o + p  # Calculate placement site
 
+
 if __name__ == "__main__":
-
-
     parser = argparse.ArgumentParser()
-    parser.add_argument('-S', type=int, action='append', help='S value')
-    parser.add_argument('-T', type=int, action='append', help='T value')
-    parser.add_argument('--batch', action='store_true', help='Batch mode')
+    parser.add_argument("-S", type=int, action="append", help="S value")
+    parser.add_argument("-T", type=int, action="append", help="T value")
+    parser.add_argument("--batch", action="store_true", help="Batch mode")
     args = parser.parse_args()
 
     if args.batch:

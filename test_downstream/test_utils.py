@@ -14,6 +14,7 @@ def test_bit_floor():
         1, 2, 2, 4, 4, 4, 4, 8, 8, 8, 8, 8, 8, 8, 8, 16
     ]
 
+
 def test_modpow2():
     assert modpow2(10, 2) == 0  # 10 % 2 = 0
     assert modpow2(10, 4) == 2  # 10 % 4 = 2
