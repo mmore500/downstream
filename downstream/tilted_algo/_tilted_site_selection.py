@@ -1,5 +1,5 @@
 import typing
-
+from downstream.utils import bit_floor, ctz
 
 def modpow2(dividend: int, divisor: int) -> int:
     """Perform fast mod using bitwise operations.
@@ -18,21 +18,6 @@ def modpow2(dividend: int, divisor: int) -> int:
         The remainder of dividing the dividend by the divisor.
     """
     return dividend & (divisor - 1)
-
-
-def ctz(x: int) -> int:
-    """Count trailing zeros."""
-    assert x > 0
-    return (x & -x).bit_length() - 1
-
-
-def bit_floor(n: int) -> int:
-    """Calculate the largest power of two not greater than n.
-
-    If zero, returns zero.
-    """
-    mask = 1 << (n >> 1).bit_length()
-    return n & mask
 
 
 def tilted_site_selection(S: int, T: int) -> typing.Optional[int]:

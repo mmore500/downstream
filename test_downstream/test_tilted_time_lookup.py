@@ -1,8 +1,8 @@
 import functools
 import typing
 
-from .tilted_site_selection import tilted_site_selection as site_selection
-from .tilted_time_lookup import tilted_time_lookup
+from downstream.tilted_algo import site_selection
+from downstream.tilted_algo import time_lookup as time_lookup_
 
 
 def validate_tilted_time_lookup(fn: typing.Callable) -> typing.Callable:
@@ -20,7 +20,7 @@ def validate_tilted_time_lookup(fn: typing.Callable) -> typing.Callable:
     return wrapper
 
 
-time_lookup = validate_tilted_time_lookup(tilted_time_lookup)
+time_lookup = validate_tilted_time_lookup(time_lookup_)
 
 
 def test_tilted_time_lookup_against_site_selection():

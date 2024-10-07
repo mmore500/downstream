@@ -1,9 +1,8 @@
 import functools
 import typing
 
-from .steady_site_selection import steady_site_selection as site_selection
-from .steady_time_lookup import steady_time_lookup
-
+from downstream.steady_algo import site_selection
+from downstream.steady_algo import time_lookup as time_lookup_
 
 def validate_steady_time_lookup(fn: typing.Callable) -> typing.Callable:
     """Decorator to validate pre- and post-conditions on time lookup."""
@@ -20,7 +19,7 @@ def validate_steady_time_lookup(fn: typing.Callable) -> typing.Callable:
     return wrapper
 
 
-time_lookup = validate_steady_time_lookup(steady_time_lookup)
+time_lookup = validate_steady_time_lookup(time_lookup_)
 
 
 def test_steady_time_lookup_against_site_selection():

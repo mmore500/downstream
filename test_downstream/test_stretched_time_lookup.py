@@ -1,10 +1,8 @@
 import functools
 import typing
 
-from .stretched_site_selection import (
-    stretched_site_selection as site_selection,
-)
-from .stretched_time_lookup import stretched_time_lookup
+from downstream.stretched_algo import site_selection
+from downstream.stretched_algo import time_lookup as time_lookup_
 
 
 def validate_stretched_time_lookup(fn: typing.Callable) -> typing.Callable:
@@ -22,7 +20,7 @@ def validate_stretched_time_lookup(fn: typing.Callable) -> typing.Callable:
     return wrapper
 
 
-time_lookup = validate_stretched_time_lookup(stretched_time_lookup)
+time_lookup = validate_stretched_time_lookup(time_lookup_)
 
 
 def test_stretched_time_lookup_against_site_selection():

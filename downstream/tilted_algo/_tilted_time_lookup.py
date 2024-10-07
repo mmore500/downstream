@@ -1,40 +1,5 @@
 import typing
-
-
-def modpow2(dividend: int, divisor: int) -> int:
-    """Perform fast mod using bitwise operations.
-
-    Parameters
-    ----------
-    dividend : int
-        The dividend of the mod operation. Must be a positive integer.
-    divisor : int
-        The divisor of the mod operation. Must be a positive integer and a
-        power of 2.
-
-    Returns
-    -------
-    int
-        The remainder of dividing the dividend by the divisor.
-    """
-    assert divisor.bit_count() == 1  # Assert divisor is a power of two
-    return dividend & (divisor - 1)
-
-
-def ctz(x: int) -> int:
-    """Count trailing zeros."""
-    assert x > 0
-    return (x & -x).bit_length() - 1
-
-
-def bit_floor(n: int) -> int:
-    """Calculate the largest power of two not greater than n.
-
-    If zero, returns zero.
-    """
-    mask = 1 << (n >> 1).bit_length()
-    return n & mask
-
+from downstream.utils import bit_floor, ctz, modpow2
 
 def tilted_time_lookup(
     S: int, T: int

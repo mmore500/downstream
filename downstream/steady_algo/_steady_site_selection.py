@@ -1,17 +1,5 @@
 import typing
-
-
-def ctz(x: int) -> int:
-    """Count trailing zeros."""
-    assert x > 0
-    return (x & -x).bit_length() - 1
-
-
-def bit_floor(x: int) -> int:
-    """Return the largest power of two less than or equal to x."""
-    assert x > 0
-    return 1 << (x.bit_length() - 1)
-
+from downstream.utils import ctz, bit_floor
 
 def steady_site_selection(S: int, T: int) -> typing.Optional[int]:
     """Site selection algorithm for steady curation.

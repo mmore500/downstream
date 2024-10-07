@@ -3,21 +3,7 @@ import itertools as it
 from random import randrange as rand
 import typing
 
-from .steady_site_selection import bit_floor, ctz, steady_site_selection
-
-
-def test_ctz():
-    # fmt: off
-    assert [*map(ctz, range(1, 17))] == [
-        0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 4
-    ]
-
-
-def test_bit_floor():
-    # fmt: off
-    assert [*map(bit_floor, range(1, 17))] == [
-        1, 2, 2, 4, 4, 4, 4, 8, 8, 8, 8, 8, 8, 8, 8, 16
-    ]
+from downstream.steady_algo import site_selection as site_selection_
 
 
 def validate_steady_site_selection(fn: typing.Callable) -> typing.Callable:
@@ -34,7 +20,7 @@ def validate_steady_site_selection(fn: typing.Callable) -> typing.Callable:
     return wrapper
 
 
-site_selection = validate_steady_site_selection(steady_site_selection)
+site_selection = validate_steady_site_selection(site_selection_)
 
 
 def test_steady_site_selection8():
