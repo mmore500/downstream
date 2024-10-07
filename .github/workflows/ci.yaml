@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 jobs:
 
-  tidy:
+  style:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -21,12 +21,10 @@ jobs:
           node-version: 18
       - run: |
           sudo apt-get update -y
-          sudo apt-get install -y bibtool rename
-          npm install -g bibtex-tidy
           python3 -m pip install pip --upgrade
           python3 -m pip install -r requirements.txt
           python3 -m pip install -r docs/requirements.txt
-      - run: ./tidy/test_tidy.sh
+      - run: ./tidy/style.sh
 
   lint:
     runs-on: ubuntu-latest
@@ -35,7 +33,7 @@ jobs:
       - run: |
           python3 -m pip install pip --upgrade
           python3 -m pip install -r requirements.txt
-      - run: ./lint.sh
+      - run: ./tidy/lint.sh
 
   test-pylib:
     runs-on: ubuntu-latest
