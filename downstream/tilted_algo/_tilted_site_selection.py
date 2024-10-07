@@ -1,4 +1,5 @@
 import typing
+
 from downstream.utils import bit_floor, ctz, modpow2
 
 

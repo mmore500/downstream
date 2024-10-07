@@ -1,5 +1,7 @@
 import typing
+
 from downstream.utils import bit_floor, ctz, modpow2
+
 
 def tilted_time_lookup(
     S: int, T: int

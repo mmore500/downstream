@@ -1,7 +1,8 @@
-import json
-import subprocess
-import multiprocessing as mp
 from itertools import repeat
+import json
+import multiprocessing as mp
+import subprocess
+
 
 def run_external_script_batch(args):
     batch, executable = args

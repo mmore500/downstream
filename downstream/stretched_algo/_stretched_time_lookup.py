@@ -1,5 +1,7 @@
 import typing
+
 from downstream.utils import bit_floor, ctz
+
 
 def stretched_time_lookup(
     S: int, T: int

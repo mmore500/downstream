@@ -4,6 +4,7 @@ import typing
 from downstream.steady_algo import site_selection
 from downstream.steady_algo import time_lookup as time_lookup_
 
+
 def validate_steady_time_lookup(fn: typing.Callable) -> typing.Callable:
     """Decorator to validate pre- and post-conditions on time lookup."""
 

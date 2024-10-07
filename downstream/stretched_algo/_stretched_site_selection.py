@@ -1,5 +1,7 @@
 import typing
-from downstream.utils import ctz, bit_floor
+
+from downstream.utils import bit_floor, ctz
+
 
 def stretched_site_selection(S: int, T: int) -> typing.Optional[int]:
     """Site selection algorithm for stretched curation.

@@ -1,3 +1,3 @@
 #!/bin/bash
 
-ruff --ignore=E501 .
+ruff --ignore=E501 ..

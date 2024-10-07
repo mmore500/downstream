@@ -1,10 +1,12 @@
-from downstream.steady_algo import site_selection as steady_site_selection
-import time
-import random
-import math
-from downstream.run import run_external_script_parallel
 import argparse
+import math
 import os
+import random
+import time
+
+from downstream.run import run_external_script_parallel
+from downstream.steady_algo import site_selection as steady_site_selection
+
 
 def generate_test_cases():
     cases = []

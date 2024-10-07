@@ -1,4 +1,5 @@
-from downstream.utils import ctz, bit_floor, modpow2
+from downstream.utils import bit_floor, ctz, modpow2
+
 
 def test_ctz():
     # fmt: off

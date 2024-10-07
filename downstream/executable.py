@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
-import typing
 import argparse
 import json
+import typing
+
 
 def ctz(x: int) -> int:
     """Count trailing zeros."""
