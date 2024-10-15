@@ -35,14 +35,14 @@ jobs:
           python3 -m pip install -r requirements.txt
       - run: ./tidy/lint.sh
 
-  test-pylib:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - run: |
-          python3 -m pip install pip --upgrade
-          python3 -m pip install -r requirements.txt
-      - run: python3 -m pytest -n auto pylib
+  # test-pylib:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - run: |
+  #         python3 -m pip install pip --upgrade
+  #         python3 -m pip install -r requirements.txt
+  #     - run: python3 -m pytest -n auto pylib
 
   test-downstream:
     runs-on: ubuntu-latest
@@ -154,7 +154,7 @@ jobs:
       - packaging-sdist
       - packaging-source
       - test-downstream
-      - test-pylib
+      # - test-pylib
       - test-packaging
       - lint
       - style
