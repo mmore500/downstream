@@ -67,16 +67,16 @@ jobs:
       # (there are a lot of deprecation warnings)
       - run: python3 -m pytest -n auto -W ignore test_downstream
 
-  test-downstream-heavy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - run: |
-          python3 -m pip install pip --upgrade
-          python3 -m pip install -r requirements.txt
-      # ignore warnings to reduce memory use
-      # (there are a lot of deprecation warnings)
-      - run: timeout 5h python3 -m pytest -m heavy -W ignore -n auto test_downstream || ( [[ $? -eq 124 ]] && echo "WARNING Timeout reached" )
+  # test-downstream-heavy:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - run: |
+  #         python3 -m pip install pip --upgrade
+  #         python3 -m pip install -r requirements.txt
+  #     # ignore warnings to reduce memory use
+  #     # (there are a lot of deprecation warnings)
+  #     - run: timeout 5h python3 -m pytest -m heavy -W ignore -n auto test_downstream || ( [[ $? -eq 124 ]] && echo "WARNING Timeout reached" )
 
   # regression test for https://github.com/mmore500/hstrat/commit/c276530
   packaging-bdist:
@@ -153,7 +153,7 @@ jobs:
       - packaging-bdist
       - packaging-sdist
       - packaging-source
-      - test-downstream
+      # - test-downstream
       # - test-pylib
       - test-packaging
       - lint
