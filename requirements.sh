@@ -1,8 +1,6 @@
 #!/usr/bin/bash
 
 set -e
-set -u
 
 cd "$(dirname "$0")"
-
-python3.10 -m piptools compile "pyproject.toml" --extra "dev" --extra "release" --extra "testing"
+python3 -m uv pip compile requirements.in > requirements.txt

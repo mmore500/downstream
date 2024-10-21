@@ -24,7 +24,7 @@ jobs:
           python3 -m pip install pip --upgrade
           python3 -m pip install -r requirements.txt
           python3 -m pip install -r docs/requirements.txt
-      - run: ./tidy/style.sh
+      - run: ./style.sh
 
   lint:
     runs-on: ubuntu-22.04
@@ -33,7 +33,7 @@ jobs:
       - run: |
           python3 -m pip install pip --upgrade
           python3 -m pip install -r requirements.txt
-      - run: ./tidy/lint.sh
+      - run: ./lint.sh
 
   test-downstream:
     runs-on: ubuntu-22.04
