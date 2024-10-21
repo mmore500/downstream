@@ -1,4 +1,6 @@
-from downstream.utils import bit_floor, ctz, modpow2
+from downstream._auxlib._bit_floor import bit_floor
+from downstream._auxlib._ctz import ctz
+from downstream._auxlib._modpow2 import modpow2
 
 
 def test_ctz():

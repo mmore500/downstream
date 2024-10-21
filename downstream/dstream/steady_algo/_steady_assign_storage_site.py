@@ -1,9 +1,10 @@
 import typing
 
-from downstream.utils import bit_floor, ctz
+from ..._auxlib._bit_floor import bit_floor
+from ..._auxlib._ctz import ctz
 
 
-def steady_site_selection(S: int, T: int) -> typing.Optional[int]:
+def steady_assign_storage_site(S: int, T: int) -> typing.Optional[int]:
     """Site selection algorithm for steady curation.
 
     Parameters

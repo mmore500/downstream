@@ -1,9 +1,10 @@
 import typing
 
-from downstream.utils import bit_floor, ctz
+from ..._auxlib._bit_floor import bit_floor
+from ..._auxlib._ctz import ctz
 
 
-def stretched_time_lookup(
+def stretched_lookup_ingest_times(
     S: int, T: int
 ) -> typing.Iterable[typing.Optional[int]]:
     """Ingest time lookup algorithm for stretched curation.
@@ -18,7 +19,7 @@ def stretched_time_lookup(
     Returns
     -------
     typing.Optional[int]
-        Ingest time, if any.
+        Ingest time of stored item, if any, at buffer sites in index order.
     """
     if T < S:  # Patch for before buffer is filled...
         yield from (v if v < T else None for v in stretched_lookup_impl(S, S))
@@ -27,8 +28,8 @@ def stretched_time_lookup(
 
 
 def stretched_lookup_impl(S: int, T: int) -> typing.Iterable[int]:
-    """Implementation detail for `stretched_time_lookup`."""
-    assert T >= S  # T < S redirected to T = S by stretched_time_lookup
+    """Implementation detail for `stretched_lookup_ingest_times`."""
+    assert T >= S  # T < S redirected to T = S by stretched_lookup_ingest_times
 
     s = S.bit_length() - 1
     t = (T).bit_length() - s  # Current epoch

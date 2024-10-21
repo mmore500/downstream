@@ -1,7 +1,7 @@
 import typing
 
 
-def steady_time_lookup(
+def steady_lookup_ingest_times(
     S: int, T: int
 ) -> typing.Iterable[typing.Optional[int]]:
     """Ingest time lookup algorithm for steady curation.
@@ -16,7 +16,7 @@ def steady_time_lookup(
     Returns
     -------
     typing.Optional[int]
-        Ingest time, if any.
+        Ingest time of stored item, if any, at buffer sites in index order.
     """
     if T < S - 1:  # Patch for before buffer is filled...
         yield from (v if v < T else None for v in steady_lookup_impl(S, S - 1))
@@ -27,8 +27,8 @@ def steady_time_lookup(
 
 
 def steady_lookup_impl(S: int, T: int) -> typing.Iterable[int]:
-    """Implementation detail for `steady_time_lookup`."""
-    assert T >= S - 1  # T <= S redirected to T = S - 1 by steady_time_lookup
+    """Implementation detail for `steady_lookup_ingest_times`."""
+    assert T >= S - 1  # T <= S redirected to T = S - 1 by steady_lookup_ingest_times
     s = S.bit_length() - 1
     t = (T + 1).bit_length() - s  # Current epoch
 

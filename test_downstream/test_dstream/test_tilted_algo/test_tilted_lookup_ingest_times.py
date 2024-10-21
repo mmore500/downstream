@@ -1,11 +1,10 @@
 import functools
 import typing
 
-from downstream.steady_algo import site_selection
-from downstream.steady_algo import time_lookup as time_lookup_
+from downstream.dstream import tilted_algo as algo
 
 
-def validate_steady_time_lookup(fn: typing.Callable) -> typing.Callable:
+def validate_tilted_time_lookup(fn: typing.Callable) -> typing.Callable:
     """Decorator to validate pre- and post-conditions on time lookup."""
 
     @functools.wraps(fn)
@@ -20,10 +19,10 @@ def validate_steady_time_lookup(fn: typing.Callable) -> typing.Callable:
     return wrapper
 
 
-time_lookup = validate_steady_time_lookup(time_lookup_)
+time_lookup = validate_tilted_time_lookup(algo.lookup_ingest_times)
 
 
-def test_steady_time_lookup_against_site_selection():
+def test_tilted_time_lookup_against_site_selection():
     for s in range(1, 12):
         S = 1 << s
         T_max = min(1 << 17 - s, 2**S - 1)
@@ -32,6 +31,6 @@ def test_steady_time_lookup_against_site_selection():
             actual = time_lookup(S, T)
             assert all(x == y for x, y in zip(expected, actual))
 
-            site = site_selection(S, T)
+            site = algo.assign_storage_site(S, T)
             if site is not None:
                 expected[site] = T

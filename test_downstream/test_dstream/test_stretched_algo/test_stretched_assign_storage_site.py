@@ -2,7 +2,7 @@ import functools
 import itertools as it
 import typing
 
-from downstream.stretched_algo import site_selection as site_selection_
+from downstream.dstream import stretched_algo as algo
 
 
 def validate_stretched_site_selection(fn: typing.Callable) -> typing.Callable:
@@ -20,7 +20,7 @@ def validate_stretched_site_selection(fn: typing.Callable) -> typing.Callable:
     return wrapper
 
 
-site_selection = validate_stretched_site_selection(site_selection_)
+site_selection = validate_stretched_site_selection(algo.assign_storage_site)
 
 
 def test_stretched_site_selection8():

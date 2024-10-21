@@ -1,8 +1,7 @@
 import functools
 import typing
 
-from downstream.stretched_algo import site_selection
-from downstream.stretched_algo import time_lookup as time_lookup_
+from downstream.dstream import stretched_algo as algo
 
 
 def validate_stretched_time_lookup(fn: typing.Callable) -> typing.Callable:
@@ -20,7 +19,7 @@ def validate_stretched_time_lookup(fn: typing.Callable) -> typing.Callable:
     return wrapper
 
 
-time_lookup = validate_stretched_time_lookup(time_lookup_)
+time_lookup = validate_stretched_time_lookup(algo.lookup_ingest_times)
 
 
 def test_stretched_time_lookup_against_site_selection():
@@ -32,6 +31,6 @@ def test_stretched_time_lookup_against_site_selection():
             actual = time_lookup(S, T)
             assert all(x == y for x, y in zip(expected, actual))
 
-            site = site_selection(S, T)
+            site = algo.assign_storage_site(S, T)
             if site is not None:
                 expected[site] = T

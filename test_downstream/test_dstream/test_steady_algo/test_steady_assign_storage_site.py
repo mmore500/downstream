@@ -3,7 +3,7 @@ import itertools as it
 from random import randrange as rand
 import typing
 
-from downstream.steady_algo import site_selection as site_selection_
+from downstream.dstream import steady_algo as algo
 
 
 def validate_steady_site_selection(fn: typing.Callable) -> typing.Callable:
@@ -20,7 +20,7 @@ def validate_steady_site_selection(fn: typing.Callable) -> typing.Callable:
     return wrapper
 
 
-site_selection = validate_steady_site_selection(site_selection_)
+site_selection = validate_steady_site_selection(algo.assign_storage_site)
 
 
 def test_steady_site_selection8():

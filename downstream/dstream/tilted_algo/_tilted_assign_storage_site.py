@@ -1,9 +1,11 @@
 import typing
 
-from downstream.utils import bit_floor, ctz, modpow2
+from ..._auxlib._bit_floor import bit_floor
+from ..._auxlib._ctz import ctz
+from ..._auxlib._modpow2 import modpow2
 
 
-def tilted_site_selection(S: int, T: int) -> typing.Optional[int]:
+def tilted_assign_storage_site(S: int, T: int) -> typing.Optional[int]:
     """Site selection algorithm for tilted curation.
 
     Parameters
