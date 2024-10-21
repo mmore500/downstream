@@ -37,6 +37,7 @@ release = [
   "bumpver==2022.1120",
   "twine==1.14.0",
   "wheel==0.33.6",
+  "uv==0.2.34",
   "pip==22.0.4",
   "pip_tools==6.10.0",
   "setuptools==65.6.3",

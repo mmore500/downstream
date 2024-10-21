@@ -93,6 +93,8 @@ twine==1.14.0
     # via downstream (pyproject.toml)
 urllib3==2.2.3
     # via requests
+uv==0.2.34
+    # via downstream (pyproject.toml)
 wheel==0.33.6
     # via
     #   downstream (pyproject.toml)
