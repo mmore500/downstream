@@ -17,7 +17,7 @@ echo "Comparing $1 $2 to python3 -O -m downstream $2..."
 badline="$( \
     cmp <( \
             python3 -O -m downstream.testing.generate \
-            | pv --size $((840*1024)) \
+            | "$(which pv && echo "--size $((840*1024))" || which cat)" \
             | python3 -O -m downstream $2 \
         ) \
         <( \
