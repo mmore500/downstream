@@ -158,7 +158,7 @@ jobs:
       - packaging-source
       - test-downstream
       - test-packaging
-      - test-via-cli
+      - test-validators
       - lint
       - style
       - requirements
