@@ -17,5 +17,7 @@ elif ! grep -q "$(python3 -m pip freeze | grep "black==")" requirements.txt; the
     exit 1
 fi
 
+python3 -m black .
+python3 -m isort .
 python3 -m nbqa black .
 python3 -m nbqa isort .
