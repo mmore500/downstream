@@ -45,7 +45,7 @@ if __name__ == "__main__":
         "--max-words",
         default=100,
         type=int,
-        help="Maximum number of words to output from the result."
+        help="Maximum number of words to output from the result.",
     )
     args = parser.parse_args()
 

@@ -24,7 +24,6 @@ def steady_lookup_ingest_times(
         yield from steady_lookup_impl(S, T)
 
 
-
 def steady_lookup_impl(S: int, T: int) -> typing.Iterable[int]:
     """Implementation detail for `steady_lookup_ingest_times`."""
     assert T >= S  # T < S redirected to T = S by steady_lookup_ingest_times

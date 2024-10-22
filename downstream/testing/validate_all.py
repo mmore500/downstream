@@ -2,7 +2,6 @@ import argparse
 import subprocess
 import sys
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Test a downstream implementation against reference.",
@@ -10,15 +9,12 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "command",
-        help=(
-            "The command to test. "
-            "Example: 'python3 ./my_program'"
-        ),
+        help="The command to test. Example: 'python3 ./my_program'",
     )
     parser.add_argument(
         "--reference",
         default="python3 -O -m downstream",
-        help="Reference command to validate against."
+        help="Reference command to validate against.",
     )
     args = parser.parse_args()
 
