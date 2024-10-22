@@ -55,6 +55,10 @@ repository = "https://github.com/mmore500/downstream"
 
 [tool.setuptools]
 include-package-data = true
+script-files = [
+  "scripts/dstream_test_all.sh",
+  "scripts/dstream_test_one.sh",
+]
 
 [tool.setuptools.packages.find]
 exclude = ["tests", "tests.*", "test_downstream", "pylib.test", "pylib.test.*", "pylib"]

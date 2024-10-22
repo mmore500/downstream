@@ -56,6 +56,19 @@ jobs:
           python3 -m pip install -r requirements.txt
       - run: python3 -m pytest -n auto test_downstream
 
+  test-via-cli:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          python3 -m pip install pip --upgrade
+          python3 -m pip install -r requirements.txt
+      - run: python3 -m pip install .
+      - run: python3 -m downstream -h
+      - run: dstream_nop.sh
+      - run: dstream_test_one.sh 'python3 -m downstream' steady_algo.assign_storage_site
+      - run: dstream_test_all.sh 'python3 -m downstream'
+
   test-packaging:
     runs-on: ubuntu-22.04
     steps:
@@ -66,7 +79,9 @@ jobs:
           rm -rf downstream
       # ignore warnings to reduce memory use
       # (there are a lot of deprecation warnings)
-      - run: python3 -m pytest -n auto -W ignore test_downstream
+      - run: |
+          python3 -m pytest -n auto -W ignore test_downstream
+          dstream_nop.sh
 
   # regression test for https://github.com/mmore500/hstrat/commit/c276530
   packaging-bdist:
@@ -93,6 +108,7 @@ jobs:
         run: |
           find . -type f -name '*.py' -exec rm {} \;
           python3 -c "import downstream; print(downstream.__version__)"
+          dstream_nop.sh
 
   # regression test for https://github.com/mmore500/hstrat/commit/c276530
   packaging-sdist:
@@ -119,6 +135,7 @@ jobs:
         run: |
           find . -type f -name '*.py' -exec rm {} \;
           python3 -c "import downstream; print(downstream.__version__)"
+          dstream_nop.sh
 
   # regression test for https://github.com/mmore500/hstrat/commit/c276530
   packaging-source:
@@ -137,6 +154,7 @@ jobs:
           rm -rf *
           cd
           python3 -c "import downstream; print(downstream.__version__)"
+          dstream_nop.sh
 
   deploy:
     needs:
