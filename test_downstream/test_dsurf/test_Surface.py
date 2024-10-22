@@ -22,3 +22,4 @@ def test_Surface(algo: types.ModuleType, S: int) -> None:
         if site is not None:
             assert surface[site] == T
         assert [*surface] == [*surface.lookup()]
+        assert [*zip(surface.lookup(), surface)] == [*surface.enumerate()]

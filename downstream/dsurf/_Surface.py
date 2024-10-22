@@ -20,6 +20,12 @@ class Surface:
     def __getitem__(self: "Surface", site: int) -> object:
         return self._storage[site]
 
+    def enumerate(
+        self: "Surface",
+    ) -> typing.Iterable[typing.Tuple[int, object]]:
+        """Iterate over ingest times and values of retained data items."""
+        return zip(self.lookup(), self._storage)
+
     def ingest(self: "Surface", item: object) -> typing.Optional[int]:
         """Ingest data item.
 
