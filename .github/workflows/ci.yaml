@@ -163,6 +163,7 @@ jobs:
       - packaging-source
       - test-downstream
       - test-packaging
+      - test-via-cli
       - lint
       - style
       - requirements
