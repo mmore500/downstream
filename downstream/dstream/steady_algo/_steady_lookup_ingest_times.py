@@ -18,31 +18,30 @@ def steady_lookup_ingest_times(
     typing.Optional[int]
         Ingest time of stored item, if any, at buffer sites in index order.
     """
-    if T < S - 1:  # Patch for before buffer is filled...
-        yield from (v if v < T else None for v in steady_lookup_impl(S, S - 1))
+    if T < S:  # Patch for before buffer is filled...
+        yield from (v if v < T else None for v in steady_lookup_impl(S, S))
     else:  # ... assume buffer has been filled
         yield from steady_lookup_impl(S, T)
 
-    yield None  # Last site is never filled
 
 
 def steady_lookup_impl(S: int, T: int) -> typing.Iterable[int]:
     """Implementation detail for `steady_lookup_ingest_times`."""
-    assert (
-        T >= S - 1
-    )  # T <= S redirected to T = S - 1 by steady_lookup_ingest_times
+    assert T >= S  # T < S redirected to T = S by steady_lookup_ingest_times
     s = S.bit_length() - 1
-    t = (T + 1).bit_length() - s  # Current epoch
+    t = T.bit_length() - s  # Current epoch
 
     b = 0  # Bunch physical index (left-to right)
     m_b__ = 1  # Countdown on segments traversed within bunch
     b_star = True  # Have traversed all segments in bunch?
-    k_m__ = s  # Countdown on sites traversed within segment
+    k_m__ = s + 1  # Countdown on sites traversed within segment
     h_ = None  # Candidate hanoi value__
 
-    for k in range(S - 1):  # Iterate over buffer sites, except unused last one
+    for k in range(S):  # Iterate over buffer sites, except unused last one
         # Calculate info about current segment...
-        w = s - b  # Number of sites in current segment (i.e., segment size)
+        epsilon_w = b == 0  # Correction on segment width if first segment
+        # Number of sites in current segment (i.e., segment size)
+        w = s - b + epsilon_w
         m = (1 << b) - m_b__  # Calc left-to-right index of current segment
         h_max = t + w - 1  # Max possible hanoi value in segment during epoch
 
