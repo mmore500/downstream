@@ -59,6 +59,7 @@ jobs:
   test-validators:
     runs-on: ubuntu-22.04
     strategy:
+      fail-fast: false
       matrix:
         aptpackages: ["pv", "git"]  # git acts as no-op
     steps:
