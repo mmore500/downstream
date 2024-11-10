@@ -28,7 +28,7 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    script = r"""
+    script = rf"""
 set -e
 test_cases=(
     # Edge cases for S (powers of 2)
@@ -167,22 +167,28 @@ test_cases=(
     "1 3790218436"
 )
 
-printf "\n%-15s | %-40s | %-40s\n" "Test Case" "Reference Output" "Target Output"
-printf "%s\n" "-------------------------------------------------------------------------------"
+line1="-----------------------------------------------------------------"
+line2="#################################################################"
+target="{args.target} "
 
-for test_case in "${test_cases[@]}"; do
-    ref_output=$(echo "${test_case}" | $1 $3 2>/dev/null || echo "ERROR")
-    target_output=$(echo "${test_case}" | $2 $3 2>/dev/null || echo "ERROR")
+printf "\n%s%s\n" "${{target}}" "${{line1:${{#target}}}}"
+printf "%s\n" "${{line2}}"
+printf "%-20s | %-20s | %-20s\n" "Test Case S, T" "Reference Output" "Command Output"
+printf "%s\n" "${{line1}}"
 
-    printf "%-15s | %-40s | %-40s" \
-        "${test_case}" \
-        "${ref_output:0:40}" \
-        "${target_output:0:40}"
+for test_case in "${{test_cases[@]}}"; do
+    ref_output="$(echo "${{test_case}}" | $1 $3 2>/dev/null || echo "ERROR")"
+    test_output="$(echo "${{test_case}}" | $2 $3 2>/dev/null || echo "ERROR")"
 
-    if [ "$ref_output" != "$target_output" ]; then
+    printf "%-20s | %-20s | %-20s" \
+        "${{test_case}}" \
+        "${{ref_output:0:20}}" \
+        "${{test_output:0:20}}"
+
+    if [ "${{ref_output}}" != "${{test_output}}" ]; then
         printf " <- MISMATCH\n"
     else
-        printf "\n"
+        printf [OK]"\n"
     fi
 done
 """
