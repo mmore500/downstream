@@ -58,22 +58,34 @@ jobs:
 
   test-validators:
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        aptpackages: ["pv", "git"]  # git acts as no-op
     steps:
       - uses: actions/checkout@v2
+      - run: |
+          sudo apt-get update -y
+          sudo apt-get install -y ${{ matrix.aptpackages }}
       - run: |
           python3 -m pip install pip --upgrade
           python3 -m pip install -r requirements.txt
       - run: python3 -m pip install .
       - run: python3 -m downstream -h
+      # should detect correct output
       - run: python3 -m downstream.testing.debug_one 'python3 -m downstream' steady_algo.assign_storage_site
       - run: python3 -m downstream.testing.debug_all 'python3 -m downstream'
       - run: python3 -m downstream.testing.validate_one 'python3 -m downstream' steady_algo.assign_storage_site
       - run: python3 -m downstream.testing.validate_all 'python3 -m downstream'
-      - run: sudo apt-get update -y
-      - run: sudo apt-get install -y pv
-      - run: python3 -m downstream.testing.validate_one 'python3 -m downstream' steady_algo.assign_storage_site
-      - run: python3 -m downstream.testing.debug_one 'python3 -m downstream' steady_algo.assign_storage_site
-      - run: python3 -m downstream.testing.debug_all 'python3 -m downstream'
+      # should detect incorrect output
+      - run: python3 -m downstream.testing.debug_one 'echo 42' steady_algo.assign_storage_site && exit 1 || echo "expected fail"
+      - run: python3 -m downstream.testing.debug_all 'echo 42' && exit 1 || echo "expected fail"
+      - run: python3 -m downstream.testing.validate_one 'echo 42' steady_algo.assign_storage_site
+      - run: python3 -m downstream.testing.validate_all 'echo 42' && exit 1 || echo "expected fail"
+      # should detect crash
+      - run: python3 -m downstream.testing.debug_one 'false' steady_algo.assign_storage_site && exit 1 || echo "expected fail"
+      - run: python3 -m downstream.testing.debug_all 'false' && exit 1 || echo "expected fail"
+      - run: python3 -m downstream.testing.validate_one 'false' steady_algo.assign_storage_site
+      - run: python3 -m downstream.testing.validate_all 'false' && exit 1 || echo "expected fail"
 
   test-packaging:
     runs-on: ubuntu-22.04
