@@ -145,7 +145,7 @@ test_cases=(
     "131072 50"   # High S, low T
     "64 3500"     # Low-mid S, high T
 
-    # Additional random cases across the range
+    # Additional random cases
     "4 2047"
     "32 1023"
     "128 3071"
@@ -164,22 +164,25 @@ test_cases=(
     "65536 3455"
     "262144 1279"
     "1048576 3967"
+    "1 3790218436"
 )
 
 printf "\n%-15s | %-40s | %-40s\n" "Test Case" "Reference Output" "Target Output"
 printf "%s\n" "-------------------------------------------------------------------------------"
 
 for test_case in "${test_cases[@]}"; do
-    ref_output=$(echo "${test_case}" | $2 $3 2>/dev/null || echo "ERROR")
-    target_output=$(echo "${test_case}" | $1 $3 2>/dev/null || echo "ERROR")
+    ref_output=$(echo "${test_case}" | $1 $3 2>/dev/null || echo "ERROR")
+    target_output=$(echo "${test_case}" | $2 $3 2>/dev/null || echo "ERROR")
 
-    printf "%-15s | %-40s | %-40s\n" \
+    printf "%-15s | %-40s | %-40s" \
         "${test_case}" \
         "${ref_output:0:40}" \
         "${target_output:0:40}"
 
-    if [ "$ref_out" != "$target_out" ]; then
-        printf " <- MISMATCH"
+    if [ "$ref_output" != "$target_output" ]; then
+        printf " <- MISMATCH\n"
+    else
+        printf "\n"
     fi
 done
 """
