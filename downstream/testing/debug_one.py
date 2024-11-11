@@ -5,8 +5,8 @@ import sys
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description=(
-            "Debug a target algorithm implementation by comparing its output "
-            "with a reference implementation side by side."
+            "Debug a target downstream algorithm implementation by comparing "
+            "output against a reference implementation for selected test cases."
         ),
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )

@@ -4,7 +4,10 @@ import sys
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Test a downstream implementation against reference.",
+        description=(
+            "Debug a downstream implementation against selected reference "
+            "test cases."
+        ),
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
