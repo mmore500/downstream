@@ -176,6 +176,7 @@ printf "%s\n" "${{line2}}"
 printf "%-20s | %-20s | %-20s\n" "Test Case S, T" "Reference Output" "Command Output"
 printf "%s\n" "${{line1}}"
 
+EXITCODE=0
 for test_case in "${{test_cases[@]}}"; do
     ref_output="$(echo "${{test_case}}" | $1 $3 2>/dev/null || echo "ERROR")"
     test_output="$(echo "${{test_case}}" | $2 $3 2>/dev/null || echo "ERROR")"
@@ -187,12 +188,15 @@ for test_case in "${{test_cases[@]}}"; do
 
     if [ "${{ref_output}}" != "${{test_output}}" ]; then
         printf " <- MISMATCH\n"
+        ((++EXITCODE))
     else
         printf [OK]"\n"
     fi
 done
+
+exit ${{EXITCODE}}
 """
-    subprocess.run(
+    result = subprocess.run(
         [
             "bash",
             "-c",
@@ -203,3 +207,4 @@ done
             args.target,
         ],
     )
+    sys.exit(result.returncode)

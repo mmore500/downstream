@@ -19,20 +19,30 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     script = r"""
-set -e
+pv=$(which pv && echo "--size $((17*512))" || echo "cat")
 
+EXITCODE=0
 for algo in "steady_algo" "stretched_algo" "tilted_algo"; do
     for func in "assign_storage_site" "lookup_ingest_times"; do
         target="${algo}.${func}"
         echo "target=${target}"
-        python3 -m downstream.testing.debug_one "$2" "${target}" --reference "$1" | $(which pv && echo "--size $((17*512))" || echo "cat") | grep -v "OK" | tee /dev/stderr | grep "MISMATCH" || echo "ALL OK"
+        python3 -m downstream.testing.debug_one "$2" "${target}" --reference "$1" | ${pv} | grep -v "OK"
+        status=${PIPESTATUS[0]}
+
+        if [ ${status} != 0 ]; then
+            ((EXITCODE+=status))
+        else
+            echo "ALL OK"
+        fi
+
         echo
     done
 done
+exit $EXITCODE
 """
 
 if __name__ == "__main__":
-    subprocess.run(
+    result = subprocess.run(
         [
             "bash",
             "-c",
@@ -42,3 +52,4 @@ if __name__ == "__main__":
             args.command,
         ],
     )
+    sys.exit(result.returncode)
