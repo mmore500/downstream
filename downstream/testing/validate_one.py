@@ -5,8 +5,8 @@ import sys
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description=(
-            "Test a target downstream  algorithm function implementation "
-            "against reference."
+            "Test a target downstream algorithm function implementation "
+            "against a reference implementation over a large test case battery."
         ),
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
@@ -76,7 +76,7 @@ else
 fi
 """
 
-    subprocess.run(
+    result = subprocess.run(
         [
             "bash",
             "-c",
@@ -87,3 +87,4 @@ fi
             args.target,
         ],
     )
+    sys.exit(result.returncode)

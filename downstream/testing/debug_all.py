@@ -5,8 +5,8 @@ import sys
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description=(
-            "Test a downstream implementation against reference implementation "
-            "over a large battery of test cases."
+            "Debug a downstream implementation against selected reference "
+            "test cases."
         ),
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
@@ -22,34 +22,26 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     script = r"""
-set -e
+pv=$(which pv && echo "--size $((17*512))" || echo "cat")
 
-rm -rf /tmp/dstream
-mkdir -p /tmp/dstream
-
+EXITCODE=0
 for algo in "steady_algo" "stretched_algo" "tilted_algo"; do
     for func in "assign_storage_site" "lookup_ingest_times"; do
         target="${algo}.${func}"
         echo "target=${target}"
-        (\
-            python3 -m downstream.testing.validate_one "$2" "${target}" --reference "$1" >/dev/null \
-            || touch "/tmp/dstream/${target}" \
-        ) &
+        python3 -m downstream.testing.debug_one "$2" "${target}" --reference "$1" | ${pv} | grep -v "OK"
+        status=${PIPESTATUS[0]}
+
+        if [ ${status} != 0 ]; then
+            ((EXITCODE+=status))
+        else
+            echo "ALL OK"
+        fi
+
+        echo
     done
 done
-
-wait
-
-if ls /tmp/dstream/* 1> /dev/null 2>&1; then
-    echo "Tests failed!"
-    (cd /tmp/dstream && ls *)
-    exit 1
-else
-    echo "All tests passed!"
-    exit 0
-fi
-
-rm -f /tmp/dstream
+exit $EXITCODE
 """
 
 if __name__ == "__main__":
