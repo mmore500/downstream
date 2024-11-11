@@ -76,7 +76,7 @@ else
 fi
 """
 
-    subprocess.run(
+    result = subprocess.run(
         [
             "bash",
             "-c",
@@ -87,3 +87,4 @@ fi
             args.target,
         ],
     )
+    sys.exit(result.returncode)

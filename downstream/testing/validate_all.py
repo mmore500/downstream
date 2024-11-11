@@ -50,7 +50,7 @@ rm -f /tmp/dstream
 """
 
 if __name__ == "__main__":
-    subprocess.run(
+    result = subprocess.run(
         [
             "bash",
             "-c",
@@ -60,3 +60,4 @@ if __name__ == "__main__":
             args.command,
         ],
     )
+    sys.exit(result.returncode)
