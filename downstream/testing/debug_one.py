@@ -168,11 +168,11 @@ test_cases=(
 )
 
 line1="-----------------------------------------------------------------"
-line2="#################################################################"
-target="{args.target} "
+line2="%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+target="# {args.target} "
 
-printf "%s\n" "${{line2}}"
-printf "\n%s%s\n" "${{target}}" "${{line2:${{#target}}}}"
+printf "\n%s\n" "${{line2}}"
+printf "%s%s\n" "${{target}}" "${{line1:((${{#target}} + 2))}} #"
 printf "%s\n" "${{line2}}"
 printf "%-20s | %-20s | %-20s\n" "Test Case S, T" "Reference Output" "Command Output"
 printf "%s\n" "${{line1}}"
