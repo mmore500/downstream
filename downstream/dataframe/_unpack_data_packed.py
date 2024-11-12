@@ -1,6 +1,5 @@
 import polars as pl
 
-from ._check_downstream_version import check_downstream_version
 from ._check_expected_columns import check_expected_columns
 
 
