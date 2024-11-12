@@ -23,9 +23,9 @@ def tilted_lookup_ingest_times(
         Ingest time of stored item, if any, at buffer sites in index order.
     """
     if T < S:  # Patch for before buffer is filled...
-        yield from (v if v < T else None for v in tilted_lookup_impl(S, S))
+        return (v if v < T else None for v in tilted_lookup_impl(S, S))
     else:  # ... assume buffer has been filled
-        yield from tilted_lookup_impl(S, T)
+        return tilted_lookup_impl(S, T)
 
 
 def tilted_lookup_impl(S: int, T: int) -> typing.Iterable[int]:
