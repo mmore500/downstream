@@ -146,7 +146,6 @@ def explode_lookup_unpacked(
                 "dstream_storage_bitsize",
                 "dstream_value_hexsize",
                 "dstream_S_cumsum",
-                "dstream_S",
                 "dstream_value_mask",
                 "dstream_value_hexoffset",
                 "dstream_value_bitsize",
