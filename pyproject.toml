@@ -14,6 +14,7 @@ classifiers = [
 ]
 # end-user requirements
 dependencies = [
+  "lazy-loader>=0.4",
 ]
 description = "downstream provides efficient, constant-space algorithms for stream curation"
 license = {text = "MIT license"}

@@ -27,6 +27,10 @@ decorator==5.1.1
     # via ipython
 docutils==0.21.2
     # via readme-renderer
+exceptiongroup==1.2.2
+    # via
+    #   ipython
+    #   pytest
 execnet==2.1.1
     # via pytest-xdist
 executing==2.1.0
@@ -35,12 +39,14 @@ idna==3.10
     # via requests
 iniconfig==2.0.0
     # via pytest
-ipython==8.28.0
+ipython==8.29.0
     # via nbqa
 isort==5.12.0
     # via downstream (pyproject.toml)
-jedi==0.19.1
+jedi==0.19.2
     # via ipython
+lazy-loader==0.4
+    # via downstream (pyproject.toml)
 lexid==2021.1006
     # via bumpver
 matplotlib-inline==0.1.7
@@ -51,9 +57,10 @@ nbqa==1.9.0
     # via downstream (pyproject.toml)
 nh3==0.2.18
     # via readme-renderer
-packaging==24.1
+packaging==24.2
     # via
     #   build
+    #   lazy-loader
     #   pytest
 parso==0.8.4
     # via jedi
@@ -117,12 +124,17 @@ six==1.16.0
     #   pathlib2
 stack-data==0.6.3
     # via ipython
-tokenize-rt==6.0.0
+tokenize-rt==6.1.0
     # via nbqa
 toml==0.10.2
     # via bumpver
-tomli==2.0.2
-    # via nbqa
+tomli==2.1.0
+    # via
+    #   autopep8
+    #   black
+    #   build
+    #   nbqa
+    #   pytest
 tqdm==4.64.1
     # via
     #   downstream (pyproject.toml)
@@ -133,6 +145,8 @@ traitlets==5.14.3
     #   matplotlib-inline
 twine==1.14.0
     # via downstream (pyproject.toml)
+typing-extensions==4.12.2
+    # via ipython
 urllib3==2.2.3
     # via requests
 uv==0.2.34
