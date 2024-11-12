@@ -16,8 +16,8 @@ def stretched_lookup_ingest_times(
     T : int
         Current logical time.
 
-    Returns
-    -------
+    Yields
+    ------
     typing.Optional[int]
         Ingest time of stored item, if any, at buffer sites in index order.
     """
