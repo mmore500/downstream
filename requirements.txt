@@ -82,6 +82,8 @@ platformdirs==4.3.6
     # via black
 pluggy==1.5.0
     # via pytest
+polars==1.13.0
+    # via downstream (pyproject.toml)
 prompt-toolkit==3.0.48
     # via ipython
 ptyprocess==0.7.0
