@@ -9,20 +9,10 @@ namespace downstream {
 namespace dstream {
 namespace steady_algo {
 
-constexpr int64_t bit_floor(int64_t x) {
-  if (x <= 0) return 0;
-  return int64_t{1} << (std::bit_width(static_cast<uint64_t>(x)) - 1);
-}
-
-constexpr int64_t ctz(int64_t x) {
-  if (x == 0) return 0;
-  return std::countr_zero(static_cast<uint64_t>(x));
-}
-
 std::optional<int64_t> steady_assign_storage_site(int64_t S, int64_t T) {
   int64_t s = std::bit_width(static_cast<uint64_t>(S)) - 1;
   int64_t t = std::bit_width(static_cast<uint64_t>(T)) - s; // Current epoch (or negative)
-  int64_t h = ctz(T + 1);     // Current hanoi value
+  int64_t h = std::countr_zero(static_cast<uint64_t>(T + 1));     // Current hanoi value
   if (h < t) {            // If not a top n(T) hanoi value...
     return std::nullopt;  // ...discard without storing
   }
@@ -33,7 +23,7 @@ std::optional<int64_t> steady_assign_storage_site(int64_t S, int64_t T) {
     o = 0;            // Within-bunch offset
     w = s + 1;        // Segment width
   } else {
-    int64_t j = bit_floor(i) - 1;  // Num full-bunch segments
+    int64_t j = std::bit_floor(static_cast<uint64_t>(i)) - 1;  // Num full-bunch segments
     int64_t B = std::bit_width(static_cast<uint64_t>(j));  // Num full bunches
     k_b = (int64_t{1} << B) * (s - B + 1);             // Bunch position
     w = h - t + 1;                                     // Segment width
