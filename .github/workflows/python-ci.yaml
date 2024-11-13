@@ -49,8 +49,16 @@ jobs:
 
   test-downstream:
     runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.8", "3.9", "3.10", "3.11", "3.12"]
     steps:
       - uses: actions/checkout@v2
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
       - run: |
           python3 -m pip install pip --upgrade
           python3 -m pip install -r requirements.txt
@@ -61,10 +69,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        python: ["3.8", "3.9", "3.10", "3.11", "3.12"]
         setup: ["sudo apt-get install -y pv", ""]
         which: ["debug", "validate"]
     steps:
       - uses: actions/checkout@v2
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
       - run: |
           sudo apt-get update -y
           ${{ matrix.setup }}
