@@ -120,7 +120,7 @@ requests-toolbelt==1.0.0
     # via twine
 ruff==0.0.260
     # via downstream (pyproject.toml)
-setuptools==65.6.3
+setuptools==75.5.0
     # via
     #   downstream (pyproject.toml)
     #   bumpver
