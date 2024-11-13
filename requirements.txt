@@ -8,8 +8,6 @@ autopep8==2.3.1
     # via nbqa
 black==22.10.0
     # via downstream (pyproject.toml)
-build==1.2.2.post1
-    # via pip-tools
 bumpver==2022.1120
     # via downstream (pyproject.toml)
 certifi==2024.8.30
@@ -20,7 +18,6 @@ click==8.1.7
     # via
     #   black
     #   bumpver
-    #   pip-tools
 colorama==0.4.6
     # via bumpver
 decorator==5.1.1
@@ -37,8 +34,6 @@ executing==2.1.0
     # via stack-data
 idna==3.10
     # via requests
-importlib-metadata==8.5.0
-    # via build
 iniconfig==2.0.0
     # via pytest
 ipython==8.29.0
@@ -63,7 +58,6 @@ nh3==0.2.18
     # via readme-renderer
 packaging==24.2
     # via
-    #   build
     #   lazy-loader
     #   pytest
 parso==0.8.4
@@ -74,12 +68,6 @@ pathspec==0.12.1
     # via black
 pexpect==4.9.0
     # via ipython
-pip==22.0.4
-    # via
-    #   downstream (pyproject.toml)
-    #   pip-tools
-pip-tools==6.10.0
-    # via downstream (pyproject.toml)
 pkginfo==1.11.2
     # via twine
 platformdirs==4.3.6
@@ -102,8 +90,6 @@ pygments==2.18.0
     # via
     #   ipython
     #   readme-renderer
-pyproject-hooks==1.2.0
-    # via build
 pytest==7.2.2
     # via
     #   downstream (pyproject.toml)
@@ -124,7 +110,6 @@ setuptools==75.5.0
     # via
     #   downstream (pyproject.toml)
     #   bumpver
-    #   pip-tools
     #   twine
 six==1.16.0
     # via
@@ -140,7 +125,6 @@ tomli==2.1.0
     # via
     #   autopep8
     #   black
-    #   build
     #   nbqa
     #   pytest
 tqdm==4.64.1
@@ -163,8 +147,4 @@ uv==0.2.34
 wcwidth==0.2.13
     # via prompt-toolkit
 wheel==0.33.6
-    # via
-    #   downstream (pyproject.toml)
-    #   pip-tools
-zipp==3.21.0
-    # via importlib-metadata
+    # via downstream (pyproject.toml)
