@@ -58,6 +58,6 @@ if __name__ == "__main__":
             try:
                 print(*it.islice(res, 100))
             except TypeError:
-                print(res)
+                print(int(res))
         else:
             print()
