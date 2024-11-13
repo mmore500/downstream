@@ -1,6 +1,6 @@
 import typing
 
-from ._tilted_lookup_ingest_times import tilted_lookup_ingest_times
+from ._tilted_lookup_ingest_times import tilted_lookup_impl
 
 
 def tilted_lookup_ingest_times_eager(S: int, T: int) -> typing.List[int]:
@@ -20,4 +20,4 @@ def tilted_lookup_ingest_times_eager(S: int, T: int) -> typing.List[int]:
     """
     if T < S:
         raise ValueError("T < S not supported for eager lookup")
-    return list(tilted_lookup_ingest_times(S, T))
+    return list(tilted_lookup_impl(S, T))

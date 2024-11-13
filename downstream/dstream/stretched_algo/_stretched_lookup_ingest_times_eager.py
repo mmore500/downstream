@@ -1,6 +1,6 @@
 import typing
 
-from ._stretched_lookup_ingest_times import stretched_lookup_ingest_times
+from ._stretched_lookup_ingest_times import stretched_lookup_impl
 
 
 def stretched_lookup_ingest_times_eager(S: int, T: int) -> typing.List[int]:
@@ -20,4 +20,4 @@ def stretched_lookup_ingest_times_eager(S: int, T: int) -> typing.List[int]:
     """
     if T < S:
         raise ValueError("T < S not supported for eager lookup")
-    return list(stretched_lookup_ingest_times(S, T))
+    return list(stretched_lookup_impl(S, T))
