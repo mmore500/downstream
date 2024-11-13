@@ -13,63 +13,87 @@ on:
 jobs:
 
   style:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v3
         with:
           node-version: 18
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.10"
       - run: |
-          sudo apt-get update -y
-          python3 -m pip install pip --upgrade
+          python3 -m pip install setuptools pip --upgrade
           python3 -m pip install -r requirements.txt
       - run: ./style.sh
 
   requirements:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v3
         with:
           node-version: 18
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.10"
       - run: |
           sudo apt-get update -y
-          python3 -m pip install pip --upgrade
+          python3 -m pip install setuptools pip --upgrade
           python3 -m pip install -r requirements.txt
       - run: ./requirements.sh
 
   lint:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v2
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.10"
       - run: |
-          python3 -m pip install pip --upgrade
+          python3 -m pip install setuptools pip --upgrade
           python3 -m pip install -r requirements.txt
       - run: ./lint.sh
 
   test-downstream:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.10", "3.11", "3.12"]
     steps:
       - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: "${{ matrix.python }}"
       - run: |
-          python3 -m pip install pip --upgrade
+          python3 -m pip install setuptools pip --upgrade
           python3 -m pip install -r requirements.txt
       - run: python3 -m pytest -n auto test_downstream
 
   test-validators:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
+        python: ["3.10", "3.11", "3.12"]
         setup: ["sudo apt-get install -y pv", ""]
         which: ["debug", "validate"]
     steps:
       - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: "${{ matrix.python }}"
       - run: |
           sudo apt-get update -y
           ${{ matrix.setup }}
       - run: |
-          python3 -m pip install pip --upgrade
+          python3 -m pip install setuptools pip --upgrade
           python3 -m pip install -r requirements.txt
       - run: python3 -m pip install .
       - run: python3 -m downstream -h
@@ -84,11 +108,11 @@ jobs:
       - run: python3 -m downstream.testing.${{ matrix.which }}_all 'false' && exit 1 || echo "expected fail"
 
   test-packaging:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v2
       - run: |
-          python3 -m pip install pip --upgrade
+          python3 -m pip install setuptools pip --upgrade
           python3 -m pip install '.[testing]'
           rm -rf downstream
       # ignore warnings to reduce memory use
@@ -98,10 +122,14 @@ jobs:
 
   # regression test for https://github.com/mmore500/hstrat/commit/c276530
   packaging-bdist:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.10"
       - name: Build bdist
         run: |
           python3 -m venv env
@@ -112,7 +140,7 @@ jobs:
           tree dist
           deactivate
       - name: Upgrade pip
-        run: python3 -m pip install pip --upgrade
+        run: python3 -m pip install setuptools pip --upgrade
       - name: Upgrade setuptools
         run: python3 -m pip install "setuptools==69.2.0" --upgrade
       - name: Install from bdist
@@ -124,10 +152,14 @@ jobs:
 
   # regression test for https://github.com/mmore500/hstrat/commit/c276530
   packaging-sdist:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.10"
       - name: Build sdist
         run: |
           python3 -m venv env
@@ -138,7 +170,7 @@ jobs:
           tree dist
           deactivate
       - name: Upgrade pip
-        run: python3 -m pip install pip --upgrade
+        run: python3 -m pip install setuptools pip --upgrade
       - name: Upgrade setuptools
         run: python3 -m pip install "setuptools==69.2.0" --upgrade
       - name: Install from sdist
@@ -150,12 +182,16 @@ jobs:
 
   # regression test for https://github.com/mmore500/hstrat/commit/c276530
   packaging-source:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.10"
       - name: Upgrade pip
-        run: python3 -m pip install pip --upgrade
+        run: python3 -m pip install setuptools pip --upgrade
       - name: Upgrade setuptools
         run: python3 -m pip install "setuptools==69.2.0" --upgrade
       - name: Install from source
@@ -177,7 +213,7 @@ jobs:
       - lint
       - style
       - requirements
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     if: startsWith(github.ref, 'refs/tags/v')
 
     steps:
