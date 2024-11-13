@@ -140,16 +140,27 @@ def unpack_data_packed(df: pl.DataFrame) -> pl.DataFrame:
                 pl.col("dstream_T_hexoffset"),
                 length=pl.col("dstream_T_hexwidth"),
             )
-            .str.to_integer(base=16)
-            .cast(pl.UInt64),
+            .str.to_integer(base=16),
         )
         .drop(
             [
+                "data_hex",
                 "dstream_storage_hexoffset",
                 "dstream_storage_hexwidth",
                 "dstream_T_hexoffset",
                 "dstream_T_hexwidth",
+                "dstream_storage_bitoffset",
+                "dstream_storage_bitwidth",
+                "dstream_T_bitoffset",
+                "dstream_T_bitwidth",
             ],
+        )
+        .cast(
+            {
+                "data_id": pl.UInt64,
+                "dstream_S": pl.UInt32,
+                "dstream_T": pl.UInt64,
+            },
         )
         .collect()
     )

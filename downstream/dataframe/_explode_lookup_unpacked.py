@@ -172,7 +172,7 @@ def explode_lookup_unpacked(
     ).with_columns(
         dstream_value_bitsize=(
             pl.col("dstream_storage_bitsize") // pl.col("dstream_S")
-        ).cast(pl.UInt32),
+        ),
     )
     if not df.filter(pl.col("dstream_value_bitsize") > 64).is_empty():
         raise NotImplementedError("Value bitsize > 64 not yet supported")
@@ -228,7 +228,6 @@ def explode_lookup_unpacked(
                 )
                 + 1,
             )
-            .cast(value_type),
         )
         .drop(
             [
@@ -239,6 +238,16 @@ def explode_lookup_unpacked(
                 "dstream_value_mask",
                 "dstream_value_hexoffset",
             ],
+        )
+        .cast(
+            {
+                "data_id": pl.UInt64,
+                "dstream_S": pl.UInt32,
+                "dstream_T": pl.UInt64,
+                "dstream_Tbar": pl.UInt64,
+                "dstream_value": value_type,
+                "dstream_value_bitsize": pl.UInt32,
+            },
         )
         .collect()
     )

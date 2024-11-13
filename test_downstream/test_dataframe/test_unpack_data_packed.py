@@ -1,4 +1,5 @@
 import polars as pl
+from polars import testing as pl_testing
 
 import downstream
 from downstream.dataframe import unpack_data_packed
@@ -46,3 +47,37 @@ def test_unpack_data_packed():
         assert col in res.columns
 
     assert len(res) == 2
+
+
+def test_unpack_data_packed_single_row():
+    df = pl.DataFrame(
+        {
+            "foo": ["bar"],
+            "data_hex": ["0F0E0D0C0B0A09080706050403020100"],
+            "dstream_algo": ["dstream.stady_algo"],
+            "dstream_storage_bitoffset": [4],
+            "dstream_storage_bitwidth": [96],
+            "dstream_T_bitoffset": [100],
+            "dstream_T_bitwidth": [16],
+            "dstream_S": [100],
+            "downstream_version": [downstream.__version__],
+        }
+    )
+
+    result = unpack_data_packed(df)
+
+    expected_df = pl.DataFrame(
+        {
+            "foo": ["bar"],
+            "data_id": [0],
+            "dstream_algo": ["dstream.stady_algo"],
+            "dstream_T": [12320],
+            "dstream_S": [100],
+            "dstream_storage_hex": ["F0E0D0C0B0A0908070605040"],
+            "downstream_version": [downstream.__version__],
+        }
+    )
+
+    pl_testing.assert_frame_equal(
+        result, expected_df, check_column_order=False, check_dtypes=False
+    )
