@@ -24,7 +24,8 @@ def check_expected_columns(
     ValueError
         If the DataFrame is missing any of the expected columns.
     """
-    missing_columns = set(expected_columns) - set(df.columns)
+    column_names = df.lazy().collect_schema().names()
+    missing_columns = set(expected_columns) - set(column_names)
     if missing_columns:
         raise ValueError(
             f"Dataframe missing expected columns: {missing_columns}",
