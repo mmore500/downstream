@@ -21,7 +21,7 @@ jobs:
           node-version: 18
       - run: |
           sudo apt-get update -y
-          python3 -m pip install distutils pip --upgrade
+          python3 -m pip install setuptools pip --upgrade
           python3 -m pip install -r requirements.txt
       - run: ./style.sh
 
@@ -34,7 +34,7 @@ jobs:
           node-version: 18
       - run: |
           sudo apt-get update -y
-          python3 -m pip install distutils pip --upgrade
+          python3 -m pip install setuptools pip --upgrade
           python3 -m pip install -r requirements.txt
       - run: ./requirements.sh
 
@@ -43,7 +43,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: |
-          python3 -m pip install distutils pip --upgrade
+          python3 -m pip install setuptools pip --upgrade
           python3 -m pip install -r requirements.txt
       - run: ./lint.sh
 
@@ -60,7 +60,7 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - run: |
-          python3 -m pip install distutils pip --upgrade
+          python3 -m pip install setuptools pip --upgrade
           python3 -m pip install -r requirements.txt
       - run: python3 -m pytest -n auto test_downstream
 
@@ -82,7 +82,7 @@ jobs:
           sudo apt-get update -y
           ${{ matrix.setup }}
       - run: |
-          python3 -m pip install distutils pip --upgrade
+          python3 -m pip install setuptools pip --upgrade
           python3 -m pip install -r requirements.txt
       - run: python3 -m pip install .
       - run: python3 -m downstream -h
@@ -101,7 +101,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: |
-          python3 -m pip install distutils pip --upgrade
+          python3 -m pip install setuptools pip --upgrade
           python3 -m pip install '.[testing]'
           rm -rf downstream
       # ignore warnings to reduce memory use
@@ -125,7 +125,7 @@ jobs:
           tree dist
           deactivate
       - name: Upgrade pip
-        run: python3 -m pip install distutils pip --upgrade
+        run: python3 -m pip install setuptools pip --upgrade
       - name: Upgrade setuptools
         run: python3 -m pip install "setuptools==69.2.0" --upgrade
       - name: Install from bdist
@@ -151,7 +151,7 @@ jobs:
           tree dist
           deactivate
       - name: Upgrade pip
-        run: python3 -m pip install distutils pip --upgrade
+        run: python3 -m pip install setuptools pip --upgrade
       - name: Upgrade setuptools
         run: python3 -m pip install "setuptools==69.2.0" --upgrade
       - name: Install from sdist
@@ -168,7 +168,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Upgrade pip
-        run: python3 -m pip install distutils pip --upgrade
+        run: python3 -m pip install setuptools pip --upgrade
       - name: Upgrade setuptools
         run: python3 -m pip install "setuptools==69.2.0" --upgrade
       - name: Install from source
