@@ -8,6 +8,7 @@ from ._unpack_data_packed import unpack_data_packed
 
 def explode_lookup_packed(
     df: pl.DataFrame,
+    *,
     value_type: typing.Literal["hex", "uint64", "uint32", "uint16", "uint8"],
 ) -> pl.DataFrame:
     df = unpack_data_packed(df)
