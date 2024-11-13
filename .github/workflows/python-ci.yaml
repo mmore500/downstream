@@ -13,7 +13,7 @@ on:
 jobs:
 
   style:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v3
@@ -26,7 +26,7 @@ jobs:
       - run: ./style.sh
 
   requirements:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v3
@@ -39,7 +39,7 @@ jobs:
       - run: ./requirements.sh
 
   lint:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v2
       - run: |
@@ -48,7 +48,7 @@ jobs:
       - run: ./lint.sh
 
   test-downstream:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -67,7 +67,7 @@ jobs:
       - run: python3 -m pytest -n auto test_downstream
 
   test-validators:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -101,7 +101,7 @@ jobs:
       - run: python3 -m downstream.testing.${{ matrix.which }}_all 'false' && exit 1 || echo "expected fail"
 
   test-packaging:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v2
       - run: |
@@ -115,7 +115,7 @@ jobs:
 
   # regression test for https://github.com/mmore500/hstrat/commit/c276530
   packaging-bdist:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -141,7 +141,7 @@ jobs:
 
   # regression test for https://github.com/mmore500/hstrat/commit/c276530
   packaging-sdist:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -167,7 +167,7 @@ jobs:
 
   # regression test for https://github.com/mmore500/hstrat/commit/c276530
   packaging-source:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -194,7 +194,7 @@ jobs:
       - lint
       - style
       - requirements
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     if: startsWith(github.ref, 'refs/tags/v')
 
     steps:
