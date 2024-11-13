@@ -24,19 +24,34 @@ def check_downstream_version(df: pl.DataFrame) -> None:
     UserWarning
         If the 'downstream_version' column is missing, contains multiple values, or its major version does not match the expected version.
     """
-    if "downstream_version" not in df.columns:
+    column_names = df.lazy().collect_schema().names()
+    if "downstream_version" not in column_names:
         warnings.warn(
             "Dataframe downstream_version column not provided",
         )
-    elif df["downstream_version"].unique().len() > 1:
+    elif (
+        len(df.lazy().select("downstream_version").unique().limit(2).collect())
+        > 1
+    ):
         warnings.warn(
             "Multiple downstream_version values detected",
         )
-    elif df["downstream_version"].unique().len() == 0:
-        pass
-    elif next(iter(df["downstream_version"].item(0).split(".")), None) != next(
-        iter(downstream_version.split(".")), None
+    elif (
+        len(df.lazy().select("downstream_version").unique().limit(1).collect())
+        == 0
     ):
+        pass
+    elif next(
+        iter(
+            df.lazy()
+            .select("downstream_version")
+            .limit(1)
+            .collect()
+            .item()
+            .split(".")
+        ),
+        None,
+    ) != next(iter(downstream_version.split(".")), None):
         warnings.warn(
             f"Dataframe downstream_version {df['downstream_version'].item(0)} "
             f"does not match downstream major version {downstream_version}",

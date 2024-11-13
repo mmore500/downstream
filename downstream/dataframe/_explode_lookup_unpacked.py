@@ -22,10 +22,16 @@ def _check_df(df: pl.DataFrame) -> None:
         ],
     )
 
-    if not df.filter(pl.col("dstream_T") < pl.col("dstream_S")).is_empty():
+    if (
+        not df.lazy()
+        .filter(pl.col("dstream_T") < pl.col("dstream_S"))
+        .limit(1)
+        .collect()
+        .is_empty()
+    ):
         raise NotImplementedError("T < S not yet supported")
 
-    if df["dstream_algo"].unique().len() > 1:
+    if len(df.lazy().select("dstream_algo").unique().limit(2).collect()) > 1:
         raise NotImplementedError("Multiple dstream_algo not yet supported")
 
 
@@ -155,16 +161,27 @@ def explode_lookup_unpacked(
     _check_df(df)
     value_type = _get_value_type(value_type)
 
-    if df.is_empty():
+    if df.lazy().limit(1).collect().is_empty():
         return _make_empty(value_type)
 
-    dstream_algo = eval(df["dstream_algo"].item(0))
+    df = df.cast(
+        {
+            "dstream_algo": pl.String,
+            "dstream_S": pl.UInt32,
+            "dstream_T": pl.UInt64,
+            "dstream_storage_hex": pl.String,
+        },
+    )
+
+    dstream_algo = df.lazy().select("dstream_algo").limit(1).collect().item()
+    dstream_algo = eval(dstream_algo)
     do_lookup = functools.lru_cache(dstream_algo.lookup_ingest_times_eager)
 
     def lookup_ingest_times(cols: pl.Struct) -> typing.List[int]:
         return do_lookup(cols["dstream_S"], cols["dstream_T"])
 
-    if "data_id" not in df.columns:
+    column_names = df.lazy().collect_schema().names()
+    if "data_id" not in column_names:
         df = df.with_row_index("data_id")
 
     df = df.with_columns(
@@ -176,9 +193,21 @@ def explode_lookup_unpacked(
             pl.col("dstream_storage_bitsize") // pl.col("dstream_S")
         ),
     )
-    if not df.filter(pl.col("dstream_value_bitsize") > 64).is_empty():
+    if (
+        not df.lazy()
+        .filter(pl.col("dstream_value_bitsize") > 64)
+        .limit(1)
+        .collect()
+        .is_empty()
+    ):
         raise NotImplementedError("Value bitsize > 64 not yet supported")
-    if not df.filter(pl.col("dstream_value_bitsize").is_in([2, 3])).is_empty():
+    if (
+        not df.lazy()
+        .filter(pl.col("dstream_value_bitsize").is_in([2, 3]))
+        .limit(1)
+        .collect()
+        .is_empty()
+    ):
         raise NotImplementedError("Value bitsize 2 and 3 not yet supported")
 
     return (

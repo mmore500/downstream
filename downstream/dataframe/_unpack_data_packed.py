@@ -109,8 +109,20 @@ def unpack_data_packed(df: pl.DataFrame) -> pl.DataFrame:
         Explodes unpacked buffers into individual constituent data items.
     """
     _check_df(df)
-    if df.is_empty():
+    if df.lazy().limit(1).collect().is_empty():
         return _make_empty()
+
+    df = df.cast(
+        {
+            "data_hex": pl.String,
+            "dstream_algo": pl.String,
+            "dstream_storage_bitoffset": pl.UInt64,
+            "dstream_storage_bitwidth": pl.UInt64,
+            "dstream_T_bitoffset": pl.UInt64,
+            "dstream_T_bitwidth": pl.UInt64,
+            "dstream_S": pl.UInt32,
+        },
+    )
 
     for col in (
         "dstream_storage_bitoffset",
@@ -118,13 +130,20 @@ def unpack_data_packed(df: pl.DataFrame) -> pl.DataFrame:
         "dstream_T_bitoffset",
         "dstream_T_bitwidth",
     ):
-        if not df.filter((pl.col(col) & pl.lit(0b11) != 0)).is_empty():
+        if (
+            not df.lazy()
+            .filter((pl.col(col) & pl.lit(0b11) != 0))
+            .limit(1)
+            .collect()
+            .is_empty()
+        ):
             raise NotImplementedError(f"{col} not hex-aligned")
         df = df.with_columns(
             (pl.col(col) // pl.lit(4)).alias(col.replace("_bit", "_hex")),
         )
 
-    if "data_id" not in df.columns:
+    column_names = df.lazy().collect_schema().names()
+    if "data_id" not in column_names:
         df = df.with_row_index("data_id")
 
     df = df.lazy()
