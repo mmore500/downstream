@@ -2,7 +2,7 @@ import warnings
 
 import polars as pl
 
-import downstream as dstream
+from ..._version import __version__ as downstream_version
 
 
 def check_downstream_version(df: pl.DataFrame) -> None:
@@ -17,9 +17,9 @@ def check_downstream_version(df: pl.DataFrame) -> None:
     elif df["downstream_version"].unique().len() == 0:
         pass
     elif next(iter(df["downstream_version"].item(0).split(".")), None) != next(
-        iter(dstream.__version__.split(".")), None
+        iter(downstream_version.split(".")), None
     ):
         warnings.warn(
             f"Dataframe downstream_version {df['downstream_version'].item(0)} "
-            f"does not match downstream major version {dstream.__version__}",
+            f"does not match downstream major version {downstream_version}",
         )

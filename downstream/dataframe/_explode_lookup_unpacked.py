@@ -4,8 +4,8 @@ import typing
 import polars as pl
 
 from .. import dstream  # noqa: F401
-from ._check_downstream_version import check_downstream_version
-from ._check_expected_columns import check_expected_columns
+from ._impl._check_downstream_version import check_downstream_version
+from ._impl._check_expected_columns import check_expected_columns
 
 
 def _check_df(df: pl.DataFrame) -> None:

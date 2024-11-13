@@ -1,6 +1,6 @@
 import polars as pl
 
-from ._check_expected_columns import check_expected_columns
+from ._impl._check_expected_columns import check_expected_columns
 
 
 def _check_df(df: pl.DataFrame) -> None:
