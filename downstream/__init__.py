@@ -2,4 +2,4 @@
 
 __author__ = "Matthew Andres Moreno"
 __email__ = "m.more500@gmail.com"
-from ._version import __version__
+from ._version import __version__  # noqa: F401
