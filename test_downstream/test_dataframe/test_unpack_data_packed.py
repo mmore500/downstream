@@ -70,7 +70,7 @@ def test_unpack_data_packed_single_row():
     expected_df = pl.DataFrame(
         {
             "foo": ["bar"],
-            "data_id": [0],
+            "dstream_data_id": [0],
             "dstream_algo": ["dstream.stady_algo"],
             "dstream_T": [12320],
             "dstream_S": [100],

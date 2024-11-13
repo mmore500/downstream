@@ -57,8 +57,9 @@ def _make_empty(value_type: pl.DataType) -> pl.DataFrame:
     unpack_data_packed, handling edge case of empty input."""
     return pl.DataFrame(
         [
-            pl.Series(name="data_id", values=[], dtype=pl.UInt64),
+            pl.Series(name="dstream_data_id", values=[], dtype=pl.UInt64),
             pl.Series(name="dstream_algo", values=[], dtype=pl.Utf8),
+            pl.Series(name="dstream_S", values=[], dtype=pl.UInt32),
             pl.Series(name="dstream_Tbar", values=[], dtype=pl.UInt64),
             pl.Series(name="dstream_T", values=[], dtype=pl.UInt64),
             pl.Series(name="dstream_value", values=[], dtype=value_type),
@@ -99,9 +100,6 @@ def explode_lookup_unpacked(
 
         Optional schema:
 
-        - 'data_id' : pl.UInt64
-            - Identifier for dstream buffer.
-            - If not present, row index will be used as 'data_id'.
         - 'downstream_version' : pl.String
             - Version of downstream library used to curate data items.
 
@@ -122,8 +120,8 @@ def explode_lookup_unpacked(
 
         Output schema:
 
-        - 'data_id' : pl.UInt64
-            - Identifier of dstream buffer that data item is from.
+        - 'dstream_data_id' : pl.UInt64
+            - Row index dentifier of dstream buffer that data item is from.
         - 'dstream_Tbar' : pl.UInt64
             - Logical position of data item in stream (number of prior data
               items).
@@ -181,8 +179,8 @@ def explode_lookup_unpacked(
         return do_lookup(cols["dstream_S"], cols["dstream_T"])
 
     column_names = df.lazy().collect_schema().names()
-    if "data_id" not in column_names:
-        df = df.with_row_index("data_id")
+    if "dstream_data_id" not in column_names:
+        df = df.with_row_index("dstream_data_id")
 
     df = df.with_columns(
         dstream_storage_bitsize=(
@@ -273,7 +271,7 @@ def explode_lookup_unpacked(
         )
         .cast(
             {
-                "data_id": pl.UInt64,
+                "dstream_data_id": pl.UInt64,
                 "dstream_k": pl.UInt32,
                 "dstream_S": pl.UInt32,
                 "dstream_T": pl.UInt64,

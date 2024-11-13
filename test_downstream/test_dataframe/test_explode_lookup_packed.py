@@ -22,7 +22,7 @@ def test_explode_lookup_packed_empty():
     )
     res = explode_lookup_packed(df, value_type="uint8")
 
-    for col in "data_id", "dstream_T", "dstream_Tbar", "dstream_value":
+    for col in "dstream_data_id", "dstream_T", "dstream_Tbar", "dstream_value":
         assert col in res.columns
 
     assert res.is_empty()
@@ -44,7 +44,7 @@ def test_explode_lookup_packed_bit():
     )
     res = explode_lookup_packed(df, value_type="uint8")
 
-    for col in "data_id", "dstream_T", "dstream_Tbar", "dstream_value":
+    for col in "dstream_data_id", "dstream_T", "dstream_Tbar", "dstream_value":
         assert col in res.columns
 
     assert len(res) == df["dstream_S"].sum()
@@ -66,7 +66,7 @@ def test_explode_lookup_packed_byte():
     )
     res = explode_lookup_packed(df, value_type="uint8")
 
-    for col in "data_id", "dstream_T", "dstream_Tbar", "dstream_value":
+    for col in "dstream_data_id", "dstream_T", "dstream_Tbar", "dstream_value":
         assert col in res.columns
 
     assert len(res) == df["dstream_S"].sum()
@@ -88,7 +88,7 @@ def test_explode_lookup_packed_64():
     )
     res = explode_lookup_packed(df, value_type="uint64")
 
-    for col in "data_id", "dstream_T", "dstream_Tbar", "dstream_value":
+    for col in "dstream_data_id", "dstream_T", "dstream_Tbar", "dstream_value":
         assert col in res.columns
 
     assert len(res) == df["dstream_S"].sum()
@@ -128,7 +128,7 @@ def test_explode_lookup_packed_pup():
     expected = pl.DataFrame(
         {
             "awoo": ["bar"] * 8 + ["baz"] * 8,
-            "data_id": [0] * 8 + [1] * 8,
+            "dstream_data_id": [0] * 8 + [1] * 8,
             "downstream_version": [downstream.__version__] * 16,
             "dstream_k": [*range(8), *range(8)],
             "dstream_S": [8] * 16,

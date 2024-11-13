@@ -24,7 +24,7 @@ def test_explode_lookup_unpacked_empty():
     df = unpack_data_packed(df)
     res = explode_lookup_unpacked(df, value_type="uint8")
 
-    for col in "data_id", "dstream_T", "dstream_Tbar", "dstream_value":
+    for col in "dstream_data_id", "dstream_T", "dstream_Tbar", "dstream_value":
         assert col in res.columns
 
     assert res.is_empty()
@@ -47,7 +47,7 @@ def test_explode_lookup_unpacked_bit():
     df = unpack_data_packed(df)
     res = explode_lookup_unpacked(df, value_type="uint8")
 
-    for col in "data_id", "dstream_T", "dstream_Tbar", "dstream_value":
+    for col in "dstream_data_id", "dstream_T", "dstream_Tbar", "dstream_value":
         assert col in res.columns
 
     assert len(res) == df["dstream_S"].sum()
@@ -70,7 +70,7 @@ def test_explode_lookup_unpacked_byte():
     df = unpack_data_packed(df)
     res = explode_lookup_unpacked(df, value_type="uint8")
 
-    for col in "data_id", "dstream_T", "dstream_Tbar", "dstream_value":
+    for col in "dstream_data_id", "dstream_T", "dstream_Tbar", "dstream_value":
         assert col in res.columns
 
     assert len(res) == df["dstream_S"].sum()
@@ -93,7 +93,7 @@ def test_explode_lookup_unpacked_64():
     df = unpack_data_packed(df)
     res = explode_lookup_unpacked(df, value_type="uint64")
 
-    for col in "data_id", "dstream_T", "dstream_Tbar", "dstream_value":
+    for col in "dstream_data_id", "dstream_T", "dstream_Tbar", "dstream_value":
         assert col in res.columns
 
     assert len(res) == df["dstream_S"].sum()

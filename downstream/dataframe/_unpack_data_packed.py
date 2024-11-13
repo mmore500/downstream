@@ -29,6 +29,7 @@ def _make_empty() -> pl.DataFrame:
     return pl.DataFrame(
         [
             pl.Series(name="dstream_algo", values=[], dtype=pl.String),
+            pl.Series(name="dstream_data_id", values=[], dtype=pl.UInt64),
             pl.Series(name="downstream_version", values=[], dtype=pl.String),
             pl.Series(name="dstream_S", values=[], dtype=pl.UInt32),
             pl.Series(name="dstream_T", values=[], dtype=pl.UInt64),
@@ -66,9 +67,6 @@ def unpack_data_packed(df: pl.DataFrame) -> pl.DataFrame:
                 - Capacity of dstream buffer, in number of data items.
 
         Optional schema:
-            - 'data_id' : pl.UInt64
-                - Identifier for dstream buffer.
-                - If not present, row index will be used as 'data_id'.
             - 'downstream_version' : pl.String
                 - Version of downstream library used to curate data items.
 
@@ -79,12 +77,16 @@ def unpack_data_packed(df: pl.DataFrame) -> pl.DataFrame:
         dstream buffer
 
         Output schema:
-            - 'data_id' : pl.UInt64
-                - Identifier for dstream buffer.
-                - If not present, row index will be used as 'data_id'.
             - 'dstream_algo' : pl.String
                 - Name of downstream curation algorithm used.
                 - e.g., 'dstream.steady_algo'
+            - 'dstream_data_id' : pl.UInt64
+                - Row index identifier for dstream buffer.
+            - 'dstream_algo' : pl.String
+                - Name of downstream curation algorithm used.
+                - e.g., 'dstream.steady_algo'
+            - 'dstream_S' : pl.Uint32
+                - Capacity of dstream buffer, in number of data items.
             - 'dstream_T' : pl.UInt64
                 - Logical time elapsed (number of elapsed data items in stream).
             - 'dstream_storage_hex' : pl.String
@@ -143,8 +145,8 @@ def unpack_data_packed(df: pl.DataFrame) -> pl.DataFrame:
         )
 
     column_names = df.lazy().collect_schema().names()
-    if "data_id" not in column_names:
-        df = df.with_row_index("data_id")
+    if "dstream_data_id" not in column_names:
+        df = df.with_row_index("dstream_data_id")
 
     df = df.lazy()
 
@@ -176,7 +178,7 @@ def unpack_data_packed(df: pl.DataFrame) -> pl.DataFrame:
         )
         .cast(
             {
-                "data_id": pl.UInt64,
+                "dstream_data_id": pl.UInt64,
                 "dstream_S": pl.UInt32,
                 "dstream_T": pl.UInt64,
             },
