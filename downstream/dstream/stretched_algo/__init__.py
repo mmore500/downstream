@@ -10,10 +10,14 @@ from ._stretched_has_ingest_capacity import (
 from ._stretched_lookup_ingest_times import (
     stretched_lookup_ingest_times as lookup_ingest_times,
 )
+from ._stretched_lookup_ingest_times_eager import (
+    stretched_lookup_ingest_times_eager as lookup_ingest_times_eager,
+)
 
 __all__ = [
     "assign_storage_site",
     "get_ingest_capacity",
     "has_ingest_capacity",
+    "lookup_ingest_times_eager",
     "lookup_ingest_times",
 ]

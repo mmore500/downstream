@@ -13,15 +13,15 @@ def steady_lookup_ingest_times(
     T : int
         Current logical time.
 
-    Returns
-    -------
+    Yields
+    ------
     typing.Optional[int]
         Ingest time of stored item, if any, at buffer sites in index order.
     """
     if T < S:  # Patch for before buffer is filled...
-        yield from (v if v < T else None for v in steady_lookup_impl(S, S))
+        return (v if v < T else None for v in steady_lookup_impl(S, S))
     else:  # ... assume buffer has been filled
-        yield from steady_lookup_impl(S, T)
+        return steady_lookup_impl(S, T)
 
 
 def steady_lookup_impl(S: int, T: int) -> typing.Iterable[int]:
