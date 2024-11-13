@@ -45,6 +45,8 @@ isort==5.12.0
     # via downstream (pyproject.toml)
 jedi==0.19.2
     # via ipython
+joinem==0.8.1
+    # via downstream (pyproject.toml)
 lazy-loader==0.4
     # via downstream (pyproject.toml)
 lexid==2021.1006
@@ -83,7 +85,9 @@ platformdirs==4.3.6
 pluggy==1.5.0
     # via pytest
 polars==1.13.0
-    # via downstream (pyproject.toml)
+    # via
+    #   downstream (pyproject.toml)
+    #   joinem
 prompt-toolkit==3.0.48
     # via ipython
 ptyprocess==0.7.0
@@ -140,6 +144,7 @@ tomli==2.1.0
 tqdm==4.64.1
     # via
     #   downstream (pyproject.toml)
+    #   joinem
     #   twine
 traitlets==5.14.3
     # via
