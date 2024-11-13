@@ -38,7 +38,7 @@ def _make_empty() -> pl.DataFrame:
 
 
 def unpack_data_packed(df: pl.DataFrame) -> pl.DataFrame:
-    """Unpack data with dstream buffer and counter serialized int a single
+    """Unpack data with dstream buffer and counter serialized into a single
     hexadecimal data field.
 
     Parameters
