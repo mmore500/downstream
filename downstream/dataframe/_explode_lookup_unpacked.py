@@ -127,6 +127,8 @@ def explode_lookup_unpacked(
             - Capacity of dstream buffer, in number of data items.
         - 'dstream_value' : pl.String or specified numeric type
             - Data item content, format depends on 'value_type' argument.
+        - 'dstream_k' : pl.UInt32
+            - Position of data item in dstream buffer.
         - 'dstream_value_bitsize' : pl.UInt32
             - Size of 'dstream_value' in bits.
 
@@ -190,10 +192,10 @@ def explode_lookup_unpacked(
             ),
         )
         .explode("dstream_Tbar")
-        .with_row_index("row")
+        .with_row_index("dstream_row_index")
         .with_columns(
             dstream_k=(
-                pl.col("row")
+                pl.col("dstream_row_index")
                 - pl.col("dstream_S_cumsum")
                 + pl.col("dstream_S")
             ),
@@ -218,8 +220,7 @@ def explode_lookup_unpacked(
                 .str.to_integer(base=16)
                 .cast(pl.UInt64)
                 & pl.col("dstream_value_mask")
-            )
-            .clip(
+            ).clip(
                 0,
                 # 2 ** (pl.col("dstream_value_bitsize") - 1, without overflow
                 2
@@ -232,16 +233,19 @@ def explode_lookup_unpacked(
         .drop(
             [
                 "dstream_algo",
+                "dstream_row_index",
                 "dstream_storage_bitsize",
-                "dstream_value_hexsize",
+                "dstream_storage_hex",
                 "dstream_S_cumsum",
-                "dstream_value_mask",
                 "dstream_value_hexoffset",
+                "dstream_value_hexsize",
+                "dstream_value_mask",
             ],
         )
         .cast(
             {
                 "data_id": pl.UInt64,
+                "dstream_k": pl.UInt32,
                 "dstream_S": pl.UInt32,
                 "dstream_T": pl.UInt64,
                 "dstream_Tbar": pl.UInt64,

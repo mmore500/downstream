@@ -2,6 +2,7 @@ import polars as pl
 from polars import testing as pl_testing
 
 import downstream
+from downstream import dstream, dsurf
 from downstream.dataframe import unpack_data_packed
 
 
@@ -81,3 +82,36 @@ def test_unpack_data_packed_single_row():
     pl_testing.assert_frame_equal(
         result, expected_df, check_column_order=False, check_dtypes=False
     )
+
+
+def test_unpack_data_packed_pup():
+
+    surface1 = dsurf.Surface(dsurf.Policy(dstream.steady_algo, 8))
+    for i in range(8):
+        surface1.ingest(i)
+
+    buffer1 = "".join(map("{:02x}".format, surface1))
+    data1 = "{:02x}".format(surface1.T) + buffer1
+
+    surface2 = dsurf.Surface(dsurf.Policy(dstream.steady_algo, 8))
+    for i in range(11):
+        surface2.ingest(i)
+
+    buffer2 = "".join(map("{:02x}".format, surface2))
+    data2 = "{:02x}".format(surface2.T) + buffer2
+
+    df = pl.DataFrame(
+        {
+            "dstream_algo": ["dstream.steady_algo", "dstream.steady_algo"],
+            "downstream_version": [downstream.__version__] * 2,
+            "data_hex": [data1, data2],
+            "dstream_storage_bitoffset": [8, 8],
+            "dstream_storage_bitwidth": [96, 96],
+            "dstream_T_bitoffset": [0, 0],
+            "dstream_T_bitwidth": [8, 8],
+            "dstream_S": [8, 8],
+        },
+    )
+    res = unpack_data_packed(df)
+
+    assert len(res) == 2
