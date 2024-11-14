@@ -3,6 +3,12 @@ import numpy as np
 from downstream._auxlib._bitlen64 import bitlen64
 
 
+def test_bitlen64_empty():
+    arr = np.array([], dtype=np.int32)
+    expected = np.array([], dtype=np.int32)
+    np.testing.assert_array_equal(bitlen64(arr), expected)
+
+
 def test_bitlen64_zeros():
     arr = np.array([0, 0, 0])
     expected = np.array([0, 0, 0])

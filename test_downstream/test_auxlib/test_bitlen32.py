@@ -2,6 +2,11 @@ import numpy as np
 
 from downstream._auxlib._bitlen32 import bitlen32
 
+def test_bitlen32_empty():
+    arr = np.array([], dtype=np.int32)
+    expected = np.array([], dtype=np.int32)
+    np.testing.assert_array_equal(bitlen32(arr), expected)
+
 
 def test_bitlen32_zeros():
     arr = np.array([0, 0, 0])
