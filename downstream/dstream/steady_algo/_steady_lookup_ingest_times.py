@@ -20,7 +20,7 @@ def steady_lookup_ingest_times(
     Yields
     ------
     typing.Optional[int]
-        Ingest time of stored item, if any, at buffer sites in index order.
+        Ingest time of stored item at buffer sites in index order.
     """
     if T < S:  # Patch for before buffer is filled...
         return (v if v < T else None for v in steady_lookup_impl(S, S))

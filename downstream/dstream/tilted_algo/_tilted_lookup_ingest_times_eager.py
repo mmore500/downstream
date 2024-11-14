@@ -16,7 +16,7 @@ def tilted_lookup_ingest_times_eager(S: int, T: int) -> typing.List[int]:
     Returns
     -------
     typing.List[int]
-        Ingest time of stored item, if any, at buffer sites in index order.
+        Ingest time of stored item at buffer sites in index order.
     """
     if T < S:
         raise ValueError("T < S not supported for eager lookup")
