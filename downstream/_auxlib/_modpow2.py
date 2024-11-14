@@ -1,3 +1,6 @@
+import numpy as np
+
+
 def modpow2(dividend: int, divisor: int) -> int:
     """Perform fast mod using bitwise operations.
 
@@ -14,5 +17,6 @@ def modpow2(dividend: int, divisor: int) -> int:
     int
         The remainder of dividing the dividend by the divisor.
     """
-    assert divisor.bit_count() == 1  # Assert divisor is a power of two
+    # Assert divisor is a power of two
+    assert (np.bitwise_count(np.asarray(divisor)) == 1).all()
     return dividend & (divisor - 1)
