@@ -22,11 +22,11 @@ def tilted_assign_storage_site(S: int, T: int) -> typing.Optional[int]:
     """
     s = S.bit_length() - 1
     t = max((T).bit_length() - s, 0)  # Current epoch
-    h = ctz(T + 1)  # Current hanoi value
+    h = int(ctz(T + 1))  # Current hanoi value
     i = T >> (h + 1)  # Hanoi value incidence (i.e., num seen)
 
     blt = t.bit_length()  # Bit length of t
-    epsilon_tau = bit_floor(t << 1) > t + blt  # Correction factor
+    epsilon_tau = int(bit_floor(t << 1)) > t + blt  # Correction factor
     tau = blt - epsilon_tau  # Current meta-epoch
     t_0 = (1 << tau) - tau  # Opening epoch of meta-epoch
     t_1 = (1 << (tau + 1)) - (tau + 1)  # Opening epoch of next meta-epoch

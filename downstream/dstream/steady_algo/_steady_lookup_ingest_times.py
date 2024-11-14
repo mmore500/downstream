@@ -31,11 +31,11 @@ def steady_lookup_ingest_times(
 def steady_lookup_impl(
     S: int,
     T: typing.Union[int, np.ndarray],
-) -> typing.Iterable[int]:
+) -> typing.Iterable[typing.Union[int, np.ndarray]]:
     """Implementation detail for `steady_lookup_ingest_times`."""
     # T < S redirected to T = S by steady_lookup_ingest_times
     assert (np.asarray(T) >= S).all()
-    s = S.bit_length() - 1
+    s = int(S).bit_length() - 1
     t = bitlen32(T) - s  # Current epoch
 
     b = 0  # Bunch physical index (left-to right)
