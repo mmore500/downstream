@@ -2,6 +2,7 @@ import numpy as np
 
 from downstream._auxlib._bitlen32 import bitlen32
 
+
 def test_bitlen32_empty():
     arr = np.array([], dtype=np.int32)
     expected = np.array([], dtype=np.int32)
