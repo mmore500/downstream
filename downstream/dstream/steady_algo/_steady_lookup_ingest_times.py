@@ -1,5 +1,9 @@
 import typing
 
+import numpy as np
+
+from ..._auxlib._bitlen32 import bitlen32
+
 
 def steady_lookup_ingest_times(
     S: int, T: int
@@ -24,11 +28,15 @@ def steady_lookup_ingest_times(
         return steady_lookup_impl(S, T)
 
 
-def steady_lookup_impl(S: int, T: int) -> typing.Iterable[int]:
+def steady_lookup_impl(
+    S: int,
+    T: typing.Union[int, np.ndarray],
+) -> typing.Iterable[int]:
     """Implementation detail for `steady_lookup_ingest_times`."""
-    assert T >= S  # T < S redirected to T = S by steady_lookup_ingest_times
+    # T < S redirected to T = S by steady_lookup_ingest_times
+    assert (np.asarray(T) >= S).all()
     s = S.bit_length() - 1
-    t = T.bit_length() - s  # Current epoch
+    t = bitlen32(T) - s  # Current epoch
 
     b = 0  # Bunch physical index (left-to right)
     m_b__ = 1  # Countdown on segments traversed within bunch
@@ -46,7 +54,8 @@ def steady_lookup_impl(S: int, T: int) -> typing.Iterable[int]:
 
         # Calculate candidate hanoi value...
         _h0, h_ = h_, h_max - (h_max + k_m__) % w
-        assert (_h0 == h_) or b_star  # Can skip h calc if b_star is False...
+        # Can skip h calc if b_star is False...
+        assert np.asarray(np.logical_or(_h0 == h_, b_star)).all()
         del _h0  # ... i.e., skip calc within each bunch [[see below]]
 
         # Decode ingest time of assigned h.v. from segment index g, ...
