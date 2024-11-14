@@ -19,5 +19,5 @@ def test_steady_time_lookup_against_site_selection(s: int):
         if site is not None:
             expected[site] = T
 
-    actual = algo.lookup_ingest_times_batched(S, np.arange(S, T_max))
+    actual = algo.lookup_ingest_times_batched(S, np.arange(S, T_max)).ravel()
     np.testing.assert_array_equal(expecteds, actual)
