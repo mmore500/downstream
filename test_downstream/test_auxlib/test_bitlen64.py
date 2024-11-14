@@ -4,8 +4,8 @@ from downstream._auxlib._bitlen64 import bitlen64
 
 
 def test_bitlen64_empty():
-    arr = np.array([], dtype=np.int32)
-    expected = np.array([], dtype=np.int32)
+    arr = np.array([], dtype=np.int64)
+    expected = np.array([], dtype=np.int64)
     np.testing.assert_array_equal(bitlen64(arr), expected)
 
 
