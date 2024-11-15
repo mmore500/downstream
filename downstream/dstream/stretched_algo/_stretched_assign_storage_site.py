@@ -21,7 +21,7 @@ def stretched_assign_storage_site(S: int, T: int) -> typing.Optional[int]:
     """
     s = S.bit_length() - 1
     t = max((T).bit_length() - s, 0)  # Current epoch
-    h = int(ctz(T + 1))  # Current hanoi value
+    h = ctz(T + 1)  # Current hanoi value
     i = T >> (h + 1)  # Hanoi value incidence (i.e., num seen)
 
     blt = t.bit_length()  # Bit length of t
