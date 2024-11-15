@@ -1,6 +1,9 @@
 import typing
 
+import numpy as np
+
 from ..._auxlib._bit_floor import bit_floor
+from ..._auxlib._bitlen32 import bitlen32
 from ..._auxlib._ctz import ctz
 
 
@@ -27,19 +30,23 @@ def stretched_lookup_ingest_times(
         return stretched_lookup_impl(S, T)
 
 
-def stretched_lookup_impl(S: int, T: int) -> typing.Iterable[int]:
+def stretched_lookup_impl(
+    S: int,
+    T: typing.Union[int, np.ndarray],
+) -> typing.Iterable[typing.Union[int, np.ndarray]]:
     """Implementation detail for `stretched_lookup_ingest_times`."""
-    assert T >= S  # T < S redirected to T = S by stretched_lookup_ingest_times
+    # T < S redirected to T = S by stretched_lookup_ingest_times
+    assert (np.asarray(T) >= S).all()
 
-    s = S.bit_length() - 1
-    t = (T).bit_length() - s  # Current epoch
+    s = int(S).bit_length() - 1
+    t = bitlen32(T) - s  # Current epoch
 
-    blt = t.bit_length()  # Bit length of t
+    blt = bitlen32(t)  # Bit length of t
     epsilon_tau = bit_floor(t << 1) > t + blt  # Correction factor
     tau0 = blt - epsilon_tau  # Current meta-epoch
     tau1 = tau0 + 1  # Next meta-epoch
 
-    M = (S >> tau1) or 1  # Num invading segments present at current epoch
+    M = np.maximum((S >> tau1), 1)  # Num invading segments at current epoch
     w0 = (1 << tau0) - 1  # Smallest segment size at current epoch start
     w1 = (1 << tau1) - 1  # Smallest segment size at next epoch start
 

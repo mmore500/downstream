@@ -1,3 +1,6 @@
+import logging
+
+import numpy as np
 import polars as pl
 
 from ._impl._check_expected_columns import check_expected_columns
@@ -21,6 +24,19 @@ def _check_df(df: pl.DataFrame) -> None:
             "dstream_S",
         ],
     )
+
+
+def _enforce_hex_aligned(df: pl.DataFrame, col: str) -> None:
+    """Raise NotImplementedError if column is not hex-aligned (i.e., not a
+    multiple of 4 bits)."""
+    if (
+        not df.lazy()
+        .filter((pl.col(col) & pl.lit(0b11) != 0))
+        .limit(1)
+        .collect()
+        .is_empty()
+    ):
+        raise NotImplementedError(f"{col} not hex-aligned")
 
 
 def _make_empty() -> pl.DataFrame:
@@ -52,7 +68,7 @@ def unpack_data_packed(df: pl.DataFrame) -> pl.DataFrame:
             - 'data_hex' : pl.String
                 - Raw binary data, with serialized dstream buffer and counter.
                 - Represented as a hexadecimal string.
-            - 'dstream_algo' : pl.String
+            - 'dstream_algo' : pl.Categorical
                 - Name of downstream curation algorithm used.
                 - e.g., 'dstream.steady_algo'
             - 'dstream_storage_bitoffset' : pl.UInt64
@@ -67,7 +83,7 @@ def unpack_data_packed(df: pl.DataFrame) -> pl.DataFrame:
                 - Capacity of dstream buffer, in number of data items.
 
         Optional schema:
-            - 'downstream_version' : pl.String
+            - 'downstream_version' : pl.Categorical
                 - Version of downstream library used to curate data items.
 
     Returns
@@ -77,14 +93,11 @@ def unpack_data_packed(df: pl.DataFrame) -> pl.DataFrame:
         dstream buffer
 
         Output schema:
-            - 'dstream_algo' : pl.String
+            - 'dstream_algo' : pl.Categorical
                 - Name of downstream curation algorithm used.
                 - e.g., 'dstream.steady_algo'
             - 'dstream_data_id' : pl.UInt64
                 - Row index identifier for dstream buffer.
-            - 'dstream_algo' : pl.String
-                - Name of downstream curation algorithm used.
-                - e.g., 'dstream.steady_algo'
             - 'dstream_S' : pl.Uint32
                 - Capacity of dstream buffer, in number of data items.
             - 'dstream_T' : pl.UInt64
@@ -110,48 +123,35 @@ def unpack_data_packed(df: pl.DataFrame) -> pl.DataFrame:
     downstream.dataframe.explode_lookup_unpacked :
         Explodes unpacked buffers into individual constituent data items.
     """
+    logging.info("begin explode_lookup_unpacked")
+    logging.info(" - prepping data...")
+
     _check_df(df)
     if df.lazy().limit(1).collect().is_empty():
         return _make_empty()
 
-    df = df.cast(
-        {
-            "data_hex": pl.String,
-            "dstream_algo": pl.String,
-            "dstream_storage_bitoffset": pl.UInt64,
-            "dstream_storage_bitwidth": pl.UInt64,
-            "dstream_T_bitoffset": pl.UInt64,
-            "dstream_T_bitwidth": pl.UInt64,
-            "dstream_S": pl.UInt32,
-        },
-    )
+    df = df.cast({"data_hex": pl.String, "dstream_algo": pl.Categorical})
 
+    logging.info(" - calculating offsets...")
     for col in (
         "dstream_storage_bitoffset",
         "dstream_storage_bitwidth",
         "dstream_T_bitoffset",
         "dstream_T_bitwidth",
     ):
-        if (
-            not df.lazy()
-            .filter((pl.col(col) & pl.lit(0b11) != 0))
-            .limit(1)
-            .collect()
-            .is_empty()
-        ):
-            raise NotImplementedError(f"{col} not hex-aligned")
+        _enforce_hex_aligned(df, col)
         df = df.with_columns(
-            (pl.col(col) // pl.lit(4)).alias(col.replace("_bit", "_hex")),
+            **{col.replace("_bit", "_hex"): np.right_shift(pl.col(col), 2)},
         )
 
-    column_names = df.lazy().collect_schema().names()
-    if "dstream_data_id" not in column_names:
+    if "dstream_data_id" not in df.lazy().collect_schema().names():
         df = df.with_row_index("dstream_data_id")
 
-    df = df.lazy()
+    logging.info(" - extracting T and storage_hex from data_hex...")
 
-    return (
-        df.with_columns(
+    df = (
+        df.lazy()
+        .with_columns(
             dstream_storage_hex=pl.col("data_hex").str.slice(
                 pl.col("dstream_storage_hexoffset"),
                 length=pl.col("dstream_storage_hexwidth"),
@@ -176,12 +176,8 @@ def unpack_data_packed(df: pl.DataFrame) -> pl.DataFrame:
                 "dstream_T_bitwidth",
             ],
         )
-        .cast(
-            {
-                "dstream_data_id": pl.UInt64,
-                "dstream_S": pl.UInt32,
-                "dstream_T": pl.UInt64,
-            },
-        )
         .collect()
     )
+
+    logging.info("unpack_data_packed complete")
+    return df

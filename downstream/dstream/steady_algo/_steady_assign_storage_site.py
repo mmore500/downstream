@@ -21,7 +21,7 @@ def steady_assign_storage_site(S: int, T: int) -> typing.Optional[int]:
     """
     s = S.bit_length() - 1
     t = T.bit_length() - s  # Current epoch (or negative)
-    h = ctz(T + 1)  # Current hanoi value
+    h = int(ctz(T + 1))  # Current hanoi value
     if h < t:  # If not a top n(T) hanoi value...
         return None  # ...discard without storing
 
@@ -31,7 +31,7 @@ def steady_assign_storage_site(S: int, T: int) -> typing.Optional[int]:
         o = 0  # Within-bunch offset
         w = s + 1  # Segment width
     else:
-        j = bit_floor(i) - 1  # Num full-bunch segments
+        j = int(bit_floor(i)) - 1  # Num full-bunch segments
         B = j.bit_length()  # Num full bunches
         k_b = (1 << B) * (s - B + 1)  # Bunch position
         w = h - t + 1  # Segment width

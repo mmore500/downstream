@@ -24,19 +24,19 @@ def validate_steady_time_lookup(fn: typing.Callable) -> typing.Callable:
 time_lookup = validate_steady_time_lookup(algo.lookup_ingest_times_eager)
 
 
-def test_steady_time_lookup_against_site_selection():
-    for s in range(1, 12):
-        S = 1 << s
-        T_max = min(1 << 17 - s, 2**S - 1)
-        expected = [None] * S
-        for T in range(T_max):
-            if T >= S:
-                actual = time_lookup(S, T)
-                assert all(x == y for x, y in zip(expected, actual))
-            else:
-                with pytest.raises(ValueError):
-                    time_lookup(S, T)
+@pytest.mark.parametrize("s", range(1, 12))
+def test_steady_time_lookup_eager_against_site_selection(s: int):
+    S = 1 << s
+    T_max = min(1 << 17 - s, 2**S - 1)
+    expected = [None] * S
+    for T in range(T_max):
+        if T >= S:
+            actual = time_lookup(S, T)
+            assert all(x == y for x, y in zip(expected, actual))
+        else:
+            with pytest.raises(ValueError):
+                time_lookup(S, T)
 
-            site = algo.assign_storage_site(S, T)
-            if site is not None:
-                expected[site] = T
+        site = algo.assign_storage_site(S, T)
+        if site is not None:
+            expected[site] = T
