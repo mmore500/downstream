@@ -153,5 +153,5 @@ uv==0.2.34
     # via downstream (pyproject.toml)
 wcwidth==0.2.13
     # via prompt-toolkit
-wheel==0.33.6
+wheel==0.45.0
     # via downstream (pyproject.toml)

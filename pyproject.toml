@@ -42,7 +42,7 @@ testing = [
 release = [
   "bumpver==2022.1120",
   "twine==1.14.0",
-  "wheel==0.33.6",
+  "wheel==0.45.0",
   "uv==0.2.34",
   "setuptools==75.5.0",
 ]
