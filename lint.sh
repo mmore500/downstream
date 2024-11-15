@@ -1,5 +1,11 @@
 #!/bin/bash
+set -e  # Exit on any error
+set -x  # Print commands before execution
 
-set -e
+# C++ linting with clang-tidy
+echo "Running C++ linting..."
+find downstream/ -name "*.hpp" -o -name "*.cpp" | while read -r file; do
+    clang-tidy "$file" -- -std=c++20 -I.
+done
 
-cd "$(dirname "$0")"
+echo "All lint checks passed! ✨"
