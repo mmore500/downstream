@@ -166,8 +166,9 @@ def explode_lookup_unpacked(
         - 'dstream_value_bitsize' : pl.UInt32
             - Size of 'dstream_value' in bits.
 
-        User-defined columns and 'downstream_version' will be forwarded from
-        the input DataFrame.
+        User-defined columns are NOT forwarded from the unpacked dataframe. To
+        include additional columns, join the output DataFrame with the original
+        input DataFrame.
 
     Raises
     ------
