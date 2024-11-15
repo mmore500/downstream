@@ -44,17 +44,14 @@ def unpack_hex(hex_str: str, num_items: int) -> np.ndarray:
     item_bits_array = bits_array.reshape((num_items, -1))[:, ::-1]
     item_bytes_array = np.packbits(
         item_bits_array,
-        bitorder="little",
         axis=1,
+        bitorder="little",
     )
-    print(item_bytes_array)
     item_8bytes_array = np.pad(
         item_bytes_array,
         ((0, 0), (0, 8 - len(item_bytes_array[0]))),
-        mode="constant",
         constant_values=0,
+        mode="constant",
     )
-    print(item_8bytes_array)
     res = np.frombuffer(item_8bytes_array.ravel(), dtype=np.uint64)
-    print(res)
     return res
