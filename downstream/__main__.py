@@ -3,6 +3,8 @@ import itertools as it
 from signal import SIG_BLOCK, SIGPIPE, signal
 import sys
 
+import opytional as opyt
+
 from downstream.dstream import steady_algo  # noqa: F401
 from downstream.dstream import stretched_algo  # noqa: F401
 from downstream.dstream import tilted_algo  # noqa: F401
@@ -58,6 +60,6 @@ if __name__ == "__main__":
             try:
                 print(*it.islice(res, 100))
             except TypeError:
-                print(int(res))
+                print(opyt.apply_if(res, int))
         else:
             print()
