@@ -17,6 +17,7 @@ dependencies = [
   "lazy-loader>=0.4",
   "numpy>=2.0.0",
   "joinem>=0.8.1",
+  "parallelbar>=2.4",
   "polars>=1.0.0",
 ]
 description = "downstream provides efficient, constant-space algorithms for stream curation"

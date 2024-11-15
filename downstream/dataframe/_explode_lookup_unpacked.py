@@ -1,11 +1,14 @@
-import functools
+import logging
 import typing
 
+import numpy as np
 import polars as pl
 
 from .. import dstream  # noqa: F401
+from .._auxlib._unpack_hex import unpack_hex
 from ._impl._check_downstream_version import check_downstream_version
 from ._impl._check_expected_columns import check_expected_columns
+from ._impl._parallelize_numpy_op import parallelize_numpy_op
 
 
 def _check_df(df: pl.DataFrame) -> None:
@@ -34,6 +37,37 @@ def _check_df(df: pl.DataFrame) -> None:
     if len(df.lazy().select("dstream_algo").unique().limit(2).collect()) > 1:
         raise NotImplementedError("Multiple dstream_algo not yet supported")
 
+    if len(df.lazy().select("dstream_S").unique().limit(2).collect()) > 1:
+        raise NotImplementedError("Multiple dstream_S not yet supported")
+
+
+def _check_bitsizes(df: pl.DataFrame) -> None:
+    """Raise NotImplementedError if value bitsize is not supported."""
+    if (
+        not df.lazy()
+        .filter(pl.col("dstream_value_bitsize").cast(pl.UInt32) > 64)
+        .limit(1)
+        .collect()
+        .is_empty()
+    ):
+        raise NotImplementedError("Value bitsize > 64 not yet supported")
+    if (
+        not df.lazy()
+        .filter(pl.col("dstream_value_bitsize").is_in([2, 3]))
+        .limit(1)
+        .collect()
+        .is_empty()
+    ):
+        raise NotImplementedError("Value bitsize 2 and 3 not yet supported")
+    if (
+        not df.lazy()
+        .filter(pl.col("dstream_value_bitsize").diff() != pl.lit(0))
+        .limit(1)
+        .collect()
+        .is_empty()
+    ):
+        raise NotImplementedError("Multiple value bitsizes not yet supported")
+
 
 def _get_value_type(value_type: str) -> pl.DataType:
     """Convert value_type string arg to Polars DataType object."""
@@ -58,7 +92,7 @@ def _make_empty(value_type: pl.DataType) -> pl.DataFrame:
     return pl.DataFrame(
         [
             pl.Series(name="dstream_data_id", values=[], dtype=pl.UInt64),
-            pl.Series(name="dstream_algo", values=[], dtype=pl.Utf8),
+            pl.Series(name="dstream_algo", values=[], dtype=pl.Categorical),
             pl.Series(name="dstream_S", values=[], dtype=pl.UInt32),
             pl.Series(name="dstream_Tbar", values=[], dtype=pl.UInt64),
             pl.Series(name="dstream_T", values=[], dtype=pl.UInt64),
@@ -87,7 +121,7 @@ def explode_lookup_unpacked(
 
         Required schema:
 
-        - 'dstream_algo' : pl.String
+        - 'dstream_algo' : pl.Categorical
             - Name of downstream curation algorithm used
             - e.g., 'dstream.steady_algo'
         - 'dstream_S' : pl.UInt32
@@ -100,7 +134,7 @@ def explode_lookup_unpacked(
 
         Optional schema:
 
-        - 'downstream_version' : pl.String
+        - 'downstream_version' : pl.Categorical
             - Version of downstream library used to curate data items.
 
         Additional user-defined columns will be forwarded to the output
@@ -127,12 +161,8 @@ def explode_lookup_unpacked(
               items).
         - 'dstream_T' : pl.UInt64
             - Logical time elapsed (number of elapsed data items in stream).
-        - 'dstream_S' : pl.UInt32
-            - Capacity of dstream buffer, in number of data items.
         - 'dstream_value' : pl.String or specified numeric type
             - Data item content, format depends on 'value_type' argument.
-        - 'dstream_k' : pl.UInt32
-            - Position of data item in dstream buffer.
         - 'dstream_value_bitsize' : pl.UInt32
             - Size of 'dstream_value' in bits.
 
@@ -143,6 +173,8 @@ def explode_lookup_unpacked(
     ------
     NotImplementedError
         - If 'dstream_value_bitsize' is greater than 64 or equal to 2 or 3.
+        - If 'dstream_value_bitsize' is not consistent across all data items.
+        - If 'dstream_S' is not consistent across all dstream buffers.
         - If buffers aren't filled (i.e., 'dstream_T' < 'dstream_S').
         - If multiple dstream algorithms are present in the input DataFrame.
         - If 'value_type' is 'hex'.
@@ -162,123 +194,71 @@ def explode_lookup_unpacked(
     if df.lazy().limit(1).collect().is_empty():
         return _make_empty(value_type)
 
-    df = df.cast(
-        {
-            "dstream_algo": pl.String,
-            "dstream_S": pl.UInt32,
-            "dstream_T": pl.UInt64,
-            "dstream_storage_hex": pl.String,
-        },
-    )
-
+    dstream_S = df.lazy().select("dstream_S").limit(1).collect().item()
     dstream_algo = df.lazy().select("dstream_algo").limit(1).collect().item()
     dstream_algo = eval(dstream_algo)
-    do_lookup = functools.lru_cache(dstream_algo.lookup_ingest_times_eager)
+    num_records = df.lazy().select(pl.len()).collect().item()
+    num_items = num_records * dstream_S
 
-    def lookup_ingest_times(cols: pl.Struct) -> typing.List[int]:
-        return do_lookup(cols["dstream_S"], cols["dstream_T"])
+    logging.info("begin explode_lookup_unpacked")
+    logging.info(" - prepping data...")
 
-    column_names = df.lazy().collect_schema().names()
-    if "dstream_data_id" not in column_names:
-        df = df.with_row_index("dstream_data_id")
+    df = (
+        df.with_columns(
+            pl.coalesce(
+                pl.col("^dstream_data_id$"), pl.arange(num_records)
+            ).alias("dstream_data_id"),
+        )
+        .select(["dstream_data_id", "dstream_storage_hex", "dstream_T"])
+        .select(pl.all().shrink_dtype())
+        .sort("dstream_T")
+    )
 
     df = df.with_columns(
-        dstream_storage_bitsize=(
-            pl.col("dstream_storage_hex").str.len_bytes() * 4
-        ),
-    ).with_columns(
-        dstream_value_bitsize=(
-            pl.col("dstream_storage_bitsize") // pl.col("dstream_S")
-        ),
+        dstream_value_bitsize=np.right_shift(
+            pl.col("dstream_storage_hex").str.len_bytes() * 4,
+            int(dstream_S).bit_length() - 1,
+        ).cast(pl.UInt32),
     )
-    if (
-        not df.lazy()
-        .filter(pl.col("dstream_value_bitsize") > 64)
-        .limit(1)
-        .collect()
-        .is_empty()
-    ):
-        raise NotImplementedError("Value bitsize > 64 not yet supported")
-    if (
-        not df.lazy()
-        .filter(pl.col("dstream_value_bitsize").is_in([2, 3]))
-        .limit(1)
-        .collect()
-        .is_empty()
-    ):
-        raise NotImplementedError("Value bitsize 2 and 3 not yet supported")
 
-    return (
+    _check_bitsizes(df)
+
+    logging.info(" - exploding dataframe...")
+
+    df_long = df.drop("dstream_storage_hex").select(
+        pl.all().gather(np.repeat(np.arange(num_records), dstream_S)),
+    )
+
+    logging.info(" - unpacking hex strings...")
+
+    concat_hex = (
         df.lazy()
-        .with_columns(
-            dstream_value_hexsize=(pl.col("dstream_value_bitsize") + 3) // 4,
-            dstream_S_cumsum=pl.col("dstream_S").cum_sum(),
-            dstream_Tbar=pl.struct(["dstream_S", "dstream_T"]).map_elements(
-                lookup_ingest_times,
-                return_dtype=pl.List(pl.UInt64),
+        .select(pl.col("dstream_storage_hex").str.join(""))
+        .collect()
+        .item()
+    )
+
+    df_long = df_long.with_columns(
+        dstream_value=unpack_hex(concat_hex, num_items),
+    )
+
+    logging.info(" - looking up ingest times...")
+
+    lookup_op = parallelize_numpy_op()(
+        dstream_algo.lookup_ingest_times_batched
+    )
+    # lookup_op = dstream_algo.lookup_ingest_times_batched
+    dstream_T = df.lazy().select("dstream_T").collect().to_numpy().ravel()
+    df_long = (
+        df_long.with_columns(
+            dstream_Tbar=pl.Series(
+                name="dstream_Tbar",
+                values=lookup_op(dstream_S, dstream_T).ravel(),
             ),
         )
-        .explode("dstream_Tbar")
-        .with_row_index("dstream_row_index")
-        .with_columns(
-            dstream_k=(
-                pl.col("dstream_row_index")
-                - pl.col("dstream_S_cumsum")
-                + pl.col("dstream_S")
-            ),
-        )
-        .with_columns(
-            dstream_value_mask=pl.when(pl.col("dstream_value_bitsize") < 4)
-            .then(
-                pl.lit(2) ** (pl.col("dstream_k") & 0b11),
-            )
-            .otherwise(pl.lit(2**64 - 1).cast(pl.UInt64)),
-            dstream_value_hexoffset=(
-                pl.col("dstream_k") * pl.col("dstream_value_bitsize") // 4
-            ),
-        )
-        .with_columns(
-            dstream_value=(
-                pl.col("dstream_storage_hex")
-                .str.slice(
-                    pl.col("dstream_value_hexoffset"),
-                    pl.col("dstream_value_hexsize"),
-                )
-                .str.to_integer(base=16)
-                .cast(pl.UInt64)
-                & pl.col("dstream_value_mask")
-            ).clip(
-                0,
-                # 2 ** (pl.col("dstream_value_bitsize") - 1, without overflow
-                2
-                * (2 ** (pl.col("dstream_value_bitsize") - 1) - 1).cast(
-                    pl.UInt64,
-                )
-                + 1,
-            )
-        )
-        .drop(
-            [
-                "dstream_algo",
-                "dstream_row_index",
-                "dstream_storage_bitsize",
-                "dstream_storage_hex",
-                "dstream_S_cumsum",
-                "dstream_value_hexoffset",
-                "dstream_value_hexsize",
-                "dstream_value_mask",
-            ],
-        )
-        .cast(
-            {
-                "dstream_data_id": pl.UInt64,
-                "dstream_k": pl.UInt32,
-                "dstream_S": pl.UInt32,
-                "dstream_T": pl.UInt64,
-                "dstream_Tbar": pl.UInt64,
-                "dstream_value": value_type,
-                "dstream_value_bitsize": pl.UInt32,
-            },
-        )
+        .lazy()
         .collect()
     )
+
+    logging.info("explode_lookup_unpacked complete")
+    return df_long

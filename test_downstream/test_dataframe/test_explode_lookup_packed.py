@@ -127,11 +127,7 @@ def test_explode_lookup_packed_pup():
 
     expected = pl.DataFrame(
         {
-            "awoo": ["bar"] * 8 + ["baz"] * 8,
             "dstream_data_id": [0] * 8 + [1] * 8,
-            "downstream_version": [downstream.__version__] * 16,
-            "dstream_k": [*range(8), *range(8)],
-            "dstream_S": [8] * 16,
             "dstream_T": [surface1.T] * 8 + [surface2.T] * 8,
             "dstream_Tbar": [*surface1.lookup(), *surface2.lookup()],
             "dstream_value": [*surface1, *surface2],
