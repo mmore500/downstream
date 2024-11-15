@@ -54,9 +54,16 @@ check:
 # Run all tests with validation
 validate: build
 	@echo "Running validation tests..."
-	@for test in $(TEST_BINS); do \
-		echo "Validating $$test..."; \
-		$(PYTHON) -m downstream.testing.validate_all "$$test" || exit 1; \
+	@for algo in $(ALGO_DIRS); do \
+		for test in $(TEST_NAMES); do \
+			if [[ $$test == test_$${algo%_algo}_* ]]; then \
+				test_func=$${test#test_$${algo%_algo}_}; \
+				echo "Validating $$test with $${algo}..."; \
+				$(PYTHON) -m downstream.testing.validate_one \
+					test_downstream/test_dstream/test_$$algo/$$test \
+					$$algo.$$test_func || exit 1; \
+			fi \
+		done; \
 	done
 
 # Clean build artifacts
