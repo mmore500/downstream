@@ -131,7 +131,7 @@ def test_explode_lookup_packed_pup():
             "dstream_T": [surface1.T] * 8 + [surface2.T] * 8,
             "dstream_Tbar": [*surface1.lookup(), *surface2.lookup()],
             "dstream_value": [*surface1, *surface2],
-            "dstream_value_bitsize": [8] * 16,
+            "dstream_value_bitwidth": [8] * 16,
         }
     )
 

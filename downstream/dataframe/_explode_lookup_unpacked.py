@@ -41,32 +41,32 @@ def _check_df(df: pl.DataFrame) -> None:
         raise NotImplementedError("Multiple dstream_S not yet supported")
 
 
-def _check_bitsizes(df: pl.DataFrame) -> None:
-    """Raise NotImplementedError if value bitsize is not supported."""
+def _check_bitwidths(df: pl.DataFrame) -> None:
+    """Raise NotImplementedError if value bitwidth is not supported."""
     if (
         not df.lazy()
-        .filter(pl.col("dstream_value_bitsize").cast(pl.UInt32) > 64)
+        .filter(pl.col("dstream_value_bitwidth").cast(pl.UInt32) > 64)
         .limit(1)
         .collect()
         .is_empty()
     ):
-        raise NotImplementedError("Value bitsize > 64 not yet supported")
+        raise NotImplementedError("Value bitwidth > 64 not yet supported")
     if (
         not df.lazy()
-        .filter(pl.col("dstream_value_bitsize").is_in([2, 3]))
+        .filter(pl.col("dstream_value_bitwidth").is_in([2, 3]))
         .limit(1)
         .collect()
         .is_empty()
     ):
-        raise NotImplementedError("Value bitsize 2 and 3 not yet supported")
+        raise NotImplementedError("Value bitwidth 2 and 3 not yet supported")
     if (
         not df.lazy()
-        .filter(pl.col("dstream_value_bitsize").diff() != pl.lit(0))
+        .filter(pl.col("dstream_value_bitwidth").diff() != pl.lit(0))
         .limit(1)
         .collect()
         .is_empty()
     ):
-        raise NotImplementedError("Multiple value bitsizes not yet supported")
+        raise NotImplementedError("Multiple value bitwidths not yet supported")
 
 
 def _get_value_type(value_type: str) -> pl.DataType:
@@ -98,7 +98,7 @@ def _make_empty(value_type: pl.DataType) -> pl.DataFrame:
             pl.Series(name="dstream_T", values=[], dtype=pl.UInt64),
             pl.Series(name="dstream_value", values=[], dtype=value_type),
             pl.Series(
-                name="dstream_value_bitsize", values=[], dtype=pl.UInt32
+                name="dstream_value_bitwidth", values=[], dtype=pl.UInt32
             ),
         ],
     )
@@ -163,7 +163,7 @@ def explode_lookup_unpacked(
             - Logical time elapsed (number of elapsed data items in stream).
         - 'dstream_value' : pl.String or specified numeric type
             - Data item content, format depends on 'value_type' argument.
-        - 'dstream_value_bitsize' : pl.UInt32
+        - 'dstream_value_bitwidth' : pl.UInt32
             - Size of 'dstream_value' in bits.
 
         User-defined columns are NOT forwarded from the unpacked dataframe. To
@@ -173,8 +173,8 @@ def explode_lookup_unpacked(
     Raises
     ------
     NotImplementedError
-        - If 'dstream_value_bitsize' is greater than 64 or equal to 2 or 3.
-        - If 'dstream_value_bitsize' is not consistent across all data items.
+        - If 'dstream_value_bitwidth' is greater than 64 or equal to 2 or 3.
+        - If 'dstream_value_bitwidth' is not consistent across all data items.
         - If 'dstream_S' is not consistent across all dstream buffers.
         - If buffers aren't filled (i.e., 'dstream_T' < 'dstream_S').
         - If multiple dstream algorithms are present in the input DataFrame.
@@ -216,13 +216,13 @@ def explode_lookup_unpacked(
     )
 
     df = df.with_columns(
-        dstream_value_bitsize=np.right_shift(
+        dstream_value_bitwidth=np.right_shift(
             pl.col("dstream_storage_hex").str.len_bytes() * 4,
             int(dstream_S).bit_length() - 1,
         ).cast(pl.UInt32),
     )
 
-    _check_bitsizes(df)
+    _check_bitwidths(df)
 
     logging.info(" - exploding dataframe...")
 
