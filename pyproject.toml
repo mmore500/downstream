@@ -19,7 +19,6 @@ dependencies = [
   "numba>=0.60.0",
   "numpy>=2.0.0",
   "opytional>=0.1.0",
-  "parallelbar>=2.4",
   "polars>=1.0.0",
 ]
 description = "downstream provides efficient, constant-space algorithms for stream curation"

@@ -8,7 +8,6 @@ from .. import dstream  # noqa: F401
 from .._auxlib._unpack_hex import unpack_hex
 from ._impl._check_downstream_version import check_downstream_version
 from ._impl._check_expected_columns import check_expected_columns
-from ._impl._parallelize_numpy_op import parallelize_numpy_op
 
 
 def _check_df(df: pl.DataFrame) -> None:
@@ -245,10 +244,7 @@ def explode_lookup_unpacked(
 
     logging.info(" - looking up ingest times...")
 
-    lookup_op = parallelize_numpy_op()(
-        dstream_algo.lookup_ingest_times_batched
-    )
-    # lookup_op = dstream_algo.lookup_ingest_times_batched
+    lookup_op = dstream_algo.lookup_ingest_times_batched
     dstream_T = df.lazy().select("dstream_T").collect().to_numpy().ravel()
     df_long = (
         df_long.with_columns(
