@@ -4,7 +4,6 @@ from ..._auxlib._bit_floor_batched import bit_floor_batched
 from ..._auxlib._bitlen32_batched import bitlen32_batched
 from ..._auxlib._bitlen32_scalar import bitlen32_scalar
 from ..._auxlib._ctz_batched import ctz_batched
-
 from ..._auxlib._jit import jit
 
 
