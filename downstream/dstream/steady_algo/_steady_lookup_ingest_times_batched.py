@@ -30,7 +30,7 @@ def steady_lookup_ingest_times_batched(
     if (T < S).any():
         raise ValueError("T < S not supported for batched lookup")
 
-    s = bitlen32_scalar(S).astype(T.dtype) - 1
+    s = np.uint64(bitlen32_scalar(S)) - 1
     t = bitlen32_batched(T) - s  # Current epoch
 
     b = 0  # Bunch physical index (left-to right)
