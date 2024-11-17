@@ -27,5 +27,5 @@ def bitlen32_batched(arr: np.ndarray) -> np.ndarray:
     """
     assert np.asarray(np.asarray(arr) < (1 << 53)).all()
     assert np.asarray(np.asarray(arr) >= 0).all()
-    arr1_safe = np.maximum(arr + 1, arr)
+    arr1_safe = np.maximum(arr + 1, arr)  # +1 RE log(0), max RE overflow
     return np.ceil(np.log2(arr1_safe)).astype(nb_or_np.uint8)
