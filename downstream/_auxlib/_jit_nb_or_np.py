@@ -8,7 +8,9 @@ from ._is_in_coverage_run import is_in_coverage_run
 
 try:
     import numba as nb_or_np  # noqa: F401
-except (ImportError, ModuleNotFoundError):  # pragma: no cover
+
+    nb_or_np.jit
+except (AttributeError, ImportError, ModuleNotFoundError):  # pragma: no cover
     import numpy as nb_or_np  # noqa: F401
 else:
     if is_in_coverage_run():
