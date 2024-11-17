@@ -72,10 +72,11 @@ def tilted_lookup_ingest_times_batched(
         # ^^^ Invaded at this epoch?
 
         # Scenario B site in invading segment, h.v. ring buffer intact
-        X_B = _land(t - t0 < h_, _land(h_ < w0, t < S - s))
+        Ss = np.uint64(S) - np.uint64(s)
+        X_B = _land(t - t0 < h_, _land(h_ < w0, t < Ss))
         # ^^^ At future epoch t in tau?
         T_r = T0 + T_i  # When is site refilled after ring buffer halves?
-        X_B_ = _land(h_ == t - t0, _land(t < S - s, T_r >= T))
+        X_B_ = _land(h_ == t - t0, _land(t < Ss, T_r >= T))
         # ^^^ At this epoch?
 
         assert (np.asarray(X_A + X_A_ + X_B + X_B_) <= 1).all()
