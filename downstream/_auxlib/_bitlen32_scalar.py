@@ -25,4 +25,5 @@ def bitlen32_scalar(val: int) -> np.uint8:
     Numba-compatible implementation.
     """
     assert val < (1 << 53)
-    return nb_or_np.uint8(np.ceil(np.log2(val + 1)))
+    val1_safe = np.maximum(val + 1, val)  # +1 RE log(0), max RE overflow
+    return nb_or_np.uint8(np.ceil(np.log2(val1_safe)))
