@@ -4,8 +4,7 @@ import numpy as np
 
 
 def unpack_hex(hex_str: str, num_items: int) -> np.ndarray:
-    """
-    Unpacks a hexadecimal string into an array of 64-bit unsigned integers.
+    """Unpacks a hexadecimal string into an array of 64-bit unsigned integers.
 
     This function interprets the input hexadecimal string as a sequence of bits,
     reshapes it to represent `num_items` items, and returns a NumPy array of
