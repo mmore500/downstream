@@ -1,8 +1,11 @@
 import numpy as np
 
+from ._jit import jit
+from ._jit_nb_or_np import nb_or_np
 
-# see https://stackoverflow.com/a/79189999/17332200
-def bitlen32(arr: np.ndarray) -> np.ndarray:
+
+@jit(nopython=True)
+def bitlen32_batched(arr: np.ndarray) -> np.ndarray:
     """Calculate the bit length (number of bits) needed to represent each
     integer for 32-bit integer arrays.
 
@@ -20,10 +23,8 @@ def bitlen32(arr: np.ndarray) -> np.ndarray:
 
     Notes
     -----
-    This function uses `np.frexp` to determine the position of the highest set
-    bit in each integer, effectively computing the bit length. An assertion
-    checks that the maximum value in `arr` is less than 2^53, as `np.frexp`
-    handles floating-point precision up to this limit.
+    Numba-compatible implementation.
     """
-    assert np.asarray(arr).max(initial=0) < (1 << 53)
-    return np.frexp(arr)[1]
+    assert np.asarray(np.asarray(arr) < (1 << 53)).all()
+    assert np.asarray(np.asarray(arr) >= 0).all()
+    return np.ceil(np.log2(arr + 1)).astype(nb_or_np.uint8)

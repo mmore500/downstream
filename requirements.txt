@@ -44,12 +44,14 @@ isort==5.12.0
     # via downstream (pyproject.toml)
 jedi==0.19.2
     # via ipython
-joinem==0.8.1
+joinem==0.8.2
     # via downstream (pyproject.toml)
 lazy-loader==0.4
     # via downstream (pyproject.toml)
 lexid==2021.1006
     # via bumpver
+llvmlite==0.43.0
+    # via numba
 matplotlib-inline==0.1.7
     # via ipython
 mypy-extensions==1.0.0
@@ -58,8 +60,12 @@ nbqa==1.9.0
     # via downstream (pyproject.toml)
 nh3==0.2.18
     # via readme-renderer
-numpy==2.1.3
+numba==0.60.0
     # via downstream (pyproject.toml)
+numpy==2.0.2
+    # via
+    #   downstream (pyproject.toml)
+    #   numba
 opytional==0.1.0
     # via downstream (pyproject.toml)
 packaging==24.2

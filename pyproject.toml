@@ -16,6 +16,7 @@ classifiers = [
 dependencies = [
   "lazy-loader>=0.4",
   "joinem>=0.8.1",
+  "numba>=0.60.0",
   "numpy>=2.0.0",
   "opytional>=0.1.0",
   "parallelbar>=2.4",
