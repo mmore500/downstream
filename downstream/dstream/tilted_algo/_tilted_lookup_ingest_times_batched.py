@@ -33,7 +33,8 @@ def tilted_lookup_ingest_times_batched(
         Two-dimensional array. Each row corresponds to an entry in T. Contains
         S columns, each corresponding to buffer sites.
     """
-    assert (np.asarray(T) >= S).all()
+    if (T < S).any():
+        raise ValueError("T < S not supported for batched lookup")
 
     s = bitlen32_scalar(S) - 1
     t = bitlen32_batched(T).astype(T.dtype) - s  # Current epoch
