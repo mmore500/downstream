@@ -1,7 +1,3 @@
-from ._Policy import Policy
-from ._Surface import Surface
+import lazy_loader
 
-__all__ = [
-    "Policy",
-    "Surface",
-]
+__getattr__, __dir__, _ = lazy_loader.attach_stub(__name__, __file__)

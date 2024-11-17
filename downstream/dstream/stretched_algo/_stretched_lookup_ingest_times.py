@@ -73,3 +73,6 @@ def stretched_lookup_impl(
         h_ += 1  # Assigned h.v. increases within each segment
         m_p += h_ == w  # Bump to next segment if current is filled
         h_ *= h_ != w  # Reset h.v. if segment is filled
+
+
+lookup_ingest_times = stretched_lookup_ingest_times  # lazy loader workaround

@@ -110,3 +110,7 @@ def tilted_lookup_ingest_times_batched(
         h_ *= (h_ != w).astype(T.dtype)  # Reset h.v. if segment is filled
 
     return res
+
+
+# lazy loader workaround
+lookup_ingest_times_batched = tilted_lookup_ingest_times_batched

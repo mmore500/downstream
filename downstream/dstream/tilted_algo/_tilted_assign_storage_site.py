@@ -54,3 +54,6 @@ def tilted_assign_storage_site(S: int, T: int) -> typing.Optional[int]:
 
     return k_b + h  # Calculate placement site...
     # ... where h.v. h is offset within bunch
+
+
+assign_storage_site = tilted_assign_storage_site  # lazy loader workaround

@@ -70,3 +70,6 @@ def steady_lookup_impl(S: int, T: int) -> typing.Iterable[int]:
         b += b_star  # Do bump to next bunch, if any
         # Set within-bunch segment countdown, if bumping to next bunch
         m_b__ = m_b__ or (1 << (b - 1))
+
+
+lookup_ingest_times = steady_lookup_ingest_times  # lazy loader workaround

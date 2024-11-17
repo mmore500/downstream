@@ -13,3 +13,6 @@ def stretched_get_ingest_capacity(S: int) -> typing.Optional[int]:
     """
     surface_size_ok = S.bit_count() == 1 and S > 1
     return 2**S - 1 if surface_size_ok else 0
+
+
+get_ingest_capacity = stretched_get_ingest_capacity  # lazy loader workaround

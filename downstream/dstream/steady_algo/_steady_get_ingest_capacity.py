@@ -13,3 +13,6 @@ def steady_get_ingest_capacity(S: int) -> typing.Optional[int]:
     """
     surface_size_ok = S.bit_count() == 1 and S > 1
     return None if surface_size_ok else 0
+
+
+get_ingest_capacity = steady_get_ingest_capacity  # lazy loader workaround

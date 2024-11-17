@@ -40,3 +40,6 @@ def steady_assign_storage_site(S: int, T: int) -> typing.Optional[int]:
 
     p = h % w  # Within-segment offset
     return k_b + o + p  # Calculate placement site
+
+
+assign_storage_site = steady_assign_storage_site  # lazy loader workaround

@@ -75,3 +75,7 @@ def steady_lookup_ingest_times_batched(
         m_b__ = m_b__ or (1 << (b - 1))
 
     return res
+
+
+# lazy loader workaround
+lookup_ingest_times_batched = steady_lookup_ingest_times_batched

@@ -1,9 +1,3 @@
-from ._explode_lookup_packed import explode_lookup_packed
-from ._explode_lookup_unpacked import explode_lookup_unpacked
-from ._unpack_data_packed import unpack_data_packed
+import lazy_loader
 
-__all__ = [
-    "unpack_data_packed",
-    "explode_lookup_packed",
-    "explode_lookup_unpacked",
-]
+__getattr__, __dir__, _ = lazy_loader.attach_stub(__name__, __file__)
