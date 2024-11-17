@@ -34,7 +34,7 @@ def tilted_lookup_ingest_times_batched(
     assert (np.asarray(T) >= S).all()
 
     s = bitlen32_scalar(S) - 1
-    t = bitlen32_batched(T) - s  # Current epoch
+    t = bitlen32_batched(T).astype(T.dtype) - s  # Current epoch
 
     blt = bitlen32_batched(t).astype(T.dtype)  # Bit length of t
     # ^^^ why is this dtype cast necessary?

@@ -34,7 +34,7 @@ def stretched_lookup_ingest_times_batched(
         raise ValueError("T < S not supported for batched lookup")
 
     s = bitlen32_scalar(S) - 1
-    t = bitlen32_batched(T) - s  # Current epoch
+    t = bitlen32_batched(T).astype(T.dtype) - s  # Current epoch
 
     blt = bitlen32_batched(t).astype(T.dtype)  # Bit length of t
     epsilon_tau = bit_floor_batched(t << 1) > t + blt  # Correction factor
