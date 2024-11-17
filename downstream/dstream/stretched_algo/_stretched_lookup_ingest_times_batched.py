@@ -5,10 +5,10 @@ from ..._auxlib._bitlen32_batched import bitlen32_batched
 from ..._auxlib._bitlen32_scalar import bitlen32_scalar
 from ..._auxlib._ctz_batched import ctz_batched
 
-# from ..._auxlib._jit import jit
+from ..._auxlib._jit import jit
 
 
-# @jit(nopython=True, parallel=True)
+@jit(nopython=True, parallel=True)
 def stretched_lookup_ingest_times_batched(
     S: int,
     T: np.ndarray,
@@ -45,8 +45,10 @@ def stretched_lookup_ingest_times_batched(
     w0 = (1 << tau0) - 1  # Smallest segment size at current epoch start
     w1 = (1 << tau1) - 1  # Smallest segment size at next epoch start
 
-    h_ = 0  # Assigned hanoi value of 0th site
-    m_p = 0  # Calc left-to-right index of 0th segment (physical segment idx)
+    h_ = np.zeros_like(T, dtype=T.dtype)
+    # ^^^ Assigned hanoi value of 0th site
+    m_p = np.zeros_like(T, dtype=T.dtype)
+    # ^^^ Calc left-to-right index of 0th segment (physical segment idx)
 
     res = np.zeros((T.size, S), dtype=np.uint64)
     for k in range(S):  # For each site in buffer...
@@ -69,7 +71,8 @@ def stretched_lookup_ingest_times_batched(
 
         # Update state for next site...
         h_ += 1  # Assigned h.v. increases within each segment
-        m_p += h_ == w  # Bump to next segment if current is filled
-        h_ *= h_ != w  # Reset h.v. if segment is filled
+        # Bump to next segment if current is filled
+        m_p += (h_ == w).astype(T.dtype)
+        h_ *= (h_ != w).astype(T.dtype)  # Reset h.v. if segment is filled
 
     return res
