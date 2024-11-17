@@ -31,15 +31,26 @@ def unpack_hex(hex_str: str, num_items: int) -> np.ndarray:
             "native big-endian byte order not yet supported",
         )
 
+    if num_items == len(hex_str):  # handel4-bit values
+        ascii_codes = np.fromstring(hex_str.lower(), dtype="S1", sep="").view(
+            np.uint8
+        )
+        digits = ascii_codes - ord("0")
+        alphas = ascii_codes - (ord("a") - 10)
+        return np.where(digits < 10, digits, alphas)
+
     bytes_array = np.frombuffer(
         bytes.fromhex(hex_str),
-        count=len(hex_str) // 2,
+        count=len(hex_str) >> 1,
         dtype=np.uint8,
     )
-    bits_array = np.unpackbits(
-        bytes_array,
-        bitorder="big",
-    )
+    if num_items == len(bytes_array):  # handle 1-byte values
+        return bytes_array
+
+    bits_array = np.unpackbits(bytes_array, bitorder="big")
+    if num_items == len(bytes_array) * 8:  # handle 1-bit values
+        return bits_array
+
     item_bits_array = bits_array.reshape((num_items, -1))[:, ::-1]
     item_bytes_array = np.packbits(
         item_bits_array,
@@ -52,5 +63,4 @@ def unpack_hex(hex_str: str, num_items: int) -> np.ndarray:
         constant_values=0,
         mode="constant",
     )
-    res = np.frombuffer(item_8bytes_array.ravel(), dtype=np.uint64)
-    return res
+    return np.frombuffer(item_8bytes_array.ravel(), dtype=np.uint64)
