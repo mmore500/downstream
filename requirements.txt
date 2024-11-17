@@ -19,9 +19,7 @@ click==8.1.7
     #   black
     #   bumpver
 colorama==0.4.6
-    # via
-    #   bumpver
-    #   parallelbar
+    # via bumpver
 decorator==5.1.1
     # via ipython
 docutils==0.21.2
@@ -44,7 +42,7 @@ isort==5.12.0
     # via downstream (pyproject.toml)
 jedi==0.19.2
     # via ipython
-joinem==0.8.1
+joinem==0.8.2
     # via downstream (pyproject.toml)
 lazy-loader==0.4
     # via downstream (pyproject.toml)
@@ -66,8 +64,6 @@ packaging==24.2
     # via
     #   lazy-loader
     #   pytest
-parallelbar==2.4
-    # via downstream (pyproject.toml)
 parso==0.8.4
     # via jedi
 pathlib2==2.3.7.post1
@@ -82,7 +78,7 @@ platformdirs==4.3.6
     # via black
 pluggy==1.5.0
     # via pytest
-polars==1.13.1
+polars==1.14.0
     # via
     #   downstream (pyproject.toml)
     #   joinem
@@ -139,7 +135,6 @@ tqdm==4.64.1
     # via
     #   downstream (pyproject.toml)
     #   joinem
-    #   parallelbar
     #   twine
 traitlets==5.14.3
     # via

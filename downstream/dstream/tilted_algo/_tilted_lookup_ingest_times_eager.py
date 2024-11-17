@@ -21,3 +21,7 @@ def tilted_lookup_ingest_times_eager(S: int, T: int) -> typing.List[int]:
     if T < S:
         raise ValueError("T < S not supported for eager lookup")
     return list(tilted_lookup_impl(S, T))
+
+
+# lazy loader workaround
+lookup_ingest_times_eager = tilted_lookup_ingest_times_eager

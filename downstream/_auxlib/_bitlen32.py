@@ -3,8 +3,8 @@ import numpy as np
 
 # see https://stackoverflow.com/a/79189999/17332200
 def bitlen32(arr: np.ndarray) -> np.ndarray:
-    """
-    Calculate the bit length (number of bits) needed to represent each integer for 32-bit integer arrays.
+    """Calculate the bit length (number of bits) needed to represent each
+    integer for 32-bit integer arrays.
 
     Parameters
     ----------
@@ -26,4 +26,4 @@ def bitlen32(arr: np.ndarray) -> np.ndarray:
     handles floating-point precision up to this limit.
     """
     assert np.asarray(arr).max(initial=0) < (1 << 53)
-    return arr.bit_length() if isinstance(arr, int) else np.frexp(arr)[1]
+    return np.frexp(arr)[1]

@@ -7,7 +7,7 @@ from downstream.dstream import steady_algo as algo
 @pytest.mark.parametrize("s", range(1, 12))
 def test_steady_time_lookup_batched_against_site_selection(s: int):
     S = 1 << s
-    T_max = min(1 << 17 - s, 2**S - 1)
+    T_max = min(1 << 20 - s, 2**S - 1)
     expected = [None] * S
 
     expecteds = []

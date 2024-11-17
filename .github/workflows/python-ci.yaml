@@ -64,6 +64,7 @@ jobs:
       fail-fast: false
       matrix:
         python: ["3.10", "3.11", "3.12"]
+        requirements: ["requirements.txt", "requirements-jit.txt"]
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python }}
@@ -72,7 +73,7 @@ jobs:
           python-version: "${{ matrix.python }}"
       - run: |
           python3 -m pip install setuptools pip --upgrade
-          python3 -m pip install -r requirements.txt
+          python3 -m pip install -r ${{ matrix.requirements }}
       - run: python3 -m pytest -n auto test_downstream
 
   test-validators:
@@ -81,6 +82,7 @@ jobs:
       fail-fast: false
       matrix:
         python: ["3.10", "3.11", "3.12"]
+        requirements: ["requirements.txt", "requirements-jit.txt"]
         setup: ["sudo apt-get install -y pv", ""]
         which: ["debug", "validate"]
     steps:
@@ -94,7 +96,7 @@ jobs:
           ${{ matrix.setup }}
       - run: |
           python3 -m pip install setuptools pip --upgrade
-          python3 -m pip install -r requirements.txt
+          python3 -m pip install -r ${{ matrix.requirements }}
       - run: python3 -m pip install .
       - run: python3 -m downstream -h
       # should detect correct output
