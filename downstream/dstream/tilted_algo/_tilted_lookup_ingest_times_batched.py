@@ -4,12 +4,14 @@ from ..._auxlib._bit_floor_batched import bit_floor_batched
 from ..._auxlib._bitlen32_batched import bitlen32_batched
 from ..._auxlib._bitlen32_scalar import bitlen32_scalar
 from ..._auxlib._ctz_batched import ctz_batched
+from ..._auxlib._jit import jit
+from ..._auxlib._modpow2_batched import modpow2_batched
 
-# from ..._auxlib._jit import jit
-from ..._auxlib._modpow2 import modpow2
+_lor = np.logical_or
+_land = np.logical_and
 
 
-# @jit(nopython=True, parallel=True)
+@jit(nopython=True, parallel=True)
 def tilted_lookup_ingest_times_batched(
     S: int,
     T: np.ndarray,
@@ -49,8 +51,11 @@ def tilted_lookup_ingest_times_batched(
     w0 = (1 << tau0) - 1  # Smallest segment size at current epoch start
     w1 = (1 << tau1) - 1  # Smallest segment size at next epoch start
 
-    h_ = 0  # Assigned hanoi value of 0th site
-    m_p = 0  # Left-to-right (physical) segment index
+    h_ = np.zeros_like(T, dtype=T.dtype)
+    # ^^^ Assigned hanoi value of 0th site
+    m_p = np.zeros_like(T, dtype=T.dtype)
+    # ^^^ Calc left-to-right index of 0th segment (physical segment idx)
+
     res = np.zeros((T.size, S), dtype=np.uint64)
     for k in range(S):  # For each site in buffer...
         b_l = ctz_batched(M_ + m_p)  # Reverse fill order (logical) bunch index
@@ -62,44 +67,46 @@ def tilted_lookup_ingest_times_batched(
         # Scenario A: site in invaded segment, h.v. ring buffer intact
         X_A = h_ - (t - t0) > w - w0  # To be invaded in future epoch t in tau?
         T_i = ((2 * m_l_ + 1) << h_) - 1  # When overwritten by invader?
-        X_A_ = np.logical_and(h_ - (t - t0) == w - w0, T_i >= T)
+        X_A_ = _land(h_ - (t - t0) == w - w0, T_i >= T)
         # ^^^ Invaded at this epoch?
 
         # Scenario B site in invading segment, h.v. ring buffer intact
-        X_B = np.logical_and.reduce((t - t0 < h_, h_ < w0, t < S - s))
+        X_B = _land(t - t0 < h_, _land(h_ < w0, t < S - s))
         # ^^^ At future epoch t in tau?
         T_r = T0 + T_i  # When is site refilled after ring buffer halves?
-        X_B_ = np.logical_and.reduce(
-            (h_ == t - t0, t < S - s, T_r >= T),
-        )  # At this epoch?
+        X_B_ = _land(h_ == t - t0, _land(t < S - s, T_r >= T))
+        # ^^^ At this epoch?
 
         assert (np.asarray(X_A + X_A_ + X_B + X_B_) <= 1).all()
         # ^^^ scenarios are mutually exclusive
 
         # Calculate corrected values...
-        epsilon_G = np.logical_or.reduce((X_A, X_A_, X_B, X_B_)) * M_
-        epsilon_h = np.logical_or(X_A, X_A_) * (w - w0)
-        epsilon_T = np.logical_or(X_A_, X_B_) * (T - T0)
+        epsilon_G = _lor(X_A, _lor(X_A_, _lor(X_B, X_B_))) * M_
+        epsilon_h = _lor(X_A, X_A_) * (w - w0)
+        epsilon_T = _lor(X_A_, X_B_) * (T - T0)
         # ^^^ Snap back to start of epoch
 
         M = M_ + epsilon_G
         h = h_ - epsilon_h
         Tc = T - epsilon_T  # Corrected time
         m_l = np.where(
-            np.logical_or(X_A, X_A_),
+            _lor(X_A, X_A_),
             (M_ + m_p),
             m_l_,
         )
 
         # Decode what h.v. instance fell on site k...
         j = ((Tc + (1 << h)) >> (h + 1)) - 1  # Num seen, less one
-        i = j - modpow2(j - m_l + M, M)  # H.v. incidence resident at site k
+        i = j - modpow2_batched(j - m_l + M, M)
+        # ^^^ H.v. incidence resident at site k
         # ... then decode ingest time for that ith h.v. instance
         res[:, k] = ((2 * i + 1) << h) - 1  # True ingest time, Tbar_k
 
         # Update state for next site...
-        h_ += 1  # Assigned h.v. increases within each segment
-        m_p += h_ == w  # Bump to next segment if current is filled
-        h_ *= h_ != w  # Reset h.v. if segment is filled
+        h_ += np.ones_like(T, dtype=T.dtype)
+        # ^^^ Assigned h.v. increases within each segment
+        m_p += (h_ == w).astype(T.dtype)
+        # ^^^ Bump to next segment if current is filled
+        h_ *= (h_ != w).astype(T.dtype)  # Reset h.v. if segment is filled
 
     return res
