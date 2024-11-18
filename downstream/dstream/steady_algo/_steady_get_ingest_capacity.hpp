@@ -1,6 +1,8 @@
 #ifndef STEADY_INGEST_CAPACITY_H
 #define STEADY_INGEST_CAPACITY_H
 
+#include <bitset>
+#include <cstdint>
 #include <bit>
 #include <optional>
 
