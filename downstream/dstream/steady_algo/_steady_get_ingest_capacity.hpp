@@ -1,7 +1,7 @@
 #ifndef STEADY_INGEST_CAPACITY_H
 #define STEADY_INGEST_CAPACITY_H
 
-#include <bitset>
+#include <bit>
 #include <optional>
 
 namespace downstream {
