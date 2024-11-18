@@ -4,7 +4,7 @@ from ._bitwise_count_batched64 import bitwise_count_batched64
 from ._jit import jit
 
 
-@jit(nopython=True)
+@jit(nogil=True, nopython=True)
 def modpow2_batched(dividend: np.ndarray, divisor: np.ndarray) -> np.ndarray:
     """Perform fast mod using bitwise operations.
 

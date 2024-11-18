@@ -7,7 +7,7 @@ from ..._auxlib._ctz_batched import ctz_batched
 from ..._auxlib._jit import jit
 
 
-@jit(nopython=True, parallel=True)
+@jit(nogil=True, nopython=True, parallel=True)
 def stretched_lookup_ingest_times_batched(
     S: int,
     T: np.ndarray,
