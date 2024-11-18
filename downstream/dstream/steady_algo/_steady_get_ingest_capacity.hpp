@@ -9,7 +9,7 @@ namespace dstream {
 namespace steady_algo {
 
 std::optional<uint64_t> steady_get_ingest_capacity(uint64_t S) {
-  bool surface_size_ok = std::popcount(S) == 1 && S > 1;
+  bool surface_size_ok = std::has_single_bit(S) && S > 1;
   return surface_size_ok ? std::nullopt : std::optional<uint64_t>(0);
 }
 
