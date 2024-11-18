@@ -5,7 +5,7 @@ from ..._auxlib._bitlen32_scalar import bitlen32_scalar
 from ..._auxlib._jit import jit
 
 
-@jit(nopython=True, parallel=True)
+@jit(nogil=True, nopython=True, parallel=True)
 def steady_lookup_ingest_times_batched(
     S: int,
     T: np.ndarray,

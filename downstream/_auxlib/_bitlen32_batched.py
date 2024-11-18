@@ -4,7 +4,7 @@ from ._jit import jit
 from ._jit_nb_or_np import nb_or_np
 
 
-@jit(nopython=True)
+@jit(nogil=True, nopython=True)
 def bitlen32_batched(arr: np.ndarray) -> np.ndarray:
     """Calculate the bit length (number of bits) needed to represent each
     integer for 32-bit integer arrays.

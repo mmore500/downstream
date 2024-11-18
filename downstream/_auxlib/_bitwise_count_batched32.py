@@ -4,7 +4,7 @@ from ._jit import jit
 
 
 # adapted from https://stackoverflow.com/a/71100473/17332200
-@jit("uint8[:](uint32[:])", nopython=True)
+@jit("uint8[:](uint32[:])", nogil=True, nopython=True)
 def bitwise_count_batched32(v: np.ndarray) -> np.ndarray:
     """Numba-friendly population count function for 32-bit integers."""
     v = v - ((v >> 1) & 0x55555555)

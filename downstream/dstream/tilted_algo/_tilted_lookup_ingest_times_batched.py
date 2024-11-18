@@ -11,7 +11,7 @@ _lor = np.logical_or
 _land = np.logical_and
 
 
-@jit(nopython=True, parallel=True)
+@jit(nogil=True, nopython=True, parallel=True)
 def tilted_lookup_ingest_times_batched(
     S: int,
     T: np.ndarray,
