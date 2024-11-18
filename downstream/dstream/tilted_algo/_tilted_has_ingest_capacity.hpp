@@ -12,7 +12,7 @@ namespace tilted_algo {
 
 bool tilted_has_ingest_capacity(uint64_t S, uint64_t T) {
   assert(T >= 0);
-  bool surface_size_ok = std::popcount(S) == 1 && S > 1;
+  bool surface_size_ok = std::has_single_bit(S) && S > 1;
 
   if (!surface_size_ok) {
     return false;

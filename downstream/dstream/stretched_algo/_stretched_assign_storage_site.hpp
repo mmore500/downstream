@@ -13,7 +13,7 @@ std::optional<uint64_t> stretched_assign_storage_site(uint64_t S, uint64_t T) {
   uint64_t s = std::bit_width(S) - 1;
   uint64_t t = std::max(std::bit_width(T) - s, uint64_t{0}); // Current epoch
   uint64_t h = std::countr_zero(T + 1); // Current hanoi value
-  uint64_t i = T >> (h + 1); // Hanoi value incidence (i.e., num seen)
+  uint64_t i = (h + 1) >= 64 ? 0 : (T >> (h + 1)); // Hanoi value incidence (i.e., num seen)
 
   uint64_t blt = std::bit_width(t); // Bit length of t
   uint64_t t_floor = t <= 0 ? 0 : 1 << (std::bit_width(t) - 1);
