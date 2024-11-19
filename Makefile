@@ -56,13 +56,15 @@ validate: build
 	@echo "Running validation tests..."
 	@for algo in $(ALGO_DIRS); do \
 		for test in $(TEST_NAMES); do \
-			if [[ $$test == test_$${algo%_algo}_* ]]; then \
-				test_func=$${test#test_$${algo%_algo}_}; \
-				echo "Validating $$test with $${algo}..."; \
-				$(PYTHON) -m downstream.testing.validate_one \
-					test_downstream/test_dstream/test_$$algo/$$test \
-					$$algo.$$test_func || exit 1; \
-			fi \
+			test_prefix=test_$$(echo $$algo | sed 's/_algo//'); \
+			case $$test in \
+				$$test_prefix*) \
+					test_func=$$(echo $$test | sed "s/$$test_prefix\_//"); \
+					echo "Validating $$test with $$algo..."; \
+					$(PYTHON) -m downstream.testing.validate_one \
+						test_downstream/test_dstream/test_$$algo/$$test \
+						$$algo.$$test_func || exit 1;; \
+			esac; \
 		done; \
 	done
 
