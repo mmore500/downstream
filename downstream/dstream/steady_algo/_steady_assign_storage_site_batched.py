@@ -15,17 +15,21 @@ def steady_assign_storage_site_batched(
     Parameters
     ----------
     S : Union[np.ndarray, int]
-        Buffer size. Must be a power of two.
+        Buffer size. Must be a power of two, <= 2**52.
     T : Union[np.ndarray, int]
-        Current logical time.
+        Current logical time. Must be <= 2**52.
 
     Returns
     -------
     np.array
         Selected site, if any. Otherwise, S.
     """
-    assert (np.asarray(S) < 2**54).all() and (np.asarray(T) < 2 ** 54).all()
+    # restriction <= 2 ** 52 might be overly conservative
+    assert (np.asarray(S) <= 2**52).all() and (np.asarray(T) <= 2 ** 52).all()
+
     S, T = np.atleast_1d(S).astype(np.int64), np.atleast_1d(T).astype(np.int64)
+    S, T = S.astype(dtype), T.astype(dtype)
+
     s = bitlen32(S) - 1
     t = bitlen32(T) - s  # Current epoch (or negative)
     h = ctz32(T + 1)  # Current hanoi value
