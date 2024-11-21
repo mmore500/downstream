@@ -3,6 +3,8 @@ import itertools as it
 from random import randrange as rand
 import typing
 
+import pytest
+
 from downstream.dstream import steady_algo as algo
 
 
@@ -54,8 +56,8 @@ def test_steady_site_selection_fuzz():
         site_selection(S, T)  # Validated via wrapper
 
 
-def test_steady_site_selection_epoch0():
-    for S in (1 << s for s in range(1, 21)):
-        actual = {site_selection(S, T) for T in range(S)}
-        expected = set(range(S))
-        assert actual == expected
+@pytest.mark.parametrize("S", [1 << s for s in range(1, 21)])
+def test_steady_site_selection_epoch0(S: int):
+    actual = {site_selection(S, T) for T in range(S)}
+    expected = set(range(S))
+    assert actual == expected
