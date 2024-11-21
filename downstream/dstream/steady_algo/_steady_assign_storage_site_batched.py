@@ -25,6 +25,7 @@ def steady_assign_storage_site_batched(
         Selected site, if any. Otherwise, S.
     """
     # restriction <= 2 ** 52 might be overly conservative
+    assert S > 1 and S.bit_count() == 1
     assert (np.asarray(S) <= 2**52).all() and (
         np.asarray(T) <= 2**52
     ).all()

@@ -29,6 +29,7 @@ def stretched_lookup_ingest_times_batched(
         Two-dimensional array. Each row corresponds to an entry in T. Contains
         S columns, each corresponding to buffer sites.
     """
+    assert S > 1 and S.bit_count() == 1
     if (T < S).any():
         raise ValueError("T < S not supported for batched lookup")
 

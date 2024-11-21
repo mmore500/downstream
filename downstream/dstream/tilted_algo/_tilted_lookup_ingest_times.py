@@ -24,6 +24,7 @@ def tilted_lookup_ingest_times(
     typing.Optional[int]
         Ingest time of stored item, if any, at buffer sites in index order.
     """
+    assert T >= 0
     if T < S:  # Patch for before buffer is filled...
         return (v if v < T else None for v in tilted_lookup_impl(S, S))
     else:  # ... assume buffer has been filled
@@ -35,6 +36,7 @@ def tilted_lookup_impl(
     T: int,
 ) -> typing.Iterable[typing.Union[int, np.ndarray]]:
     """Implementation detail for `tilted_lookup_ingest_times`."""
+    assert S > 1 and S.bit_count() == 1
     # T < S redirected to T = S by tilted_lookup_ingest_times
     assert T >= S  # T < S redirected to T = S by tilted_lookup_ingest_times
 
