@@ -3,7 +3,7 @@ import numpy as np
 from ..._auxlib._bit_floor_batched32 import bit_floor_batched32
 from ..._auxlib._bitlen32_batched import bitlen32_batched
 from ..._auxlib._bitlen32_scalar import bitlen32_scalar
-from ..._auxlib._ctz_batched import ctz_batched
+from ..._auxlib._ctz_batched32 import ctz_batched32
 from ..._auxlib._jit import jit
 
 
@@ -51,7 +51,7 @@ def stretched_lookup_ingest_times_batched(
 
     res = np.zeros((T.size, S), dtype=np.uint64)
     for k in range(S):  # For each site in buffer...
-        b_l = ctz_batched(M + m_p).astype(T.dtype)  # Logical bunch index...
+        b_l = ctz_batched32(M + m_p).astype(T.dtype)  # Logical bunch index...
         # ... REVERSE fill order (decreasing nestedness/increasing init size r)
 
         epsilon_w = m_p == 0  # Correction factor for segment size

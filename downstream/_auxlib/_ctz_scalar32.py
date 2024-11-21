@@ -3,6 +3,6 @@ from ._jit import jit
 
 
 @jit(nogil=True, nopython=True)
-def ctz_scalar(x: int) -> int:
+def ctz_scalar32(x: int) -> int:
     """Count trailing zeros."""
     return bitlen32_scalar(x & -x) - 1

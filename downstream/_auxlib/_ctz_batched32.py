@@ -3,6 +3,6 @@ from ._jit import jit
 
 
 @jit(nogil=True, nopython=True)
-def ctz_batched(x: int) -> int:
+def ctz_batched32(x: int) -> int:
     """Count trailing zeros."""
     return bitlen32_batched(x & -x) - 1

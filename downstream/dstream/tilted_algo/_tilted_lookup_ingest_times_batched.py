@@ -3,7 +3,7 @@ import numpy as np
 from ..._auxlib._bit_floor_batched32 import bit_floor_batched32
 from ..._auxlib._bitlen32_batched import bitlen32_batched
 from ..._auxlib._bitlen32_scalar import bitlen32_scalar
-from ..._auxlib._ctz_batched import ctz_batched
+from ..._auxlib._ctz_batched32 import ctz_batched32
 from ..._auxlib._jit import jit
 from ..._auxlib._modpow2_batched import modpow2_batched
 
@@ -59,7 +59,9 @@ def tilted_lookup_ingest_times_batched(
 
     res = np.zeros((T.size, S), dtype=np.uint64)
     for k in range(S):  # For each site in buffer...
-        b_l = ctz_batched(M_ + m_p)  # Reverse fill order (logical) bunch index
+        b_l = ctz_batched32(
+            M_ + m_p
+        )  # Reverse fill order (logical) bunch index
         epsilon_w = m_p == 0  # Correction factor for segment size
         w = w1 + b_l + epsilon_w  # Number of sites in current segment
         m_l_ = (M_ + m_p) >> (b_l + 1)  # Logical (fill order) segment index
