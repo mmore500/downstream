@@ -8,10 +8,18 @@ import pytest
 
 from downstream.dstream import steady_algo as algo
 
-_dtypes = [  # fmt: off
-    np.uint8, np.uint16, np.uint32, np.uint64,
-    np.int8, np.int16, np.int32, np.int64
-]  # fmt: on
+
+_dtypes = [
+    np.uint8,
+    np.uint16,
+    np.uint32,
+    np.uint64,
+    np.int8,
+    np.int16,
+    np.int32,
+    np.int64,
+]
+
 
 def validate_steady_site_selection(fn: typing.Callable) -> typing.Callable:
     """Decorator to validate pre- and post-conditions on site selection."""
@@ -110,12 +118,12 @@ def test_steady_site_selection_batched_fuzz(
     dtype1: typing.Type,
     dtype2: typing.Type,
 ):
-    Smax = min(np.iinfo(dtype1).max, 2 ** 52)
+    Smax = min(np.iinfo(dtype1).max, 2**52)
     testS = np.array(
         [2**s for s in range(64) if 2**s <= Smax],
         dtype=dtype1,
     )
-    Tmax = min(np.iinfo(dtype2).max, 2 ** 52)
+    Tmax = min(np.iinfo(dtype2).max, 2**52)
     testT = np.fromiter(
         it.chain(
             range(min(10**5, Tmax + 1)),
