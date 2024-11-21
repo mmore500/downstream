@@ -1,6 +1,6 @@
 import numpy as np
 
-from ..._auxlib._bit_floor_batched import bit_floor_batched
+from ..._auxlib._bit_floor_batched32 import bit_floor_batched32
 from ..._auxlib._bitlen32_batched import bitlen32_batched
 from ..._auxlib._bitlen32_scalar import bitlen32_scalar
 from ..._auxlib._ctz_batched import ctz_batched
@@ -41,7 +41,7 @@ def tilted_lookup_ingest_times_batched(
 
     blt = bitlen32_batched(t).astype(T.dtype)  # Bit length of t
     # ^^^ why is this dtype cast necessary?
-    epsilon_tau = bit_floor_batched(t << 1) > t + blt  # Correction factor
+    epsilon_tau = bit_floor_batched32(t << 1) > t + blt  # Correction factor
     tau0 = blt - epsilon_tau  # Current meta-epoch
     tau1 = tau0 + 1  # Next meta-epoch
     t0 = (1 << tau0) - tau0  # Opening epoch of current meta-epoch

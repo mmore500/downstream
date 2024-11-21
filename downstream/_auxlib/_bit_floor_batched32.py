@@ -3,7 +3,7 @@ from ._jit import jit
 
 
 @jit(nogil=True, nopython=True)
-def bit_floor_batched(n: int) -> int:
+def bit_floor_batched32(n: int) -> int:
     """Calculate the largest power of two not greater than n.
 
     If zero, returns zero.
