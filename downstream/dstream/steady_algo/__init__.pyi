@@ -11,7 +11,7 @@ __all__ = [
     "assign_storage_site_batched",
     "get_ingest_capacity",
     "has_ingest_capacity",
+    "lookup_ingest_times",
     "lookup_ingest_times_batched",
     "lookup_ingest_times_eager",
-    "lookup_ingest_times",
 ]

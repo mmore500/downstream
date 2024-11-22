@@ -10,7 +10,7 @@ def steady_has_ingest_capacity(S: int, T: int) -> bool:
     S : int
         The number of buffer sites available.
     T : int
-        Current logical time.
+        Queried logical time.
 
     Returns
     -------

@@ -22,8 +22,8 @@ def tilted_has_ingest_capacity(S: int, T: int) -> bool:
     support?
     """
     assert T >= 0
-    ingest_capacity = tilted_get_ingest_capacity(S)
-    return ingest_capacity is None or T < ingest_capacity
+    surface_size_ok = int(S).bit_count() == 1 and S > 1
+    return surface_size_ok and int(T + 1).bit_length() <= S
 
 
 has_ingest_capacity = tilted_has_ingest_capacity  # lazy loader workaround

@@ -11,8 +11,9 @@ def stretched_get_ingest_capacity(S: int) -> typing.Optional[int]:
     has_ingest_capacity : Does this algorithm have the capacity to ingest `n`
     data items?
     """
+    S = int(S)
     surface_size_ok = S.bit_count() == 1 and S > 1
-    return 2**S - 1 if surface_size_ok else 0
+    return (2**S - 1) * surface_size_ok
 
 
 get_ingest_capacity = stretched_get_ingest_capacity  # lazy loader workaround
