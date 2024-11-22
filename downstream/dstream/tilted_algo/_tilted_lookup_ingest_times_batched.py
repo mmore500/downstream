@@ -58,7 +58,7 @@ def tilted_lookup_ingest_times_batched(
     m_p = np.zeros_like(T, dtype=T.dtype)
     # ^^^ Calc left-to-right index of 0th segment (physical segment idx)
 
-    res = np.zeros((T.size, S), dtype=np.uint64)
+    res = np.empty((T.size, S), dtype=np.uint64)
     for k in range(S):  # For each site in buffer...
         b_l = ctz_batched32(
             M_ + m_p
