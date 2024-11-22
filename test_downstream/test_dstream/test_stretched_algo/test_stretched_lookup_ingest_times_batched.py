@@ -26,9 +26,6 @@ def validate_stretched_time_lookup(fn: typing.Callable) -> typing.Callable:
         assert np.array(np.bitwise_count(S) == 1).all()  # S is a power of two
         assert np.asarray(S <= T).all()  # T is non-negative
         res = fn(S, T, *args, **kwargs)
-        # Assert valid output
-        if not (np.clip(res, 0, T[:, None] - 1) == res).all():
-            print(res - T[:, None])
         assert (np.clip(res, 0, T[:, None] - 1) == res).all()
         return res
 
