@@ -27,6 +27,7 @@ def steady_lookup_ingest_times(
 
 def steady_lookup_impl(S: int, T: int) -> typing.Iterable[int]:
     """Implementation detail for `steady_lookup_ingest_times`."""
+    S, T = int(S), int(T)  # play nice with numpy types
     assert S > 1 and S.bit_count() == 1
     assert T >= S  # T < S redirected to T = S by steady_lookup_ingest_times
     s = S.bit_length() - 1

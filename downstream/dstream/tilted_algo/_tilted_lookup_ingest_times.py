@@ -31,11 +31,9 @@ def tilted_lookup_ingest_times(
         return tilted_lookup_impl(S, T)
 
 
-def tilted_lookup_impl(
-    S: int,
-    T: int,
-) -> typing.Iterable[typing.Union[int, np.ndarray]]:
+def tilted_lookup_impl(S: int, T: int) -> typing.Iterable[int]:
     """Implementation detail for `tilted_lookup_ingest_times`."""
+    S, T = int(S), int(T)  # play nice with numpy types
     assert S > 1 and S.bit_count() == 1
     # T < S redirected to T = S by tilted_lookup_ingest_times
     assert T >= S  # T < S redirected to T = S by tilted_lookup_ingest_times

@@ -30,11 +30,9 @@ def stretched_lookup_ingest_times(
         return stretched_lookup_impl(S, T)
 
 
-def stretched_lookup_impl(
-    S: int,
-    T: typing.Union[int, np.ndarray],
-) -> typing.Iterable[typing.Union[int, np.ndarray]]:
+def stretched_lookup_impl(S: int, T: int) -> typing.Iterable[int]:
     """Implementation detail for `stretched_lookup_ingest_times`."""
+    S, T = int(S), int(T)  # play nice with numpy types
     assert S > 1 and S.bit_count() == 1
     # T < S redirected to T = S by stretched_lookup_ingest_times
     assert T >= S  # T < S redirected to T = S by stretched_lookup_ingest_times
