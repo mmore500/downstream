@@ -70,9 +70,9 @@ def tilted_lookup_ingest_times_batched(
 
     res = np.empty((T.size, S), dtype=np.uint64)
     for k in range(S):  # For each site in buffer...
-        b_l = ctz_batched32(
-            M_ + m_p
-        )  # Reverse fill order (logical) bunch index
+        b_l = ctz_batched32(  # Reverse fill order (logical) bunch index
+            M_ + m_p,
+        ).astype(T.dtype)
         epsilon_w = m_p == 0  # Correction factor for segment size
         w = w1 + b_l + epsilon_w  # Number of sites in current segment
         m_l_ = (M_ + m_p) >> (b_l + 1)  # Logical (fill order) segment index

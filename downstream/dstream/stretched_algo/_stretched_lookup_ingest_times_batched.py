@@ -34,6 +34,9 @@ def stretched_lookup_ingest_times_batched(
         Two-dimensional array. Each row corresponds to an entry in T. Contains
         S columns, each corresponding to buffer sites.
     """
+    assert np.issubdtype(np.asarray(S).dtype, np.integer), S
+    assert np.issubdtype(T.dtype, np.integer), T
+
     if (T < S).any():
         raise ValueError("T < S not supported for batched lookup")
 
@@ -64,11 +67,13 @@ def _stretched_lookup_ingest_times_batched_serial(
     # restriction <= 2 ** 52 (bitlen32 precision) might be overly conservative
     assert (np.maximum(S, T) <= 2**52).all()
 
+    S = T.dtype.type(S)
     s = T.dtype.type(bitlen32_scalar(S)) - 1
     t = bitlen32_batched(T).astype(T.dtype) - s  # Current epoch
 
     blt = bitlen32_batched(t).astype(T.dtype)  # Bit length of t
-    epsilon_tau = bit_floor_batched32(t << 1) > t + blt  # Correction factor
+    epsilon_tau = bit_floor_batched32(t.astype(np.uint64) << 1) > t + blt
+    # ^^^ Correction factor
     tau0 = blt - epsilon_tau  # Current meta-epoch
     tau1 = tau0 + 1  # Next meta-epoch
 

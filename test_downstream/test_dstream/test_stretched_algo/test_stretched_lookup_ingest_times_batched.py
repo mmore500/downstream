@@ -94,16 +94,17 @@ def test_stretched_time_lookup_batched_fuzz(
 
     validate = validate_stretched_time_lookup(algo.lookup_ingest_times_batched)
     for S in testS:
+        assert np.issubdtype(np.asarray(S).dtype, np.integer), S
         mask1 = np.logical_or(
             ~algo.has_ingest_capacity_batched(S, testT1),
             testT1 < S,
         )
-        batchT1 = np.where(mask1, S, testT1)
+        batchT1 = np.where(mask1, int(S), testT1)
         validate(S, batchT1, parallel=parallel)
 
         mask2 = np.logical_or(
             ~algo.has_ingest_capacity_batched(S, testT2),
             testT2 < S,
         )
-        batchT2 = np.where(mask2, S, testT2)
+        batchT2 = np.where(mask2, int(S), testT2)
         validate(S, batchT2, parallel=parallel)

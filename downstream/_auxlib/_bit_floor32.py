@@ -8,5 +8,5 @@ def bit_floor32(n: int) -> int:
 
     If zero, returns zero.
     """
-    mask = np.uint64(1) << bitlen32(n >> 1)
+    mask = 1 << bitlen32(n >> 1)
     return n & mask

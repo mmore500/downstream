@@ -30,8 +30,12 @@ def steady_lookup_ingest_times_batched(
         Two-dimensional array. Each row corresponds to an entry in T. Contains
         S columns, each corresponding to buffer sites.
     """
+    assert np.issubdtype(np.asarray(S).dtype, np.integer), S
+    assert np.issubdtype(T.dtype, np.integer), T
+
     if (T < S).any():
         raise ValueError("T < S not supported for batched lookup")
+
     if parallel:
         return jit(nogil=True, nopython=True, parallel=True)(
             _steady_lookup_ingest_times_batched
