@@ -8,7 +8,6 @@ import pytest
 
 from downstream.dstream import steady_algo as algo
 
-
 _dtypes = [
     np.uint8,
     np.uint16,
