@@ -5,10 +5,10 @@ from ._jit import jit
 
 
 @jit(nogil=True, nopython=True)
-def bit_floor_batched32(n: int) -> int:
+def bit_floor_batched32(n: np.ndarray) -> np.ndarray:
     """Calculate the largest power of two not greater than n.
 
     If zero, returns zero.
     """
-    mask = np.uint64(1) << bitlen32_batched(n >> 1)
+    mask = 1 << bitlen32_batched(n >> 1)
     return n & mask

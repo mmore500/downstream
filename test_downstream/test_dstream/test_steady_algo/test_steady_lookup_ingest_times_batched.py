@@ -23,7 +23,7 @@ def validate_steady_time_lookup(fn: typing.Callable) -> typing.Callable:
     """Decorator to validate pre- and post-conditions on site lookup."""
 
     @functools.wraps(fn)
-    def wrapper(S: int, T: int) -> typing.Optional[int]:
+    def wrapper(S: int, T: np.ndarray) -> np.ndarray:
         assert np.array(np.bitwise_count(S) == 1).all()  # S is a power of two
         assert np.asarray(S <= T).all()  # T is non-negative
         res = fn(S, T)

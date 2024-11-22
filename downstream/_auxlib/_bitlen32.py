@@ -26,4 +26,4 @@ def bitlen32(arr: np.ndarray) -> np.ndarray:
     handles floating-point precision up to this limit.
     """
     assert np.asarray(arr).max(initial=0) < (1 << 53)
-    return np.frexp(arr)[1].astype(np.asarray(arr).dtype)
+    return np.frexp(arr)[1]
