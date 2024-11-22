@@ -57,3 +57,12 @@ def test_tilted_has_ingest_capacity_batched_fuzz3():
         [algo.has_ingest_capacity_batched(S, T) for S in Ss], dtype=bool
     )
     np.testing.assert_array_equal(actual, expected)
+
+
+def test_tilted_has_ingest_capacity_batched_empty():
+    empty = np.array([], dtype=int)
+    assert algo.has_ingest_capacity_batched(empty, empty).size == 0
+    assert algo.has_ingest_capacity_batched(2, empty).size == 0
+    assert algo.has_ingest_capacity_batched([2], empty).size == 0
+    assert algo.has_ingest_capacity_batched(empty, 100).size == 0
+    assert algo.has_ingest_capacity_batched(empty, [100]).size == 0

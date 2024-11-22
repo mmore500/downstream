@@ -27,8 +27,9 @@ def tilted_has_ingest_capacity_batched(
     get_ingest_capacity : How many data item ingestions does this algorithm
     support?
     """
-    assert np.asarray(T >= 0).all()
+    assert (np.asarray(T) >= 0).all()
 
+    S = np.asarray(S)
     surface_size_ok = np.logical_and(np.bitwise_count(S) == 1, S > 1)
     with np.errstate(over="ignore"):
         ingest_capacity_at_least = (1 << np.asarray(S, dtype=np.uint64)) - 1
