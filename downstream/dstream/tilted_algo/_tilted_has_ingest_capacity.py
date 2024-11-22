@@ -20,6 +20,7 @@ def tilted_has_ingest_capacity(S: int, T: int) -> bool:
     --------
     get_ingest_capacity : How many data item ingestions does this algorithm
     support?
+    has_ingest_capacity_batched : Numpy-friendly implementation.
     """
     assert T >= 0
     surface_size_ok = int(S).bit_count() == 1 and S > 1
