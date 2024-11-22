@@ -1,6 +1,5 @@
 import numpy as np
 
-
 from downstream.dstream import steady_algo as algo
 
 

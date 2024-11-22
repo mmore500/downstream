@@ -1,6 +1,5 @@
 import numpy as np
 
-
 from downstream.dstream import stretched_algo as algo
 
 

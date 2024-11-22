@@ -1,6 +1,5 @@
 import pytest
 
-
 from downstream.dstream import stretched_algo as algo
 
 
