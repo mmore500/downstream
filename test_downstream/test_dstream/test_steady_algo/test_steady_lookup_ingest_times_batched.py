@@ -23,11 +23,10 @@ def validate_steady_time_lookup(fn: typing.Callable) -> typing.Callable:
     """Decorator to validate pre- and post-conditions on site lookup."""
 
     @functools.wraps(fn)
-    def wrapper(S: int, T: np.ndarray) -> np.ndarray:
+    def wrapper(S: int, T: np.ndarray, *args, **kwargs) -> np.ndarray:
         assert np.array(np.bitwise_count(S) == 1).all()  # S is a power of two
         assert np.asarray(S <= T).all()  # T is non-negative
-        res = fn(S, T)
-        # Assert valid output
+        res = fn(S, T, *args, **kwargs)
         assert (np.clip(res, 0, T[:, None] - 1) == res).all()
         return res
 
@@ -63,8 +62,9 @@ def test_steady_time_lookup_batched_empty(s: int):
 
 @pytest.mark.parametrize("dtype1", _dtypes)
 @pytest.mark.parametrize("dtype2", _dtypes)
+@pytest.mark.parametrize("parallel", [True, False])
 def test_steady_time_lookup_batched_fuzz(
-    dtype1: typing.Type, dtype2: typing.Type
+    dtype1: typing.Type, dtype2: typing.Type, parallel: bool
 ):
     Smax = min(np.iinfo(dtype1).max, 2**12)
     testS = np.array(
@@ -86,4 +86,4 @@ def test_steady_time_lookup_batched_fuzz(
             batchT = np.clip(testT, int(S), None)
             assert np.issubdtype(np.asarray(S).dtype, np.integer), S
             assert np.issubdtype(batchT.dtype, np.integer), batchT.dtype
-            validate(S, batchT)
+            validate(S, batchT, parallel=parallel)

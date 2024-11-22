@@ -6,10 +6,10 @@ from ..._auxlib._bitwise_count_batched64 import bitwise_count_batched64
 from ..._auxlib._jit import jit
 
 
-@jit(nogil=True, nopython=True, parallel=True)
 def steady_lookup_ingest_times_batched(
     S: int,
     T: np.ndarray,
+    parallel: bool = True,
 ) -> np.ndarray:
     """Ingest time lookup algorithm for steady curation.
 
@@ -19,6 +19,8 @@ def steady_lookup_ingest_times_batched(
         Buffer size. Must be a power of two.
     T : np.ndarray
         One-dimensional array of current logical times.
+    parallel : bool, default True
+        Should numba be applied to parallelize operations?
 
     Returns
     -------
@@ -28,6 +30,21 @@ def steady_lookup_ingest_times_batched(
         Two-dimensional array. Each row corresponds to an entry in T. Contains
         S columns, each corresponding to buffer sites.
     """
+    if (T < S).any():
+        raise ValueError("T < S not supported for batched lookup")
+    if parallel:
+        return jit(nogil=True, nopython=True, parallel=True)(
+            _steady_lookup_ingest_times_batched
+        )(S, T)
+    else:
+        return _steady_lookup_ingest_times_batched(S, T)
+
+
+def _steady_lookup_ingest_times_batched(
+    S: int,
+    T: np.ndarray,
+) -> np.ndarray:
+    """Implementation detail for steady_lookup_ingest_times_batched."""
     assert np.logical_and(
         np.asarray(S) > 1,
         bitwise_count_batched64(np.atleast_1d(np.asarray(S)).astype(np.uint64))
@@ -35,8 +52,6 @@ def steady_lookup_ingest_times_batched(
     ).all(), S
     # restriction <= 2 ** 52 (bitlen32 precision) might be overly conservative
     assert (np.maximum(S, T) <= 2**52).all()
-    if (T < S).any():
-        raise ValueError("T < S not supported for batched lookup")
 
     s = np.asarray(bitlen32_scalar(S), np.int64) - 1
     t = bitlen32_batched(T).astype(np.int64) - s  # Current epoch
