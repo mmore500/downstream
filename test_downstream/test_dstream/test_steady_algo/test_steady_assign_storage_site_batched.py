@@ -120,7 +120,7 @@ def test_steady_site_selection_batched_fuzz(
 ):
     Smax = min(np.iinfo(dtype1).max, 2**52)
     testS = np.array(
-        [2**s for s in range(64) if 2**s <= Smax],
+        [2**s for s in range(1, 64) if 2**s <= Smax],
         dtype=dtype1,
     )
     Tmax = min(np.iinfo(dtype2).max, 2**52)

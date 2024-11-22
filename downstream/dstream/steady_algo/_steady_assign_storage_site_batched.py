@@ -24,13 +24,10 @@ def steady_assign_storage_site_batched(
     np.array
         Selected site, if any. Otherwise, S.
     """
-    # restriction <= 2 ** 52 might be overly conservative
-    assert S > 1 and S.bit_count() == 1
-    assert (np.asarray(S) <= 2**52).all() and (
-        np.asarray(T) <= 2**52
-    ).all()
-
     S, T = np.atleast_1d(S).astype(np.int64), np.atleast_1d(T).astype(np.int64)
+    assert np.logical_and(S > 1, np.bitwise_count(S) == 1).all()
+    # restriction <= 2 ** 52 might be overly conservative
+    assert (np.maximum(S, T) <= 2**52).all()
 
     s = bitlen32(S) - 1
     t = bitlen32(T) - s  # Current epoch (or negative)
