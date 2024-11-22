@@ -27,8 +27,7 @@ def steady_has_ingest_capacity_batched(
     get_ingest_capacity : How many data item ingestions does this algorithm
     support?
     """
-    S = np.asarray(S)
-    T = np.asarray(T)
+    S, T = np.asarray(S), np.asarray(T)
     assert (T >= 0).all()
 
     surface_size_ok = np.logical_and(np.bitwise_count(S) == 1, S > 1)
