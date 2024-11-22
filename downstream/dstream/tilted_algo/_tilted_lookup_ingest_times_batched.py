@@ -12,10 +12,10 @@ _lor = np.logical_or
 _land = np.logical_and
 
 
-@jit(nogil=True, nopython=True, parallel=True)
 def tilted_lookup_ingest_times_batched(
     S: int,
     T: np.ndarray,
+    parallel: bool = True,
 ) -> np.ndarray:
     """Ingest time lookup algorithm for tilted curation.
 
@@ -25,6 +25,8 @@ def tilted_lookup_ingest_times_batched(
         Buffer size. Must be a power of two.
     T : np.ndarray
         One-dimensional array of current logical times.
+    parallel : bool, default True
+        Should numba be applied to parallelize operations?
 
     Returns
     -------
@@ -34,9 +36,23 @@ def tilted_lookup_ingest_times_batched(
         Two-dimensional array. Each row corresponds to an entry in T. Contains
         S columns, each corresponding to buffer sites.
     """
+    assert np.issubdtype(np.asarray(S).dtype, np.integer), S
+    assert np.issubdtype(T.dtype, np.integer), T
+
     if (T < S).any():
         raise ValueError("T < S not supported for batched lookup")
 
+    if parallel:
+        return jit(nogil=True, nopython=True, parallel=True)(
+            _tilted_lookup_ingest_times_batched
+        )(S, T)
+    else:
+        return _tilted_lookup_ingest_times_batched(S, T)
+
+
+@jit(nogil=True, nopython=True, parallel=False)
+def _tilted_lookup_ingest_times_batched(S: int, T: np.ndarray) -> np.ndarray:
+    """Implementation detail for tilted_lookup_ingest_times_batched."""
     assert np.logical_and(
         np.asarray(S) > 1,
         bitwise_count_batched64(np.atleast_1d(np.asarray(S)).astype(np.uint64))
