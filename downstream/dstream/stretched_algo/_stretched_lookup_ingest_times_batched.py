@@ -105,9 +105,7 @@ def _stretched_lookup_ingest_times_batched_parallel(
     T: np.ndarray,
 ) -> np.ndarray:
     """Implementation detail for stretched_lookup_ingest_times_batched."""
-    S, T = np.int64(S), T.astype(
-        np.int64
-    )  # patch for numba typing limitations
+    S, T = np.int64(S), T.astype(np.int64)  # patch for numba type limitations
     s = T.dtype.type(bitlen32_scalar(S)) - 1
     t = bitlen32_batched(T).astype(T.dtype) - s  # Current epoch
 

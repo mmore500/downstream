@@ -7,12 +7,12 @@ import pytest
 from downstream.dstream import stretched_algo as algo
 
 _dtypes = [
-    # np.uint8,
-    # np.uint16,
+    np.uint8,
+    np.uint16,
     np.uint32,
     np.uint64,
-    # np.int8,
-    # np.int16,
+    np.int8,
+    np.int16,
     np.int32,
     np.int64,
 ]
@@ -108,5 +108,5 @@ def test_stretched_time_lookup_batched_fuzz(
             ~algo.has_ingest_capacity_batched(S, testT2),
             testT2 < S,
         )
-        batchT2 = np.where(mask2, S, testT1)
+        batchT2 = np.where(mask2, S, testT2)
         validate(S, batchT2, parallel=parallel)
