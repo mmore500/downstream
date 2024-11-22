@@ -2,6 +2,7 @@ import numpy as np
 
 from ..._auxlib._bitlen32_batched import bitlen32_batched
 from ..._auxlib._bitlen32_scalar import bitlen32_scalar
+from ..._auxlib._bitwise_count_batched64 import bitwise_count_batched64
 from ..._auxlib._jit import jit
 
 
@@ -27,20 +28,25 @@ def steady_lookup_ingest_times_batched(
         Two-dimensional array. Each row corresponds to an entry in T. Contains
         S columns, each corresponding to buffer sites.
     """
-    assert S > 1 and S.bit_count() == 1
+    assert np.logical_and(
+        np.asarray(S) > 1,
+        bitwise_count_batched64(np.atleast_1d(np.asarray(S)).astype(np.uint64))
+        == 1,
+    ).all(), S
+    # restriction <= 2 ** 52 (bitlen32 precision) might be overly conservative
+    assert (np.maximum(S, T) <= 2**52).all()
     if (T < S).any():
         raise ValueError("T < S not supported for batched lookup")
 
-    s = np.uint64(bitlen32_scalar(S)) - 1
-    t = bitlen32_batched(T) - s  # Current epoch
+    s = np.asarray(bitlen32_scalar(S), np.int64) - 1
+    t = bitlen32_batched(T).astype(np.int64) - s  # Current epoch
 
     b = 0  # Bunch physical index (left-to right)
     m_b__ = 1  # Countdown on segments traversed within bunch
     b_star = True  # Have traversed all segments in bunch?
     k_m__ = s + 1  # Countdown on sites traversed within segment
-    h_ = None  # Candidate hanoi value__
 
-    res = np.zeros((T.size, S), dtype=np.uint64)
+    res = np.zeros((T.size, S), dtype=T.dtype)
     for k in range(S):  # Iterate over buffer sites, except unused last one
         # Calculate info about current segment...
         epsilon_w = b == 0  # Correction on segment width if first segment
@@ -50,8 +56,7 @@ def steady_lookup_ingest_times_batched(
         h_max = t + w - 1  # Max possible hanoi value in segment during epoch
 
         # Calculate candidate hanoi value...
-        _h0, h_ = h_, h_max - (h_max + k_m__) % w
-        # Can skip h calc if b_star is False...
+        h_ = h_max - (h_max + k_m__) % w
 
         # Decode ingest time of assigned h.v. from segment index g, ...
         # ... i.e., how many instances of that h.v. seen before

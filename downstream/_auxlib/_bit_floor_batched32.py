@@ -1,3 +1,5 @@
+import numpy as np
+
 from ._bitlen32_batched import bitlen32_batched
 from ._jit import jit
 
@@ -8,5 +10,5 @@ def bit_floor_batched32(n: int) -> int:
 
     If zero, returns zero.
     """
-    mask = 1 << bitlen32_batched(n >> 1)
+    mask = np.uint64(1) << bitlen32_batched(n >> 1)
     return n & mask
