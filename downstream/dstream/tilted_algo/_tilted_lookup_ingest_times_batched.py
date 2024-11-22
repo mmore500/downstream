@@ -3,6 +3,7 @@ import numpy as np
 from ..._auxlib._bit_floor_batched32 import bit_floor_batched32
 from ..._auxlib._bitlen32_batched import bitlen32_batched
 from ..._auxlib._bitlen32_scalar import bitlen32_scalar
+from ..._auxlib._bitwise_count_batched64 import bitwise_count_batched64
 from ..._auxlib._ctz_batched32 import ctz_batched32
 from ..._auxlib._jit import jit
 from ..._auxlib._modpow2_batched import modpow2_batched
@@ -33,9 +34,18 @@ def tilted_lookup_ingest_times_batched(
         Two-dimensional array. Each row corresponds to an entry in T. Contains
         S columns, each corresponding to buffer sites.
     """
-    assert S > 1 and S.bit_count() == 1
     if (T < S).any():
         raise ValueError("T < S not supported for batched lookup")
+
+    assert np.logical_and(
+        np.asarray(S) > 1,
+        bitwise_count_batched64(np.atleast_1d(np.asarray(S)).astype(np.uint64))
+        == 1,
+    ).all(), S
+    # restriction <= 2 ** 52 (bitlen32 precision) might be overly conservative
+    assert (np.maximum(S, T) <= 2**52).all()
+
+    S, T = np.int64(S), T.astype(np.int64)  # Prevent overflow
 
     s = bitlen32_scalar(S) - 1
     t = bitlen32_batched(T).astype(T.dtype) - s  # Current epoch

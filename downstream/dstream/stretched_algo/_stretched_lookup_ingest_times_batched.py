@@ -5,6 +5,7 @@ import numpy as np
 from ..._auxlib._bit_floor_batched32 import bit_floor_batched32
 from ..._auxlib._bitlen32_batched import bitlen32_batched
 from ..._auxlib._bitlen32_scalar import bitlen32_scalar
+from ..._auxlib._bitwise_count_batched64 import bitwise_count_batched64
 from ..._auxlib._ctz_batched32 import ctz_batched32
 from ..._auxlib._jit import jit
 
@@ -22,6 +23,8 @@ def stretched_lookup_ingest_times_batched(
         Buffer size. Must be a power of two.
     T : np.ndarray
         One-dimensional array of current logical times.
+    parallel : bool, default True
+        Should numba be applied to parallelize operations?
 
     Returns
     -------
@@ -31,6 +34,9 @@ def stretched_lookup_ingest_times_batched(
         Two-dimensional array. Each row corresponds to an entry in T. Contains
         S columns, each corresponding to buffer sites.
     """
+    if (T < S).any():
+        raise ValueError("T < S not supported for batched lookup")
+
     if parallel and T.size:
         if (
             int(T.max()) < 2**32 and int(S) <= 2**12
@@ -50,7 +56,14 @@ def _stretched_lookup_ingest_times_batched_serial(
     T: np.ndarray,
 ) -> np.ndarray:
     """Implementation detail for stretched_lookup_ingest_times_batched."""
-    S, T = np.int64(S), T.astype(np.int64)  # patch for numba type limitations
+    assert np.logical_and(
+        np.asarray(S) > 1,
+        bitwise_count_batched64(np.atleast_1d(np.asarray(S)).astype(np.uint64))
+        == 1,
+    ).all(), S
+    # restriction <= 2 ** 52 (bitlen32 precision) might be overly conservative
+    assert (np.maximum(S, T) <= 2**52).all()
+
     s = T.dtype.type(bitlen32_scalar(S)) - 1
     t = bitlen32_batched(T).astype(T.dtype) - s  # Current epoch
 
@@ -105,6 +118,13 @@ def _stretched_lookup_ingest_times_batched_parallel(
     T: np.ndarray,
 ) -> np.ndarray:
     """Implementation detail for stretched_lookup_ingest_times_batched."""
+    assert np.logical_and(
+        np.asarray(S) > 1,
+        bitwise_count_batched64(np.atleast_1d(np.asarray(S)).astype(np.uint64))
+        == 1,
+    ).all(), S
+    assert (np.maximum(S, T) <= 2**32).all()
+
     S, T = np.int64(S), T.astype(np.int64)  # patch for numba type limitations
     s = T.dtype.type(bitlen32_scalar(S)) - 1
     t = bitlen32_batched(T).astype(T.dtype) - s  # Current epoch
