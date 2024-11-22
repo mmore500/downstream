@@ -2,10 +2,13 @@ import warnings
 
 import numpy as np
 
+from ..._auxlib._bit_floor32 import bit_floor32
 from ..._auxlib._bit_floor_batched32 import bit_floor_batched32
+from ..._auxlib._bitlen32 import bitlen32
 from ..._auxlib._bitlen32_batched import bitlen32_batched
 from ..._auxlib._bitlen32_scalar import bitlen32_scalar
 from ..._auxlib._bitwise_count_batched64 import bitwise_count_batched64
+from ..._auxlib._ctz32 import ctz32
 from ..._auxlib._ctz_batched32 import ctz_batched32
 from ..._auxlib._jit import jit
 
@@ -68,11 +71,11 @@ def _stretched_lookup_ingest_times_batched_serial(
     assert (np.maximum(S, T) <= 2**52).all()
 
     S = T.dtype.type(S)
-    s = T.dtype.type(bitlen32_scalar(S)) - 1
-    t = bitlen32_batched(T).astype(T.dtype) - s  # Current epoch
+    s = bitlen32(S) - 1
+    t = bitlen32(T) - s  # Current epoch
 
-    blt = bitlen32_batched(t).astype(T.dtype)  # Bit length of t
-    epsilon_tau = bit_floor_batched32(t.astype(np.uint64) << 1) > t + blt
+    blt = bitlen32(t)  # Bit length of t
+    epsilon_tau = bit_floor32(t.astype(np.uint64) << 1) > t + blt
     # ^^^ Correction factor
     tau0 = blt - epsilon_tau  # Current meta-epoch
     tau1 = tau0 + 1  # Next meta-epoch
@@ -88,7 +91,7 @@ def _stretched_lookup_ingest_times_batched_serial(
 
     res = np.empty((T.size, S), dtype=np.uint64)
     for k in range(S):  # For each site in buffer...
-        b_l = ctz_batched32(M + m_p).astype(T.dtype)  # Logical bunch index...
+        b_l = ctz32(M + m_p)  # Logical bunch index...
         # ... REVERSE fill order (decreasing nestedness/increasing init size r)
 
         epsilon_w = m_p == 0  # Correction factor for segment size
