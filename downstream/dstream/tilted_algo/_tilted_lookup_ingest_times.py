@@ -1,7 +1,5 @@
 import typing
 
-import numpy as np
-
 from ..._auxlib._bit_floor import bit_floor
 from ..._auxlib._ctz import ctz
 from ..._auxlib._modpow2 import modpow2

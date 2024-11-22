@@ -1,6 +1,3 @@
-from ._tilted_get_ingest_capacity import tilted_get_ingest_capacity
-
-
 def tilted_has_ingest_capacity(S: int, T: int) -> bool:
     """Does this algorithm have the capacity to ingest a data item at logical
     time T?

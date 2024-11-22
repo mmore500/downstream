@@ -1,5 +1,3 @@
-import numpy as np
-
 from ._bitlen32 import bitlen32
 
 
