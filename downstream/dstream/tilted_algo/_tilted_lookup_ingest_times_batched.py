@@ -43,9 +43,7 @@ def tilted_lookup_ingest_times_batched(
         raise ValueError("T < S not supported for batched lookup")
 
     if parallel:
-        return jit(nogil=True, nopython=True, parallel=True)(
-            _tilted_lookup_ingest_times_batched,
-        )(S, T)
+        return _tilted_lookup_ingest_times_batched_jit(S, T)
     else:
         return _tilted_lookup_ingest_times_batched(S, T)
 
@@ -141,6 +139,12 @@ def _tilted_lookup_ingest_times_batched(S: int, T: np.ndarray) -> np.ndarray:
 
     return res
 
+
+_tilted_lookup_ingest_times_batched_jit = jit(
+    nogil=True, nopython=True, parallel=True
+)(
+    _tilted_lookup_ingest_times_batched,
+)
 
 # lazy loader workaround
 lookup_ingest_times_batched = tilted_lookup_ingest_times_batched
