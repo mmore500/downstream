@@ -1,5 +1,6 @@
 # adapted from https://github.com/mmore500/hstrat/blob/683bc79118d3aabb07f9db54dc58cf6771fa4bf1/hstrat/_auxiliary_lib/_jit.py
 
+import sys
 import typing
 import warnings
 
@@ -47,6 +48,15 @@ def jit(*args, **kwargs) -> typing.Callable:
             RuntimeWarning,
         )
         return _ShimFtor
+
+    if sys.version_info < (3, 12):
+        warnings.warn(
+            "jit compilation disabled for Python < 3.12, "
+            "due to pickling compatibility issues as of numba 0.60",
+            RuntimeWarning,
+        )
+        return _ShimFtor
+
     else:  # pragma: no cover
         # exclude from coverage because jit compilation disabled in cov runs
         return nb.jit(*args, **kwargs)
