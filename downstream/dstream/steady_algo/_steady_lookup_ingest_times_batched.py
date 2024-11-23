@@ -37,11 +37,9 @@ def steady_lookup_ingest_times_batched(
         raise ValueError("T < S not supported for batched lookup")
 
     if parallel:
-        return jit(nogil=True, nopython=True, parallel=True)(
-            _steady_lookup_ingest_times_batched
-        )(
+        return _steady_lookup_ingest_times_batched_jit(
             np.int64(S), T.astype(np.int64)
-        )  # cast to make numba happy
+        )  # cast to make numba happy, improve caching
     else:
         return _steady_lookup_ingest_times_batched(S, T)
 
@@ -103,6 +101,10 @@ def _steady_lookup_ingest_times_batched(
 
     return res
 
+
+_steady_lookup_ingest_times_batched_jit = jit(
+    nogil=True, nopython=True, parallel=True
+)(_steady_lookup_ingest_times_batched)
 
 # lazy loader workaround
 lookup_ingest_times_batched = steady_lookup_ingest_times_batched
