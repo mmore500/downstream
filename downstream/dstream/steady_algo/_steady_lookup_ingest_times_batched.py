@@ -39,7 +39,7 @@ def steady_lookup_ingest_times_batched(
     if parallel:
         return jit(nogil=True, nopython=True, parallel=True)(
             _steady_lookup_ingest_times_batched
-        )(S, T)
+        )(np.int64(S), T.astype(np.int64))  # cast to make numba happy
     else:
         return _steady_lookup_ingest_times_batched(S, T)
 
