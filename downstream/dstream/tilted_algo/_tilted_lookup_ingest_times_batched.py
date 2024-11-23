@@ -44,7 +44,7 @@ def tilted_lookup_ingest_times_batched(
 
     if parallel:
         return jit(nogil=True, nopython=True, parallel=True)(
-            _tilted_lookup_ingest_times_batched
+            _tilted_lookup_ingest_times_batched,
         )(S, T)
     else:
         return _tilted_lookup_ingest_times_batched(S, T)
