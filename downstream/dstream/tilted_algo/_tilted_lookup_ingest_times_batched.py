@@ -50,7 +50,6 @@ def tilted_lookup_ingest_times_batched(
         return _tilted_lookup_ingest_times_batched(S, T)
 
 
-@jit(nogil=True, nopython=True, parallel=False)
 def _tilted_lookup_ingest_times_batched(S: int, T: np.ndarray) -> np.ndarray:
     """Implementation detail for tilted_lookup_ingest_times_batched."""
     assert np.logical_and(
