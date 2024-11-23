@@ -3,13 +3,13 @@ import warnings
 import numpy as np
 
 from ..._auxlib._bit_floor32 import bit_floor32
-from ..._auxlib._bit_floor_batched32 import bit_floor_batched32
+from ..._auxlib._bit_floor32_batched import bit_floor32_batched
 from ..._auxlib._bitlen32 import bitlen32
 from ..._auxlib._bitlen32_batched import bitlen32_batched
 from ..._auxlib._bitlen32_scalar import bitlen32_scalar
-from ..._auxlib._bitwise_count_batched64 import bitwise_count_batched64
+from ..._auxlib._bitwise_count64_batched import bitwise_count64_batched
 from ..._auxlib._ctz32 import ctz32
-from ..._auxlib._ctz_batched32 import ctz_batched32
+from ..._auxlib._ctz32_batched import ctz32_batched
 from ..._auxlib._jit import jit
 
 
@@ -64,7 +64,7 @@ def _stretched_lookup_ingest_times_batched_serial(
     """Implementation detail for stretched_lookup_ingest_times_batched."""
     assert np.logical_and(
         np.asarray(S) > 1,
-        bitwise_count_batched64(np.atleast_1d(np.asarray(S)).astype(np.uint64))
+        bitwise_count64_batched(np.atleast_1d(np.asarray(S)).astype(np.uint64))
         == 1,
     ).all(), S
     # restriction <= 2 ** 52 (bitlen32 precision) might be overly conservative
@@ -128,7 +128,7 @@ def _stretched_lookup_ingest_times_batched_parallel(
     """Implementation detail for stretched_lookup_ingest_times_batched."""
     assert np.logical_and(
         np.asarray(S) > 1,
-        bitwise_count_batched64(np.atleast_1d(np.asarray(S)).astype(np.uint64))
+        bitwise_count64_batched(np.atleast_1d(np.asarray(S)).astype(np.uint64))
         == 1,
     ).all(), S
     assert (np.maximum(S, T) <= 2**32).all()
@@ -139,7 +139,7 @@ def _stretched_lookup_ingest_times_batched_parallel(
 
     blt = bitlen32_batched(t).astype(T.dtype)  # Bit length of t
     epsilon_tau = (
-        bit_floor_batched32(t << 1).astype(T.dtype) > t + blt
+        bit_floor32_batched(t << 1).astype(T.dtype) > t + blt
     )  # Correction factor
     tau0 = blt - epsilon_tau  # Current meta-epoch
     tau1 = tau0 + 1  # Next meta-epoch
@@ -155,7 +155,7 @@ def _stretched_lookup_ingest_times_batched_parallel(
 
     res = np.zeros((T.size, S), dtype=np.uint64)
     for k in range(S):  # For each site in buffer...
-        b_l = ctz_batched32(M + m_p).astype(T.dtype)  # Logical bunch index...
+        b_l = ctz32_batched(M + m_p).astype(T.dtype)  # Logical bunch index...
         # ... REVERSE fill order (decreasing nestedness/increasing init size r)
 
         epsilon_w = m_p == 0  # Correction factor for segment size

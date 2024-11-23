@@ -5,7 +5,7 @@ from ._jit import jit
 
 
 @jit(nogil=True, nopython=True)
-def bit_floor_batched32(n: np.ndarray) -> np.ndarray:
+def bit_floor32_batched(n: np.ndarray) -> np.ndarray:
     """Calculate the largest power of two not greater than n.
 
     If zero, returns zero.

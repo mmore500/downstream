@@ -1,6 +1,6 @@
 import numpy as np
 
-from ._bitwise_count_batched64 import bitwise_count_batched64
+from ._bitwise_count64_batched import bitwise_count64_batched
 from ._jit import jit
 
 
@@ -26,5 +26,5 @@ def modpow2_batched(dividend: np.ndarray, divisor: np.ndarray) -> np.ndarray:
     Numba-compatible implementation.
     """
     # Assert divisor is a power of two
-    assert (bitwise_count_batched64(divisor.astype(np.uint64)) == 1).all()
+    assert (bitwise_count64_batched(divisor.astype(np.uint64)) == 1).all()
     return dividend & (divisor - 1)

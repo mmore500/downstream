@@ -1,10 +1,10 @@
 import numpy as np
 
-from ..._auxlib._bit_floor_batched32 import bit_floor_batched32
+from ..._auxlib._bit_floor32_batched import bit_floor32_batched
 from ..._auxlib._bitlen32_batched import bitlen32_batched
 from ..._auxlib._bitlen32_scalar import bitlen32_scalar
-from ..._auxlib._bitwise_count_batched64 import bitwise_count_batched64
-from ..._auxlib._ctz_batched32 import ctz_batched32
+from ..._auxlib._bitwise_count64_batched import bitwise_count64_batched
+from ..._auxlib._ctz32_batched import ctz32_batched
 from ..._auxlib._jit import jit
 from ..._auxlib._modpow2_batched import modpow2_batched
 
@@ -55,7 +55,7 @@ def _tilted_lookup_ingest_times_batched(S: int, T: np.ndarray) -> np.ndarray:
     """Implementation detail for tilted_lookup_ingest_times_batched."""
     assert np.logical_and(
         np.asarray(S) > 1,
-        bitwise_count_batched64(np.atleast_1d(np.asarray(S)).astype(np.uint64))
+        bitwise_count64_batched(np.atleast_1d(np.asarray(S)).astype(np.uint64))
         == 1,
     ).all(), S
     # restriction <= 2 ** 52 (bitlen32 precision) might be overly conservative
@@ -68,7 +68,7 @@ def _tilted_lookup_ingest_times_batched(S: int, T: np.ndarray) -> np.ndarray:
 
     blt = bitlen32_batched(t).astype(T.dtype)  # Bit length of t
     # ^^^ why is this dtype cast necessary?
-    epsilon_tau = bit_floor_batched32(t << 1) > t + blt  # Correction factor
+    epsilon_tau = bit_floor32_batched(t << 1) > t + blt  # Correction factor
     tau0 = blt - epsilon_tau  # Current meta-epoch
     tau1 = tau0 + 1  # Next meta-epoch
     t0 = (1 << tau0) - tau0  # Opening epoch of current meta-epoch
@@ -86,7 +86,7 @@ def _tilted_lookup_ingest_times_batched(S: int, T: np.ndarray) -> np.ndarray:
 
     res = np.empty((T.size, S), dtype=np.uint64)
     for k in range(S):  # For each site in buffer...
-        b_l = ctz_batched32(  # Reverse fill order (logical) bunch index
+        b_l = ctz32_batched(  # Reverse fill order (logical) bunch index
             M_ + m_p,
         ).astype(T.dtype)
         epsilon_w = m_p == 0  # Correction factor for segment size

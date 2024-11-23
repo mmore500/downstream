@@ -2,7 +2,7 @@ import numpy as np
 
 from ..._auxlib._bitlen32_batched import bitlen32_batched
 from ..._auxlib._bitlen32_scalar import bitlen32_scalar
-from ..._auxlib._bitwise_count_batched64 import bitwise_count_batched64
+from ..._auxlib._bitwise_count64_batched import bitwise_count64_batched
 from ..._auxlib._jit import jit
 
 
@@ -51,7 +51,7 @@ def _steady_lookup_ingest_times_batched(
     """Implementation detail for steady_lookup_ingest_times_batched."""
     assert np.logical_and(
         np.asarray(S) > 1,
-        bitwise_count_batched64(np.atleast_1d(np.asarray(S)).astype(np.uint64))
+        bitwise_count64_batched(np.atleast_1d(np.asarray(S)).astype(np.uint64))
         == 1,
     ).all(), S
     # restriction <= 2 ** 52 (bitlen32 precision) might be overly conservative
