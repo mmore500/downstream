@@ -1,3 +1,5 @@
+import warnings
+
 import numpy as np
 
 from ..._auxlib._bitlen32_batched import bitlen32_batched
@@ -37,11 +39,17 @@ def steady_lookup_ingest_times_batched(
         raise ValueError("T < S not supported for batched lookup")
 
     if parallel:
-        return _steady_lookup_ingest_times_batched_jit(
-            np.int64(S), T.astype(np.int64)
-        )  # cast to make numba happy, improve caching
-    else:
-        return _steady_lookup_ingest_times_batched(S, T)
+        if S <= 2**8:  # limit to 2**8 to control jit workload
+            return _steady_lookup_ingest_times_batched_jit(
+                np.int64(S), T.astype(np.int64)
+            )  # cast to make numba happy, improve caching
+        else:
+            warnings.warn(
+                "Falling back to serial processing for S > 256, "
+                "to prevent excessive jit workload.",
+            )
+
+    return _steady_lookup_ingest_times_batched(S, T)
 
 
 def _steady_lookup_ingest_times_batched(

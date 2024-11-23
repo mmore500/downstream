@@ -1,3 +1,5 @@
+import warnings
+
 import numpy as np
 
 from ..._auxlib._bit_floor32_batched import bit_floor32_batched
@@ -43,11 +45,17 @@ def tilted_lookup_ingest_times_batched(
         raise ValueError("T < S not supported for batched lookup")
 
     if parallel:
-        return _tilted_lookup_ingest_times_batched_jit(
-            np.int64(S), T.astype(np.int64)
-        )  # cast to improve numba caching?
-    else:
-        return _tilted_lookup_ingest_times_batched(S, T)
+        if S <= 2**8:  # limit to 2**8 to control jit workload
+            return _tilted_lookup_ingest_times_batched_jit(
+                np.int64(S), T.astype(np.int64)
+            )  # cast to improve numba caching?
+        else:
+            warnings.warn(
+                "Falling back to serial processing for S > 256, "
+                "to prevent excessive jit workload.",
+            )
+
+    return _tilted_lookup_ingest_times_batched(S, T)
 
 
 def _tilted_lookup_ingest_times_batched(S: int, T: np.ndarray) -> np.ndarray:
