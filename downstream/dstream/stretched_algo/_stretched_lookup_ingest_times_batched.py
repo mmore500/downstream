@@ -45,9 +45,11 @@ def stretched_lookup_ingest_times_batched(
 
     if parallel and T.size:
         if (
-            int(T.max()) < 2**32 and int(S) <= 2**12
-        ):  # 2**12 is max tested S
-            return _stretched_lookup_ingest_times_batched_parallel(S, T)
+            int(T.max()) < 2**32 and int(S) <= 2**8
+        ):  # 2**12 is max tested S, limit to 2**8 to control jit workload
+            return _stretched_lookup_ingest_times_batched_parallel(
+                np.int64(S), T.astype(np.int64)
+            )  # cast to improve numba caching?
         else:
             warnings.warn(
                 "T too large; due to numba limitations in handling overflows, "
