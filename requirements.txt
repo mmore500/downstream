@@ -2,8 +2,6 @@
 #    uv pip compile pyproject.toml --extra release --extra testing --python-version=3.10
 asttokens==2.4.1
     # via stack-data
-attrs==24.2.0
-    # via pytest
 autopep8==2.3.1
     # via nbqa
 black==22.10.0
@@ -42,7 +40,7 @@ isort==5.12.0
     # via downstream (pyproject.toml)
 jedi==0.19.2
     # via ipython
-joinem==0.8.2
+joinem==0.9.0
     # via downstream (pyproject.toml)
 lazy-loader==0.4
     # via downstream (pyproject.toml)
@@ -94,7 +92,7 @@ pygments==2.18.0
     # via
     #   ipython
     #   readme-renderer
-pytest==7.2.2
+pytest==8.3.3
     # via
     #   downstream (pyproject.toml)
     #   pytest-xdist
