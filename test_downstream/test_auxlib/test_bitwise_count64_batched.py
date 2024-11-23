@@ -1,6 +1,6 @@
 import numpy as np
 
-from downstream._auxlib._bitwise_count_batched64 import bitwise_count_batched64
+from downstream._auxlib._bitwise_count64_batched import bitwise_count64_batched
 
 
 def test_bitwise_count_batched_uint64():
@@ -21,5 +21,5 @@ def test_bitwise_count_batched_uint64():
     )
 
     expected_counts = np.bitwise_count(test_values)
-    actual_counts = bitwise_count_batched64(test_values)
+    actual_counts = bitwise_count64_batched(test_values)
     np.testing.assert_array_equal(actual_counts, expected_counts)

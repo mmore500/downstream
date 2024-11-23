@@ -2,6 +2,8 @@ import functools
 import itertools as it
 import typing
 
+import pytest
+
 from downstream.dstream import stretched_algo as algo
 
 
@@ -55,8 +57,8 @@ def test_stretched_site_selection_fuzz():
             site_selection(S, T)  # Validated via wrapper
 
 
-def test_stretched_site_selection_epoch0():
-    for S in (1 << s for s in range(3, 17)):
-        actual = {site_selection(S, T) for T in range(S)}
-        expected = set(range(S))
-        assert actual == expected
+@pytest.mark.parametrize("S", [1 << s for s in range(3, 17)])
+def test_stretched_site_selection_epoch0(S: int):
+    actual = {site_selection(S, T) for T in range(S)}
+    expected = set(range(S))
+    assert actual == expected

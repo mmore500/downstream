@@ -1,7 +1,5 @@
 import typing
 
-import numpy as np
-
 from ..._auxlib._bit_floor import bit_floor
 from ..._auxlib._ctz import ctz
 
@@ -23,17 +21,17 @@ def stretched_lookup_ingest_times(
     typing.Optional[int]
         Ingest time of stored item, if any, at buffer sites in index order.
     """
+    assert T >= 0
     if T < S:  # Patch for before buffer is filled...
         return (v if v < T else None for v in stretched_lookup_impl(S, S))
     else:  # ... assume buffer has been filled
         return stretched_lookup_impl(S, T)
 
 
-def stretched_lookup_impl(
-    S: int,
-    T: typing.Union[int, np.ndarray],
-) -> typing.Iterable[typing.Union[int, np.ndarray]]:
+def stretched_lookup_impl(S: int, T: int) -> typing.Iterable[int]:
     """Implementation detail for `stretched_lookup_ingest_times`."""
+    S, T = int(S), int(T)  # play nice with numpy types
+    assert S > 1 and S.bit_count() == 1
     # T < S redirected to T = S by stretched_lookup_ingest_times
     assert T >= S  # T < S redirected to T = S by stretched_lookup_ingest_times
 

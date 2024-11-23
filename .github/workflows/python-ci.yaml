@@ -63,6 +63,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        module: [
+          "test_downstream/test_auxlib",
+          "test_downstream/test_dataframe",
+          "test_downstream/test_dstream/test_steady_algo",
+          "test_downstream/test_dstream/test_stretched_algo",
+          "test_downstream/test_dstream/test_tilted_algo",
+          "test_downstream/test_dsurf",
+        ]
         python: ["3.10", "3.11", "3.12"]
         requirements: ["requirements.txt", "requirements-jit.txt"]
     steps:
@@ -74,7 +82,7 @@ jobs:
       - run: |
           python3 -m pip install setuptools pip --upgrade
           python3 -m pip install -r ${{ matrix.requirements }}
-      - run: python3 -m pytest -n auto test_downstream
+      - run: python3 -m pytest -n auto ${{ matrix.module }}
 
   test-validators:
     runs-on: ubuntu-24.04

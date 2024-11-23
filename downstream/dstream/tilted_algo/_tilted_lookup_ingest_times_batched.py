@@ -1,9 +1,12 @@
+import warnings
+
 import numpy as np
 
-from ..._auxlib._bit_floor_batched import bit_floor_batched
+from ..._auxlib._bit_floor32_batched import bit_floor32_batched
 from ..._auxlib._bitlen32_batched import bitlen32_batched
 from ..._auxlib._bitlen32_scalar import bitlen32_scalar
-from ..._auxlib._ctz_batched import ctz_batched
+from ..._auxlib._bitwise_count64_batched import bitwise_count64_batched
+from ..._auxlib._ctz32_batched import ctz32_batched
 from ..._auxlib._jit import jit
 from ..._auxlib._modpow2_batched import modpow2_batched
 
@@ -11,10 +14,10 @@ _lor = np.logical_or
 _land = np.logical_and
 
 
-@jit(nogil=True, nopython=True, parallel=True)
 def tilted_lookup_ingest_times_batched(
     S: int,
     T: np.ndarray,
+    parallel: bool = True,
 ) -> np.ndarray:
     """Ingest time lookup algorithm for tilted curation.
 
@@ -24,6 +27,8 @@ def tilted_lookup_ingest_times_batched(
         Buffer size. Must be a power of two.
     T : np.ndarray
         One-dimensional array of current logical times.
+    parallel : bool, default True
+        Should numba be applied to parallelize operations?
 
     Returns
     -------
@@ -33,15 +38,44 @@ def tilted_lookup_ingest_times_batched(
         Two-dimensional array. Each row corresponds to an entry in T. Contains
         S columns, each corresponding to buffer sites.
     """
+    assert np.issubdtype(np.asarray(S).dtype, np.integer), S
+    assert np.issubdtype(T.dtype, np.integer), T
+
     if (T < S).any():
         raise ValueError("T < S not supported for batched lookup")
+
+    if parallel:
+        if S <= 2**8:  # limit to 2**8 to control jit workload
+            return _tilted_lookup_ingest_times_batched_jit(
+                np.int64(S), T.astype(np.int64)
+            )  # cast to improve numba caching?
+        else:
+            warnings.warn(
+                "Falling back to serial processing for S > 256, "
+                "to prevent excessive jit workload.",
+            )
+
+    return _tilted_lookup_ingest_times_batched(S, T)
+
+
+def _tilted_lookup_ingest_times_batched(S: int, T: np.ndarray) -> np.ndarray:
+    """Implementation detail for tilted_lookup_ingest_times_batched."""
+    assert np.logical_and(
+        np.asarray(S) > 1,
+        bitwise_count64_batched(np.atleast_1d(np.asarray(S)).astype(np.uint64))
+        == 1,
+    ).all(), S
+    # restriction <= 2 ** 52 (bitlen32 precision) might be overly conservative
+    assert (np.maximum(S, T) <= 2**52).all()
+
+    S, T = np.int64(S), T.astype(np.int64)  # Prevent overflow
 
     s = bitlen32_scalar(S) - 1
     t = bitlen32_batched(T).astype(T.dtype) - s  # Current epoch
 
     blt = bitlen32_batched(t).astype(T.dtype)  # Bit length of t
     # ^^^ why is this dtype cast necessary?
-    epsilon_tau = bit_floor_batched(t << 1) > t + blt  # Correction factor
+    epsilon_tau = bit_floor32_batched(t << 1) > t + blt  # Correction factor
     tau0 = blt - epsilon_tau  # Current meta-epoch
     tau1 = tau0 + 1  # Next meta-epoch
     t0 = (1 << tau0) - tau0  # Opening epoch of current meta-epoch
@@ -57,9 +91,11 @@ def tilted_lookup_ingest_times_batched(
     m_p = np.zeros_like(T, dtype=T.dtype)
     # ^^^ Calc left-to-right index of 0th segment (physical segment idx)
 
-    res = np.zeros((T.size, S), dtype=np.uint64)
+    res = np.empty((T.size, S), dtype=np.uint64)
     for k in range(S):  # For each site in buffer...
-        b_l = ctz_batched(M_ + m_p)  # Reverse fill order (logical) bunch index
+        b_l = ctz32_batched(  # Reverse fill order (logical) bunch index
+            M_ + m_p,
+        ).astype(T.dtype)
         epsilon_w = m_p == 0  # Correction factor for segment size
         w = w1 + b_l + epsilon_w  # Number of sites in current segment
         m_l_ = (M_ + m_p) >> (b_l + 1)  # Logical (fill order) segment index
@@ -113,6 +149,12 @@ def tilted_lookup_ingest_times_batched(
 
     return res
 
+
+_tilted_lookup_ingest_times_batched_jit = jit(
+    nogil=True, nopython=True, parallel=True
+)(
+    _tilted_lookup_ingest_times_batched,
+)
 
 # lazy loader workaround
 lookup_ingest_times_batched = tilted_lookup_ingest_times_batched

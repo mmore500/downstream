@@ -12,7 +12,7 @@ def tilted_get_ingest_capacity(S: int) -> typing.Optional[int]:
     data items?
     """
     surface_size_ok = S.bit_count() == 1 and S > 1
-    return 2**S - 1 if surface_size_ok else 0
+    return (2**S - 1) * surface_size_ok
 
 
 get_ingest_capacity = tilted_get_ingest_capacity  # lazy loader workaround

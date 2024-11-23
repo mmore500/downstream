@@ -1,6 +1,7 @@
 import functools
 import typing
 
+import numpy as np
 import pytest
 
 from downstream.dstream import stretched_algo as algo
@@ -36,3 +37,13 @@ def test_stretched_time_lookup_against_site_selection(s: int):
         site = algo.assign_storage_site(S, T)
         if site is not None:
             expected[site] = T
+
+
+@pytest.mark.parametrize("S", [2**s for s in range(1, 13)])
+@pytest.mark.parametrize(
+    "T", [*range(10**2), *np.random.randint(2**63, size=10**2)]
+)
+def test_stretched_time_lookup_fuzz(S: int, T: int):
+    if not algo.has_ingest_capacity(S, T):
+        T = S
+    [*time_lookup(S, T)]
