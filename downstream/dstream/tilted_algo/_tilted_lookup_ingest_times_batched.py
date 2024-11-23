@@ -43,7 +43,9 @@ def tilted_lookup_ingest_times_batched(
         raise ValueError("T < S not supported for batched lookup")
 
     if parallel:
-        return _tilted_lookup_ingest_times_batched_jit(S, T)
+        return _tilted_lookup_ingest_times_batched_jit(
+            np.int64(S), T.astype(np.int64)
+        )  # cast to improve numba caching?
     else:
         return _tilted_lookup_ingest_times_batched(S, T)
 
