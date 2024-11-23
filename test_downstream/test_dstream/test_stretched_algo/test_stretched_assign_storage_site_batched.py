@@ -141,9 +141,7 @@ def test_stretched_site_selection_batched_fuzz(
 
     batchS, batchT = map(np.array, zip(*it.product(testS, testT)))
     assert (np.bitwise_count(batchS) == 1).all()
-    mask = np.bitwise_or(
-        ~algo.has_ingest_capacity_batched(batchS, batchT), batchT < batchS
-    )
+    mask = ~algo.has_ingest_capacity_batched(batchS, batchT)
     batchT[mask] = batchS[mask]
 
     site_selection(batchS, batchT)
