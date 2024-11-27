@@ -31,7 +31,7 @@ if __name__ == "__main__":
         """,
         epilog="""
         Example usage:
-            python3 -m downstream.testing.generate \
+        $ python3 -m downstream.testing.generate \
             | python3 -m downstream 'steady_algo.assign_storage_site'
 
         Additional available commands:
