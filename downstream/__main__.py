@@ -31,8 +31,20 @@ if __name__ == "__main__":
         """,
         epilog="""
         Example usage:
-            python3 -m downstream.testing.generate
+        $ python3 -m downstream.testing.generate \
             | python3 -m downstream 'steady_algo.assign_storage_site'
+
+        Additional available commands:
+        $ python3 -m downstream.dataframe.explode_lookup_packed
+        $ python3 -m downstream.dataframe.explode_lookup_unpacked
+        $ python3 -m downstream.dataframe.unpack_data_packed
+        $ python3 -m downstream.testing.debug_all
+        $ python3 -m downstream.testing.debug_one
+        $ python3 -m downstream.testing.generate
+        $ python3 -m downstream.testing.validate_all
+        $ python3 -m downstream.testing.validate_one
+
+        For information on a command, invoke it with the --help flag.
         """,
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
