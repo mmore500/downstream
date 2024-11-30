@@ -107,6 +107,7 @@ def explode_lookup_unpacked(
     df: pl.DataFrame,
     *,
     value_type: typing.Literal["hex", "uint64", "uint32", "uint16", "uint8"],
+    relax_dtypes: bool = False
 ) -> pl.DataFrame:
     """Explode downstream-curated data from one-buffer-per-row (with each
     buffer containing multiple data items) to one-data-item-per-row, applying
@@ -144,6 +145,10 @@ def explode_lookup_unpacked(
         DataFrame.
 
         Note that 'hex' is not yet supported.
+
+    relax_dtypes : bool = False
+        If set to True, calls `shrink_dtype()` on all columns before the
+        final DataFrame is returned, thereby saving memory.
 
     Returns
     -------
@@ -189,10 +194,10 @@ def explode_lookup_unpacked(
         function.
     """
     _check_df(df)
-    value_type = _get_value_type(value_type)
+    value_dtype = _get_value_type(value_type)
 
     if df.lazy().limit(1).collect().is_empty():
-        return _make_empty(value_type)
+        return _make_empty(value_dtype)
 
     dstream_S = df.lazy().select("dstream_S").limit(1).collect().item()
     dstream_algo = df.lazy().select("dstream_algo").limit(1).collect().item()
@@ -206,11 +211,12 @@ def explode_lookup_unpacked(
     df = (
         df.with_columns(
             pl.coalesce(
-                pl.col("^dstream_data_id$"), pl.arange(num_records)
+                pl.col("^dstream_data_id$"),
+                pl.arange(num_records, dtype=pl.UInt64),
             ).alias("dstream_data_id"),
         )
         .select(["dstream_data_id", "dstream_storage_hex", "dstream_T"])
-        .select(pl.all().shrink_dtype())
+        .select(pl.all())
         .sort("dstream_T")
     )
 
@@ -239,13 +245,22 @@ def explode_lookup_unpacked(
     )
 
     df_long = df_long.with_columns(
-        dstream_value=unpack_hex(concat_hex, num_items),
+        dstream_value=pl.Series(
+            unpack_hex(concat_hex, num_items), dtype=value_dtype
+        ),
     )
 
     logging.info(" - looking up ingest times...")
 
     lookup_op = dstream_algo.lookup_ingest_times_batched
-    dstream_T = df.lazy().select("dstream_T").collect().to_numpy().ravel()
+    dstream_T = (
+        df.lazy()
+        .select("dstream_T")
+        .cast(pl.UInt64)
+        .collect()
+        .to_numpy()
+        .ravel()
+    )
     df_long = (
         df_long.with_columns(
             dstream_Tbar=pl.Series(
@@ -256,6 +271,9 @@ def explode_lookup_unpacked(
         .lazy()
         .collect()
     )
+
+    if relax_dtypes:
+        return df_long.select(pl.all().shrink_dtype())
 
     logging.info("explode_lookup_unpacked complete")
     return df_long

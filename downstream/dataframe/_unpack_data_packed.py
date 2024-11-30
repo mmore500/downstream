@@ -54,7 +54,9 @@ def _make_empty() -> pl.DataFrame:
     )
 
 
-def unpack_data_packed(df: pl.DataFrame) -> pl.DataFrame:
+def unpack_data_packed(
+    df: pl.DataFrame, *, relax_dtypes: bool = False
+) -> pl.DataFrame:
     """Unpack data with dstream buffer and counter serialized into a single
     hexadecimal data field.
 
@@ -85,6 +87,10 @@ def unpack_data_packed(df: pl.DataFrame) -> pl.DataFrame:
         Optional schema:
             - 'downstream_version' : pl.Categorical
                 - Version of downstream library used to curate data items.
+
+    relax_dtypes : bool = False
+        If set to True, calls `shrink_dtype()` on all columns before the
+        final DataFrame is returned, thereby saving memory.
 
     Returns
     -------
@@ -161,7 +167,8 @@ def unpack_data_packed(df: pl.DataFrame) -> pl.DataFrame:
                 pl.col("dstream_T_hexoffset"),
                 length=pl.col("dstream_T_hexwidth"),
             )
-            .str.to_integer(base=16),
+            .str.to_integer(base=16)
+            .cast(pl.Uint64),
         )
         .drop(
             [
@@ -178,6 +185,9 @@ def unpack_data_packed(df: pl.DataFrame) -> pl.DataFrame:
         )
         .collect()
     )
+
+    if relax_dtypes:
+        return df.select(pl.all().shrink_dtype())
 
     logging.info("unpack_data_packed complete")
     return df
