@@ -68,24 +68,24 @@ def _check_bitwidths(df: pl.DataFrame) -> None:
         raise NotImplementedError("Multiple value bitwidths not yet supported")
 
 
-def _get_value_type(value_type: str) -> pl.DataType:
+def _get_value_dtype(value_type: str) -> pl.DataType:
     """Convert value_type string arg to Polars DataType object."""
-    value_type = {
+    value_dtype = {
         "hex": "hex",
         "uint64": pl.UInt64,
         "uint32": pl.UInt32,
         "uint16": pl.UInt16,
         "uint8": pl.UInt8,
     }.get(value_type, None)
-    if value_type is None:
+    if value_dtype is None:
         raise ValueError("Invalid value_type")
-    elif value_type == "hex":
-        raise NotImplementedError("Hex value_type not yet supported")
+    elif value_dtype == "hex":
+        raise NotImplementedError("hex value_type not yet supported")
 
-    return value_type
+    return value_dtype
 
 
-def _make_empty(value_type: pl.DataType) -> pl.DataFrame:
+def _make_empty(value_dtype: pl.DataType) -> pl.DataFrame:
     """Create an empty DataFrame with the expected columns for
     unpack_data_packed, handling edge case of empty input."""
     return pl.DataFrame(
@@ -95,7 +95,7 @@ def _make_empty(value_type: pl.DataType) -> pl.DataFrame:
             pl.Series(name="dstream_S", values=[], dtype=pl.UInt32),
             pl.Series(name="dstream_Tbar", values=[], dtype=pl.UInt64),
             pl.Series(name="dstream_T", values=[], dtype=pl.UInt64),
-            pl.Series(name="dstream_value", values=[], dtype=value_type),
+            pl.Series(name="dstream_value", values=[], dtype=value_dtype),
             pl.Series(
                 name="dstream_value_bitwidth", values=[], dtype=pl.UInt32
             ),
@@ -194,7 +194,7 @@ def explode_lookup_unpacked(
         function.
     """
     _check_df(df)
-    value_dtype = _get_value_type(value_type)
+    value_dtype = _get_value_dtype(value_type)
 
     if df.lazy().limit(1).collect().is_empty():
         return _make_empty(value_dtype)
