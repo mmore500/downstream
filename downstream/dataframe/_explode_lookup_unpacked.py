@@ -159,7 +159,7 @@ def explode_lookup_unpacked(
         Output schema:
 
         - 'dstream_data_id' : pl.UInt64
-            - Row index dentifier of dstream buffer that data item is from.
+            - Row index identifier of dstream buffer that data item is from.
         - 'dstream_Tbar' : pl.UInt64
             - Logical position of data item in stream (number of prior data
               items).
