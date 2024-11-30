@@ -52,7 +52,7 @@ def _check_bitwidths(df: pl.DataFrame) -> None:
         raise NotImplementedError("Value bitwidth > 64 not yet supported")
     if (
         not df.lazy()
-        .filter(pl.col("dstream_value_bitwidth").is_in([2, 3]))
+        .filter(pl.col("dstream_value_bitwidth").cast(pl.UInt32).is_in([2, 3]))
         .limit(1)
         .collect()
         .is_empty()
@@ -107,7 +107,7 @@ def explode_lookup_unpacked(
     df: pl.DataFrame,
     *,
     value_type: typing.Literal["hex", "uint64", "uint32", "uint16", "uint8"],
-    relax_dtypes: bool = False
+    result_schema: typing.Literal["coerce", "relax", "shrink"] = "coerce",
 ) -> pl.DataFrame:
     """Explode downstream-curated data from one-buffer-per-row (with each
     buffer containing multiple data items) to one-data-item-per-row, applying
@@ -146,9 +146,11 @@ def explode_lookup_unpacked(
 
         Note that 'hex' is not yet supported.
 
-    relax_dtypes : bool = False
-        If set to True, calls `shrink_dtype()` on all columns before the
-        final DataFrame is returned, thereby saving memory.
+    result_schema : Literal['coerce', 'relax', 'shrink'], default 'coerce'
+        How should dtypes in the output DataFrame be handled?
+        - 'coerce' : cast all columns to output schema.
+        - 'relax' : keep all columns as-is.
+        - 'shrink' : cast columns to smallest possible types.
 
     Returns
     -------
@@ -224,7 +226,7 @@ def explode_lookup_unpacked(
         dstream_value_bitwidth=np.right_shift(
             pl.col("dstream_storage_hex").str.len_bytes() * 4,
             int(dstream_S).bit_length() - 1,
-        ).cast(pl.UInt32),
+        ),
     )
 
     _check_bitwidths(df)
@@ -253,14 +255,7 @@ def explode_lookup_unpacked(
     logging.info(" - looking up ingest times...")
 
     lookup_op = dstream_algo.lookup_ingest_times_batched
-    dstream_T = (
-        df.lazy()
-        .select("dstream_T")
-        .cast(pl.UInt64)
-        .collect()
-        .to_numpy()
-        .ravel()
-    )
+    dstream_T = df.lazy().select("dstream_T").collect().to_numpy().ravel()
     df_long = (
         df_long.with_columns(
             dstream_Tbar=pl.Series(
@@ -272,8 +267,23 @@ def explode_lookup_unpacked(
         .collect()
     )
 
-    if relax_dtypes:
-        return df_long.select(pl.all().shrink_dtype())
+    logging.info(" - finalizing result schema")
+    try:
+        df_long = {
+            "coerce": lambda df: df.cast(
+                {
+                    "dstream_data_id": pl.UInt64,
+                    "dstream_Tbar": pl.UInt64,
+                    "dstream_T": pl.UInt64,
+                    "dstream_value": value_dtype,
+                    "dstream_value_bitwidth": pl.UInt32,
+                },
+            ),
+            "relax": lambda df: df,
+            "shrink": lambda df: df.select(pl.all().shrink_dtype()),
+        }[result_schema](df_long)
+    except KeyError:
+        raise ValueError(f"Invalid arg {result_schema} for result_schema")
 
     logging.info("explode_lookup_unpacked complete")
     return df_long
