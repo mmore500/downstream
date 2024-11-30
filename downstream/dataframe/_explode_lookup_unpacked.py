@@ -52,7 +52,7 @@ def _check_bitwidths(df: pl.DataFrame) -> None:
         raise NotImplementedError("Value bitwidth > 64 not yet supported")
     if (
         not df.lazy()
-        .filter(pl.col("dstream_value_bitwidth").is_in([2, 3]))
+        .filter(pl.col("dstream_value_bitwidth").cast(pl.UInt32).is_in([2, 3]))
         .limit(1)
         .collect()
         .is_empty()
@@ -68,24 +68,24 @@ def _check_bitwidths(df: pl.DataFrame) -> None:
         raise NotImplementedError("Multiple value bitwidths not yet supported")
 
 
-def _get_value_type(value_type: str) -> pl.DataType:
+def _get_value_dtype(value_type: str) -> pl.DataType:
     """Convert value_type string arg to Polars DataType object."""
-    value_type = {
+    value_dtype = {
         "hex": "hex",
         "uint64": pl.UInt64,
         "uint32": pl.UInt32,
         "uint16": pl.UInt16,
         "uint8": pl.UInt8,
     }.get(value_type, None)
-    if value_type is None:
+    if value_dtype is None:
         raise ValueError("Invalid value_type")
-    elif value_type == "hex":
-        raise NotImplementedError("Hex value_type not yet supported")
+    elif value_dtype == "hex":
+        raise NotImplementedError("hex value_type not yet supported")
 
-    return value_type
+    return value_dtype
 
 
-def _make_empty(value_type: pl.DataType) -> pl.DataFrame:
+def _make_empty(value_dtype: pl.DataType) -> pl.DataFrame:
     """Create an empty DataFrame with the expected columns for
     unpack_data_packed, handling edge case of empty input."""
     return pl.DataFrame(
@@ -95,7 +95,7 @@ def _make_empty(value_type: pl.DataType) -> pl.DataFrame:
             pl.Series(name="dstream_S", values=[], dtype=pl.UInt32),
             pl.Series(name="dstream_Tbar", values=[], dtype=pl.UInt64),
             pl.Series(name="dstream_T", values=[], dtype=pl.UInt64),
-            pl.Series(name="dstream_value", values=[], dtype=value_type),
+            pl.Series(name="dstream_value", values=[], dtype=value_dtype),
             pl.Series(
                 name="dstream_value_bitwidth", values=[], dtype=pl.UInt32
             ),
@@ -107,6 +107,7 @@ def explode_lookup_unpacked(
     df: pl.DataFrame,
     *,
     value_type: typing.Literal["hex", "uint64", "uint32", "uint16", "uint8"],
+    result_schema: typing.Literal["coerce", "relax", "shrink"] = "coerce",
 ) -> pl.DataFrame:
     """Explode downstream-curated data from one-buffer-per-row (with each
     buffer containing multiple data items) to one-data-item-per-row, applying
@@ -145,6 +146,12 @@ def explode_lookup_unpacked(
 
         Note that 'hex' is not yet supported.
 
+    result_schema : Literal['coerce', 'relax', 'shrink'], default 'coerce'
+        How should dtypes in the output DataFrame be handled?
+        - 'coerce' : cast all columns to output schema.
+        - 'relax' : keep all columns as-is.
+        - 'shrink' : cast columns to smallest possible types.
+
     Returns
     -------
     pl.DataFrame
@@ -154,7 +161,7 @@ def explode_lookup_unpacked(
         Output schema:
 
         - 'dstream_data_id' : pl.UInt64
-            - Row index dentifier of dstream buffer that data item is from.
+            - Row index identifier of dstream buffer that data item is from.
         - 'dstream_Tbar' : pl.UInt64
             - Logical position of data item in stream (number of prior data
               items).
@@ -189,10 +196,10 @@ def explode_lookup_unpacked(
         function.
     """
     _check_df(df)
-    value_type = _get_value_type(value_type)
+    value_dtype = _get_value_dtype(value_type)
 
     if df.lazy().limit(1).collect().is_empty():
-        return _make_empty(value_type)
+        return _make_empty(value_dtype)
 
     dstream_S = df.lazy().select("dstream_S").limit(1).collect().item()
     dstream_algo = df.lazy().select("dstream_algo").limit(1).collect().item()
@@ -206,11 +213,12 @@ def explode_lookup_unpacked(
     df = (
         df.with_columns(
             pl.coalesce(
-                pl.col("^dstream_data_id$"), pl.arange(num_records)
+                pl.col("^dstream_data_id$"),
+                pl.arange(num_records, dtype=pl.UInt64),
             ).alias("dstream_data_id"),
         )
         .select(["dstream_data_id", "dstream_storage_hex", "dstream_T"])
-        .select(pl.all().shrink_dtype())
+        .select(pl.all())
         .sort("dstream_T")
     )
 
@@ -218,7 +226,7 @@ def explode_lookup_unpacked(
         dstream_value_bitwidth=np.right_shift(
             pl.col("dstream_storage_hex").str.len_bytes() * 4,
             int(dstream_S).bit_length() - 1,
-        ).cast(pl.UInt32),
+        ),
     )
 
     _check_bitwidths(df)
@@ -239,7 +247,9 @@ def explode_lookup_unpacked(
     )
 
     df_long = df_long.with_columns(
-        dstream_value=unpack_hex(concat_hex, num_items),
+        dstream_value=pl.Series(
+            unpack_hex(concat_hex, num_items), dtype=value_dtype
+        ),
     )
 
     logging.info(" - looking up ingest times...")
@@ -256,6 +266,24 @@ def explode_lookup_unpacked(
         .lazy()
         .collect()
     )
+
+    logging.info(" - finalizing result schema")
+    try:
+        df_long = {
+            "coerce": lambda df: df.cast(
+                {
+                    "dstream_data_id": pl.UInt64,
+                    "dstream_Tbar": pl.UInt64,
+                    "dstream_T": pl.UInt64,
+                    "dstream_value": value_dtype,
+                    "dstream_value_bitwidth": pl.UInt32,
+                },
+            ),
+            "relax": lambda df: df,
+            "shrink": lambda df: df.select(pl.all().shrink_dtype()),
+        }[result_schema](df_long)
+    except KeyError:
+        raise ValueError(f"Invalid arg {result_schema} for result_schema")
 
     logging.info("explode_lookup_unpacked complete")
     return df_long

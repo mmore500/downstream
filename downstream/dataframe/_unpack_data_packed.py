@@ -1,4 +1,5 @@
 import logging
+import typing
 
 import numpy as np
 import polars as pl
@@ -54,7 +55,11 @@ def _make_empty() -> pl.DataFrame:
     )
 
 
-def unpack_data_packed(df: pl.DataFrame) -> pl.DataFrame:
+def unpack_data_packed(
+    df: pl.DataFrame,
+    *,
+    result_schema: typing.Literal["coerce", "relax", "shrink"] = "coerce",
+) -> pl.DataFrame:
     """Unpack data with dstream buffer and counter serialized into a single
     hexadecimal data field.
 
@@ -79,12 +84,18 @@ def unpack_data_packed(df: pl.DataFrame) -> pl.DataFrame:
                 - Position of dstream counter field in 'data_hex'.
             - 'dstream_T_bitwidth' : pl.UInt64
                 - Size of dstream counter field in 'data_hex'.
-            - 'dstream_S' : pl.Uint32
+            - 'dstream_S' : pl.UInt32
                 - Capacity of dstream buffer, in number of data items.
 
         Optional schema:
             - 'downstream_version' : pl.Categorical
                 - Version of downstream library used to curate data items.
+
+    result_schema : Literal['coerce', 'relax', 'shrink'], default 'coerce'
+        How should dtypes in the output DataFrame be handled?
+        - 'coerce' : cast all columns to output schema.
+        - 'relax' : keep all columns as-is.
+        - 'shrink' : cast columns to smallest possible types.
 
     Returns
     -------
@@ -98,7 +109,7 @@ def unpack_data_packed(df: pl.DataFrame) -> pl.DataFrame:
                 - e.g., 'dstream.steady_algo'
             - 'dstream_data_id' : pl.UInt64
                 - Row index identifier for dstream buffer.
-            - 'dstream_S' : pl.Uint32
+            - 'dstream_S' : pl.UInt32
                 - Capacity of dstream buffer, in number of data items.
             - 'dstream_T' : pl.UInt64
                 - Logical time elapsed (number of elapsed data items in stream).
@@ -178,6 +189,23 @@ def unpack_data_packed(df: pl.DataFrame) -> pl.DataFrame:
         )
         .collect()
     )
+
+    logging.info(" - finalizing result schema")
+    try:
+        df = {
+            "coerce": lambda df: df.cast(
+                {
+                    "dstream_data_id": pl.UInt64,
+                    "dstream_S": pl.UInt32,
+                    "dstream_T": pl.UInt64,
+                    "dstream_storage_hex": pl.String,
+                },
+            ),
+            "relax": lambda df: df,
+            "shrink": lambda df: df.select(pl.all().shrink_dtype()),
+        }[result_schema](df)
+    except KeyError:
+        raise ValueError(f"Invalid arg {result_schema} for result_schema")
 
     logging.info("unpack_data_packed complete")
     return df
