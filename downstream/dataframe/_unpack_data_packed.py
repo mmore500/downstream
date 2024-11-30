@@ -81,7 +81,7 @@ def unpack_data_packed(
                 - Position of dstream counter field in 'data_hex'.
             - 'dstream_T_bitwidth' : pl.UInt64
                 - Size of dstream counter field in 'data_hex'.
-            - 'dstream_S' : pl.Uint32
+            - 'dstream_S' : pl.UInt32
                 - Capacity of dstream buffer, in number of data items.
 
         Optional schema:
@@ -104,7 +104,7 @@ def unpack_data_packed(
                 - e.g., 'dstream.steady_algo'
             - 'dstream_data_id' : pl.UInt64
                 - Row index identifier for dstream buffer.
-            - 'dstream_S' : pl.Uint32
+            - 'dstream_S' : pl.UInt32
                 - Capacity of dstream buffer, in number of data items.
             - 'dstream_T' : pl.UInt64
                 - Logical time elapsed (number of elapsed data items in stream).
