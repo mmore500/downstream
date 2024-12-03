@@ -19,9 +19,12 @@ def collect_chunked(df: pl.LazyFrame, num_rows: int) -> pl.LazyFrame:
     pl.LazyFrame
         The concatenated LazyFrame after collecting chunks in parallel.
     """
+    if num_rows == 0:
+        return df.collect().lazy()
+
     n_chunks = max(pl.thread_pool_size() - 1, 1)
     chunk_size = max(num_rows // n_chunks, 1)
-    chunks = it.pairwise([*range(0, n_chunks, chunk_size), num_rows])
+    chunks = it.pairwise([*range(0, num_rows, chunk_size), num_rows])
 
     # collect_all uses polars threadpool to collect chunks in parallel
     collected = pl.collect_all([df[slice(*chunk)] for chunk in chunks])
