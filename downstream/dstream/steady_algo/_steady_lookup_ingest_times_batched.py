@@ -61,8 +61,8 @@ def _steady_lookup_ingest_times_batched_numpy(
     # restriction <= 2 ** 52 (bitlen32 precision) might be overly conservative
     assert (np.maximum(S, T) <= 2**52).all()
 
-    s = bitlen32(S) - 1
-    t = bitlen32(T) - s  # Current epoch
+    s = bitlen32(S).astype(np.int64) - 1
+    t = bitlen32(T).astype(np.int64) - s  # Current epoch
 
     b = 0  # Bunch physical index (left-to right)
     m_b__ = 1  # Countdown on segments traversed within bunch
