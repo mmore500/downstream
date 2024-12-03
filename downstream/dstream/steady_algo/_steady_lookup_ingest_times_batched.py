@@ -1,3 +1,5 @@
+import warnings
+
 import numpy as np
 import polars as pl
 
@@ -35,6 +37,14 @@ def steady_lookup_ingest_times_batched(
 
     if (T < S).any():
         raise ValueError("T < S not supported for batched lookup")
+
+    if parallel and S > 128:
+        warnings.warn(
+            "Reverting to serial implementation for S > 128 "
+            "due to segfault bug as of polars v1.16.0. "
+            "See <https://github.com/pola-rs/polars/issues/14079>.",
+        )
+        parallel = False
 
     return [
         _steady_lookup_ingest_times_batched_numpy,
