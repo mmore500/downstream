@@ -6,6 +6,9 @@ import numpy as np
 import pytest
 
 from downstream.dstream import steady_algo as algo
+from downstream.dstream.steady_algo._steady_lookup_ingest_times_batched import (
+    _steady_lookup_ingest_times_batched_jit,
+)
 
 _dtypes = [
     np.uint8,
@@ -66,7 +69,7 @@ def test_steady_time_lookup_batched_empty(s: int):
 def test_steady_time_lookup_batched_fuzz(
     dtype1: typing.Type, dtype2: typing.Type, parallel: bool
 ):
-    Smax = min(np.iinfo(dtype1).max, 2**12)
+    Smax = min(np.iinfo(dtype1).max, [2**12, 2**8][bool(parallel)])
     testS = np.array(
         [2**s for s in range(1, 64) if 2**s <= Smax],
         dtype=dtype1,
@@ -87,3 +90,31 @@ def test_steady_time_lookup_batched_fuzz(
             assert np.issubdtype(np.asarray(S).dtype, np.integer), S
             assert np.issubdtype(batchT.dtype, np.integer), batchT.dtype
             validate(S, batchT, parallel=parallel)
+
+
+def test_steady_time_lookup_batched_fuzz_parallel():
+    dtype1 = np.int64
+    dtype2 = np.int64
+    Smax = min(np.iinfo(dtype1).max, 2**12)
+    testS = np.array(
+        [2**s for s in range(1, 64) if 2**s <= Smax],
+        dtype=dtype1,
+    )
+    Tmax = min(np.iinfo(dtype2).max, 2**52)
+    testT = np.fromiter(
+        it.chain(
+            range(min(10**3, Tmax + 1)),
+            np.random.randint(Tmax, size=10**3),
+        ),
+        dtype=dtype2,
+    )
+
+    validate = validate_steady_time_lookup(
+        _steady_lookup_ingest_times_batched_jit,
+    )
+    for S in testS:
+        if S <= Tmax:
+            batchT = np.clip(testT, int(S), None)
+            assert np.issubdtype(np.asarray(S).dtype, np.integer)
+            assert np.issubdtype(batchT.dtype, np.integer)
+            validate(S, batchT, chunk_size=32768)
