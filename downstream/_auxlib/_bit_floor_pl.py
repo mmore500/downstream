@@ -1,6 +1,5 @@
-import polars as pl
-
 import numpy as np
+import polars as pl
 
 from ._bitlen_pl import bitlen_pl
 
