@@ -31,7 +31,7 @@ if __name__ == "__main__":
         """,
         epilog="""
         Example usage:
-        $ python3 -m downstream.testing.generate \
+        $ python3 -m downstream.testing.generate_test_cases \
             | python3 -m downstream 'steady_algo.assign_storage_site'
 
         Additional available commands:
@@ -40,7 +40,7 @@ if __name__ == "__main__":
         $ python3 -m downstream.dataframe.unpack_data_packed
         $ python3 -m downstream.testing.debug_all
         $ python3 -m downstream.testing.debug_one
-        $ python3 -m downstream.testing.generate
+        $ python3 -m downstream.testing.generate_test_cases
         $ python3 -m downstream.testing.validate_all
         $ python3 -m downstream.testing.validate_one
 
