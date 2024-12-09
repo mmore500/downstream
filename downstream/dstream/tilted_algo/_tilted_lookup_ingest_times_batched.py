@@ -158,7 +158,7 @@ _tilted_lookup_ingest_times_batched_jit_serial = jit(
 
 @jit(nogil=True, nopython=True, parallel=True)
 def _tilted_lookup_ingest_times_batched_jit(
-    S: int, T: np.ndarray, chunk_size: int = 64
+    S: int, T: np.ndarray, chunk_size: int = 262144
 ):
     n = T.shape[0]
     num_chunks = (n + chunk_size - 1) // chunk_size
