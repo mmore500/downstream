@@ -10,9 +10,9 @@ from ..._auxlib._bitlen32_scalar import bitlen32_scalar
 from ..._auxlib._bitwise_count64_batched import bitwise_count64_batched
 from ..._auxlib._ctz32 import ctz32
 from ..._auxlib._ctz32_batched import ctz32_batched
-from ..._auxlib._is_in_unit_test import is_in_unit_test
 from ..._auxlib._jit import jit
 from ..._auxlib._jit_prange import jit_prange
+from ..._auxlib._pick_batched_chunk_size import pick_batched_chunk_size
 
 
 def stretched_lookup_ingest_times_batched(
@@ -184,15 +184,9 @@ def _stretched_lookup_ingest_times_batched_jit_serial(
     return res
 
 
-def _pick_chunk_size() -> int:
-    """Implementation detail for _stretched_lookup_ingest_times_batched_jit"""
-    # use smaller chunk size for tests to ensure multiple chunk scenario tested
-    return [32768, 4][bool(is_in_unit_test())]
-
-
 @jit(cache=True, nogil=True, nopython=True, parallel=True)
 def _stretched_lookup_ingest_times_batched_jit(
-    S: int, T: np.ndarray, chunk_size: int = _pick_chunk_size()
+    S: int, T: np.ndarray, chunk_size: int = pick_batched_chunk_size()
 ):
     """Implementation detail for stretched_lookup_ingest_times_batched."""
     num_rows = T.shape[0]

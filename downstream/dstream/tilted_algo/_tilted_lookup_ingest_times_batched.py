@@ -11,6 +11,7 @@ from ..._auxlib._is_in_unit_test import is_in_unit_test
 from ..._auxlib._jit import jit
 from ..._auxlib._jit_prange import jit_prange
 from ..._auxlib._modpow2_batched import modpow2_batched
+from ..._auxlib._pick_batched_chunk_size import pick_batched_chunk_size
 
 _lor = np.logical_or
 _land = np.logical_and
@@ -150,15 +151,9 @@ _tilted_lookup_ingest_times_batched_jit_serial = jit(
 )(_tilted_lookup_ingest_times_batched)
 
 
-def _pick_chunk_size() -> int:
-    """Implementation detail for _tilted_lookup_ingest_times_batched_jit"""
-    # use smaller chunk size for tests to ensure multiple chunk scenario tested
-    return [32768, 4][bool(is_in_unit_test())]
-
-
 @jit(cache=True, nogil=True, nopython=True, parallel=True)
 def _tilted_lookup_ingest_times_batched_jit(
-    S: int, T: np.ndarray, chunk_size: int = _pick_chunk_size()
+    S: int, T: np.ndarray, chunk_size: int = pick_batched_chunk_size()
 ):
     """Implementation detail for tilted_lookup_ingest_times_batched."""
     num_rows = T.shape[0]
