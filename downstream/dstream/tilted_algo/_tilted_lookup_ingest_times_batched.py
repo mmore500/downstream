@@ -8,6 +8,7 @@ from ..._auxlib._bitlen32_scalar import bitlen32_scalar
 from ..._auxlib._bitwise_count64_batched import bitwise_count64_batched
 from ..._auxlib._ctz32_batched import ctz32_batched
 from ..._auxlib._jit import jit
+from ..._auxlib._jit_prange import jit_prange
 from ..._auxlib._modpow2_batched import modpow2_batched
 
 _lor = np.logical_or
@@ -150,11 +151,29 @@ def _tilted_lookup_ingest_times_batched(S: int, T: np.ndarray) -> np.ndarray:
     return res
 
 
-_tilted_lookup_ingest_times_batched_jit = jit(
-    nogil=True, nopython=True, parallel=True
-)(
-    _tilted_lookup_ingest_times_batched,
-)
+_tilted_lookup_ingest_times_batched_jit_serial = jit(
+    "uint64[:,:](int64, int64[:])", nogil=True, nopython=True
+)(_tilted_lookup_ingest_times_batched)
+
+
+@jit(nogil=True, nopython=True, parallel=True)
+def _tilted_lookup_ingest_times_batched_jit(
+    S: int, T: np.ndarray, chunk_size: int = 64
+):
+    n = T.shape[0]
+    num_chunks = (n + chunk_size - 1) // chunk_size
+    # Pre-allocate the result array
+    result = np.empty((n, S), dtype=np.uint64)
+    for i in jit_prange(num_chunks):
+        start = i * chunk_size
+        end = min(start + chunk_size, n)
+        chunk_T = T[start:end]
+        # Call the original function on the chunk
+        chunk_res = _tilted_lookup_ingest_times_batched_jit_serial(S, chunk_T)
+        # Place the chunk's results directly into the final result array
+        result[start:end, :] = chunk_res
+    return result
+
 
 # lazy loader workaround
 lookup_ingest_times_batched = tilted_lookup_ingest_times_batched
