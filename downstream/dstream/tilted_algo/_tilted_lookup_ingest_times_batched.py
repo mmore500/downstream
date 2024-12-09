@@ -7,6 +7,7 @@ from ..._auxlib._bitlen32_batched import bitlen32_batched
 from ..._auxlib._bitlen32_scalar import bitlen32_scalar
 from ..._auxlib._bitwise_count64_batched import bitwise_count64_batched
 from ..._auxlib._ctz32_batched import ctz32_batched
+from ..._auxlib._is_in_unit_test import is_in_unit_test
 from ..._auxlib._jit import jit
 from ..._auxlib._jit_prange import jit_prange
 from ..._auxlib._modpow2_batched import modpow2_batched
@@ -151,27 +152,39 @@ def _tilted_lookup_ingest_times_batched(S: int, T: np.ndarray) -> np.ndarray:
     return res
 
 
+# implementation detail for _tilted_lookup_ingest_times_batched_jit
 _tilted_lookup_ingest_times_batched_jit_serial = jit(
     "uint64[:,:](int64, int64[:])", nogil=True, nopython=True
 )(_tilted_lookup_ingest_times_batched)
 
 
+def _pick_chunk_size() -> int:
+    """Implementation detail for _tilted_lookup_ingest_times_batched_jit"""
+    # use smaller chunk size for tests to ensure multiple chunk scenario tested
+    return [32768, 4][bool(is_in_unit_test())]
+
+
 @jit(cache=True, nogil=True, nopython=True, parallel=True)
 def _tilted_lookup_ingest_times_batched_jit(
-    S: int, T: np.ndarray, chunk_size: int = 32768
+    S: int, T: np.ndarray, chunk_size: int = _pick_chunk_size()
 ):
-    n = T.shape[0]
-    num_chunks = (n + chunk_size - 1) // chunk_size
-    # Pre-allocate the result array
-    result = np.empty((n, S), dtype=np.uint64)
-    for i in jit_prange(num_chunks):
-        start = i * chunk_size
-        end = min(start + chunk_size, n)
-        chunk_T = T[start:end]
-        # Call the original function on the chunk
-        chunk_res = _tilted_lookup_ingest_times_batched_jit_serial(S, chunk_T)
-        # Place the chunk's results directly into the final result array
-        result[start:end, :] = chunk_res
+    """Implementation detail for tilted_lookup_ingest_times_batched."""
+    num_rows = T.shape[0]
+    num_chunks = (num_rows + chunk_size - 1) // chunk_size
+
+    result = np.empty((num_rows, S), dtype=np.uint64)
+    for chunk in jit_prange(num_chunks):
+        chunk_slice = slice(
+            chunk * chunk_size,  # begin
+            min((chunk + 1) * chunk_size, num_rows),  # end
+        )
+
+        chunk_T = T[chunk_slice]
+        chunk_result = _tilted_lookup_ingest_times_batched_jit_serial(
+            S, chunk_T
+        )
+        result[chunk_slice, :] = chunk_result
+
     return result
 
 
