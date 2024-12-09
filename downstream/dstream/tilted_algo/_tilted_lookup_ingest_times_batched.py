@@ -46,18 +46,10 @@ def tilted_lookup_ingest_times_batched(
     if (T < S).any():
         raise ValueError("T < S not supported for batched lookup")
 
-    if parallel:
-        if S <= 2**8:  # limit to 2**8 to control jit workload
-            return _tilted_lookup_ingest_times_batched_jit(
-                np.int64(S), T.astype(np.int64)
-            )  # cast to improve numba caching?
-        else:
-            warnings.warn(
-                "Falling back to serial processing for S > 256, "
-                "to prevent excessive jit workload.",
-            )
-
-    return _tilted_lookup_ingest_times_batched(S, T)
+    return [
+        _tilted_lookup_ingest_times_batched,
+        _tilted_lookup_ingest_times_batched_jit,
+    ][bool(parallel)](np.int64(S), T.astype(np.int64))
 
 
 def _tilted_lookup_ingest_times_batched(S: int, T: np.ndarray) -> np.ndarray:
