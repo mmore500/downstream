@@ -1,11 +1,11 @@
-import warnings
-
 import numpy as np
-import polars as pl
 
-from ..._auxlib._bitlen32 import bitlen32
-from ..._auxlib._bitlen_pl import bitlen_pl
-from ..._auxlib._collect_chunked import collect_chunked
+from ..._auxlib._bitlen32_batched import bitlen32_batched
+from ..._auxlib._bitlen32_scalar import bitlen32_scalar
+from ..._auxlib._bitwise_count64_batched import bitwise_count64_batched
+from ..._auxlib._jit import jit
+from ..._auxlib._jit_prange import jit_prange
+from ..._auxlib._pick_batched_chunk_size import pick_batched_chunk_size
 
 
 def steady_lookup_ingest_times_batched(
@@ -22,7 +22,7 @@ def steady_lookup_ingest_times_batched(
     T : np.ndarray
         One-dimensional array of current logical times.
     parallel : bool, default True
-        Should polars be applied to parallelize operations?
+        Should numba be applied to parallelize operations?
 
     Returns
     -------
@@ -38,38 +38,34 @@ def steady_lookup_ingest_times_batched(
     if (T < S).any():
         raise ValueError("T < S not supported for batched lookup")
 
-    if parallel and S > 128:
-        warnings.warn(
-            "Reverting to serial implementation for S > 128 "
-            "due to segfault bug as of polars v1.16.0. "
-            "See <https://github.com/pola-rs/polars/issues/14079>.",
-        )
-        parallel = False
-
     return [
-        _steady_lookup_ingest_times_batched_numpy,
-        _steady_lookup_ingest_times_batched_polars,
-    ][bool(parallel)](S, T)
+        _steady_lookup_ingest_times_batched,
+        _steady_lookup_ingest_times_batched_jit,
+    ][bool(parallel)](np.int64(S), T.astype(np.int64))
 
 
-def _steady_lookup_ingest_times_batched_numpy(
+def _steady_lookup_ingest_times_batched(
     S: int,
     T: np.ndarray,
 ) -> np.ndarray:
     """Implementation detail for steady_lookup_ingest_times_batched."""
-    assert S > 1 and int(S).bit_count() == 1
+    assert np.logical_and(
+        np.asarray(S) > 1,
+        bitwise_count64_batched(np.atleast_1d(np.asarray(S)).astype(np.uint64))
+        == 1,
+    ).all(), S
     # restriction <= 2 ** 52 (bitlen32 precision) might be overly conservative
     assert (np.maximum(S, T) <= 2**52).all()
 
-    s = bitlen32(S).astype(np.int64) - 1
-    t = bitlen32(T).astype(np.int64) - s  # Current epoch
+    s = np.asarray(bitlen32_scalar(S), np.int64) - 1
+    t = bitlen32_batched(T).astype(np.int64) - s  # Current epoch
 
     b = 0  # Bunch physical index (left-to right)
     m_b__ = 1  # Countdown on segments traversed within bunch
     b_star = True  # Have traversed all segments in bunch?
     k_m__ = s + 1  # Countdown on sites traversed within segment
 
-    res = np.empty((T.size, S), dtype=T.dtype)
+    res = np.empty((T.size, S), dtype=np.uint64)
     for k in range(S):  # Iterate over buffer sites, except unused last one
         # Calculate info about current segment...
         epsilon_w = b == 0  # Correction on segment width if first segment
@@ -106,76 +102,34 @@ def _steady_lookup_ingest_times_batched_numpy(
     return res
 
 
-def _steady_lookup_ingest_times_batched_polars(
-    S: int,
-    T: np.ndarray,
-) -> np.ndarray:
+# implementation detail for _steady_lookup_ingest_times_batched_jit
+_steady_lookup_ingest_times_batched_jit_serial = jit(
+    "uint64[:,:](int64, int64[:])", nogil=True, nopython=True
+)(_steady_lookup_ingest_times_batched)
+
+
+@jit(cache=True, nogil=True, nopython=True, parallel=True)
+def _steady_lookup_ingest_times_batched_jit(
+    S: int, T: np.ndarray, chunk_size: int = pick_batched_chunk_size()
+):
     """Implementation detail for steady_lookup_ingest_times_batched."""
-    assert S > 1 and int(S).bit_count() == 1
+    num_rows = T.shape[0]
+    num_chunks = (num_rows + chunk_size - 1) // chunk_size
 
-    c_, l_ = pl.col, pl.lit
+    result = np.empty((num_rows, S), dtype=np.uint64)
+    for chunk in jit_prange(num_chunks):
+        chunk_slice = slice(
+            chunk * chunk_size,  # begin
+            min((chunk + 1) * chunk_size, num_rows),  # end
+        )
 
-    df = pl.LazyFrame({"T": T})
+        chunk_T = T[chunk_slice]
+        chunk_result = _steady_lookup_ingest_times_batched_jit_serial(
+            S, chunk_T
+        )
+        result[chunk_slice, :] = chunk_result
 
-    s = int(S).bit_length() - 1
-    t = bitlen_pl(c_("T")) - l_(s)
-    df = df.with_columns(t=t)
-
-    b = 0  # Bunch physical index (left-to right)
-    m_b__ = 1  # Countdown on segments traversed within bunch
-    b_star = True  # Have traversed all segments in bunch?
-    k_m__ = s + 1  # Countdown on sites traversed within segment
-
-    for k in range(S):  # Iterate over buffer sites, except unused last one
-        # Calculate info about current segment...
-        epsilon_w = b == 0  # Correction on segment width if first segment
-        # Number of sites in current segment (i.e., segment size)
-        w = s - b + epsilon_w
-        m = (1 << b) - m_b__  # Calc left-to-right index of current segment
-
-        # Max possible hanoi value in segment during epoch
-        h_max = c_("t") + l_(w - 1)
-        df = df.with_columns(h_max=h_max)
-
-        # Calculate candidate hanoi value...
-        h_ = c_("h_max") - (c_("h_max") + l_(k_m__)) % l_(w)
-        df = df.with_columns(h_=h_)
-
-        # Decode ingest time of assigned h.v. from segment index g, ...
-        # ... i.e., how many instances of that h.v. seen before
-        T_bar_k_ = np.left_shift(l_(2 * m + 1), c_("h_")) - l_(1)
-        df = df.with_columns(T_bar_k_=T_bar_k_)
-        # ^^^ Guess ingest time
-
-        epsilon_h = (c_("T_bar_k_") >= c_("T")) * l_(w)
-        df = df.with_columns(epsilon_h=epsilon_h)
-        # ^^^ Correction on h.v. if not yet seen
-
-        h = c_("h_") - c_("epsilon_h")  # Corrected true resident h.v.
-        df = df.with_columns(h=h)
-
-        T_bar_k = np.left_shift(l_(2 * m + 1), c_("h")) - l_(1)
-        # ^^^ True ingest time
-        df = df.with_columns(T_bar_k.alias(f"{k}"))
-
-        # Update within-segment state for next site...
-        k_m__ = (k_m__ or w) - 1  # Bump to next site within segment
-
-        # Update h for next site...
-        # ... only needed if not calculating h fresh every iter [[see above]]
-        h_ = c_("h_") + l_(1) - (c_("h_") >= c_("h_max")) * l_(w)
-        df = df.with_columns(h_=h_)
-
-        # Update within-bunch state for next site...
-        m_b__ -= not k_m__  # Bump to next segment within bunch
-        b_star = not (m_b__ or k_m__)  # Should bump to next bunch?
-        b += b_star  # Do bump to next bunch, if any
-        # Set within-bunch segment countdown, if bumping to next bunch
-        m_b__ = m_b__ or (1 << (b - 1))
-
-    df = df.select("^[0-9]+$")  # select only numbered Tbar_k "result" columns
-    df = collect_chunked(df, len(T))  # uses polars threadpool
-    return df.collect().to_numpy()
+    return result
 
 
 # lazy loader workaround
