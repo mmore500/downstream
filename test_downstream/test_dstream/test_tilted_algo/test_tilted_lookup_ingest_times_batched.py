@@ -88,6 +88,7 @@ def test_tilted_time_lookup_batched_fuzz(
 
     testT2 = np.array(
         [
+            *range(min(10**3, Tmax + 1)),
             *np.random.randint(min(Tmax, 2**32 - 1), size=10**3),
             min(Tmax, 2**32 - 1),
         ],
