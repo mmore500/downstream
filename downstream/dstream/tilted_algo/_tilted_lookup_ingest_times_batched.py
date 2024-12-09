@@ -7,7 +7,6 @@ from ..._auxlib._bitlen32_batched import bitlen32_batched
 from ..._auxlib._bitlen32_scalar import bitlen32_scalar
 from ..._auxlib._bitwise_count64_batched import bitwise_count64_batched
 from ..._auxlib._ctz32_batched import ctz32_batched
-from ..._auxlib._is_in_unit_test import is_in_unit_test
 from ..._auxlib._jit import jit
 from ..._auxlib._jit_prange import jit_prange
 from ..._auxlib._modpow2_batched import modpow2_batched
