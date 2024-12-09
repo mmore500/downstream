@@ -1,5 +1,3 @@
-import numpy as np
-
 from downstream._auxlib._pick_batched_chunk_size import pick_batched_chunk_size
 
 

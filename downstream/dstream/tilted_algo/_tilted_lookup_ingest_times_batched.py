@@ -1,5 +1,3 @@
-import warnings
-
 import numpy as np
 
 from ..._auxlib._bit_floor32_batched import bit_floor32_batched
