@@ -141,7 +141,7 @@ def _tilted_lookup_ingest_times_batched(S: int, T: np.ndarray) -> np.ndarray:
         res[:, k] = ((2 * i + 1) << h) - 1  # True ingest time, Tbar_k
 
         # Update state for next site...
-        h_ += np.ones_like(T, dtype=T.dtype)
+        h_ += 1
         # ^^^ Assigned h.v. increases within each segment
         m_p += (h_ == w).astype(T.dtype)
         # ^^^ Bump to next segment if current is filled
