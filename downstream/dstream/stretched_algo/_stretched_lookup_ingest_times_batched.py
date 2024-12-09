@@ -11,6 +11,8 @@ from ..._auxlib._bitwise_count64_batched import bitwise_count64_batched
 from ..._auxlib._ctz32 import ctz32
 from ..._auxlib._ctz32_batched import ctz32_batched
 from ..._auxlib._jit import jit
+from ..._auxlib._jit_prange import jit_prange
+from ..._auxlib._pick_batched_chunk_size import pick_batched_chunk_size
 
 
 def stretched_lookup_ingest_times_batched(
@@ -43,20 +45,17 @@ def stretched_lookup_ingest_times_batched(
     if (T < S).any():
         raise ValueError("T < S not supported for batched lookup")
 
-    if parallel and T.size:
-        if (
-            int(T.max()) < 2**32 and int(S) <= 2**8
-        ):  # 2**12 is max tested S, limit to 2**8 to control jit workload
-            return _stretched_lookup_ingest_times_batched_parallel(
-                np.int64(S), T.astype(np.int64)
-            )  # cast to improve numba caching?
-        else:
-            warnings.warn(
-                "T too large; due to numba limitations in handling overflows, "
-                "falling back to serial processing."
-            )
+    if parallel and T.size and T.max() >= 2**32:
+        warnings.warn(
+            "T too large; due to numba limitations in handling overflows, "
+            "falling back to serial processing."
+        )
+        parallel = False
 
-    return _stretched_lookup_ingest_times_batched_serial(S, T)
+    return [
+        _stretched_lookup_ingest_times_batched_serial,
+        _stretched_lookup_ingest_times_batched_jit,
+    ][bool(parallel)](np.int64(S), T.astype(np.int64))
 
 
 def _stretched_lookup_ingest_times_batched_serial(
@@ -122,8 +121,8 @@ def _stretched_lookup_ingest_times_batched_serial(
     return res
 
 
-@jit(nogil=True, nopython=True, parallel=True)
-def _stretched_lookup_ingest_times_batched_parallel(
+@jit("uint64[:,:](int64, int64[:])", nogil=True, nopython=True)
+def _stretched_lookup_ingest_times_batched_jit_serial(
     S: int,
     T: np.ndarray,
 ) -> np.ndarray:
@@ -183,6 +182,30 @@ def _stretched_lookup_ingest_times_batched_parallel(
         h_ *= (h_ != w).astype(T.dtype)  # Reset h.v. if segment is filled
 
     return res
+
+
+@jit(cache=True, nogil=True, nopython=True, parallel=True)
+def _stretched_lookup_ingest_times_batched_jit(
+    S: int, T: np.ndarray, chunk_size: int = pick_batched_chunk_size()
+):
+    """Implementation detail for stretched_lookup_ingest_times_batched."""
+    num_rows = T.shape[0]
+    num_chunks = (num_rows + chunk_size - 1) // chunk_size
+
+    result = np.empty((num_rows, S), dtype=np.uint64)
+    for chunk in jit_prange(num_chunks):
+        chunk_slice = slice(
+            chunk * chunk_size,  # begin
+            min((chunk + 1) * chunk_size, num_rows),  # end
+        )
+
+        chunk_T = T[chunk_slice]
+        chunk_result = _stretched_lookup_ingest_times_batched_jit_serial(
+            S, chunk_T
+        )
+        result[chunk_slice, :] = chunk_result
+
+    return result
 
 
 # lazy loader workaround

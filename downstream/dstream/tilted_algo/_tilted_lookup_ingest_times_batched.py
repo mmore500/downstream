@@ -1,5 +1,3 @@
-import warnings
-
 import numpy as np
 
 from ..._auxlib._bit_floor32_batched import bit_floor32_batched
@@ -8,7 +6,9 @@ from ..._auxlib._bitlen32_scalar import bitlen32_scalar
 from ..._auxlib._bitwise_count64_batched import bitwise_count64_batched
 from ..._auxlib._ctz32_batched import ctz32_batched
 from ..._auxlib._jit import jit
+from ..._auxlib._jit_prange import jit_prange
 from ..._auxlib._modpow2_batched import modpow2_batched
+from ..._auxlib._pick_batched_chunk_size import pick_batched_chunk_size
 
 _lor = np.logical_or
 _land = np.logical_and
@@ -44,18 +44,10 @@ def tilted_lookup_ingest_times_batched(
     if (T < S).any():
         raise ValueError("T < S not supported for batched lookup")
 
-    if parallel:
-        if S <= 2**8:  # limit to 2**8 to control jit workload
-            return _tilted_lookup_ingest_times_batched_jit(
-                np.int64(S), T.astype(np.int64)
-            )  # cast to improve numba caching?
-        else:
-            warnings.warn(
-                "Falling back to serial processing for S > 256, "
-                "to prevent excessive jit workload.",
-            )
-
-    return _tilted_lookup_ingest_times_batched(S, T)
+    return [
+        _tilted_lookup_ingest_times_batched,
+        _tilted_lookup_ingest_times_batched_jit,
+    ][bool(parallel)](np.int64(S), T.astype(np.int64))
 
 
 def _tilted_lookup_ingest_times_batched(S: int, T: np.ndarray) -> np.ndarray:
@@ -141,7 +133,7 @@ def _tilted_lookup_ingest_times_batched(S: int, T: np.ndarray) -> np.ndarray:
         res[:, k] = ((2 * i + 1) << h) - 1  # True ingest time, Tbar_k
 
         # Update state for next site...
-        h_ += np.ones_like(T, dtype=T.dtype)
+        h_ += 1
         # ^^^ Assigned h.v. increases within each segment
         m_p += (h_ == w).astype(T.dtype)
         # ^^^ Bump to next segment if current is filled
@@ -150,11 +142,35 @@ def _tilted_lookup_ingest_times_batched(S: int, T: np.ndarray) -> np.ndarray:
     return res
 
 
-_tilted_lookup_ingest_times_batched_jit = jit(
-    nogil=True, nopython=True, parallel=True
-)(
-    _tilted_lookup_ingest_times_batched,
-)
+# implementation detail for _tilted_lookup_ingest_times_batched_jit
+_tilted_lookup_ingest_times_batched_jit_serial = jit(
+    "uint64[:,:](int64, int64[:])", nogil=True, nopython=True
+)(_tilted_lookup_ingest_times_batched)
+
+
+@jit(cache=True, nogil=True, nopython=True, parallel=True)
+def _tilted_lookup_ingest_times_batched_jit(
+    S: int, T: np.ndarray, chunk_size: int = pick_batched_chunk_size()
+):
+    """Implementation detail for tilted_lookup_ingest_times_batched."""
+    num_rows = T.shape[0]
+    num_chunks = (num_rows + chunk_size - 1) // chunk_size
+
+    result = np.empty((num_rows, S), dtype=np.uint64)
+    for chunk in jit_prange(num_chunks):
+        chunk_slice = slice(
+            chunk * chunk_size,  # begin
+            min((chunk + 1) * chunk_size, num_rows),  # end
+        )
+
+        chunk_T = T[chunk_slice]
+        chunk_result = _tilted_lookup_ingest_times_batched_jit_serial(
+            S, chunk_T
+        )
+        result[chunk_slice, :] = chunk_result
+
+    return result
+
 
 # lazy loader workaround
 lookup_ingest_times_batched = tilted_lookup_ingest_times_batched

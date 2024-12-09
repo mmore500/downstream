@@ -1,11 +1,11 @@
-import warnings
-
 import numpy as np
 
 from ..._auxlib._bitlen32_batched import bitlen32_batched
 from ..._auxlib._bitlen32_scalar import bitlen32_scalar
 from ..._auxlib._bitwise_count64_batched import bitwise_count64_batched
 from ..._auxlib._jit import jit
+from ..._auxlib._jit_prange import jit_prange
+from ..._auxlib._pick_batched_chunk_size import pick_batched_chunk_size
 
 
 def steady_lookup_ingest_times_batched(
@@ -38,18 +38,10 @@ def steady_lookup_ingest_times_batched(
     if (T < S).any():
         raise ValueError("T < S not supported for batched lookup")
 
-    if parallel:
-        if S <= 2**8:  # limit to 2**8 to control jit workload
-            return _steady_lookup_ingest_times_batched_jit(
-                np.int64(S), T.astype(np.int64)
-            )  # cast to make numba happy, improve caching
-        else:
-            warnings.warn(
-                "Falling back to serial processing for S > 256, "
-                "to prevent excessive jit workload.",
-            )
-
-    return _steady_lookup_ingest_times_batched(S, T)
+    return [
+        _steady_lookup_ingest_times_batched,
+        _steady_lookup_ingest_times_batched_jit,
+    ][bool(parallel)](np.int64(S), T.astype(np.int64))
 
 
 def _steady_lookup_ingest_times_batched(
@@ -73,7 +65,7 @@ def _steady_lookup_ingest_times_batched(
     b_star = True  # Have traversed all segments in bunch?
     k_m__ = s + 1  # Countdown on sites traversed within segment
 
-    res = np.empty((T.size, S), dtype=T.dtype)
+    res = np.empty((T.size, S), dtype=np.uint64)
     for k in range(S):  # Iterate over buffer sites, except unused last one
         # Calculate info about current segment...
         epsilon_w = b == 0  # Correction on segment width if first segment
@@ -110,9 +102,35 @@ def _steady_lookup_ingest_times_batched(
     return res
 
 
-_steady_lookup_ingest_times_batched_jit = jit(
-    nogil=True, nopython=True, parallel=True
+# implementation detail for _steady_lookup_ingest_times_batched_jit
+_steady_lookup_ingest_times_batched_jit_serial = jit(
+    "uint64[:,:](int64, int64[:])", nogil=True, nopython=True
 )(_steady_lookup_ingest_times_batched)
+
+
+@jit(cache=True, nogil=True, nopython=True, parallel=True)
+def _steady_lookup_ingest_times_batched_jit(
+    S: int, T: np.ndarray, chunk_size: int = pick_batched_chunk_size()
+):
+    """Implementation detail for steady_lookup_ingest_times_batched."""
+    num_rows = T.shape[0]
+    num_chunks = (num_rows + chunk_size - 1) // chunk_size
+
+    result = np.empty((num_rows, S), dtype=np.uint64)
+    for chunk in jit_prange(num_chunks):
+        chunk_slice = slice(
+            chunk * chunk_size,  # begin
+            min((chunk + 1) * chunk_size, num_rows),  # end
+        )
+
+        chunk_T = T[chunk_slice]
+        chunk_result = _steady_lookup_ingest_times_batched_jit_serial(
+            S, chunk_T
+        )
+        result[chunk_slice, :] = chunk_result
+
+    return result
+
 
 # lazy loader workaround
 lookup_ingest_times_batched = steady_lookup_ingest_times_batched

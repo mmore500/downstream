@@ -5,6 +5,9 @@ import numpy as np
 import pytest
 
 from downstream.dstream import stretched_algo as algo
+from downstream.dstream.stretched_algo._stretched_lookup_ingest_times_batched import (
+    _stretched_lookup_ingest_times_batched_jit,
+)
 
 _dtypes = [
     np.uint8,
@@ -67,7 +70,7 @@ def test_stretched_time_lookup_batched_fuzz(
     dtype2: typing.Type,
     parallel: bool,
 ):
-    Smax = min(np.iinfo(dtype1).max, 2**12)
+    Smax = min(np.iinfo(dtype1).max, [2**12, 2**8][bool(parallel)])
     Tmax = min(np.iinfo(dtype2).max, 2**52)
     testS = np.array(
         [2**s for s in range(1, 64) if 2**s <= min(Smax, Tmax)],
@@ -108,3 +111,34 @@ def test_stretched_time_lookup_batched_fuzz(
         )
         batchT2 = np.where(mask2, int(S), testT2)
         validate(S, batchT2, parallel=parallel)
+
+
+def test_stretched_time_lookup_batched_fuzz_parallel():
+    dtype1 = np.int64
+    dtype2 = np.int64
+    Smax = min(np.iinfo(dtype1).max, 2**17)
+    Tmax = min(np.iinfo(dtype2).max, 2**52)
+    testS = np.array(
+        [2**s for s in range(1, 64) if 2**s <= min(Smax, Tmax)],
+        dtype=dtype1,
+    )
+
+    testT2 = np.array(
+        [
+            *range(min(10**3, Tmax + 1)),
+            *np.random.randint(min(Tmax, 2**32 - 1), size=10**3),
+            min(Tmax, 2**32 - 1),
+        ],
+        dtype=dtype2,
+    )
+
+    validate = validate_stretched_time_lookup(
+        _stretched_lookup_ingest_times_batched_jit,
+    )
+    for S in testS:
+        mask2 = np.logical_or(
+            ~algo.has_ingest_capacity_batched(S, testT2),
+            testT2 < S,
+        )
+        batchT2 = np.where(mask2, int(S), testT2)
+        validate(S, batchT2, chunk_size=32768)
