@@ -20,37 +20,46 @@ def unpack_hex(hex_str: str, num_items: int) -> np.ndarray:
     Returns
     -------
     np.ndarray
-        Array of 64-bit unsigned integers representing the unpacked data.
+        Array of unsigned integers representing the unpacked data.
 
     Notes
     -----
-    - The function assumes a little-endian byte order in the system.
+    - Hex data is assumed to be packed using big-endian byte order.
+    - The function requires a runtime little-endian byte order.
     """
     if sys.byteorder != "little":
         raise NotImplementedError(
             "native big-endian byte order not yet supported",
         )
 
-    if num_items == len(hex_str):  # handel4-bit values
+    if num_items == len(hex_str):
+        # handle 4-bit values by processing ascii ordinals directly
         ascii_codes = np.fromstring(hex_str.lower(), dtype="S1", sep="").view(
-            np.uint8
+            np.uint8,
         )
         digits = ascii_codes - ord("0")
         alphas = ascii_codes - (ord("a") - 10)
         return np.where(digits < 10, digits, alphas)
 
+    # unpack hex string into numpy bytes array
     bytes_array = np.frombuffer(
         bytes.fromhex(hex_str),
         count=len(hex_str) >> 1,
         dtype=np.uint8,
     )
-    if num_items == len(bytes_array):  # handle 1-byte values
+    if num_items == len(bytes_array):
+        # for 1-byte values, we are done
         return bytes_array
 
+    # unpack bits, creating array with one entry per bit value
     bits_array = np.unpackbits(bytes_array, bitorder="big")
-    if num_items == len(bytes_array) * 8:  # handle 1-bit values
+    if num_items == len(bytes_array) * 8:
+        # for 1-byte values, we are done
         return bits_array
 
+    # for the general case,
+    # reshape bits into subarrays `num_items` wide
+    # then pack bits from each subarray into a single value
     item_bits_array = bits_array.reshape((num_items, -1))[:, ::-1]
     item_bytes_array = np.packbits(
         item_bits_array,
