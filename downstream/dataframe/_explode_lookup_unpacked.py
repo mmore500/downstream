@@ -103,6 +103,134 @@ def _make_empty(value_dtype: pl.DataType) -> pl.DataFrame:
     )
 
 
+def _prep_and_sort_data(
+    df: pl.DataFrame, num_records: int, dstream_S: int
+) -> pl.DataFrame:
+    df = (
+        df.with_columns(
+            pl.coalesce(
+                pl.col("^dstream_data_id$"),
+                pl.arange(num_records, dtype=pl.UInt64),
+            ).alias("dstream_data_id"),
+        )
+        .select(
+            pl.selectors.matches(
+                "^dstream_data_id$"
+                "|^dstream_storage_hex$"
+                "|^dstream_T$"
+                "|^downstream_validate_exploded$"
+                "|^downstream_exclude_exploded$",
+            ),
+        )
+        .sort("dstream_T")
+    )
+
+    df = df.with_columns(
+        dstream_value_bitwidth=np.right_shift(
+            pl.col("dstream_storage_hex").str.len_bytes() * 4,
+            int(dstream_S).bit_length() - 1,
+        ),
+    )
+    return df
+
+
+def _unpack_hex_strings(
+    df: pl.DataFrame, df_long: pl.DataFrame, num_items: int, value_dtype: int
+) -> pl.DataFrame:
+    concat_hex = (
+        df.lazy()
+        .select(pl.col("dstream_storage_hex").str.join(""))
+        .collect()
+        .item()
+    )
+
+    df_long = df_long.with_columns(
+        dstream_value=pl.Series(
+            unpack_hex(concat_hex, num_items), dtype=value_dtype
+        ),
+    )
+    return df_long
+
+
+def _lookup_ingest_times(
+    df: pl.DataFrame,
+    df_long: pl.DataFrame,
+    lookup_op: typing.Callable,
+    dstream_S: int,
+) -> pl.DataFrame:
+    dstream_T = df.lazy().select("dstream_T").collect().to_numpy().ravel()
+    df_long = (
+        df_long.with_columns(
+            dstream_Tbar=pl.Series(
+                name="dstream_Tbar",
+                values=lookup_op(dstream_S, dstream_T).ravel(),
+            ),
+        )
+        .lazy()
+        .collect()
+    )
+    return df_long
+
+
+def _perform_validation(df_long: pl.DataFrame) -> pl.DataFrame:
+    validation_groups = df_long.with_columns(
+        pl.col("downstream_validate_exploded").set_sorted(),
+    ).group_by("downstream_validate_exploded")
+    num_validators = 0
+    for (validator,), group in validation_groups:
+        num_validators += bool(validator)
+        validation_expr = eval(validator or "pl.lit(True)")
+        validation_result = group.select(validation_expr).to_series()
+        if not validation_result.all():
+            err_msg = f"downstream_validate_exploded `{validator}` failed"
+            logging.error(err_msg)
+            logging.error(
+                group.filter(~validation_result).glimpse(return_as_string=True)
+            )
+            raise ValueError(err_msg)
+
+    df_long = df_long.drop("downstream_validate_exploded")
+    logging.info(f" - {num_validators} validation(s) passed!")
+    return df_long
+
+
+def _drop_excluded_rows(df_long: pl.DataFrame) -> pl.DataFrame:
+    kept = pl.col("downstream_exclude_exploded").not_().fill_null(True)
+    num_before = len(df_long)
+    df_long = df_long.filter(kept).drop("downstream_exclude_exploded")
+    num_after = len(df_long)
+    num_dropped = num_before - num_after
+    logging.info(
+        f" - {num_dropped} dropped and {num_after} kept "
+        f"from {num_before} rows!",
+    )
+    return df_long
+
+
+def _finalize_result_schema(
+    df_long: pl.DataFrame,
+    result_schema: str,
+    value_dtype: pl.DataType,
+) -> pl.DataFrame:
+    try:
+        df_long = {
+            "coerce": lambda df: df.cast(
+                {
+                    "dstream_data_id": pl.UInt64,
+                    "dstream_Tbar": pl.UInt64,
+                    "dstream_T": pl.UInt64,
+                    "dstream_value": value_dtype,
+                    "dstream_value_bitwidth": pl.UInt32,
+                },
+            ),
+            "relax": lambda df: df,
+            "shrink": lambda df: df.select(pl.all().shrink_dtype()),
+        }[result_schema](df_long)
+    except KeyError:
+        raise ValueError(f"Invalid arg {result_schema} for result_schema")
+    return df_long
+
+
 def explode_lookup_unpacked(
     df: pl.DataFrame,
     *,
@@ -213,123 +341,39 @@ def explode_lookup_unpacked(
 
     logging.info("begin explode_lookup_unpacked")
     logging.info(" - prepping data...")
-
-    df = (
-        df.with_columns(
-            pl.coalesce(
-                pl.col("^dstream_data_id$"),
-                pl.arange(num_records, dtype=pl.UInt64),
-            ).alias("dstream_data_id"),
-        )
-        .select(
-            pl.selectors.matches(
-                "^dstream_data_id$"
-                "|^dstream_storage_hex$"
-                "|^dstream_T$"
-                "|^downstream_validate_exploded$"
-                "|^downstream_exclude_exploded$",
-            ),
-        )
-        .sort("dstream_T")
-    )
-
-    df = df.with_columns(
-        dstream_value_bitwidth=np.right_shift(
-            pl.col("dstream_storage_hex").str.len_bytes() * 4,
-            int(dstream_S).bit_length() - 1,
-        ),
-    )
-
+    df = _prep_and_sort_data(df, num_records=num_records, dstream_S=dstream_S)
     _check_bitwidths(df)
 
     logging.info(" - exploding dataframe...")
-
     df_long = df.drop("dstream_storage_hex").select(
         pl.all().gather(np.repeat(np.arange(num_records), dstream_S)),
     )
 
     logging.info(" - unpacking hex strings...")
-
-    concat_hex = (
-        df.lazy()
-        .select(pl.col("dstream_storage_hex").str.join(""))
-        .collect()
-        .item()
-    )
-
-    df_long = df_long.with_columns(
-        dstream_value=pl.Series(
-            unpack_hex(concat_hex, num_items), dtype=value_dtype
-        ),
+    df_long = _unpack_hex_strings(
+        df, df_long, num_items=num_items, value_dtype=value_dtype
     )
 
     logging.info(" - looking up ingest times...")
-
-    lookup_op = dstream_algo.lookup_ingest_times_batched
-    dstream_T = df.lazy().select("dstream_T").collect().to_numpy().ravel()
-    df_long = (
-        df_long.with_columns(
-            dstream_Tbar=pl.Series(
-                name="dstream_Tbar",
-                values=lookup_op(dstream_S, dstream_T).ravel(),
-            ),
-        )
-        .lazy()
-        .collect()
+    df_long = _lookup_ingest_times(
+        df,
+        df_long,
+        lookup_op=dstream_algo.lookup_ingest_times_batched,
+        dstream_S=dstream_S,
     )
 
     if "downstream_validate_exploded" in df_long:
         logging.info(" - evaluating `downstream_validate_unpacked` exprs...")
-        validation_groups = df_long.with_columns(
-            pl.col("downstream_validate_exploded").set_sorted(),
-        ).group_by("downstream_validate_exploded")
-        num_validators = 0
-        for (validator,), group in validation_groups:
-            num_validators += bool(validator)
-            validation_expr = eval(validator or "pl.lit(True)")
-            validation_result = group.select(validation_expr).to_series()
-            if not validation_result.all():
-                err_msg = f"downstream_validate_exploded `{validator}` failed"
-                logging.error(err_msg)
-                logging.error(
-                    group.filter(~validation_result).glimpse(
-                        return_as_string=True
-                    )
-                )
-                raise ValueError(err_msg)
-
-        df_long = df_long.drop("downstream_validate_exploded")
-        logging.info(f" - {num_validators} validation(s) passed!")
+        df_long = _perform_validation(df_long)
 
     if "downstream_exclude_exploded" in df_long:
         logging.info(" - dropping excluded rows...")
-        kept = pl.col("downstream_exclude_exploded").not_().fill_null(True)
-        num_before = len(df_long)
-        df_long = df_long.filter(kept).drop("downstream_exclude_exploded")
-        num_after = len(df_long)
-        num_dropped = num_before - num_after
-        logging.info(
-            f" - {num_dropped} dropped and {num_after} kept "
-            f"from {num_before} rows!",
-        )
+        df_long = _drop_excluded_rows(df_long)
 
     logging.info(" - finalizing result schema")
-    try:
-        df_long = {
-            "coerce": lambda df: df.cast(
-                {
-                    "dstream_data_id": pl.UInt64,
-                    "dstream_Tbar": pl.UInt64,
-                    "dstream_T": pl.UInt64,
-                    "dstream_value": value_dtype,
-                    "dstream_value_bitwidth": pl.UInt32,
-                },
-            ),
-            "relax": lambda df: df,
-            "shrink": lambda df: df.select(pl.all().shrink_dtype()),
-        }[result_schema](df_long)
-    except KeyError:
-        raise ValueError(f"Invalid arg {result_schema} for result_schema")
+    df_long = _finalize_result_schema(
+        df_long, result_schema=result_schema, value_dtype=value_dtype
+    )
 
     logging.info("explode_lookup_unpacked complete")
     return df_long
