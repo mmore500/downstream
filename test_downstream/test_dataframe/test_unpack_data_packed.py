@@ -55,7 +55,7 @@ def test_unpack_data_packed_single_row():
         {
             "foo": ["bar"],
             "data_hex": ["0F0E0D0C0B0A09080706050403020100"],
-            "dstream_algo": ["dstream.stady_algo"],
+            "dstream_algo": ["dstream.steady_algo"],
             "dstream_storage_bitoffset": [4],
             "dstream_storage_bitwidth": [96],
             "dstream_T_bitoffset": [100],
@@ -71,7 +71,7 @@ def test_unpack_data_packed_single_row():
         {
             "foo": ["bar"],
             "dstream_data_id": [0],
-            "dstream_algo": ["dstream.stady_algo"],
+            "dstream_algo": ["dstream.steady_algo"],
             "dstream_T": [12320],
             "dstream_S": [100],
             "dstream_storage_hex": ["F0E0D0C0B0A0908070605040"],
