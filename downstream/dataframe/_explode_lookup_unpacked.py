@@ -278,12 +278,14 @@ def explode_lookup_unpacked(
         .collect()
     )
 
-    logging.info(" - validating and filtering...")
     if "downstream_validate_exploded" in df_long:
+        logging.info(" - evaluating `downstream_validate_unpacked` exprs...")
         validation_groups = df_long.with_columns(
             pl.col("downstream_validate_exploded").set_sorted(),
         ).group_by("downstream_validate_exploded")
+        num_validators = 0
         for (validator,), group in validation_groups:
+            num_validators += bool(validator)
             validation_expr = eval(validator or "pl.lit(True)")
             validation_result = group.select(validation_expr).to_series()
             if not validation_result.all():
@@ -297,10 +299,13 @@ def explode_lookup_unpacked(
                 raise ValueError(err_msg)
 
         df_long = df_long.drop("downstream_validate_exploded")
+        logging.info(f" - {num_validators} validation(s) passed!")
 
     if "downstream_exclude_exploded" in df_long:
+        logging.info(" - dropping excluded rows...")
         kept = pl.col("downstream_exclude_exploded").not_().fill_null(True)
         df_long = df_long.filter(kept).drop("downstream_exclude_exploded")
+        logging.info(f" - {(~kept).sum()} rows dropped and {len(df)} kept!")
 
     logging.info(" - finalizing result schema")
     try:

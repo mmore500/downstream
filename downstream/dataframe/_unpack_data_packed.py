@@ -199,12 +199,14 @@ def unpack_data_packed(
         .collect()
     )
 
-    logging.info(" - validating and filtering...")
     if "downstream_validate_unpacked" in df:
+        logging.info(" - evaluating `downstream_validate_unpacked` exprs...")
         validation_groups = df.with_columns(
             pl.col("downstream_validate_unpacked").set_sorted(),
         ).group_by("downstream_validate_unpacked")
+        num_validators = 0
         for (validator,), group in validation_groups:
+            num_validators += bool(validator)
             validation_expr = eval(validator or "pl.lit(True)")
             validation_result = group.select(validation_expr).to_series()
             if not validation_result.all():
@@ -218,8 +220,10 @@ def unpack_data_packed(
                 raise ValueError(err_msg)
 
         df = df.drop("downstream_validate_unpacked")
+        logging.info(f" - {num_validators} validation(s) passed!")
 
     if "downstream_exclude_unpacked" in df:
+        logging.info(" - dropping excluded rows...")
         has_dropped_validations = (
             "downstream_validate_exploded" in df
             and df.select(
@@ -238,6 +242,7 @@ def unpack_data_packed(
 
         kept = pl.col("downstream_exclude_unpacked").not_().fill_null(True)
         df = df.filter(kept).drop("downstream_exclude_unpacked")
+        logging.info(f" - {(~kept).sum()} rows dropped and {len(df)} kept!")
 
     logging.info(" - finalizing result schema...")
     try:
