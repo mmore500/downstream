@@ -264,6 +264,9 @@ def explode_lookup_unpacked(
 
         - 'downstream_version' : pl.Categorical
             - Version of downstream library used to curate data items.
+        - 'dstream_data_id' : pl.UInt64
+            - Unique identifier for each data item.
+            - If not provided, row number will be used as identifier.
         - 'downstream_exclude_exploded' : pl.Boolean
             - Should row be dropped after exploding unpacked data?
         - 'downstream_validate_exploded' : pl.String, polars expression
@@ -293,7 +296,7 @@ def explode_lookup_unpacked(
         Output schema:
 
         - 'dstream_data_id' : pl.UInt64
-            - Row index identifier of dstream buffer that data item is from.
+            - Identifier for dstream buffer that data item is from.
         - 'dstream_Tbar' : pl.UInt64
             - Logical position of data item in stream (number of prior data
               items).
