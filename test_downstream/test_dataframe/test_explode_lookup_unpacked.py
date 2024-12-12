@@ -1,4 +1,5 @@
 import polars as pl
+import pytest
 
 import downstream
 from downstream.dataframe import unpack_data_packed
@@ -19,6 +20,7 @@ def test_explode_lookup_unpacked_empty():
             "dstream_T_bitoffset": [],
             "dstream_T_bitwidth": [],
             "dstream_S": [],
+            "downstream_validate_exploded": "pl.col('dstream_T') + 1 != 0",
         },
     )
     df = unpack_data_packed(df)
@@ -42,6 +44,7 @@ def test_explode_lookup_unpacked_bit():
             "dstream_T_bitoffset": [16, 16],
             "dstream_T_bitwidth": [16, 16],
             "dstream_S": [16, 16],
+            "downstream_validate_exploded": ["pl.col('dstream_T') != 0"] * 2,
         },
     )
     df = unpack_data_packed(df)
@@ -65,6 +68,7 @@ def test_explode_lookup_unpacked_byte():
             "dstream_T_bitoffset": [16, 16],
             "dstream_T_bitwidth": [16, 16],
             "dstream_S": [2, 2],
+            "downstream_validate_exploded": ["pl.col('dstream_T') != 0"] * 2,
         },
     )
     df = unpack_data_packed(df)
@@ -88,6 +92,8 @@ def test_explode_lookup_unpacked_64():
             "dstream_T_bitoffset": [0, 0],
             "dstream_T_bitwidth": [16, 16],
             "dstream_S": [2, 2],
+            "downstream_validate_exploded": ["pl.col('dstream_T') != 0"] * 2,
+            "downstream_exclude_exploded": [False, False],
         },
     )
     df = unpack_data_packed(df)
@@ -97,3 +103,26 @@ def test_explode_lookup_unpacked_64():
         assert col in res.columns
 
     assert len(res) == df["dstream_S"].sum()
+
+
+def test_explode_lookup_unpacked_invalid():
+
+    df = pl.DataFrame(
+        {
+            "dstream_algo": ["dstream.steady_algo", "dstream.steady_algo"],
+            "downstream_version": [downstream.__version__] * 2,
+            "data_hex": ["aa11ccdd", "221188dd"],
+            "dstream_storage_bitoffset": [16, 16],
+            "dstream_storage_bitwidth": [128, 128],
+            "dstream_T_bitoffset": [0, 0],
+            "dstream_T_bitwidth": [16, 16],
+            "dstream_S": [2, 2],
+            "downstream_validate_exploded": [
+                "pl.col('dstream_Tbar') == 0",
+                "pl.col('dstream_Tbar') != 0",
+            ],
+        },
+    )
+    df = unpack_data_packed(df)
+    with pytest.raises(ValueError):
+        explode_lookup_unpacked(df, value_type="uint64")

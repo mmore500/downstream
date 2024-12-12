@@ -18,6 +18,8 @@ def test_explode_lookup_packed_empty():
             "dstream_T_bitoffset": [],
             "dstream_T_bitwidth": [],
             "dstream_S": [],
+            "downstream_validate_exploded": [],
+            "downstream_validate_unpacked": [],
         },
     )
     res = explode_lookup_packed(df, value_type="uint8")
@@ -40,6 +42,8 @@ def test_explode_lookup_packed_bit():
             "dstream_T_bitoffset": [16, 16],
             "dstream_T_bitwidth": [16, 16],
             "dstream_S": [16, 16],
+            "downstream_validate_exploded": ["pl.col('dstream_T') != 0"] * 2,
+            "downstream_validate_unpacked": ["pl.col('dstream_T') != 0"] * 2,
         },
     )
     res = explode_lookup_packed(df, value_type="uint8")
@@ -62,6 +66,8 @@ def test_explode_lookup_packed_byte():
             "dstream_T_bitoffset": [16, 16],
             "dstream_T_bitwidth": [16, 16],
             "dstream_S": [2, 2],
+            "downstream_validate_exploded": ["pl.col('dstream_T') != 0"] * 2,
+            "downstream_validate_unpacked": ["pl.col('dstream_T') != 0"] * 2,
         },
     )
     res = explode_lookup_packed(df, value_type="uint8")
@@ -84,6 +90,8 @@ def test_explode_lookup_packed_64():
             "dstream_T_bitoffset": [0, 0],
             "dstream_T_bitwidth": [16, 16],
             "dstream_S": [2, 2],
+            "downstream_validate_exploded": ["pl.col('dstream_T') != 0"] * 2,
+            "downstream_validate_unpacked": ["pl.col('dstream_T') != 0"] * 2,
         },
     )
     res = explode_lookup_packed(df, value_type="uint64")
@@ -121,6 +129,8 @@ def test_explode_lookup_packed_pup():
             "dstream_T_bitoffset": [0, 0],
             "dstream_T_bitwidth": [8, 8],
             "dstream_S": [8, 8],
+            "downstream_exclude_exploded": [None, False],
+            "downstream_exclude_unpacked": [None, False],
         },
     )
     res = explode_lookup_packed(df, value_type="uint64")
@@ -132,6 +142,53 @@ def test_explode_lookup_packed_pup():
             "dstream_Tbar": [*surface1.lookup(), *surface2.lookup()],
             "dstream_value": [*surface1, *surface2],
             "dstream_value_bitwidth": [8] * 16,
+        }
+    )
+
+    pl_testing.assert_frame_equal(
+        res, expected, check_column_order=False, check_dtypes=False
+    )
+
+
+def test_explode_lookup_packed_pup_exclude():
+
+    surface1 = dsurf.Surface(dsurf.Policy(dstream.steady_algo, 8))
+    for i in range(8):
+        surface1.ingest(i)
+
+    buffer1 = "".join(map("{:02x}".format, surface1))
+    data1 = "{:02x}".format(surface1.T) + buffer1
+
+    surface2 = dsurf.Surface(dsurf.Policy(dstream.steady_algo, 8))
+    for i in range(11):
+        surface2.ingest(i)
+
+    buffer2 = "".join(map("{:02x}".format, surface2))
+    data2 = "{:02x}".format(surface2.T) + buffer2
+
+    df = pl.DataFrame(
+        {
+            "awoo": ["bar", "baz"],
+            "dstream_algo": ["dstream.steady_algo", "dstream.steady_algo"],
+            "downstream_version": [downstream.__version__] * 2,
+            "data_hex": [data1, data2],
+            "dstream_storage_bitoffset": [8, 8],
+            "dstream_storage_bitwidth": [96, 96],
+            "dstream_T_bitoffset": [0, 0],
+            "dstream_T_bitwidth": [8, 8],
+            "dstream_S": [8, 8],
+            "downstream_exclude_exploded": [True, False],
+        },
+    )
+    res = explode_lookup_packed(df, value_type="uint64")
+
+    expected = pl.DataFrame(
+        {
+            "dstream_data_id": [1] * 8,
+            "dstream_T": [surface2.T] * 8,
+            "dstream_Tbar": [*surface2.lookup()],
+            "dstream_value": [*surface2],
+            "dstream_value_bitwidth": [8] * 8,
         }
     )
 

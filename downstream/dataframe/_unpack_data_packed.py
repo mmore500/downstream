@@ -90,6 +90,14 @@ def unpack_data_packed(
         Optional schema:
             - 'downstream_version' : pl.Categorical
                 - Version of downstream library used to curate data items.
+            - 'downstream_exclude_exploded' : pl.Boolean
+                - Should row be dropped after exploding unpacked data?
+            - 'downstream_exclude_unpacked' : pl.Boolean
+                - Should row be dropped after unpacking packed data?
+            - 'downstream_validate_exploded' : pl.String, polars expression
+                - Polars expression to validate exploded data.
+            - 'downstream_validate_unpacked' : pl.String, polars expression
+                - Polars expression to validate unpacked data.
 
     result_schema : Literal['coerce', 'relax', 'shrink'], default 'coerce'
         How should dtypes in the output DataFrame be handled?
@@ -190,7 +198,31 @@ def unpack_data_packed(
         .collect()
     )
 
-    logging.info(" - finalizing result schema")
+    logging.info(" - validating and filtering...")
+    if "downstream_validate_unpacked" in df:
+        validation_groups = df.with_columns(
+            pl.col("downstream_validate_unpacked").set_sorted(),
+        ).group_by("downstream_validate_unpacked")
+        for (validator,), group in validation_groups:
+            validation_expr = eval(validator or "pl.lit(True)")
+            validation_result = group.select(validation_expr).to_series()
+            if not validation_result.all():
+                err_msg = f"downstream_validate_exploded `{validator}` failed"
+                logging.error(err_msg)
+                logging.error(
+                    group.filter(~validation_result).glimpse(
+                        return_as_string=True
+                    )
+                )
+                raise ValueError(err_msg)
+
+        df = df.drop("downstream_validate_unpacked")
+
+    if "downstream_exclude_unpacked" in df:
+        kept = pl.col("downstream_exclude_unpacked").not_().fill_null(True)
+        df = df.filter(kept).drop("downstream_exclude_unpacked")
+
+    logging.info(" - finalizing result schema...")
     try:
         df = {
             "coerce": lambda df: df.cast(
