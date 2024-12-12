@@ -241,9 +241,14 @@ def unpack_data_packed(
             )
 
         kept = pl.col("downstream_exclude_unpacked").not_().fill_null(True)
+        num_before = len(df)
         df = df.filter(kept).drop("downstream_exclude_unpacked")
-        logging.info(f" - {(~kept).sum()} rows dropped and {len(df)} kept!")
-
+        num_after = len(df)
+        num_dropped = num_before - num_after
+        logging.info(
+            f" - {num_dropped} dropped and {num_after} kept "
+            f"from {num_before} rows!",
+        )
     logging.info(" - finalizing result schema...")
     try:
         df = {

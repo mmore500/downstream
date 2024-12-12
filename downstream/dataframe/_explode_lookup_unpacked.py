@@ -304,8 +304,14 @@ def explode_lookup_unpacked(
     if "downstream_exclude_exploded" in df_long:
         logging.info(" - dropping excluded rows...")
         kept = pl.col("downstream_exclude_exploded").not_().fill_null(True)
+        num_before = len(df_long)
         df_long = df_long.filter(kept).drop("downstream_exclude_exploded")
-        logging.info(f" - {(~kept).sum()} rows dropped and {len(df)} kept!")
+        num_after = len(df_long)
+        num_dropped = num_before - num_after
+        logging.info(
+            f" - {num_dropped} dropped and {num_after} kept "
+            f"from {num_before} rows!",
+        )
 
     logging.info(" - finalizing result schema")
     try:
