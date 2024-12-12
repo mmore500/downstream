@@ -136,6 +136,10 @@ def explode_lookup_unpacked(
 
         - 'downstream_version' : pl.Categorical
             - Version of downstream library used to curate data items.
+        - 'downstream_exclude_exploded' : pl.Boolean
+            - Should row be dropped after exploding unpacked data?
+        - 'downstream_validate_exploded' : pl.String, polars expression
+            - Polars expression to validate exploded data.
 
         Additional user-defined columns will be forwarded to the output
         DataFrame.
@@ -217,8 +221,15 @@ def explode_lookup_unpacked(
                 pl.arange(num_records, dtype=pl.UInt64),
             ).alias("dstream_data_id"),
         )
-        .select(["dstream_data_id", "dstream_storage_hex", "dstream_T"])
-        .select(pl.all())
+        .select(
+            pl.selectors.matches(
+                "^dstream_data_id$"
+                "|^dstream_storage_hex$"
+                "|^dstream_T$"
+                "|^downstream_validate_exploded$"
+                "|^downstream_exclude_exploded$",
+            ),
+        )
         .sort("dstream_T")
     )
 
@@ -266,6 +277,30 @@ def explode_lookup_unpacked(
         .lazy()
         .collect()
     )
+
+    logging.info(" - validating and filtering...")
+    if "downstream_validate_exploded" in df_long:
+        validation_groups = df_long.with_columns(
+            pl.col("downstream_validate_exploded").set_sorted(),
+        ).group_by("downstream_validate_exploded")
+        for (validator,), group in validation_groups:
+            validation_expr = eval(validator or "pl.lit(True)")
+            validation_result = group.select(validation_expr).to_series()
+            if not validation_result.all():
+                err_msg = f"downstream_validate_exploded `{validator}` failed"
+                logging.error(err_msg)
+                logging.error(
+                    group.filter(~validation_result).glimpse(
+                        return_as_string=True
+                    )
+                )
+                raise ValueError(err_msg)
+
+        df_long = df_long.drop("downstream_validate_exploded")
+
+    if "downstream_exclude_exploded" in df_long:
+        kept = pl.col("downstream_exclude_exploded").not_().fill_null(True)
+        df_long = df_long.filter(kept).drop("downstream_exclude_exploded")
 
     logging.info(" - finalizing result schema")
     try:
