@@ -1,5 +1,6 @@
 import logging
 import typing
+import warnings
 
 import numpy as np
 import polars as pl
@@ -219,6 +220,22 @@ def unpack_data_packed(
         df = df.drop("downstream_validate_unpacked")
 
     if "downstream_exclude_unpacked" in df:
+        has_dropped_validations = (
+            "downstream_validate_exploded" in df
+            and df.select(
+                (pl.col("downstream_validate_exploded").str.len_bytes() > 0)
+                & pl.col("downstream_exclude_unpacked")
+            )
+            .to_series()
+            .any()
+        )
+        if has_dropped_validations:
+            warnings.warn(
+                "row(s) with both `downstream_validate_exploded` "
+                "and `downstream_exclude_unpacked` detected,"
+                "but these rows will be dropped before validation",
+            )
+
         kept = pl.col("downstream_exclude_unpacked").not_().fill_null(True)
         df = df.filter(kept).drop("downstream_exclude_unpacked")
 
