@@ -49,14 +49,6 @@ def jit(*args, **kwargs) -> typing.Callable:
         )
         return _ShimFtor
 
-    if sys.version_info < (3, 12):
-        warnings.warn(
-            "jit compilation disabled for Python < 3.12, "
-            "due to pickling compatibility issues as of numba 0.60",
-            RuntimeWarning,
-        )
-        return _ShimFtor
-
     else:  # pragma: no cover
         # exclude from coverage because jit compilation disabled in cov runs
         return nb.jit(*args, **kwargs)
