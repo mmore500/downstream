@@ -10,9 +10,9 @@ namespace downstream {
 namespace dstream {
 namespace tilted_algo {
 
-bool tilted_has_ingest_capacity(uint64_t S, uint64_t T) {
+const bool tilted_has_ingest_capacity(const uint64_t S, const uint64_t T) {
   assert(T >= 0);
-  bool surface_size_ok = std::has_single_bit(S) && S > 1;
+  const bool surface_size_ok = std::has_single_bit(S) && S > 1;
 
   if (!surface_size_ok) {
     return false;
@@ -22,7 +22,7 @@ bool tilted_has_ingest_capacity(uint64_t S, uint64_t T) {
     return true;
   }
 
-  uint64_t ingest_capacity = (uint64_t{1} << S) - 1;
+  const uint64_t ingest_capacity = (uint64_t{1} << S) - 1;
   return T < ingest_capacity;
 }
 
