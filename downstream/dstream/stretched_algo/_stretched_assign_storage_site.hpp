@@ -10,7 +10,7 @@ namespace downstream {
 namespace dstream {
 namespace stretched_algo {
 
-const std::optional<uint64_t> stretched_assign_storage_site(const uint64_t S, const uint64_t T) {
+const uint64_t _stretched_assign_storage_site(const uint64_t S, const uint64_t T) {
   const uint64_t s = std::bit_width(S) - 1;
   const uint64_t t = std::max(std::bit_width(T) - s, uint64_t{0}); // Current epoch
   const uint64_t h = std::countr_zero(T + 1); // Current hanoi value
@@ -23,7 +23,7 @@ const std::optional<uint64_t> stretched_assign_storage_site(const uint64_t S, co
   const uint64_t b =
       (S >> (tau + 1)) ? (S >> (tau + 1)) : 1; // Num bunches available to h.v.
   if (i >= b) {          // If seen more than sites reserved to hanoi value...
-    return std::nullopt; // ... discard without storing
+    return S; // ... discard without storing
   }
 
   const uint64_t b_l = i; // Logical bunch index...
@@ -48,6 +48,11 @@ const std::optional<uint64_t> stretched_assign_storage_site(const uint64_t S, co
 
   return k_b + h; // Calculate placement site...
                   // ... where h.v. h is offset within bunch
+}
+
+const std::optional<uint64_t> stretched_assign_storage_site(const uint64_t S, const uint64_t T) {
+  const uint64_t site = _stretched_assign_storage_site(S, T);
+  return site == S ? std::nullopt : std::optional<uint64_t>(site);
 }
 
 } // namespace stretched_algo

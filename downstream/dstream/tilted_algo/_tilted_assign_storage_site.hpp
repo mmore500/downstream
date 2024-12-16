@@ -16,7 +16,7 @@ inline const uint64_t modpow2(const uint64_t x, const uint64_t n) {
   return x & (n - 1);
 }
 
-const std::optional<uint64_t> tilted_assign_storage_site(const uint64_t S, const uint64_t T) {
+const uint64_t tilted_assign_storage_site(const uint64_t S, const uint64_t T) {
   const uint64_t s = std::bit_width(S) - 1;
   const uint64_t t = std::max(std::bit_width(T) - s, uint64_t{0}); // Current epoch
   const uint64_t h = std::countr_zero(T + 1); // Current hanoi value
