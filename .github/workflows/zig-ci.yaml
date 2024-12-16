@@ -1,0 +1,39 @@
+name: Zig  CI
+on:
+  push:
+    branches: [ zig ]
+    tags:
+      - '*'
+  pull_request:
+    branches:
+      - '**'
+  schedule:
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+jobs:
+
+  requirements:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.10"
+      - run: |
+          sudo apt-get update -y
+          python3 -m pip install setuptools pip uv --upgrade
+      - run: ./test/requirements.sh
+
+  test:
+    runs-on: ubuntu-latest
+    name: Build and Test
+    steps:
+      - uses: actions/checkout@v3
+      - uses: mlugg/setup-zig@v1
+        with:
+          version: 0.13.0
+      - run: ./test/test.sh
