@@ -15,7 +15,7 @@ def _big_to_little_endian(hex_str: str) -> str:
     )
 
 
-def _test_unpack_hex(hex_str: str, num_items: int, expected_output: list):
+def _test_unpack_hex(hex_str: str, num_items: int, expected_output: list) -> None:
     np.testing.assert_array_equal(
         unpack_hex(hex_str, num_items),
         np.array(expected_output, dtype=np.uint64),
