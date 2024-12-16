@@ -1,5 +1,5 @@
-#ifndef STEADY_HAS_INGEST_CAPACITY_H
-#define STEADY_HAS_INGEST_CAPACITY_H
+#ifndef DOWNSTREAM_DSTREAM_STEADY_ALGO_STEADY_HAS_INGEST_CAPACITY_HPP
+#define DOWNSTREAM_DSTREAM_STEADY_ALGO_STEADY_HAS_INGEST_CAPACITY_HPP
 
 #include "_steady_get_ingest_capacity.hpp"
 #include <cassert>
@@ -20,4 +20,4 @@ const bool steady_has_ingest_capacity(const uint64_t S, const uint64_t T) {
 } // namespace dstream
 } // namespace downstream
 
-#endif // STEADY_HAS_INGEST_CAPACITY_H
+#endif // DOWNSTREAM_DSTREAM_STEADY_ALGO_STEADY_HAS_INGEST_CAPACITY_HPP

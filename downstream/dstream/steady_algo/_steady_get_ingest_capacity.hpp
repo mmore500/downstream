@@ -1,5 +1,5 @@
-#ifndef STEADY_INGEST_CAPACITY_H
-#define STEADY_INGEST_CAPACITY_H
+#ifndef DOWNSTREAM_DSTREAM_STEADY_ALGO_STEADY_GET_INGEST_CAPACITY_HPP
+#define DOWNSTREAM_DSTREAM_STEADY_ALGO_STEADY_GET_INGEST_CAPACITY_HPP
 
 #include <bitset>
 #include <cstdint>
@@ -19,4 +19,4 @@ const std::optional<uint64_t> steady_get_ingest_capacity(const uint64_t S) {
 } // namespace dstream
 } // namespace downstream
 
-#endif // STEADY_INGEST_CAPACITY_H
+#endif // DOWNSTREAM_DSTREAM_STEADY_ALGO_STEADY_GET_INGEST_CAPACITY_HPP
