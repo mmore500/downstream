@@ -70,7 +70,24 @@ def _calculate_offsets(df: pl.DataFrame) -> pl.DataFrame:
     return df
 
 
-def _extract_from_data_hex(df: pl.DataFrame) -> pl.DataFrame:
+def _extract_from_data_hex(
+    df: pl.DataFrame, *, byteorder: typing.Literal["big", "little"] = "big"
+) -> pl.DataFrame:
+
+    dstream_T_expr = pl.col("data_hex").str.slice(
+        pl.col("dstream_T_hexoffset"),
+        length=pl.col("dstream_T_hexwidth"),
+    )
+    if byteorder == "little":
+        dstream_T_expr = (
+            dstream_T_expr.str.extract_all(r".{2}")
+            .list.reverse()
+            .list.join("")
+        )
+    dstream_T_expr = dstream_T_expr.str.to_integer(base=16)
+
+    if byteorder == "little":
+        dstream_T_expr = dstream_T_expr + 2
     return (
         df.lazy()
         .with_columns(
@@ -78,12 +95,7 @@ def _extract_from_data_hex(df: pl.DataFrame) -> pl.DataFrame:
                 pl.col("dstream_storage_hexoffset"),
                 length=pl.col("dstream_storage_hexwidth"),
             ),
-            dstream_T=pl.col("data_hex")
-            .str.slice(
-                pl.col("dstream_T_hexoffset"),
-                length=pl.col("dstream_T_hexwidth"),
-            )
-            .str.to_integer(base=16),
+            dstream_T=dstream_T_expr,
         )
         .drop(
             [
@@ -179,6 +191,7 @@ def unpack_data_packed(
     df: pl.DataFrame,
     *,
     result_schema: typing.Literal["coerce", "relax", "shrink"] = "coerce",
+    byteorder: typing.Literal["big", "little"] = "big",
 ) -> pl.DataFrame:
     """Unpack data with dstream buffer and counter serialized into a single
     hexadecimal data field.
@@ -224,6 +237,9 @@ def unpack_data_packed(
         - 'coerce' : cast all columns to output schema.
         - 'relax' : keep all columns as-is.
         - 'shrink' : cast columns to smallest possible types.
+
+    byteorder : {"big", "little"}, default "big"
+        The endianness of the data in the 'dstream_hex' column.
 
     Returns
     -------
@@ -278,7 +294,7 @@ def unpack_data_packed(
         df = df.with_row_index("dstream_data_id")
 
     logging.info(" - extracting T and storage_hex from data_hex...")
-    df = _extract_from_data_hex(df)
+    df = _extract_from_data_hex(df, byteorder=byteorder)
 
     if "downstream_validate_unpacked" in df:
         logging.info(" - evaluating `downstream_validate_unpacked` exprs...")
