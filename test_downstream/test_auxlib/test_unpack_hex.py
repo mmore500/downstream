@@ -54,7 +54,7 @@ def test_unpack_hex_short_hex_string():
 
 
 def test_unpack_hex_4bit_items():
-    _test_unpack_hex("F0F0", 4, [0xF, 0x0, 0xF, 0x0])
+    _test_unpack_hex("A1B2C3D4", 8, [0xA, 0x1, 0xB, 0x2, 0xC, 0x3, 0xD, 0x4])
 
 
 def test_unpack_hex_1bit_items():

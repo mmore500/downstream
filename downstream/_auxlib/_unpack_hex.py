@@ -44,11 +44,16 @@ def unpack_hex(
         # handle 4-bit values by processing ascii ordinals directly
         ascii_codes = np.fromstring(hex_str.lower(), dtype="S1", sep="").view(
             np.uint8,
-        ).byteswap()
+        )
 
         digits = ascii_codes - ord("0")
         alphas = ascii_codes - (ord("a") - 10)
-        return np.where(digits < 10, digits, alphas)
+        result = np.where(digits < 10, digits, alphas)
+
+        if byteorder == "little":
+            result[::2] = result[-2::-2]
+            result[1::2] = result[::-2]
+        return result
 
     # unpack hex string into numpy bytes array
     bytes_array = np.frombuffer(
@@ -58,6 +63,7 @@ def unpack_hex(
     )
     if byteorder == "little":
         bytes_array = bytes_array[::-1]
+
     if num_items == len(bytes_array):
         # for 1-byte values, we are done
         return bytes_array
