@@ -24,13 +24,8 @@ pub fn assign_storage_site(S: u64, T: u64) u64 {
 
     const blt = aux.bit_length(t); // Bit length of t
     const epsilon_tau: u64 = @intFromBool(aux.bit_floor(t << 1) > t + blt);
-
     // ^^^ Correction factor
     const tau = blt - epsilon_tau; // Current meta-epoch
-    const bx = @max(S >> @intCast(tau + 1), 1); // Num bunches available to h.v.
-    if (i >= bx) {
-        return S;
-    }
 
     const b_l = i; // Logical bunch index...
     // ... i.e., in order filled (increasing nestedness/decreasing init size r)
@@ -51,7 +46,7 @@ pub fn assign_storage_site(S: u64, T: u64) u64 {
     // ^^^ Correction factor for zeroth bunch...
     // ... i.e., bunch r=s at site k=0
     const k_b = ( // Site index of bunch
-        (b_p << 1) + @popCount((S << 1) - b_p) - 1 - epsilon_k_b);
+        (b_p << 1) + @popCount((S << 1) - b_p) -% 1 -% epsilon_k_b);
 
     const b = @max(S >> @intCast(tau + 1), 1); // Num bunches available to h.v.
     return if (i >= b) // If seen more than sites reserved to hanoi value...
