@@ -15,3 +15,8 @@ pub fn bit_floor(value: u64) u64 {
 pub fn floor_subtract(minuend: u64, subtrahend: u64) u64 {
     return minuend - @min(minuend, subtrahend);
 }
+
+pub fn overflow_shl(a: u64, b: u64) u64 {
+    const b6: u6 = @intCast(@min(b, 63));
+    return @shlWithOverflow(a, b6)[0];
+}
