@@ -138,6 +138,7 @@ def _unpack_hex_strings(
     df: pl.DataFrame,
     df_long: pl.DataFrame,
     num_items: int,
+    *,
     value_dtype: pl.DataType,
     byteorder: typing.Literal["big", "little"],
 ) -> pl.DataFrame:

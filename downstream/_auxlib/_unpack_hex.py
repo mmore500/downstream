@@ -7,6 +7,7 @@ import numpy as np
 def unpack_hex(
     hex_str: str,
     num_items: int,
+    *,
     byteorder: typing.Literal["big", "little"] = "big",
 ) -> np.ndarray:
     """Unpacks a hexadecimal string into an array of 64-bit unsigned integers.
