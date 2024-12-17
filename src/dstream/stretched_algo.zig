@@ -2,13 +2,12 @@ const std = @import("std");
 
 const aux = @import("../_auxlib.zig");
 
-pub fn has_ingest_capacity(comptime u: type, S: u, T: u) bool {
-    aux.assert_unsigned(u);
+pub fn has_ingest_capacity(S: u32, T: u32) bool {
     const surface_size_ok = S > 1 and (@popCount(S) == 1);
     if (!surface_size_ok) {
         return false;
     }
-    if (S >= @bitSizeOf(u)) {
+    if (S >= @bitSizeOf(u32)) {
         return true;
     }
 
@@ -17,17 +16,16 @@ pub fn has_ingest_capacity(comptime u: type, S: u, T: u) bool {
     return T < ingest_capacity;
 }
 
-pub fn assign_storage_site(comptime u: type, S: u, T: u) u {
-    aux.assert_unsigned(u);
-    std.debug.assert(has_ingest_capacity(u, S, T));
+pub fn assign_storage_site(S: u32, T: u32) u32 {
+    std.debug.assert(has_ingest_capacity(S, T));
 
-    const s = aux.bit_length(u, S) - 1;
-    const t = aux.floor_subtract(u, aux.bit_length(u, T), s); // Current epoch
+    const s = aux.bit_length(S) - 1;
+    const t = aux.floor_subtract(aux.bit_length(T), s); // Current epoch
     const h = @ctz(T + 1); // Current hanoi value
     const i = T >> @intCast(h + 1); // Hanoi value incidence (i.e., num seen)
 
-    const blt = aux.bit_length(u, t); // Bit length of t
-    const epsilon_tau: u = @intFromBool(aux.bit_floor(u, t << 1) > t + blt);
+    const blt = aux.bit_length(t); // Bit length of t
+    const epsilon_tau: u32 = @intFromBool(aux.bit_floor(t << 1) > t + blt);
     // ^^^ Correction factor
     const tau = blt - epsilon_tau; // Current meta-epoch
 
@@ -36,11 +34,11 @@ pub fn assign_storage_site(comptime u: type, S: u, T: u) u {
 
     // Need to calculate physical bunch index...
     // ... i.e., position among bunches left-to-right in buffer space
-    const v = aux.bit_length(u, b_l); // Nestedness depth level of physical bunch
+    const v = aux.bit_length(b_l); // Nestedness depth level of physical bunch
     const w = (S >> @intCast(v)) * @intFromBool(v > 0);
     // ^^^ Num bunches spaced between bunches in nest level
     const o = w >> 1; // Offset of nestedness level in physical bunch order
-    const p = b_l - aux.bit_floor(u, b_l);
+    const p = b_l - aux.bit_floor(b_l);
     // ^^^ Bunch position within nestedness level
     const b_p = o + w * p; // Physical bunch index...
     // ... i.e., in left-to-right sequential bunch order

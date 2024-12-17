@@ -2,28 +2,27 @@ const std = @import("std");
 
 const aux = @import("../_auxlib.zig");
 
-pub fn has_ingest_capacity(comptime u: type, S: u, T: u) bool {
-    aux.assert_unsigned(u);
+pub fn has_ingest_capacity(S: u32, T: u32) bool {
     _ = T;
     return (@popCount(S) == 1) and S > 1;
 }
 
-pub fn assign_storage_site(comptime u: type, S: u, T: u) u {
-    aux.assert_unsigned(u);
-    std.debug.assert(has_ingest_capacity(u, S, T));
-    const s = aux.bit_length(u, S) - 1;
-    const blt = aux.bit_length(u, T);
-    const t = aux.floor_subtract(u, blt, s); // Current epoch
+pub fn assign_storage_site(S: u32, T: u32) u32 {
+    std.debug.assert(has_ingest_capacity(S, T));
+
+    const s = aux.bit_length(S) - 1;
+    const blt = aux.bit_length(T);
+    const t = aux.floor_subtract(blt, s); // Current epoch
     const h = @ctz(T + 1); // Current hanoi value
 
     // Hanoi value incidence (i.e., num seen)
     const i = T >> @intCast(h + 1);
 
     // Num full-bunch segments
-    const j = aux.bit_floor(u, i) -% 1;
-    const B = aux.bit_length(u, j); // Num full bunches
+    const j = aux.bit_floor(i) -% 1;
+    const B = aux.bit_length(j); // Num full bunches
     // Bunch position
-    var k_b = aux.overflow_shl(u, 1, B) *% (s + 1 -% B);
+    var k_b = aux.overflow_shl(1, B) *% (s + 1 -% B);
     // substituting t = s - blt into h + 1 - t
     var w = h + s + 1 -% blt; // Segment width
     var o = w *% (i -% (j +% 1)); // Within-bunch offset

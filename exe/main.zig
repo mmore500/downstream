@@ -6,8 +6,8 @@ var bw = std.io.bufferedWriter(std.io.getStdOut().writer());
 const stdout = bw.writer();
 
 fn dispatch_steady_algo_assign_storage_site(S: u32, T: u32) !void {
-    if (dstream.steady_algo.has_ingest_capacity(u32, S, T)) {
-        const result = dstream.steady_algo.assign_storage_site(u32, S, T);
+    if (dstream.steady_algo.has_ingest_capacity(S, T)) {
+        const result = dstream.steady_algo.assign_storage_site(S, T);
         if (result == S) {
             try stdout.print("None\n", .{});
         } else {
@@ -19,8 +19,8 @@ fn dispatch_steady_algo_assign_storage_site(S: u32, T: u32) !void {
 }
 
 fn dispatch_stretched_algo_assign_storage_site(S: u32, T: u32) !void {
-    if (dstream.stretched_algo.has_ingest_capacity(u32, S, T)) {
-        const result = dstream.stretched_algo.assign_storage_site(u32, S, T);
+    if (dstream.stretched_algo.has_ingest_capacity(S, T)) {
+        const result = dstream.stretched_algo.assign_storage_site(S, T);
         if (result == S) {
             try stdout.print("None\n", .{});
         } else {
@@ -32,8 +32,8 @@ fn dispatch_stretched_algo_assign_storage_site(S: u32, T: u32) !void {
 }
 
 fn dispatch_tilted_algo_assign_storage_site(S: u32, T: u32) !void {
-    if (dstream.tilted_algo.has_ingest_capacity(u32, S, T)) {
-        const result = dstream.tilted_algo.assign_storage_site(u32, S, T);
+    if (dstream.tilted_algo.has_ingest_capacity(S, T)) {
+        const result = dstream.tilted_algo.assign_storage_site(S, T);
         if (result == S) {
             try stdout.print("None\n", .{});
         } else {
