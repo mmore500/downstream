@@ -10,7 +10,7 @@ pub fn has_ingest_capacity(S: u64, T: u64) bool {
 pub fn assign_storage_site(S: u64, T: u64) u64 {
     const s = aux.bit_length(S) - 1;
     const blt = aux.bit_length(T);
-    const t = aux.floor_subtract(blt, s); // Current epoch (or negative)
+    const t = aux.floor_subtract(blt, s); // Current epoch
     const h = @ctz(T + 1); // Current hanoi value
 
     // Hanoi value incidence (i.e., num seen)
@@ -20,8 +20,9 @@ pub fn assign_storage_site(S: u64, T: u64) u64 {
     const j = aux.floor_subtract(aux.bit_floor(i), 1);
     const B = aux.bit_length(j); // Num full bunches
     const one: u64 = 1;
-    var k_b = (one << @intCast(B)) * aux.floor_subtract(s + 1, B); // Bunch position
-    var w = aux.floor_subtract(h + 1, t); // Segment width
+    // Bunch position
+    var k_b = (one << @intCast(B)) * aux.floor_subtract(s + 1, B);
+    var w = aux.floor_subtract(h + s + 1, blt); // Segment width
     var o = w * aux.floor_subtract(i, j + 1); // Within-bunch offset
 
     const is_zeroth_bunch = i == 0;
