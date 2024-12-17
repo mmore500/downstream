@@ -1,7 +1,7 @@
-name: Zig  CI
+name: CSL CI
 on:
   push:
-    branches: [ zig ]
+    branches: [ csl ]
     tags:
       - '*'
   pull_request:
