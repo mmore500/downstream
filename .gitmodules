@@ -2,3 +2,7 @@
 	path = python
 	url = https://github.com/mmore500/downstream
 	branch = python
+[submodule "zig"]
+	path = zig
+	url = https://github.com/mmore500/downstream
+	branch = zig
