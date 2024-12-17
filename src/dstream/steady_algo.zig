@@ -41,5 +41,5 @@ pub fn assign_storage_site(S: u64, T: u64) u64 {
     }
 
     const p = h % w; // Within-segment offset
-    return (k_b + o) + p;
+    return k_b + o + p;
 }
