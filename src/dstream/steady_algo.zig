@@ -4,6 +4,7 @@ const aux = @import("../_auxlib.zig");
 
 pub fn has_ingest_capacity(comptime u: type, S: u, T: u) bool {
     aux.assert_unsigned(u);
+
     _ = T;
     return (@popCount(S) == 1) and S > 1;
 }
@@ -11,6 +12,7 @@ pub fn has_ingest_capacity(comptime u: type, S: u, T: u) bool {
 pub fn assign_storage_site(comptime u: type, S: u, T: u) u {
     aux.assert_unsigned(u);
     std.debug.assert(has_ingest_capacity(u, S, T));
+
     const s = aux.bit_length(u, S) - 1;
     const blt = aux.bit_length(u, T);
     const t = aux.floor_subtract(u, blt, s); // Current epoch

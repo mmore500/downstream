@@ -4,6 +4,7 @@ const aux = @import("../_auxlib.zig");
 
 pub fn has_ingest_capacity(comptime u: type, S: u, T: u) bool {
     aux.assert_unsigned(u);
+
     const surface_size_ok = S > 1 and (@popCount(S) == 1);
     if (!surface_size_ok) {
         return false;
@@ -12,7 +13,7 @@ pub fn has_ingest_capacity(comptime u: type, S: u, T: u) bool {
         return true;
     }
 
-    const one: u64 = 1;
+    const one: u = 1;
     const ingest_capacity = (one << @intCast(S)) - 1;
     return T < ingest_capacity;
 }
