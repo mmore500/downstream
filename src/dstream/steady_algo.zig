@@ -10,36 +10,27 @@ pub fn has_ingest_capacity(S: u64, T: u64) bool {
 pub fn assign_storage_site(S: u64, T: u64) u64 {
     const s = aux.bit_length(S) - 1;
     const blt = aux.bit_length(T);
-    const t = blt - @min(s, blt); // Current epoch (or negative)
+    const t = aux.floor_subtract(blt, s); // Current epoch (or negative)
     const h = @ctz(T + 1); // Current hanoi value
-
-    // If not a top n(T) hanoi value, discard without storing
-    if (h < t) { return S; }
 
     // Hanoi value incidence (i.e., num seen)
     const i = T >> @intCast(h + 1);
 
-    var k_b: u64 = 0;
-    var o: u64 = 0;
-    var w: u64 = 0;
+    // Num full-bunch segments
+    const j = aux.floor_subtract(aux.bit_floor(i), 1);
+    const B = aux.bit_length(j); // Num full bunches
+    const one: u64 = 1;
+    var k_b = (one << @intCast(B)) * aux.floor_subtract(s + 1, B); // Bunch position
+    var w = aux.floor_subtract(h + 1, t); // Segment width
+    var o = w * aux.floor_subtract(i, j + 1); // Within-bunch offset
 
-    if (i == 0) {
-        // Special case the 0th bunch
-        k_b = 0; // Bunch position
-        o = 0; // Within-bunch offset
-        w = s + 1; // Segment width
-    } else {
-        const j = aux.bit_floor(i) - 1; // Num full-bunch segments
-        const B = aux.bit_length(j); // Num full bunches
+    const is_zeroth_bunch = i == 0;
+    k_b = if (!is_zeroth_bunch) k_b else 0;
+    o = if (!is_zeroth_bunch) o else 0;
+    w = if (!is_zeroth_bunch) w else s + 1;
 
-        // Bunch position:
-        k_b = ((@as(u64, 1) << @intCast(B)) * (s - B + 1));
+    const p = h % @max(w, 1); // Within-segment offset, avoiding divide by zero
 
-        if (h + 1 <= t) { return S; } // if w <= 0
-        w = h - t + 1; // Segment width
-        o = w * (i - j - 1); // Within-bunch offset
-    }
-
-    const p = h % w; // Within-segment offset
-    return k_b + o + p;
+    // handle discard without storing for non-top n(T) hanoi value...
+    return if (h >= t) k_b + o + p else S;
 }

@@ -5,5 +5,13 @@ pub fn bit_length(value: u64) u64 {
 
 // Helper: Bit floor (equivalent to std::bit_floor in C++)
 pub fn bit_floor(value: u64) u64 {
-    return @as(u64, 1) << @intCast(value - 1);
+    if (0 < value) {
+        return @as(u64, 1) << @intCast(bit_length(value) - 1);
+    } else {
+        return 0;
+    }
+}
+
+pub fn floor_subtract(minuend: u64, subtrahend: u64) u64 {
+    return minuend - @min(minuend, subtrahend);
 }
