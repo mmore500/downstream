@@ -23,7 +23,7 @@ def unpack_hex(
     num_items : int
         Number of items to unpack from the hexadecimal data.
     byteorder : {"big", "little"}, default "big"
-        The endianness of the hex string being passed in.
+        The endianness of the hex data.
 
     Returns
     -------
