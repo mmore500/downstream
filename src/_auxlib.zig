@@ -19,6 +19,11 @@ pub fn floor_subtract(minuend: u64, subtrahend: u64) u64 {
     return minuend - @min(minuend, subtrahend);
 }
 
+pub fn modpow2(dividend: u64, divisor: u64) u64 {
+    std.debug.assert(@popCount(divisor) == 1);
+    return dividend & (divisor - 1);
+}
+
 pub fn overflow_shl(a: u64, b: u64) u64 {
     return if (b < 64) a << @intCast(b) else 0;
 }
@@ -49,6 +54,17 @@ test "floor_subtract" {
     try testing.expect(floor_subtract(100, 100) == 0);
     try testing.expect(floor_subtract(100, 101) == 0);
     try testing.expect(floor_subtract(100, 99) == 1); // 100 - 99 = 1
+}
+
+test "modpow2" {
+    try testing.expect(modpow2(0, 1) == 0); // 0 % 1 = 0
+    try testing.expect(modpow2(1, 1) == 0); // 1 % 1 = 0
+    try testing.expect(modpow2(2, 1) == 0); // 2 % 1 = 0
+    try testing.expect(modpow2(0, 2) == 0); // 0 % 2 = 0
+    try testing.expect(modpow2(1, 2) == 1); // 1 % 2 = 1
+    try testing.expect(modpow2(2, 2) == 0); // 2 % 2 = 0
+    try testing.expect(modpow2(3, 2) == 1); // 3 % 2 = 1
+    try testing.expect(modpow2(42, 0x8000_0000_0000_0000) == 42);
 }
 
 test "overflow_shl" {
