@@ -28,10 +28,10 @@ pub fn assign_storage_site(comptime u: type, S: u, T: u) u {
     const i = T >> @intCast(h + 1); // Hanoi value incidence (i.e., num seen)
 
     const blt = aux.bit_length(u, t); // Bit length of t
-    const epsilon_tau: u64 = @intFromBool(aux.bit_floor(u, t << 1) > t + blt);
+    const epsilon_tau: u = @intFromBool(aux.bit_floor(u, t << 1) > t + blt);
     // ^^^ Correction factor
     const tau = blt - epsilon_tau; // Current meta-epoch
-    const one: u64 = 1;
+    const one: u = 1;
     const t_0 = (one << @intCast(tau)) - tau; // Opening epoch of meta-epoch
     const t_1 = (one << @intCast(tau + 1)) - (tau + 1);
     // ^^^ Opening epoch of next meta-epoch
