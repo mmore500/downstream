@@ -8,8 +8,11 @@ const stdout = bw.writer();
 fn dispatch_steady_algo_assign_storage_site(S: u64, T: u64) !void {
     if (dstream.steady_algo.has_ingest_capacity(S, T)) {
         const result = dstream.steady_algo.assign_storage_site(S, T);
-        if (result == S) { try stdout.print("None\n", .{}); }
-        else { try stdout.print("{}\n", .{result}); }
+        if (result == S) {
+            try stdout.print("None\n", .{});
+        } else {
+            try stdout.print("{}\n", .{result});
+        }
     } else {
         try stdout.print("\n", .{});
     }
@@ -18,8 +21,11 @@ fn dispatch_steady_algo_assign_storage_site(S: u64, T: u64) !void {
 fn dispatch_stretched_algo_assign_storage_site(S: u64, T: u64) !void {
     if (dstream.stretched_algo.has_ingest_capacity(S, T)) {
         const result = dstream.stretched_algo.assign_storage_site(S, T);
-        if (result == S) { try stdout.print("None\n", .{}); }
-        else { try stdout.print("{}\n", .{result}); }
+        if (result == S) {
+            try stdout.print("None\n", .{});
+        } else {
+            try stdout.print("{}\n", .{result});
+        }
     } else {
         try stdout.print("\n", .{});
     }
@@ -28,8 +34,11 @@ fn dispatch_stretched_algo_assign_storage_site(S: u64, T: u64) !void {
 fn dispatch_tilted_algo_assign_storage_site(S: u64, T: u64) !void {
     if (dstream.tilted_algo.has_ingest_capacity(S, T)) {
         const result = dstream.tilted_algo.assign_storage_site(S, T);
-        if (result == S) { try stdout.print("None\n", .{}); }
-        else { try stdout.print("{}\n", .{result}); }
+        if (result == S) {
+            try stdout.print("None\n", .{});
+        } else {
+            try stdout.print("{}\n", .{result});
+        }
     } else {
         try stdout.print("\n", .{});
     }
@@ -43,9 +52,9 @@ fn dispatch(algo_name: []const u8, values: []const u64) !void {
     if (std.mem.eql(u8, algo_name, steady_assign)) {
         try dispatch_steady_algo_assign_storage_site(values[0], values[1]);
     } else if (std.mem.eql(u8, algo_name, stretched_assign)) {
-    _ = dstream.stretched_algo.assign_storage_site(values[0], values[1]);
+        try dispatch_stretched_algo_assign_storage_site(values[0], values[1]);
     } else if (std.mem.eql(u8, algo_name, tilted_assign)) {
-    _ = dstream.tilted_algo.assign_storage_site(values[0], values[1]);
+        try dispatch_tilted_algo_assign_storage_site(values[0], values[1]);
     } else {
         std.debug.panic("unknown algorithm/operation: {s}\n", .{algo_name});
     }
