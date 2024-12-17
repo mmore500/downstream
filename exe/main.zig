@@ -5,9 +5,9 @@ const dstream = @import("downstream").dstream;
 var bw = std.io.bufferedWriter(std.io.getStdOut().writer());
 const stdout = bw.writer();
 
-fn dispatch_steady_algo_assign_storage_site(S: u64, T: u64) !void {
-    if (dstream.steady_algo.has_ingest_capacity(S, T)) {
-        const result = dstream.steady_algo.assign_storage_site(S, T);
+fn dispatch_steady_algo_assign_storage_site(S: u32, T: u32) !void {
+    if (dstream.steady_algo.has_ingest_capacity(u32, S, T)) {
+        const result = dstream.steady_algo.assign_storage_site(u32, S, T);
         if (result == S) {
             try stdout.print("None\n", .{});
         } else {
@@ -18,9 +18,9 @@ fn dispatch_steady_algo_assign_storage_site(S: u64, T: u64) !void {
     }
 }
 
-fn dispatch_stretched_algo_assign_storage_site(S: u64, T: u64) !void {
-    if (dstream.stretched_algo.has_ingest_capacity(S, T)) {
-        const result = dstream.stretched_algo.assign_storage_site(S, T);
+fn dispatch_stretched_algo_assign_storage_site(S: u32, T: u32) !void {
+    if (dstream.stretched_algo.has_ingest_capacity(u32, S, T)) {
+        const result = dstream.stretched_algo.assign_storage_site(u32, S, T);
         if (result == S) {
             try stdout.print("None\n", .{});
         } else {
@@ -31,9 +31,9 @@ fn dispatch_stretched_algo_assign_storage_site(S: u64, T: u64) !void {
     }
 }
 
-fn dispatch_tilted_algo_assign_storage_site(S: u64, T: u64) !void {
-    if (dstream.tilted_algo.has_ingest_capacity(S, T)) {
-        const result = dstream.tilted_algo.assign_storage_site(S, T);
+fn dispatch_tilted_algo_assign_storage_site(S: u32, T: u32) !void {
+    if (dstream.tilted_algo.has_ingest_capacity(u32, S, T)) {
+        const result = dstream.tilted_algo.assign_storage_site(u32, S, T);
         if (result == S) {
             try stdout.print("None\n", .{});
         } else {
@@ -44,7 +44,7 @@ fn dispatch_tilted_algo_assign_storage_site(S: u64, T: u64) !void {
     }
 }
 
-fn dispatch(algo_name: []const u8, values: []const u64) !void {
+fn dispatch(algo_name: []const u8, values: []const u32) !void {
     const steady_assign = "steady_algo.assign_storage_site";
     const stretched_assign = "stretched_algo.assign_storage_site";
     const tilted_assign = "tilted_algo.assign_storage_site";
@@ -69,10 +69,10 @@ pub fn main() !void {
     while (try reader.readUntilDelimiterOrEofAlloc(alloc, '\n', 4096)) |line| {
         var words = std.mem.split(u8, line, " ");
 
-        var values = std.ArrayList(u64).init(std.heap.page_allocator);
+        var values = std.ArrayList(u32).init(std.heap.page_allocator);
         defer values.deinit();
         while (words.next()) |word| {
-            const value = try std.fmt.parseInt(u64, word, 10);
+            const value = try std.fmt.parseInt(u32, word, 10);
             try values.append(value);
         }
         try dispatch(args[1], values.items);
