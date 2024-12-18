@@ -1,5 +1,6 @@
 const nRow = 1;
 const nCol = 1;
+const chunkSize = 2048;
 
 const LAUNCH: color = @get_color(9);
 
@@ -19,14 +20,16 @@ layout {
         x, y,
         "kernel.csl",
         .{
-          .peId = peId,
           .memcpy_params = memcpy.get_params(x),
+          .chunkSize = chunkSize,
+          .peId = peId,
         }
       );
       peId += 1;
     }
   }
 
-  @export_name("genome", [*]u32, true);
+  @export_name("cases", [*]u32, true);
+  @export_name("results", [*]u32, true);
   @export_name("dolaunch", fn()void);
 }

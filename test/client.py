@@ -1,9 +1,10 @@
 import argparse
-import itertools as it
 import sys
 import typing
 
+import more_itertools as mit
 import numpy as np
+from tqdm import tqdm
 
 from cerebras.sdk.sdk_utils import memcpy_view
 from cerebras.sdk.runtime.sdkruntimepybind import (
@@ -117,8 +118,14 @@ def steady_assign_storage_site(S: int, T: int) -> typing.Optional[int]:
 parser = argparse.ArgumentParser()
 parser.add_argument("--name", help="the test compile output dir")
 parser.add_argument("--cmaddr", help="IP:port for CS system")
-parser.add_argument("--algo", help="the algorithm to test")
-parser.add_argument("--out", help="the output file")
+parser.add_argument(
+    "--algo",
+    help="the algorithm to test",
+    default="steady_algo.assign_storage_site",
+)
+parser.add_argument(
+    "--out", help="the output file", default="/tmp/downstream-client.out"
+)
 args = parser.parse_args()
 
 test_cases = np.array(
@@ -139,39 +146,62 @@ with open(args.out, "w") as f:
             print(file=f)
 
 nCases = test_cases.shape[0]
-nRow, nCol, nWav = 1, 1, 3  # number of rows, columns, and genome words
+nRow, nCol = 1, 1  # number of rows, columns, and genome words
 wavSize = 32  # number of bits in a wavelet
-chunkSize = 1024  # number of test cases to run in a single batch
+chunkSize = 2048  # number of test cases to run in a single batch
 
 runner = SdkRuntime("out", cmaddr=args.cmaddr, suppress_simfab_trace=True)
 
 runner.load()
 runner.run()
-for chunk in it.pairwise({*range(0, nCases, chunkSize), nCases}):
-    pass
 
-runner.launch("dolaunch", nonblock=False)
+results = []
+for bounds in tqdm([*mit.pairwise({*range(0, nCases, chunkSize), nCases})]):
+    cases_chunk = test_cases[slice(*bounds), :]
+    cases_chunk = np.pad(
+        cases_chunk,
+        ((0, chunkSize), (0, 0)),
+        mode='constant',
+        constant_values=0,
+    )
+    results_chunk = np.zeros(chunkSize, dtype=np.uint32)
 
-memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
-out_tensors_u32 = np.zeros((nCol, nRow, nWav), np.uint32)
+    runner.memcpy_h2d(
+        runner.get_id("cases"),
+        cases_chunk.ravel(),
+        0,  # x0
+        0,  # y0
+        nCol,  # width
+        nRow,  # height
+        chunkSize * 2,  # num wavelets
+        streaming=False,
+        data_type=MemcpyDataType.MEMCPY_32BIT,
+        order=MemcpyOrder.ROW_MAJOR,
+        nonblock=False,
+    )
 
-runner.memcpy_d2h(
-    out_tensors_u32,
-    runner.get_id("genome"),
-    0,  # x0
-    0,  # y0
-    nCol,  # width
-    nRow,  # height
-    nWav,  # num wavelets
-    streaming=False,
-    data_type=memcpy_dtype,
-    order=MemcpyOrder.ROW_MAJOR,
-    nonblock=False,
-)
-data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
-assert len(data) == nWav
+    runner.launch("dolaunch", nonblock=False)
+
+    runner.memcpy_d2h(
+        results_chunk,
+        runner.get_id("results"),
+        0,  # x0
+        0,  # y0
+        nCol,  # width
+        nRow,  # height
+        chunkSize,  # num wavelets
+        streaming=False,
+        data_type=MemcpyDataType.MEMCPY_32BIT,
+        order=MemcpyOrder.ROW_MAJOR,
+        nonblock=False,
+    )
+    data = memcpy_view(results_chunk, np.dtype(np.uint32))
+    assert len(data) == chunkSize
+    results.append(results_chunk)
 
 runner.stop()
 
-# Ensure that the result matches our expectation
-print("SUCCESS!")
+results = np.concatenate(results)
+print(f"{results=}")
+
+print("test/client.py complete")
