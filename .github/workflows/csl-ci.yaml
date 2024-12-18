@@ -99,14 +99,14 @@ jobs:
           which cs_python
           which cs_readelf
           which sdk_debug_shell
-      - run: cslc -h >/dev/null 2>&1
-      - run: csdb --help  >/dev/null 2>&1
-      - run: cs_python -h  >/dev/null 2>&1
-      - run: cs_readelf -h
-      - run: sdk_debug_shell --help
+      - run: sudo "$(which cslc)" -h >/dev/null 2>&1
+      - run: sudo "$(which csdb)" --help  >/dev/null 2>&1
+      - run: sudo "$(which cs_python)" -h  >/dev/null 2>&1
+      - run: sudo "$(which cs_readelf)" -h
+      - run: sudo "$(which sdk_debug_shell)" --help
       - run: echo "SINGULARITYENV_CSL_SUPPRESS_SIMFAB_TRACE ${SINGULARITYENV_CSL_SUPPRESS_SIMFAB_TRACE}"
 
       - name: Test memcpy
         run: |
-          ./kernel-test-memcpy/compile.sh >/dev/null 2>&1
-          ./kernel-test-memcpy/execute.sh >/dev/null 2>&1
+          sudo ./kernel-test-memcpy/compile.sh >/dev/null 2>&1
+          sudo ./kernel-test-memcpy/execute.sh >/dev/null 2>&1
