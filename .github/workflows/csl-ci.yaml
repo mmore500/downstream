@@ -65,7 +65,7 @@ jobs:
         run: sh <(curl -L https://nixos.org/nix/install) --daemon
 
       - name: Set up Apptainer
-        run: echo "nix-env -iA nixpkgs.apptainer" | bash
+        run: echo "nix-env -iA nixpkgs.apptainer" | sh
 
       - name: Test Apptainer
         run: apptainer --version
