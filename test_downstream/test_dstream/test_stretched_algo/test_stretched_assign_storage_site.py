@@ -62,3 +62,8 @@ def test_stretched_site_selection_epoch0(S: int):
     actual = {site_selection(S, T) for T in range(S)}
     expected = set(range(S))
     assert actual == expected
+
+
+def test_stretched_site_selection_exceeds_capacity():
+    with pytest.raises(ValueError):
+        algo.assign_storage_site(7, 7)

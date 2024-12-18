@@ -2,6 +2,7 @@ import typing
 
 from ..._auxlib._bit_floor import bit_floor
 from ..._auxlib._ctz import ctz
+from ._stretched_has_ingest_capacity import stretched_has_ingest_capacity
 
 
 def stretched_assign_storage_site(S: int, T: int) -> typing.Optional[int]:
@@ -18,7 +19,17 @@ def stretched_assign_storage_site(S: int, T: int) -> typing.Optional[int]:
     -------
     typing.Optional[int]
         Selected site, if any.
+
+    Raises
+    ------
+    ValueError
+        If insufficient ingest capacity is available.
+
+        See `stretched_algo.has_ingest_capacity` for details.
     """
+    if not stretched_has_ingest_capacity(S, T):
+        raise ValueError(f"Insufficient ingest capacity for {S=}, {T=}")
+
     s = S.bit_length() - 1
     t = max((T).bit_length() - s, 0)  # Current epoch
     h = ctz(T + 1)  # Current hanoi value
