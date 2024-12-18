@@ -28,9 +28,9 @@ jobs:
           python3 -m pip install setuptools pip uv --upgrade
       - run: ./test/requirements.sh
 
-  test:
+  test-zig:
     runs-on: ubuntu-latest
-    name: Build and Test
+    name: Build and Test Zig
     steps:
       - uses: actions/checkout@v3
       - uses: mlugg/setup-zig@v1
@@ -38,3 +38,59 @@ jobs:
           version: 0.13.0
       - run: zig build test
       - run: ./test/test.sh
+
+  test:
+    name: Build and test
+    runs-on: ubuntu-latest
+    env:
+      CSLC: cslc
+      CS_PYTHON: cs_python
+      SINGULARITYENV_CSL_SUPPRESS_SIMFAB_TRACE: 1
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade uv
+          uv pip install -r requirements.txt --system
+
+      - name: Set up Apptainer
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rpm2cpio
+          sudo apt-get install -y golang-go
+          mkdir -p ~/apptainer
+          # echo 'export PATH="$HOME/apptainer/bin:$PATH"' >> ~/.bashrc
+          echo "$HOME/apptainer/bin" >> $GITHUB_PATH
+          curl -s https://raw.githubusercontent.com/apptainer/apptainer/03bb84afc90c9699816db2e2730b56f2d3501eff/tools/install-unprivileged.sh | bash -s - ~/apptainer
+
+      - name: Test Apptainer
+        run: |
+          apptainer --version
+
+      - name: Set up SDK
+        run: |
+          mkdir -p ~/cerebras/bin
+          curl -L "${CEREBRAS_SDK_URL}" | tar -xzv -C ~/cerebras/bin
+          echo "$HOME/cerebras/bin" >> $GITHUB_PATH
+        env:
+          CEREBRAS_SDK_URL: ${{ secrets.CEREBRAS_SDK_URL }}
+
+      - run: cslc -h >/dev/null 2>&1
+      - run: csdb --help  >/dev/null 2>&1
+      - run: cs_python -h  >/dev/null 2>&1
+      - run: cs_readelf -h
+      - run: sdk_debug_shell --help
+      - run: echo "SINGULARITYENV_CSL_SUPPRESS_SIMFAB_TRACE ${SINGULARITYENV_CSL_SUPPRESS_SIMFAB_TRACE}"
+
+      - name: Test memcpy
+        run: |
+          ./kernel-test-memcpy/compile.sh >/dev/null 2>&1
+          ./kernel-test-memcpy/execute.sh >/dev/null 2>&1
