@@ -28,17 +28,6 @@ jobs:
           python3 -m pip install setuptools pip uv --upgrade
       - run: ./test/requirements.sh
 
-  test-zig:
-    runs-on: ubuntu-latest
-    name: Build and Test Zig
-    steps:
-      - uses: actions/checkout@v3
-      - uses: mlugg/setup-zig@v1
-        with:
-          version: 0.13.0
-      - run: zig build test
-      - run: ./test-zig/test.sh
-
   test:
     name: Build and test
     runs-on: ubuntu-latest
