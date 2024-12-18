@@ -59,7 +59,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install --upgrade uv
-          uv pip install -r requirements.txt --system
+          uv pip install -r test/requirements.txt --system
 
       - name: Set up Apptainer
         run: |
