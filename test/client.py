@@ -99,7 +99,7 @@ runner.stop()
 
 results = np.concatenate(results)
 
-with open(args.out, "w") as out:
+with open(args.out, "a") as out:
     for (S, T), result in zip(test_cases, results):
         if result == S + 1:
             print("", file=out)
