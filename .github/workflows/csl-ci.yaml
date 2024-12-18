@@ -81,7 +81,9 @@ jobs:
         run: echo "nix-env -iA nixpkgs.apptainer" | sh
 
       - name: Test Apptainer
-        run: apptainer --version
+        run: |
+          apptainer --version
+          apptainer exec docker://busybox:latest echo "Hello from Singularity and Docker!"
 
       - name: Set up SDK
         run: |
