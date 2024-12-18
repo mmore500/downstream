@@ -135,7 +135,12 @@ def _prep_and_sort_data(
 
 
 def _unpack_hex_strings(
-    df: pl.DataFrame, df_long: pl.DataFrame, num_items: int, value_dtype: int
+    df: pl.DataFrame,
+    df_long: pl.DataFrame,
+    num_items: int,
+    *,
+    value_dtype: pl.DataType,
+    byteorder: typing.Literal["big", "little"],
 ) -> pl.DataFrame:
     concat_hex = (
         df.lazy()
@@ -146,7 +151,7 @@ def _unpack_hex_strings(
 
     df_long = df_long.with_columns(
         dstream_value=pl.Series(
-            unpack_hex(concat_hex, num_items), dtype=value_dtype
+            unpack_hex(concat_hex, num_items, byteorder=byteorder), dtype=value_dtype
         ),
     )
     return df_long
@@ -236,6 +241,7 @@ def explode_lookup_unpacked(
     *,
     value_type: typing.Literal["hex", "uint64", "uint32", "uint16", "uint8"],
     result_schema: typing.Literal["coerce", "relax", "shrink"] = "coerce",
+    byteorder: typing.Literal["big", "little"] = "big",
 ) -> pl.DataFrame:
     """Explode downstream-curated data from one-buffer-per-row (with each
     buffer containing multiple data items) to one-data-item-per-row, applying
@@ -281,11 +287,14 @@ def explode_lookup_unpacked(
 
         Note that 'hex' is not yet supported.
 
-    result_schema : Literal['coerce', 'relax', 'shrink'], default 'coerce'
+    result_schema : {'coerce', 'relax', 'shrink'}, default 'coerce'
         How should dtypes in the output DataFrame be handled?
         - 'coerce' : cast all columns to output schema.
         - 'relax' : keep all columns as-is.
         - 'shrink' : cast columns to smallest possible types.
+
+    byteorder : {"big", "little"}, default "big"
+        The endianness of the data in the 'dstream_storage_hex' column.
 
     Returns
     -------
@@ -354,7 +363,11 @@ def explode_lookup_unpacked(
 
     logging.info(" - unpacking hex strings...")
     df_long = _unpack_hex_strings(
-        df, df_long, num_items=num_items, value_dtype=value_dtype
+        df,
+        df_long,
+        num_items=num_items,
+        value_dtype=value_dtype,
+        byteorder=byteorder,
     )
 
     logging.info(" - looking up ingest times...")

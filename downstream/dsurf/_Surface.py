@@ -1,9 +1,10 @@
+import collections.abc
 import typing
 
 from ._Policy import Policy
 
 
-class Surface:
+class Surface(collections.abc.Iterable):
 
     _storage: list  # storage sites
     T: int  # current logical time
@@ -14,7 +15,7 @@ class Surface:
         self._storage = [None] * policy.S
         self.policy = policy
 
-    def __iter__(self: "Surface") -> typing.Iterable[object]:
+    def __iter__(self: "Surface") -> typing.Iterator[object]:
         return iter(self._storage)
 
     def __getitem__(self: "Surface", site: int) -> object:

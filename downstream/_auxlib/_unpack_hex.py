@@ -1,9 +1,15 @@
 import sys
+import typing
 
 import numpy as np
 
 
-def unpack_hex(hex_str: str, num_items: int) -> np.ndarray:
+def unpack_hex(
+    hex_str: str,
+    num_items: int,
+    *,
+    byteorder: typing.Literal["big", "little"] = "big",
+) -> np.ndarray:
     """Unpacks a hexadecimal string into an array of 64-bit unsigned integers.
 
     This function interprets the input hexadecimal string as a sequence of bits,
@@ -16,6 +22,8 @@ def unpack_hex(hex_str: str, num_items: int) -> np.ndarray:
         Hexadecimal string to be unpacked.
     num_items : int
         Number of items to unpack from the hexadecimal data.
+    byteorder : {"big", "little"}, default "big"
+        The endianness of the hex data.
 
     Returns
     -------
@@ -27,6 +35,7 @@ def unpack_hex(hex_str: str, num_items: int) -> np.ndarray:
     - Hex data is assumed to be packed using big-endian byte order.
     - The function requires a runtime little-endian byte order.
     """
+
     if sys.byteorder != "little":
         raise NotImplementedError(
             "native big-endian byte order not yet supported",
@@ -37,9 +46,15 @@ def unpack_hex(hex_str: str, num_items: int) -> np.ndarray:
         ascii_codes = np.fromstring(hex_str.lower(), dtype="S1", sep="").view(
             np.uint8,
         )
+
         digits = ascii_codes - ord("0")
         alphas = ascii_codes - (ord("a") - 10)
-        return np.where(digits < 10, digits, alphas)
+        result = np.where(digits < 10, digits, alphas)
+
+        if byteorder == "little":
+            result[::2] = result[-2::-2]
+            result[1::2] = result[::-2]
+        return result
 
     # unpack hex string into numpy bytes array
     bytes_array = np.frombuffer(
@@ -47,6 +62,9 @@ def unpack_hex(hex_str: str, num_items: int) -> np.ndarray:
         count=len(hex_str) >> 1,
         dtype=np.uint8,
     )
+    if byteorder == "little":
+        bytes_array = bytes_array[::-1]
+
     if num_items == len(bytes_array):
         # for 1-byte values, we are done
         return bytes_array
