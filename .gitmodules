@@ -6,3 +6,7 @@
 	path = zig
 	url = https://github.com/mmore500/downstream
 	branch = zig
+[submodule "csl"]
+	path = csl
+	url = https://github.com/mmore500/downstream
+	branch = csl
