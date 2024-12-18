@@ -83,7 +83,7 @@ jobs:
       - name: Test Apptainer
         run: |
           apptainer --version
-          sudo apptainer exec docker://busybox:latest echo "Hello from Singularity and Docker!"
+          sudo "$(which apptainer)" exec docker://busybox:latest echo "Hello from Singularity and Docker!"
 
       - name: Set up SDK
         run: |
