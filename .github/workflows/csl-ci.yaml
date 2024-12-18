@@ -106,7 +106,10 @@ jobs:
       - run: sudo env PATH=$PATH sdk_debug_shell --help  >/dev/null 2>&1
       - run: echo "SINGULARITYENV_CSL_SUPPRESS_SIMFAB_TRACE ${SINGULARITYENV_CSL_SUPPRESS_SIMFAB_TRACE}"
 
-      - name: Test memcpy
+      - name: Compile memcpy
         run: |
-          sudo env PATH=$PATH ./kernel-test-memcpy/compile.sh >/dev/null 2>&1
+          sudo env PATH=$PATH ./kernel-test-memcpy/compile.sh
+
+      - name: Execute memcpy
+        run: |
           sudo env PATH=$PATH ./kernel-test-memcpy/execute.sh >/dev/null 2>&1
