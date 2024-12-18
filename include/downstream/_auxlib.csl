@@ -1,3 +1,5 @@
+const math = @import_module("<math>");
+
 var _as16 = [2]u16{0, 0};  // csl requires global access for dsd
 const _dsd_as16 = @get_dsd(mem1d_dsd, .{
     .tensor_access = |i|{2} -> _as16[i],
@@ -5,33 +7,46 @@ const _dsd_as16 = @get_dsd(mem1d_dsd, .{
 
 // Helper: Bit length (equivalent to std::bit_width in C++)
 fn bit_length(value: u32) u32 {
-    // return @bitSizeOf(u32) - @clz(value);
-    return 0;
+    return 32 - clz(value);
 }
 
 // Helper: Bit floor (equivalent to std::bit_floor in C++)
 fn bit_floor(value: u32) u32 {
-    // if (0 < value) {
-    //     return @as(u32, 1) << @intCast(bit_length(value) - 1);
-    // } else {
-    //     return 0;
-    // }
-    return 0;
+    if (0 < value) {
+        const one: u32 = 1;
+        return one << bit_length(value) - 1;
+    } else {
+        return 0;
+    }
+}
+
+// adapted from https://github.com/mmore500/wse-sketches/blob/e69b4d502ee9f328736e47e8f9baa14c6e67ebbd/cerebraslib/opscalar.csl
+fn clz(n: u32) u32 {
+    _as16[0] = @as(u16, n);
+    _as16[1] = @as(u16, n >> 16);
+    @clz(_dsd_as16, _dsd_as16);
+    return @as(u32, _as16[1] + (_as16[0] * @as(u16, _as16[1] == 16)));
+}
+
+// adapted from https://github.com/mmore500/wse-sketches/blob/e69b4d502ee9f328736e47e8f9baa14c6e67ebbd/cerebraslib/opscalar.csl
+fn ctz(n: u32) u32 {
+    _as16[0] = @as(u16, n);
+    _as16[1] = @as(u16, n >> 16);
+    @ctz(_dsd_as16, _dsd_as16);
+    return @as(u32, _as16[0] + (_as16[1] * @as(u16, _as16[0] == 16)));
 }
 
 fn floor_subtract(minuend: u32, subtrahend: u32) u32 {
-    return minuend - @min(minuend, subtrahend);
+    return minuend - math.min(minuend, subtrahend);
 }
 
 fn modpow2(dividend: u32, divisor: u32) u32 {
     return dividend & (divisor - 1);
 }
 
-fn overflow_shl(a: u32, b: u32) u32 {
-    // return if (b < @bitSizeOf(u32)) a << @intCast(b) else 0;
-    return 0;
-}
+fn overflow_shl(a: u32, b: u32) u32 { return a << b; }
 
+// adapted from https://github.com/mmore500/wse-sketches/blob/e69b4d502ee9f328736e47e8f9baa14c6e67ebbd/cerebraslib/opscalar.csl
 fn popcount(n: u32) u32 {
     _as16[0] = @as(u16, n);
     _as16[1] = @as(u16, n >> 16);

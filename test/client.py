@@ -202,9 +202,11 @@ impl = {
 with open(args.out, "w") as out:
     for (S, T), result in zip(test_cases, results):
         if result == S + 1:
-            print(file=out)
+            print("", file=out)
+        elif result == S:
+            print("None", file=out)
         else:
-            print(impl(int(S), int(T)), file=out)
+            print(result, file=out)
 
 print(f"{results=}")
 
