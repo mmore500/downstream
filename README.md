@@ -1,5 +1,6 @@
 # Downstream
 
+[![CSL CI](https://github.com/mmore500/downstream/actions/workflows/csl-ci.yaml/badge.svg?branch=csl)](https://github.com/mmore500/downstream/actions/workflows/csl-ci.yaml?query=branch:csl)
 [![Python CI](https://github.com/mmore500/downstream/actions/workflows/python-ci.yaml/badge.svg?branch=python)](https://github.com/mmore500/downstream/actions/workflows/python-ci.yaml?query=branch:python)
 [![Zig CI](https://github.com/mmore500/downstream/actions/workflows/zig-ci.yaml/badge.svg?branch=zig)](https://github.com/mmore500/downstream/actions/workflows/zig-ci.yaml?query=branch:zig)
 [![GitHub stars](https://img.shields.io/github/stars/mmore500/downstream.svg?style=flat-square&logo=github&label=Stars&logoColor=white)](https://github.com/mmore500/downstream)
