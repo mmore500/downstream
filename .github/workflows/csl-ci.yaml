@@ -112,4 +112,4 @@ jobs:
 
       - name: Execute test kernel
         run: |
-          sudo env PATH=$PATH CSLC=$CSLC CS_PYTHON=$CS_PYTHON ./test/test.sh  >/dev/null 2>&1
+          sudo env PATH=$PATH CSLC=$CSLC CS_PYTHON=$CS_PYTHON ./test/test.sh
