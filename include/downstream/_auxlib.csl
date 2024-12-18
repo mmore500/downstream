@@ -44,8 +44,6 @@ fn modpow2(dividend: u32, divisor: u32) u32 {
     return dividend & (divisor - 1);
 }
 
-fn overflow_shl(a: u32, b: u32) u32 { return a << b; }
-
 // adapted from https://github.com/mmore500/wse-sketches/blob/e69b4d502ee9f328736e47e8f9baa14c6e67ebbd/cerebraslib/opscalar.csl
 fn popcount(n: u32) u32 {
     _as16[0] = @as(u16, n);
