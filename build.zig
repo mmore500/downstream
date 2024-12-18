@@ -18,7 +18,7 @@ pub fn build(b: *std.Build) void {
 
     // https://ziggit.dev/t/how-to-package-a-zig-source-module-and-how-to-use-it/3457
     const module = b.addModule("downstream", .{
-        .root_source_file = b.path("src/main.zig"),
+        .root_source_file = b.path("src-zig/main.zig"),
         .target = target,
         .optimize = optimize,
     });
@@ -65,7 +65,7 @@ pub fn build(b: *std.Build) void {
     // Creates a step for unit testing. This only builds the test executable
     // but does not run it.
     const main_tests = b.addTest(.{
-        .root_source_file = b.path("src/_auxlib.zig"),
+        .root_source_file = b.path("src-zig/_auxlib.zig"),
         .target = target,
         .optimize = optimize,
     });

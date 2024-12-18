@@ -1,0 +1,28 @@
+// Helper: Bit length (equivalent to std::bit_width in C++)
+fn bit_length(value: u32) u32 {
+    // return @bitSizeOf(u32) - @clz(value);
+    return 0;
+}
+
+// Helper: Bit floor (equivalent to std::bit_floor in C++)
+fn bit_floor(value: u32) u32 {
+    // if (0 < value) {
+    //     return @as(u32, 1) << @intCast(bit_length(value) - 1);
+    // } else {
+    //     return 0;
+    // }
+    return 0;
+}
+
+fn floor_subtract(minuend: u32, subtrahend: u32) u32 {
+    return minuend - @min(minuend, subtrahend);
+}
+
+fn modpow2(dividend: u32, divisor: u32) u32 {
+    return dividend & (divisor - 1);
+}
+
+fn overflow_shl(a: u32, b: u32) u32 {
+    // return if (b < @bitSizeOf(u32)) a << @intCast(b) else 0;
+    return 0;
+}

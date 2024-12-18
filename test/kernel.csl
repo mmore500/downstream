@@ -1,8 +1,11 @@
 param memcpy_params: comptime_struct;
 param chunkSize: i32;
 param peId: i16;
+
 const memcpy = @import_module("<memcpy/memcpy>", memcpy_params);
 const math = @import_module("<math>");
+
+const dstream = @import_module("src/dstream/main.csl");
 
 var cases = @zeros([chunkSize * 2]u32);
 var ptr_cases : [*]u32 = &cases;
