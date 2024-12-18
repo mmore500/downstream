@@ -62,7 +62,15 @@ jobs:
           uv pip install -r test/requirements.txt --system
 
       - name: Install Nix
-        run: sh <(curl -L https://nixos.org/nix/install) --daemon
+        uses: cachix/install-nix-action@v25
+        with:
+          nix_path: nixpkgs=channel:nixos-22.11
+
+      - name: Test nix
+        run: |
+          nix-env -iA nixpkgs.cowsay nixpkgs.hello
+          cowsay "Hello from Nix!"
+          hello
 
       - name: Set up Apptainer
         run: echo "nix-env -iA nixpkgs.apptainer" | sh
