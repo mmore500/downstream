@@ -137,17 +137,6 @@ if test_cases.size == 0:
     print("No test cases to run, exiting")
     sys.exit(0)
 
-impl = {
-    "steady_algo.assign_storage_site": steady_assign_storage_site,
-}[args.algo]
-
-with open(args.out, "w") as f:
-    for test_case in test_cases:
-        try:
-            print(impl(*map(int, test_case)), file=f)
-        except ValueError:
-            print(file=f)
-
 nCases = test_cases.shape[0]
 nRow, nCol = 1, 1  # number of rows, columns, and genome words
 wavSize = 32  # number of bits in a wavelet
@@ -205,6 +194,18 @@ for bounds in tqdm([*mit.pairwise({*range(0, nCases, chunkSize), nCases})]):
 runner.stop()
 
 results = np.concatenate(results)
+
+impl = {
+    "steady_algo.assign_storage_site": steady_assign_storage_site,
+}[args.algo]
+
+with open(args.out, "w") as out:
+    for (S, T), result in zip(test_cases, results):
+        if result == S + 1:
+            print(file=out)
+        else:
+            print(impl(int(S), int(T)), file=out)
+
 print(f"{results=}")
 
 print("test/client.py complete")
