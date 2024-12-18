@@ -99,11 +99,11 @@ jobs:
           which cs_python
           which cs_readelf
           which sdk_debug_shell
-      - run: sudo env PATH=$PATH cslc -h  >/dev/null 2>
+      - run: sudo env PATH=$PATH cslc -h  >/dev/null 2>&1
       - run: sudo env PATH=$PATH csdb --help  >/dev/null 2>&1
       - run: sudo env PATH=$PATH cs_python -h  >/dev/null 2>&1
-      - run: sudo env PATH=$PATH cs_readelf -h  >/dev/null 2>
-      - run: sudo env PATH=$PATH sdk_debug_shell --help  >/dev/null 2>
+      - run: sudo env PATH=$PATH cs_readelf -h  >/dev/null 2>&1
+      - run: sudo env PATH=$PATH sdk_debug_shell --help  >/dev/null 2>&1
       - run: echo "SINGULARITYENV_CSL_SUPPRESS_SIMFAB_TRACE ${SINGULARITYENV_CSL_SUPPRESS_SIMFAB_TRACE}"
 
       - name: Test memcpy
