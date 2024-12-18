@@ -2,29 +2,31 @@
 
 set -euo pipefail
 
-cd "$(dirname "${BASH_SOURCE[0]}")/.."
+cd "$(dirname "${BASH_SOURCE[0]}")"
 
-venv="/tmp/downstream-zig/env"
+venv="/tmp/downstream-csl/env"
 rm -rf "${venv}"
 mkdir -p "${venv}"
 python3 -m venv "${venv}"
 source "${venv}/bin/activate"
 
 python3 -m pip install uv
-python3 -m uv pip install -r test/requirements.txt
+python3 -m uv pip install -r requirements.txt
 
-zig build
+echo "compiling with ${CSLC} CSLC"
+./compile.sh > /dev/null 2>&1
 
-python3 -m downstream.testing.debug_one \
-    ./zig-out/bin/downstream 'steady_algo.assign_storage_site'
-python3 -m downstream.testing.debug_one \
-    ./zig-out/bin/downstream 'stretched_algo.assign_storage_site'
-python3 -m downstream.testing.debug_one \
-    ./zig-out/bin/downstream 'tilted_algo.assign_storage_site'
+echo "executing with ${CS_PYTHON} CS_PYTHON"
+# python3 -m downstream.testing.debug_one \
+#     ./zig-out/bin/downstream 'steady_algo.assign_storage_site'
+# python3 -m downstream.testing.debug_one \
+#     ./zig-out/bin/downstream 'stretched_algo.assign_storage_site'
+# python3 -m downstream.testing.debug_one \
+#     ./zig-out/bin/downstream 'tilted_algo.assign_storage_site'
 
 python3 -m downstream.testing.validate_one \
-    ./zig-out/bin/downstream 'steady_algo.assign_storage_site'
-python3 -m downstream.testing.validate_one \
-    ./zig-out/bin/downstream 'stretched_algo.assign_storage_site'
-python3 -m downstream.testing.validate_one \
-    ./zig-out/bin/downstream 'tilted_algo.assign_storage_site'
+    ./execute.sh 'steady_algo.assign_storage_site'
+# python3 -m downstream.testing.validate_one \
+#     ./zig-out/bin/downstream 'stretched_algo.assign_storage_site'
+# python3 -m downstream.testing.validate_one \
+#     ./zig-out/bin/downstream 'tilted_algo.assign_storage_site'

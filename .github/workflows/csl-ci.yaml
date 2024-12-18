@@ -37,7 +37,7 @@ jobs:
         with:
           version: 0.13.0
       - run: zig build test
-      - run: ./test/test.sh
+      - run: ./test-zig/test.sh
 
   test:
     name: Build and test
@@ -106,10 +106,10 @@ jobs:
       - run: sudo env PATH=$PATH sdk_debug_shell --help  >/dev/null 2>&1
       - run: echo "SINGULARITYENV_CSL_SUPPRESS_SIMFAB_TRACE ${SINGULARITYENV_CSL_SUPPRESS_SIMFAB_TRACE}"
 
-      - name: Compile memcpy
+      - name: Compile test kernel
         run: |
-          sudo env PATH=$PATH CSLC=$CSLC ./kernel-test-memcpy/compile.sh  >/dev/null 2>&1
+          sudo env PATH=$PATH CSLC=$CSLC ./test/compile.sh  >/dev/null 2>&1
 
-      - name: Execute memcpy
+      - name: Execute test kernel
         run: |
-          sudo env PATH=$PATH CS_PYTHON=$CS_PYTHON ./kernel-test-memcpy/execute.sh  >/dev/null 2>&1
+          sudo env PATH=$PATH CS_PYTHON=$CS_PYTHON ./test/test.sh  >/dev/null 2>&1
