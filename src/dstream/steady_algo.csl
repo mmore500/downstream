@@ -1,9 +1,8 @@
-const aux = @import("../_auxlib.zig");
+const aux = @import_module("src/_auxlib.csl");
 
 fn has_ingest_capacity(S: u32, T: u32) bool {
-    // _ = T;
-    // return (@popCount(S) == 1) and S > 1;
-    return S + T > 0;
+    const _ = T;
+    return (aux.popcount(S) == 1) and S > 1;
 }
 
 fn assign_storage_site(S: u32, T: u32) u32 {

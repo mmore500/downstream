@@ -15,8 +15,11 @@ var ptr_results : [*]u32 = &results;
 
 fn dolaunch() void {
 
-  for(@range(u32, chunkSize)) |i| {
-    results[i] = i;
+  for(@range(u32, chunkSize)) |case| {
+    const S = cases[2*case];
+    const T = cases[2*case + 1];
+    const has_capacity = dstream.steady_algo.has_ingest_capacity(S, T);
+    results[case] = if (has_capacity) 0 else S + 1;
   }
 
   memcpy.unblock_cmd_stream();

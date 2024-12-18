@@ -1,3 +1,8 @@
+var _as16 = [2]u16{0, 0};  // csl requires global access for dsd
+const _dsd_as16 = @get_dsd(mem1d_dsd, .{
+    .tensor_access = |i|{2} -> _as16[i],
+});
+
 // Helper: Bit length (equivalent to std::bit_width in C++)
 fn bit_length(value: u32) u32 {
     // return @bitSizeOf(u32) - @clz(value);
@@ -25,4 +30,11 @@ fn modpow2(dividend: u32, divisor: u32) u32 {
 fn overflow_shl(a: u32, b: u32) u32 {
     // return if (b < @bitSizeOf(u32)) a << @intCast(b) else 0;
     return 0;
+}
+
+fn popcount(n: u32) u32 {
+    _as16[0] = @as(u16, n);
+    _as16[1] = @as(u16, n >> 16);
+    @popcnt(_dsd_as16, _dsd_as16);
+    return @as(u32, _as16[0] + _as16[1]);
 }

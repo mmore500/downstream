@@ -1,4 +1,4 @@
-const aux = @import("../_auxlib.zig");
+const aux = @import_module("src/_auxlib.csl");
 
 fn has_ingest_capacity(S: u32, T: u32) bool {
     // const surface_size_ok = S > 1 and (@popCount(S) == 1);
