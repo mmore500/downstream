@@ -37,7 +37,7 @@ jobs:
         target:
           - "steady_algo.assign_storage_site"
           - "stretched_algo.assign_storage_site"
-          # - "tilted_algo.assign_storage_site"
+          - "tilted_algo.assign_storage_site"
     env:
       CSLC: cslc
       CS_PYTHON: cs_python
