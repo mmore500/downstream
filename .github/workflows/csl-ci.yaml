@@ -108,8 +108,8 @@ jobs:
 
       - name: Compile memcpy
         run: |
-          sudo env PATH=$PATH CSLC=$CSLC ./kernel-test-memcpy/compile.sh
+          sudo env PATH=$PATH CSLC=$CSLC ./kernel-test-memcpy/compile.sh  >/dev/null 2>&1
 
       - name: Execute memcpy
         run: |
-          sudo env PATH=$PATH CS_PYTHON=$CS_PYTHON ./kernel-test-memcpy/execute.sh >/dev/null 2>&1
+          sudo env PATH=$PATH CS_PYTHON=$CS_PYTHON ./kernel-test-memcpy/execute.sh  >/dev/null 2>&1
