@@ -99,7 +99,7 @@ jobs:
           which cs_python
           which cs_readelf
           which sdk_debug_shell
-      - run: sudo "$(which cslc)" -h >/dev/null 2>&1
+      - run: sudo "$(which cslc)" -h
       - run: sudo "$(which csdb)" --help  >/dev/null 2>&1
       - run: sudo "$(which cs_python)" -h  >/dev/null 2>&1
       - run: sudo "$(which cs_readelf)" -h
