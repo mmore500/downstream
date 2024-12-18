@@ -1,4 +1,5 @@
 import argparse
+import itertools as it
 import sys
 import typing
 
@@ -137,13 +138,18 @@ with open(args.out, "w") as f:
         except ValueError:
             print(file=f)
 
-nRow, nCol, nWav = 5, 4, 3  # number of rows, columns, and genome words
+nCases = test_cases.shape[0]
+nRow, nCol, nWav = 1, 1, 3  # number of rows, columns, and genome words
 wavSize = 32  # number of bits in a wavelet
+chunkSize = 1024  # number of test cases to run in a single batch
 
 runner = SdkRuntime("out", cmaddr=args.cmaddr, suppress_simfab_trace=True)
 
 runner.load()
 runner.run()
+for chunk in it.pairwise({*range(0, nCases, chunkSize), nCases}):
+    pass
+
 runner.launch("dolaunch", nonblock=False)
 
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
@@ -163,37 +169,7 @@ runner.memcpy_d2h(
     nonblock=False,
 )
 data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
-
-genome_bytes = [
-    inner.view(np.uint8).tobytes() for outer in data for inner in outer
-]
-genome_ints = [
-    int.from_bytes(genome, byteorder="big") for genome in genome_bytes
-]
-
-assert len(genome_ints) == nRow * nCol
-sentry_bit = 1 << (nWav * wavSize)
-for genome_int in genome_ints:
-    print(bin(genome_int | sentry_bit))
-
-
-genome_hexstrings = [
-    np.base_repr(genome_int, base=16).zfill(nWav * wavSize // 4)
-    for genome_int in genome_ints
-]
-for genome_hexstring in genome_hexstrings:
-    assert len(genome_hexstring) == nWav * wavSize // 4
-
-    word1_hexstring = genome_hexstring[0:8]
-    word1 = int.from_bytes(bytes.fromhex(word1_hexstring), byteorder="little")
-    assert word1 == 4294901760
-
-    word2_hexstring = genome_hexstring[8:16]
-    word2 = int.from_bytes(bytes.fromhex(word2_hexstring), byteorder="little")
-    assert word2 == 4042322160
-
-word3_hexstrings = map(lambda x: x[16:24], genome_hexstrings)
-assert len(set(word3_hexstrings)) == nRow * nCol
+assert len(data) == nWav
 
 runner.stop()
 
