@@ -133,6 +133,9 @@ test_cases = np.array(
     dtype=np.uint32,
 )
 print(f"{test_cases=}")
+if test_cases.size == 0:
+    print("No test cases to run, exiting")
+    sys.exit(0)
 
 impl = {
     "steady_algo.assign_storage_site": steady_assign_storage_site,
