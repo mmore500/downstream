@@ -17,16 +17,16 @@ echo "compiling with ${CSLC} CSLC"
 ./compile.sh > /dev/null 2>&1
 
 echo "executing with ${CS_PYTHON} CS_PYTHON"
+python3 -m downstream.testing.debug_one \
+    ./execute.sh 'steady_algo.assign_storage_site'
 # python3 -m downstream.testing.debug_one \
-#     ./zig-out/bin/downstream 'steady_algo.assign_storage_site'
+#     ./execute.sh 'stretched_algo.assign_storage_site'
 # python3 -m downstream.testing.debug_one \
-#     ./zig-out/bin/downstream 'stretched_algo.assign_storage_site'
-# python3 -m downstream.testing.debug_one \
-#     ./zig-out/bin/downstream 'tilted_algo.assign_storage_site'
+#     ./execute.sh 'tilted_algo.assign_storage_site'
 
 python3 -m downstream.testing.validate_one \
     ./execute.sh 'steady_algo.assign_storage_site'
 # python3 -m downstream.testing.validate_one \
-#     ./zig-out/bin/downstream 'stretched_algo.assign_storage_site'
+#     ./execute.sh 'stretched_algo.assign_storage_site'
 # python3 -m downstream.testing.validate_one \
-#     ./zig-out/bin/downstream 'tilted_algo.assign_storage_site'
+#     ./execute.sh 'tilted_algo.assign_storage_site'
