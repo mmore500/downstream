@@ -61,15 +61,12 @@ jobs:
           python -m pip install --upgrade uv
           uv pip install -r test/requirements.txt --system
 
+      - name: Install Nix
+        uses: cachix/install-nix-action@v27
+
       - name: Set up Apptainer
         run: |
-          sudo apt-get update
-          sudo apt-get install -y rpm2cpio
-          sudo apt-get install -y golang-go
-          mkdir -p ~/apptainer
-          # echo 'export PATH="$HOME/apptainer/bin:$PATH"' >> ~/.bashrc
-          echo "$HOME/apptainer/bin" >> $GITHUB_PATH
-          curl -s https://raw.githubusercontent.com/apptainer/apptainer/03bb84afc90c9699816db2e2730b56f2d3501eff/tools/install-unprivileged.sh | bash -s - ~/apptainer
+          nix-env -iA nixpkgs.apptainer
 
       - name: Test Apptainer
         run: |
