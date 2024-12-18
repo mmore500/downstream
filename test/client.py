@@ -172,7 +172,12 @@ for bounds in tqdm([*mit.pairwise({*range(0, nCases, chunkSize), nCases})]):
         nonblock=False,
     )
 
-    runner.launch("dolaunch", nonblock=False)
+    launcher = {
+        "steady_algo.assign_storage_site": "launch_steady_algo_assign_storage_site",
+        "stretched_algo.assign_storage_site": "launch_stretched_algo_assign_storage_site",
+        "tilted_algo.assign_storage_site": "launch_tilted_algo_assign_storage_site",
+    }[args.algo]
+    runner.launch(launcher, nonblock=False)
 
     runner.memcpy_d2h(
         results_chunk,
@@ -194,10 +199,6 @@ for bounds in tqdm([*mit.pairwise({*range(0, nCases, chunkSize), nCases})]):
 runner.stop()
 
 results = np.concatenate(results)
-
-impl = {
-    "steady_algo.assign_storage_site": steady_assign_storage_site,
-}[args.algo]
 
 with open(args.out, "w") as out:
     for (S, T), result in zip(test_cases, results):

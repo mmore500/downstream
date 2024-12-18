@@ -31,5 +31,6 @@ layout {
 
   @export_name("cases", [*]u32, true);
   @export_name("results", [*]u32, true);
-  @export_name("dolaunch", fn()void);
+  @export_name("launch_steady_algo_assign_storage_site", fn()void);
+  @export_name("launch_stretched_algo_assign_storage_site", fn()void);
 }

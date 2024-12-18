@@ -42,6 +42,13 @@ jobs:
   test:
     name: Build and test
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - "steady_algo.assign_storage_site"
+          - "stretched_algo.assign_storage_site"
+          # - "tilted_algo.assign_storage_site"
     env:
       CSLC: cslc
       CS_PYTHON: cs_python
@@ -116,4 +123,5 @@ jobs:
 
       - name: Execute test kernel
         run: |
-          sudo env PATH=$PATH CSLC=$CSLC CS_PYTHON=$CS_PYTHON ./test/test.sh
+          sudo env PATH=$PATH CSLC=$CSLC CS_PYTHON=$CS_PYTHON \
+            ./test/test.sh ${{ matrix.target }}

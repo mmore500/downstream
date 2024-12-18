@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+echo "testing $1"
+
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
 venv="/tmp/downstream-csl/env"
@@ -18,15 +20,7 @@ echo "compiling with ${CSLC} CSLC"
 
 echo "executing with ${CS_PYTHON} CS_PYTHON"
 # python3 -m downstream.testing.debug_one \
-#     ./execute.sh 'steady_algo.assign_storage_site'
-# python3 -m downstream.testing.debug_one \
-#     ./execute.sh 'stretched_algo.assign_storage_site'
-# python3 -m downstream.testing.debug_one \
-#     ./execute.sh 'tilted_algo.assign_storage_site'
+    # ./execute.sh "$1"
 
 python3 -m downstream.testing.validate_one \
-    ./execute.sh 'steady_algo.assign_storage_site'
-# python3 -m downstream.testing.validate_one \
-#     ./execute.sh 'stretched_algo.assign_storage_site'
-# python3 -m downstream.testing.validate_one \
-#     ./execute.sh 'tilted_algo.assign_storage_site'
+    ./execute.sh "$1"
