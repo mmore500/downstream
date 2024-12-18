@@ -5,7 +5,7 @@ param peId: i16;
 const memcpy = @import_module("<memcpy/memcpy>", memcpy_params);
 const math = @import_module("<math>");
 
-const dstream = @import_module("src/dstream/main.csl");
+const dstream = @import_module("<downstream/dstream/main>");
 
 var cases = @zeros([chunkSize * 2]u32);
 var ptr_cases : [*]u32 = &cases;

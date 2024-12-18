@@ -1,0 +1,3 @@
+const steady_algo = @import_module("<downstream/dstream/steady_algo>");
+const stretched_algo = @import_module("<downstream/dstream/stretched_algo>");
+const tilted_algo = @import_module("<downstream/dstream/tilted_algo>");

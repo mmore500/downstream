@@ -14,4 +14,4 @@ echo "CSLC ${CSLC}"
 # see https://sdk.cerebras.net/csl/tutorials/gemv-01-complete-program/
 # 9x4 because compiler says
 # RuntimeError: Fabric dimension must be at least 9-by-4
-"${CSLC}" test/layout.csl --fabric-dims=15,15 --fabric-offsets=4,1 --channels=1 --memcpy -o out
+"${CSLC}" --import-path ./include ./test/layout.csl --fabric-dims=15,15 --fabric-offsets=4,1 --channels=1 --memcpy -o out

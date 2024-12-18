@@ -1,4 +1,4 @@
-const aux = @import_module("src/_auxlib.csl");
+const aux = @import_module("<downstream/_auxlib>");
 
 fn has_ingest_capacity(S: u32, T: u32) bool {
     const _ = T;

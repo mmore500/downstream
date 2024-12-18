@@ -1,3 +1,0 @@
-const steady_algo = @import_module("src/dstream/steady_algo.csl");
-const stretched_algo = @import_module("src/dstream/stretched_algo.csl");
-const tilted_algo = @import_module("src/dstream/tilted_algo.csl");
