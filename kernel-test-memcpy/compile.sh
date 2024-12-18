@@ -4,7 +4,7 @@ set -e
 
 cd "$(dirname "$0")"
 
-echo "CSLC ${CSLC}".
+echo "CSLC ${CSLC}"
 
 # target a 5x4 region of interest
 # Every program using memcpy must use a fabric offset of 4,1, and if compiling
