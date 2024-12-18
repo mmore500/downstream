@@ -62,17 +62,13 @@ jobs:
           uv pip install -r test/requirements.txt --system
 
       - name: Install Nix
-        uses: cachix/install-nix-action@v27
-        with:
-          nix_path: nixpkgs=channel:nixos-24.05
+        run: sh <(curl -L https://nixos.org/nix/install) --daemon
 
       - name: Set up Apptainer
-        run: |
-          nix-env -iA nixpkgs.apptainer
+        run: nix-env -iA nixpkgs.apptainer
 
       - name: Test Apptainer
-        run: |
-          apptainer --version
+        run: apptainer --version
 
       - name: Set up SDK
         run: |
