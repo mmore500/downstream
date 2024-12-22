@@ -32,6 +32,13 @@ def unpack_hex(hex_str: str, num_items: int) -> np.ndarray:
             "native big-endian byte order not yet supported",
         )
 
+    if num_items > len(hex_str) * 4:
+        raise ValueError(
+            "not enough data to unpack requested number of items, "
+            f"cannot unpack {num_items=} from {len(hex_str)} hex chars "
+            f"({len(hex_str) * 4} bits)",
+        )
+
     if num_items == len(hex_str):
         # handle 4-bit values by processing ascii ordinals directly
         ascii_codes = np.fromstring(hex_str.lower(), dtype="S1", sep="").view(
