@@ -86,7 +86,10 @@ def test_explode_lookup_unpacked_64():
         {
             "dstream_algo": ["dstream.steady_algo", "dstream.steady_algo"],
             "downstream_version": [downstream.__version__] * 2,
-            "data_hex": ["aa11ccdd", "221188dd"],
+            "data_hex": [
+                "aa11ccddaa11ccddaa11ccddaa11ccddaa11ccddaa11ccddaa11ccddaa11ccdd",
+                "221188dd221188dd221188dd221188dd221188dd221188dd221188dd221188dd",
+            ],
             "dstream_storage_bitoffset": [16, 16],
             "dstream_storage_bitwidth": [128, 128],
             "dstream_T_bitoffset": [0, 0],
@@ -111,7 +114,10 @@ def test_explode_lookup_unpacked_invalid():
         {
             "dstream_algo": ["dstream.steady_algo", "dstream.steady_algo"],
             "downstream_version": [downstream.__version__] * 2,
-            "data_hex": ["aa11ccdd", "221188dd"],
+            "data_hex": [
+                "aa11ccddaa11ccddaa11ccddaa11ccddaa11ccddaa11ccddaa11ccddaa11ccdd",
+                "221188dd221188dd221188dd221188dd221188dd221188dd221188dd221188dd",
+            ],
             "dstream_storage_bitoffset": [16, 16],
             "dstream_storage_bitwidth": [128, 128],
             "dstream_T_bitoffset": [0, 0],

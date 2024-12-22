@@ -130,7 +130,7 @@ def test_unpack_data_packed_pup():
             "downstream_version": [downstream.__version__] * 2,
             "data_hex": [data1, data2],
             "dstream_storage_bitoffset": [8, 8],
-            "dstream_storage_bitwidth": [16, 16],
+            "dstream_storage_bitwidth": [64, 64],
             "dstream_T_bitoffset": [0, 0],
             "dstream_T_bitwidth": [8, 8],
             "dstream_S": [8, 8],
