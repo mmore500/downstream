@@ -67,6 +67,27 @@ def _calculate_offsets(df: pl.DataFrame) -> pl.DataFrame:
         df = df.with_columns(
             **{col.replace("_bit", "_hex"): np.right_shift(pl.col(col), 2)},
         )
+
+    for what in "dstream_storage", "dstream_T":
+        hexoffset = f"{what}_hexoffset"
+        hexwidth = f"{what}_hexwidth"
+        out_of_bounds = (
+            df.lazy()
+            .filter(
+                pl.col(hexoffset) + pl.col(hexwidth)
+                > pl.col("data_hex").str.len_bytes(),
+            )
+            .collect()
+        )
+        if not out_of_bounds.is_empty():
+            raise ValueError(
+                f"{what} offset/width out of bounds, "
+                f"{out_of_bounds['data_hex'].str.len_bytes().to_list()[:10]=} "
+                f"{out_of_bounds[hexoffset].to_list()[:10]=} "
+                f"{out_of_bounds[hexwidth].to_list()[:10]=} "
+                f"{out_of_bounds[:10]=}",
+            )
+
     return df
 
 

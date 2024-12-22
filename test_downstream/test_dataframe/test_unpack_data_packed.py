@@ -130,7 +130,7 @@ def test_unpack_data_packed_pup():
             "downstream_version": [downstream.__version__] * 2,
             "data_hex": [data1, data2],
             "dstream_storage_bitoffset": [8, 8],
-            "dstream_storage_bitwidth": [96, 96],
+            "dstream_storage_bitwidth": [16, 16],
             "dstream_T_bitoffset": [0, 0],
             "dstream_T_bitwidth": [8, 8],
             "dstream_S": [8, 8],
@@ -163,7 +163,7 @@ def test_unpack_data_packed_pup_validated():
             "downstream_version": [downstream.__version__] * 2,
             "data_hex": [data1, data2],
             "dstream_storage_bitoffset": [8, 8],
-            "dstream_storage_bitwidth": [96, 96],
+            "dstream_storage_bitwidth": [16, 16],
             "dstream_T_bitoffset": [0, 0],
             "dstream_T_bitwidth": [8, 8],
             "dstream_S": [8, 8],
@@ -174,3 +174,25 @@ def test_unpack_data_packed_pup_validated():
     res = unpack_data_packed(df)
 
     assert len(res) == 1
+
+
+def test_unpack_data_packed_bounds():
+    df = pl.DataFrame(
+        {
+            "foo": ["bar"],
+            "data_hex": ["0F0E0D0C0B0A09080706050403020100"],
+            "dstream_algo": ["dstream.steady_algo"],
+            "dstream_storage_bitoffset": [120],
+            "dstream_storage_bitwidth": [96],
+            "dstream_T_bitoffset": [100],
+            "dstream_T_bitwidth": [16],
+            "dstream_S": [100],
+            "downstream_version": [downstream.__version__],
+            "downstream_validate_unpacked": [""],
+            "downstream_validate_exploded": ["pl.lit(42)"],
+            "downstream_exclude_unpacked": [False],
+        }
+    )
+
+    with pytest.raises(ValueError):
+        unpack_data_packed(df)
