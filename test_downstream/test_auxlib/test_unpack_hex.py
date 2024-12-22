@@ -64,7 +64,9 @@ def test_unpack_hex_1bit_items():
 def test_unpack_hex_1bit_items_zeros():
     hex_str = "0000"
     num_items = 16
-    expected_output = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], dtype=np.uint64)
+    expected_output = np.array(
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], dtype=np.uint64
+    )
     result = unpack_hex(hex_str, num_items)
     np.testing.assert_array_equal(result, expected_output)
 
