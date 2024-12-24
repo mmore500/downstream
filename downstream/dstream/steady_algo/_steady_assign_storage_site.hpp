@@ -9,7 +9,7 @@ namespace downstream {
 namespace dstream {
 namespace steady_algo {
 
-const int64_t _steady_assign_storage_site(const uint64_t S, const uint64_t T) {
+const uint64_t _steady_assign_storage_site(const uint64_t S, const uint64_t T) {
   const uint64_t s = std::bit_width(S) - 1;
   const int64_t t = std::bit_width(T) - s;   // Current epoch (or negative)
   const int64_t h = std::countr_zero(T + 1); // Current hanoi value
@@ -36,9 +36,9 @@ const int64_t _steady_assign_storage_site(const uint64_t S, const uint64_t T) {
   return k_b + o + p; // Calculate placement site
 }
 
-const std::optional<int64_t> steady_assign_storage_site(const uint64_t S, const uint64_t T) {
-  const int64_t site = _steady_assign_storage_site(S, T);
-  return site == S ? std::nullopt : std::optional<int64_t>(site);
+const std::optional<uint64_t> steady_assign_storage_site(const uint64_t S, const uint64_t T) {
+  const uint64_t site = _steady_assign_storage_site(S, T);
+  return site == S ? std::nullopt : std::optional<uint64_t>(site);
 }
 
 } // namespace steady_algo
