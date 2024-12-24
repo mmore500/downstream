@@ -1,9 +1,9 @@
 #ifndef DOWNSTREAM_DSTREAM_STEADY_ALGO_STEADY_GET_INGEST_CAPACITY_HPP
 #define DOWNSTREAM_DSTREAM_STEADY_ALGO_STEADY_GET_INGEST_CAPACITY_HPP
 
+#include <bit>
 #include <bitset>
 #include <cstdint>
-#include <bit>
 #include <optional>
 
 namespace downstream {
@@ -17,13 +17,12 @@ const uint64_t _steady_get_ingest_capacity(const uint64_t S) {
 
 const std::optional<uint64_t> steady_get_ingest_capacity(const uint64_t S) {
   const uint64_t ingest_capacity = _steady_get_ingest_capacity(S);
-  return ingest_capacity == S ? std::nullopt : std::optional<uint64_t>(ingest_capacity);
+  return ingest_capacity == S ? std::nullopt
+                              : std::optional<uint64_t>(ingest_capacity);
 }
 
+}  // namespace steady_algo
+}  // namespace dstream
+}  // namespace downstream
 
-
-} // namespace steady_algo
-} // namespace dstream
-} // namespace downstream
-
-#endif // DOWNSTREAM_DSTREAM_STEADY_ALGO_STEADY_GET_INGEST_CAPACITY_HPP
+#endif  // DOWNSTREAM_DSTREAM_STEADY_ALGO_STEADY_GET_INGEST_CAPACITY_HPP

@@ -1,11 +1,12 @@
 #ifndef DOWNSTREAM_DSTREAM_TILTED_ALGO_TILTED_HAS_INGEST_CAPACITY_HPP
 #define DOWNSTREAM_DSTREAM_TILTED_ALGO_TILTED_HAS_INGEST_CAPACITY_HPP
 
-#include "_tilted_get_ingest_capacity.hpp"
 #include <bit>
 #include <cassert>
 #include <cstdint>
 #include <optional>
+
+#include "_tilted_get_ingest_capacity.hpp"
 
 namespace downstream {
 namespace dstream {
@@ -27,8 +28,8 @@ const bool tilted_has_ingest_capacity(const uint64_t S, const uint64_t T) {
   return T < ingest_capacity;
 }
 
-} // namespace tilted_algo
-} // namespace dstream
-} // namespace downstream
+}  // namespace tilted_algo
+}  // namespace dstream
+}  // namespace downstream
 
-#endif // DOWNSTREAM_DSTREAM_TILTED_ALGO_TILTED_HAS_INGEST_CAPACITY_HPP
+#endif  // DOWNSTREAM_DSTREAM_TILTED_ALGO_TILTED_HAS_INGEST_CAPACITY_HPP
