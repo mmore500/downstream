@@ -17,7 +17,7 @@ const uint64_t _steady_get_ingest_capacity(const uint64_t S) {
 
 const std::optional<uint64_t> steady_get_ingest_capacity(const uint64_t S) {
   const uint64_t ingest_capacity = _steady_get_ingest_capacity(S);
-  return ingest_capacity == 0 ? std::nullopt : std::optional<uint64_t>(ingest_capacity);
+  return ingest_capacity == S ? std::nullopt : std::optional<uint64_t>(ingest_capacity);
 }
 
 
