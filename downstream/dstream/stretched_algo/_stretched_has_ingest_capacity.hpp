@@ -1,6 +1,7 @@
 #ifndef DOWNSTREAM_DSTREAM_STRETCHED_ALGO_STRETCHED_HAS_INGEST_CAPACITY_HPP
 #define DOWNSTREAM_DSTREAM_STRETCHED_ALGO_STRETCHED_HAS_INGEST_CAPACITY_HPP
 
+#include "_stretched_get_ingest_capacity.hpp"
 #include <bit>
 #include <cassert>
 #include <cstdint>
@@ -22,7 +23,7 @@ const bool stretched_has_ingest_capacity(const uint64_t S, const uint64_t T) {
     return true;
   }
 
-  const uint64_t ingest_capacity = (uint64_t{1} << S) - 1;
+  const uint64_t ingest_capacity = stretched_get_ingest_capacity(S);
   return T < ingest_capacity;
 }
 
