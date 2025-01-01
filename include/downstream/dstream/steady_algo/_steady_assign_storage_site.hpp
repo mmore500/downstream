@@ -1,3 +1,27 @@
+// -*- lsst-c++ -*-
+/*
+ * This file is part of downstream.
+ *
+ * Developed for the LSST Data Management System.
+ * This product includes software developed by the LSST Project
+ * (https://www.lsst.org).
+ * See the COPYRIGHT file at the top-level directory of this distribution
+ * for details of code ownership.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #ifndef DOWNSTREAM_DSTREAM_STEADY_ALGO_STEADY_ASSIGN_STORAGE_SITE_HPP
 #define DOWNSTREAM_DSTREAM_STEADY_ALGO_STEADY_ASSIGN_STORAGE_SITE_HPP
 
@@ -9,6 +33,15 @@ namespace downstream {
 namespace dstream {
 namespace steady_algo {
 
+/**
+ * Internal implementation of site selection algorithm for steady curation.
+ *
+ * @param S Buffer size. Must be a power of two.
+ * @param T Current logical time.
+ * @returns The selected storage site, or S if no site should be selected.
+ *
+ * @exceptsafe no-throw
+ */
 const uint64_t _steady_assign_storage_site(const uint64_t S, const uint64_t T) {
   const uint64_t s = std::bit_width(S) - 1;
   const int64_t t = std::bit_width(T) - s;    // Current epoch (or negative)
@@ -36,6 +69,15 @@ const uint64_t _steady_assign_storage_site(const uint64_t S, const uint64_t T) {
   return k_b + o + p;        // Calculate placement site
 }
 
+/**
+ * Site selection algorithm for steady curation.
+ *
+ * @param S Buffer size. Must be a power of two.
+ * @param T Current logical time.
+ * @returns Selected site, if any. Returns nullopt if no site should be selected.
+ *
+ * @exceptsafe no-throw
+ */
 const std::optional<uint64_t> steady_assign_storage_site(const uint64_t S,
                                                          const uint64_t T) {
   const uint64_t site = _steady_assign_storage_site(S, T);

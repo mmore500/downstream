@@ -1,3 +1,27 @@
+// -*- lsst-c++ -*-
+/*
+ * This file is part of downstream.
+ *
+ * Developed for the LSST Data Management System.
+ * This product includes software developed by the LSST Project
+ * (https://www.lsst.org).
+ * See the COPYRIGHT file at the top-level directory of this distribution
+ * for details of code ownership.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #ifndef DOWNSTREAM_DSTREAM_STRETCHED_ALGO_STRETCHED_ASSIGN_STORAGE_SITE_HPP
 #define DOWNSTREAM_DSTREAM_STRETCHED_ALGO_STRETCHED_ASSIGN_STORAGE_SITE_HPP
 
@@ -10,6 +34,15 @@ namespace downstream {
 namespace dstream {
 namespace stretched_algo {
 
+/**
+ * Internal implementation of site selection algorithm for stretched curation.
+ *
+ * @param S Buffer size. Must be a power of two.
+ * @param T Current logical time. Must be less than 2^S - 1.
+ * @returns The selected storage site, or S if no site should be selected.
+ *
+ * @exceptsafe no-throw
+ */
 const uint64_t _stretched_assign_storage_site(const uint64_t S,
                                               const uint64_t T) {
   const uint64_t s = std::bit_width(S) - 1;
@@ -56,6 +89,15 @@ const uint64_t _stretched_assign_storage_site(const uint64_t S,
                    // ... where h.v. h is offset within bunch
 }
 
+/**
+ * Site selection algorithm for stretched curation.
+ *
+ * @param S Buffer size. Must be a power of two.
+ * @param T Current logical time. Must be less than 2^S - 1.
+ * @returns Selected site, if any. Returns nullopt if no site should be selected.
+ *
+ * @exceptsafe no-throw
+ */
 const std::optional<uint64_t> stretched_assign_storage_site(const uint64_t S,
                                                             const uint64_t T) {
   const uint64_t site = _stretched_assign_storage_site(S, T);
