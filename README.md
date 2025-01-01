@@ -1,6 +1,6 @@
 # Downstream --- Python Implementation
 
-[![CI](https://github.com/mmore500/downstream/actions/workflows/ci.yaml/badge.svg)](https://github.com/mmore500/downstream/actions/workflows/ci.yaml)
+[![CI](https://github.com/mmore500/downstream/actions/workflows/ci.yaml/badge.svg?branch=cpp)](https://github.com/mmore500/downstream/actions/workflows/cpp-ci.yaml?query=branch:cpp)
 [![GitHub stars](https://img.shields.io/github/stars/mmore500/downstream.svg?style=flat-square&logo=github&label=Stars&logoColor=white)](https://github.com/mmore500/downstream)
 [
 ![PyPi](https://img.shields.io/pypi/v/downstream.svg)
