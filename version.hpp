@@ -1,0 +1,1 @@
+#define DSTREAM_VERSION "0.4.2"
