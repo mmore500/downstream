@@ -37,16 +37,18 @@ namespace dstream {
 namespace stretched_algo {
 
 /**
-* Does this algorithm have the capacity to ingest a data item at logical time T?
-*
-* @param S The number of buffer sites available.
-* @param T Queried logical time.
-* @returns Whether there is capacity to ingest at time T.
-*
-* @see stretched_algo::get_ingest_capacity How many data item ingestions does this algorithm support?
-*
-* @exceptsafe no-throw
-*/
+ * Does this algorithm have the capacity to ingest a data item at logical time
+ * T?
+ *
+ * @param S The number of buffer sites available.
+ * @param T Queried logical time.
+ * @returns Whether there is capacity to ingest at time T.
+ *
+ * @see stretched_algo::get_ingest_capacity How many data item ingestions does
+ * this algorithm support?
+ *
+ * @exceptsafe no-throw
+ */
 const bool stretched_has_ingest_capacity(const uint64_t S, const uint64_t T) {
   assert(T >= 0);
   const bool surface_size_ok = std::has_single_bit(S) && S > 1;

@@ -41,7 +41,8 @@ namespace steady_algo {
  * @returns S if algorithm can ingest data items, 0 if invalid surface size.
  *     Returns S if the number of supported ingestions is unlimited.
  *
- * @see steady_algo::has_ingest_capacity Does this algorithm have the capacity to ingest n data items?
+ * @see steady_algo::has_ingest_capacity Does this algorithm have the capacity
+ * to ingest n data items?
  *
  * @exceptsafe no-throw
  */

@@ -94,7 +94,8 @@ const uint64_t _stretched_assign_storage_site(const uint64_t S,
  *
  * @param S Buffer size. Must be a power of two.
  * @param T Current logical time. Must be less than 2^S - 1.
- * @returns Selected site, if any. Returns nullopt if no site should be selected.
+ * @returns Selected site, if any. Returns nullopt if no site should be
+ * selected.
  *
  * @exceptsafe no-throw
  */

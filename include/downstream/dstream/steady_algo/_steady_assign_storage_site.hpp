@@ -74,7 +74,8 @@ const uint64_t _steady_assign_storage_site(const uint64_t S, const uint64_t T) {
  *
  * @param S Buffer size. Must be a power of two.
  * @param T Current logical time.
- * @returns Selected site, if any. Returns nullopt if no site should be selected.
+ * @returns Selected site, if any. Returns nullopt if no site should be
+ * selected.
  *
  * @exceptsafe no-throw
  */

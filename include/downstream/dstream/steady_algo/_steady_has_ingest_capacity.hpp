@@ -36,13 +36,15 @@ namespace dstream {
 namespace steady_algo {
 
 /**
- * Does this algorithm have the capacity to ingest a data item at logical time T?
+ * Does this algorithm have the capacity to ingest a data item at logical time
+ * T?
  *
  * @param S The number of buffer sites available.
  * @param T Queried logical time.
  * @returns Whether there is capacity to ingest at time T.
  *
- * @see steady_get_ingest_capacity How many data item ingestions does this algorithm support?
+ * @see steady_get_ingest_capacity How many data item ingestions does this
+ * algorithm support?
  *
  * @exceptsafe no-throw
  */

@@ -35,14 +35,15 @@ namespace dstream {
 namespace tilted_algo {
 
 /**
-* Perform fast mod using bitwise operations.
-*
-* @param x The dividend of the mod operation. Must be a positive integer.
-* @param n The divisor of the mod operation. Must be a positive integer and a power of 2.
-* @returns The remainder of dividing the dividend by the divisor.
-*
-* @exceptsafe no-throw
-*/
+ * Perform fast mod using bitwise operations.
+ *
+ * @param x The dividend of the mod operation. Must be a positive integer.
+ * @param n The divisor of the mod operation. Must be a positive integer and a
+ * power of 2.
+ * @returns The remainder of dividing the dividend by the divisor.
+ *
+ * @exceptsafe no-throw
+ */
 inline const uint64_t modpow2(const uint64_t x, const uint64_t n) {
   if (n <= 0) return 0;
   return x & (n - 1);
@@ -110,7 +111,8 @@ const uint64_t _tilted_assign_storage_site(const uint64_t S, const uint64_t T) {
  *
  * @param S Buffer size. Must be a power of two.
  * @param T Current logical time. Must be less than 2^S - 1.
- * @returns Selected site, if any. Returns nullopt if no site should be selected.
+ * @returns Selected site, if any. Returns nullopt if no site should be
+ * selected.
  *
  * @exceptsafe no-throw
  */
