@@ -10,3 +10,7 @@
 	path = csl
 	url = https://github.com/mmore500/downstream
 	branch = csl
+[submodule "cpp"]
+	path = cpp
+	url = https://github.com/mmore500/downstream
+	branch = cpp
