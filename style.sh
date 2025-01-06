@@ -1,6 +1,5 @@
 #!/bin/bash
 set -e  # Exit on any error
-set -x  # Print commands before execution
 
 # Format C++ files
 echo "Formatting C++ files..."
