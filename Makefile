@@ -12,7 +12,7 @@ CFLAGS_nat := -O3 -DNDEBUG $(CFLAGS_all)
 CFLAGS_nat_debug := -g $(CFLAGS_all)
 
 # Find all header and source files
-HEADERS := $(shell find downstream -name '*.hpp')
+HEADERS := $(shell find include -name '*.hpp')
 TEST_SOURCES := $(shell find test_downstream -name '*.cpp')
 TEST_BINS := $(TEST_SOURCES:.cpp=)
 
