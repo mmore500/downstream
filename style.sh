@@ -3,7 +3,7 @@ set -e  # Exit on any error
 
 # Format C++ files
 echo "Formatting C++ files..."
-find downstream/ -name "*.hpp" -o -name "*.cpp" | while read -r file; do
+find include/ -name "*.hpp" -o -name "*.cpp" | while read -r file; do
     clang-format -style=file -i "$file"
 done
 

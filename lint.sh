@@ -4,7 +4,7 @@ set -x  # Print commands before execution
 
 # C++ linting with clang-tidy
 echo "Running C++ linting..."
-find downstream/ -name "*.hpp" -o -name "*.cpp" | while read -r file; do
+find include/ -name "*.hpp" -o -name "*.cpp" | while read -r file; do
     clang-tidy "$file" -- -std=c++20 -I.
 done
 
