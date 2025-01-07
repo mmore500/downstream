@@ -9,8 +9,8 @@ fn has_ingest_capacity(S: u32, T: u32) bool {
 
 fn assign_storage_site(S: u32, T: u32) u32 {
     const s = aux.bit_length(S) - 1;
-    const blt = aux.bit_length(T);
-    const t = aux.floor_subtract(blt, s); // Current epoch
+    const blT = aux.bit_length(T);
+    const t = aux.floor_subtract(blT, s); // Current epoch
     const h = aux.ctz(T + 1); // Current hanoi value
 
     // Hanoi value incidence (i.e., num seen)
@@ -22,8 +22,8 @@ fn assign_storage_site(S: u32, T: u32) u32 {
     // Bunch position
     const one: u32 = 1;
     var k_b = (one << B) * (s + 1 - B);
-    // substituting t = s - blt into h + 1 - t
-    var w = h + s + 1 - blt; // Segment width
+    // substituting t = s - blT into h + 1 - t
+    var w = h + s + 1 - blT; // Segment width
     var o = w * (i - (j + 1)); // Within-bunch offset
 
     const is_zeroth_bunch = i == 0;
