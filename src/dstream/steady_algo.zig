@@ -14,8 +14,8 @@ pub fn assign_storage_site(comptime u: type, S: u, T: u) u {
     std.debug.assert(has_ingest_capacity(u, S, T));
 
     const s = aux.bit_length(u, S) - 1;
-    const blt = aux.bit_length(u, T);
-    const t = aux.floor_subtract(u, blt, s); // Current epoch
+    const blT = aux.bit_length(u, T);
+    const t = aux.floor_subtract(u, blT, s); // Current epoch
     const h = @ctz(T + 1); // Current hanoi value
 
     // Hanoi value incidence (i.e., num seen)
@@ -26,8 +26,8 @@ pub fn assign_storage_site(comptime u: type, S: u, T: u) u {
     const B = aux.bit_length(u, j); // Num full bunches
     // Bunch position
     var k_b = aux.overflow_shl(u, 1, B) *% (s + 1 -% B);
-    // substituting t = s - blt into h + 1 - t
-    var w = h + s + 1 -% blt; // Segment width
+    // substituting t = s - blT into h + 1 - t
+    var w = h + s + 1 -% blT; // Segment width
     var o = w *% (i -% (j +% 1)); // Within-bunch offset
 
     const is_zeroth_bunch = i == 0;
