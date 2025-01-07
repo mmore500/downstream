@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <bit>
+#include <cassert>
 #include <cstdint>
 #include <optional>
 
@@ -44,6 +45,7 @@ const uint64_t _steady_assign_storage_site(const uint64_t S, const uint64_t T) {
     }
     o = w * (i - j - 1);  // Within-bunch offset
   }
+  assert(w > 0);
   const uint64_t p = h % w;  // Within-segment offset
   return k_b + o + p;        // Calculate placement site
 }
