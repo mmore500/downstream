@@ -40,7 +40,10 @@ $(MAIN_BIN): $(MAIN_BIN).cpp $(HEADERS)
 validate: build
 	@echo "Running validation tests..."
 	@for algo in steady_algo stretched_algo tilted_algo; do \
-		echo "Validating assign_storage_site with $$algo..."; \
+		echo "Validating assign_storage_site for $$algo..."; \
+		$(PYTHON) -m downstream.testing.debug_one \
+			$(MAIN_BIN) \
+			$$algo.assign_storage_site || exit 1; \
 		$(PYTHON) -m downstream.testing.validate_one \
 			$(MAIN_BIN) \
 			$$algo.assign_storage_site || exit 1; \
