@@ -1,6 +1,7 @@
 #ifndef DOWNSTREAM_DSTREAM_STEADY_ALGO_STEADY_ASSIGN_STORAGE_SITE_HPP
 #define DOWNSTREAM_DSTREAM_STEADY_ALGO_STEADY_ASSIGN_STORAGE_SITE_HPP
 
+#include <algorithm>
 #include <bit>
 #include <cstdint>
 #include <optional>
@@ -20,8 +21,8 @@ namespace steady_algo {
  */
 const uint64_t _steady_assign_storage_site(const uint64_t S, const uint64_t T) {
   const uint64_t s = std::bit_width(S) - 1;
-  const int64_t t = std::bit_width(T) - s;    // Current epoch (or negative)
-  const int64_t h = std::countr_zero(T + 1);  // Current hanoi value
+  const uint64_t t = std::max(std::bit_width(T), s) - s;    // Current epoch
+  const uint64_t h = std::countr_zero(T + 1);  // Current hanoi value
   if (h < t) {  // If not a top n(T) hanoi value...
     return S;   // ...discard without storing
   }
