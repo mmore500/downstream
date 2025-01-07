@@ -27,7 +27,7 @@ pub fn assign_storage_site(comptime u: type, S: u, T: u) u {
     // Bunch position
     var k_b = aux.overflow_shl(u, 1, B) *% (s + 1 -% B);
     // substituting t = s - blT into h + 1 - t
-    var w = h + s + 1 -% blT; // Segment width
+    var w = h + s + 1 - blT; // Segment width
     var o = w *% (i -% (j +% 1)); // Within-bunch offset
 
     const is_zeroth_bunch = i == 0;
@@ -35,7 +35,7 @@ pub fn assign_storage_site(comptime u: type, S: u, T: u) u {
     o = if (!is_zeroth_bunch) o else 0;
     w = if (!is_zeroth_bunch) w else s + 1;
 
-    const p = h % @max(w, 1); // Within-segment offset, avoiding divide by zero
+    const p = h % w; // Within-segment offset, avoiding divide by zero
 
     // handle discard without storing for non-top n(T) hanoi value...
     return if (h >= t) k_b + o + p else S;
