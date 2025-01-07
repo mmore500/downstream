@@ -1,31 +1,9 @@
-// -*- lsst-c++ -*-
-/*
- * This file is part of downstream.
- *
- * Developed for the LSST Data Management System.
- * This product includes software developed by the LSST Project
- * (https://www.lsst.org).
- * See the COPYRIGHT file at the top-level directory of this distribution
- * for details of code ownership.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
 #ifndef DOWNSTREAM_DSTREAM_STEADY_ALGO_STEADY_ASSIGN_STORAGE_SITE_HPP
 #define DOWNSTREAM_DSTREAM_STEADY_ALGO_STEADY_ASSIGN_STORAGE_SITE_HPP
 
+#include <algorithm>
 #include <bit>
+#include <cassert>
 #include <cstdint>
 #include <optional>
 
@@ -44,8 +22,9 @@ namespace steady_algo {
  */
 const uint64_t _steady_assign_storage_site(const uint64_t S, const uint64_t T) {
   const uint64_t s = std::bit_width(S) - 1;
-  const int64_t t = std::bit_width(T) - s;    // Current epoch (or negative)
-  const int64_t h = std::countr_zero(T + 1);  // Current hanoi value
+  const uint64_t blT = std::bit_width(T);
+  const uint64_t t = blT - std::min(s, blT);   // Current epoch
+  const uint64_t h = std::countr_zero(T + 1);  // Current hanoi value
   if (h < t) {  // If not a top n(T) hanoi value...
     return S;   // ...discard without storing
   }
@@ -59,12 +38,14 @@ const uint64_t _steady_assign_storage_site(const uint64_t S, const uint64_t T) {
     const uint64_t j = std::bit_floor(i) - 1;  // Num full-bunch segments
     const uint64_t B = std::bit_width(j);      // Num full bunches
     k_b = (1 << B) * (s - B + 1);              // Bunch position
-    w = h - t + 1;                             // Segment width
+    // substituting t = s - blT into h + 1 - t
+    w = h + s + 1 - blT;                             // Segment width
     if (w <= 0) {
       return S;
     }
     o = w * (i - j - 1);  // Within-bunch offset
   }
+  assert(w > 0);
   const uint64_t p = h % w;  // Within-segment offset
   return k_b + o + p;        // Calculate placement site
 }

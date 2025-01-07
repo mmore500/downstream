@@ -1,8 +1,8 @@
-#include <iostream>
 #include <csignal>
+#include <iostream>
 #include <string>
 #include <string_view>
-#include <map>
+
 #include "include/downstream/dstream/steady_algo/_steady_assign_storage_site.hpp"
 #include "include/downstream/dstream/steady_algo/_steady_has_ingest_capacity.hpp"
 #include "include/downstream/dstream/stretched_algo/_stretched_assign_storage_site.hpp"
@@ -53,7 +53,7 @@ bool process_algorithm(const std::string_view target_function) {
 }  // namespace
 
 int main(int argc, char* argv[]) {
-    signal(SIGPIPE, SIG_IGN);
+    std::signal(SIGPIPE, SIG_IGN);
     std::ios_base::sync_with_stdio(false);
 
     std::string_view target_function(argv[1]);
