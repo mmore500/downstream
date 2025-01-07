@@ -21,7 +21,8 @@ namespace steady_algo {
  */
 const uint64_t _steady_assign_storage_site(const uint64_t S, const uint64_t T) {
   const uint64_t s = std::bit_width(S) - 1;
-  const uint64_t t = std::max(std::bit_width(T), s) - s;    // Current epoch
+  const uint64_t blt = std::bit_width(t);
+  const uint64_t t = blt - std::min(s, blt);   // Current epoch
   const uint64_t h = std::countr_zero(T + 1);  // Current hanoi value
   if (h < t) {  // If not a top n(T) hanoi value...
     return S;   // ...discard without storing
@@ -36,7 +37,8 @@ const uint64_t _steady_assign_storage_site(const uint64_t S, const uint64_t T) {
     const uint64_t j = std::bit_floor(i) - 1;  // Num full-bunch segments
     const uint64_t B = std::bit_width(j);      // Num full bunches
     k_b = (1 << B) * (s - B + 1);              // Bunch position
-    w = h - t + 1;                             // Segment width
+    // substituting t = s - blt into h + 1 - t
+    w = h + s + 1 - blt;                             // Segment width
     if (w <= 0) {
       return S;
     }
