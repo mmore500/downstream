@@ -23,8 +23,13 @@ To install from PyPi with pip, run
 
 To install the latest develoment code directly from GitHub, run
 
-`python3 -m pip install "git+https://github.com/mmore500/downstream.git@v0.4.4#egg=downstream[jit]"`
+`python3 -m pip install "git+https://github.com/mmore500/downstream.git@v1.5.1#egg=downstream[jit]"`
 
+A containerized release of `downstream` is available via <ghcr.io>
+
+```bash
+singularity exec docker://ghcr.io/mmore500/downstream:v1.5.1 python3 -m downstream --help
+```
 
 ## Citing
 
