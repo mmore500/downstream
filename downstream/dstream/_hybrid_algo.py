@@ -114,12 +114,15 @@ class hybrid_algo:
         )
 
     def has_ingest_capacity(self: "hybrid_algo", S: int, T: int) -> bool:
-        return all(
-            algo.has_ingest_capacity(
-                self._get_span_length(S, index), self._get_adj_T(T, index)
-            )
-            for index, algo in enumerate(self._algos)
-        )
+        num_chunks = self._get_num_chunks()
+        for T_ in range(max(0, T - num_chunks + 1), T + 1):
+            index = self._get_algo_index(T_)
+            if not self._algos[index].has_ingest_capacity(
+                self._get_span_length(S, index),
+                self._get_adj_T(T_, index),
+            ):
+                return False
+        return True
 
     def lookup_ingest_times(
         self: "hybrid_algo", S: int, T: int
