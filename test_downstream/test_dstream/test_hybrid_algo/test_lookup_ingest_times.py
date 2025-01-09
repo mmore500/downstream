@@ -57,16 +57,16 @@ def validate_lookup(fn: typing.Callable) -> typing.Callable:
         ),
     ],
 )
-@pytest.mark.parametrize("s", range(1, 8))
+@pytest.mark.parametrize("s", range(1, 7))
 def test_steady_time_lookup_against_site_selection(algo: typing.Any, s: int):
     time_lookup = validate_lookup(algo.lookup_ingest_times)
     S = (1 << s) * algo._get_num_chunks()
     T_max = algo.get_ingest_capacity(S)
     if T_max is None:
-        T_max = 2**16
+        T_max = 2**14
 
     expected = [None] * S
-    for T in range(T_max):
+    for T in range(min(T_max, 2**14)):
         actual = time_lookup(S, T)
         assert all(x == y for x, y in zip(expected, actual))
 

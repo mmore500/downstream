@@ -130,11 +130,13 @@ class hybrid_algo:
         for index, algo in enumerate(self._algos):
             adj_T = self._get_adj_T(T, index)
             span_length = self._get_span_length(S, index)
+
+            num_chunks = self._get_num_chunks()
+            begin_chunk = self._fenceposts[index]
+            end_chunk = self._fenceposts[index + 1]
+            span_chunk_length = end_chunk - begin_chunk
+
             for Tbar in algo.lookup_ingest_times(span_length, adj_T):
-                num_chunks = self._get_num_chunks()
-                begin_chunk = self._fenceposts[index]
-                end_chunk = self._fenceposts[index + 1]
-                span_chunk_length = end_chunk - begin_chunk
                 if Tbar is not None:
                     yield begin_chunk + (
                         (Tbar // span_chunk_length) * num_chunks
