@@ -58,7 +58,7 @@ def validate_lookup(fn: typing.Callable) -> typing.Callable:
     ],
 )
 @pytest.mark.parametrize("s", range(1, 7))
-def test_steady_time_lookup_against_site_selection(algo: typing.Any, s: int):
+def test_lookup_against_site_selection(algo: typing.Any, s: int):
     time_lookup = validate_lookup(algo.lookup_ingest_times)
     S = (1 << s) * algo._get_num_chunks()
     T_max = algo.get_ingest_capacity(S)
@@ -105,7 +105,7 @@ def test_steady_time_lookup_against_site_selection(algo: typing.Any, s: int):
 @pytest.mark.parametrize(
     "T", [*range(10**2), *np.random.randint(2**63, size=10**2)]
 )
-def test_steady_time_lookup_fuzz(algo: typing.Any, s: int, T: int):
+def test_lookup_fuzz(algo: typing.Any, s: int, T: int):
     S = (1 << s) * algo._get_num_chunks()
     time_lookup = validate_lookup(algo.lookup_ingest_times)
     if not algo.has_ingest_capacity(S, T):

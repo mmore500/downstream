@@ -42,7 +42,7 @@ from downstream.dstream import hybrid_algo as algo_class
     ],
 )
 @pytest.mark.parametrize("s", range(1, 5))
-def test_steady_time_lookup_against_site_selection(algo: typing.Any, s: int):
+def test_lookup_against_site_selection(algo: typing.Any, s: int):
     time_lookup = algo.lookup_ingest_times_eager
     S = (1 << s) * algo._get_num_chunks()
     T_max = algo.get_ingest_capacity(S)
