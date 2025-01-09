@@ -45,11 +45,12 @@ class hybrid_algo:
         span_chunk_length = end_chunk - begin_chunk
         num_chunks = self._get_num_chunks()
 
-        # TODO checkme
         T_ref = T + num_chunks - end_chunk
         assert T_ref >= 0
-        num_whole_rounds = T_ref // num_chunks
-        partial_chunks = max(0, T_ref % num_chunks - begin_chunk)
+        num_whole_rounds = T // num_chunks
+        partial_chunks = sorted(
+            (0, T % num_chunks - begin_chunk, span_chunk_length),
+        )[1]
 
         return num_whole_rounds * span_chunk_length + partial_chunks
 
