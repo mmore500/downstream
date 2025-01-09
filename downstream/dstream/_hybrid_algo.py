@@ -91,19 +91,7 @@ class hybrid_algo:
     def assign_storage_site_batched(
         self: "hybrid_algo", S: int, T: _maybe_np_T
     ) -> np.ndarray:
-        index = self._get_algo_index(T)
-        algo = self._algos[index]
-
-        span_length = self._get_span_length(S, index)
-        T_adj = self._get_adj_T(T, index)
-        span_site = algo.assign_storage_site_batched(span_length, T_adj)
-
-        span_offset = self._get_span_offset(S, index)
-        return np.where(
-            span_site == span_length,
-            S,
-            span_offset + span_site,
-        )
+        raise NotImplementedError
 
     def get_ingest_capacity(
         self: "hybrid_algo", S: int
