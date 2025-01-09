@@ -55,7 +55,7 @@ class hybrid_algo:
         return num_whole_rounds * span_chunk_length + partial_chunks
 
     def _get_span_scale(self: "hybrid_algo", S: int) -> _maybe_np_T:
-        num_chunks = self._get_num_chunks(S)
+        num_chunks = self._get_num_chunks()
         if not S % num_chunks == 0:
             raise ValueError
         return S // num_chunks
