@@ -48,3 +48,6 @@ def test_complex():
     assert [
         algo._get_span_length(T, index=1) for T in range(0, 40, 4)
     ] == expected
+    assert [
+        algo._get_span_length(T, index=2) for T in range(0, 40, 4)
+    ] == expected
