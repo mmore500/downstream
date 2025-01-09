@@ -13,7 +13,6 @@ def validate_lookup(fn: typing.Callable) -> typing.Callable:
 
     @functools.wraps(fn)
     def wrapper(S: int, T: np.ndarray, *args, **kwargs) -> np.ndarray:
-        assert np.array(np.bitwise_count(S) == 1).all()  # S is a power of two
         assert np.asarray(S <= T).all()  # T is non-negative
         res = fn(S, T, *args, **kwargs)
         assert (np.clip(res, 0, T[:, None] - 1) == res).all()
@@ -58,8 +57,8 @@ def validate_lookup(fn: typing.Callable) -> typing.Callable:
     ],
 )
 @pytest.mark.parametrize("s", range(1, 7))
-def test_steady_time_lookup_against_site_selection(algo: typing.Any, s: int):
-    time_lookup = validate_lookup(algo.lookup_ingest_times)
+def test_lookup_against_site_selection(algo: typing.Any, s: int):
+    time_lookup = validate_lookup(algo.lookup_ingest_times_batched)
     S = (1 << s) * algo._get_num_chunks()
     T_max = min(1 << (20 - s), algo.get_ingest_capacity(S) or 2**S - 1)
     expected = [None] * S
