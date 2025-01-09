@@ -46,11 +46,11 @@ class hybrid_algo:
         num_chunks = self._get_num_chunks()
 
         T_ref = T + num_chunks - end_chunk
-        assert T_ref >= 0
+        assert np.asarray(T_ref >= 0).all()
         num_whole_rounds = T // num_chunks
-        partial_chunks = sorted(
-            (0, T % num_chunks - begin_chunk, span_chunk_length),
-        )[1]
+        partial_chunks = np.clip(
+            T % num_chunks - begin_chunk, 0, span_chunk_length
+        )
 
         return num_whole_rounds * span_chunk_length + partial_chunks
 
@@ -83,7 +83,7 @@ class hybrid_algo:
 
         span_length = self._get_span_length(S, index)
         T_adj = self._get_adj_T(T, index)
-        span_site = algo.assign_storage_site(span_length, T_adj)
+        span_site = algo.assign_storage_site(span_length, int(T_adj))
 
         span_offset = self._get_span_offset(S, index)
         return span_offset + span_site if span_site is not None else None
@@ -162,24 +162,24 @@ class hybrid_algo:
         for index, algo in enumerate(self._algos):
             adj_T = self._get_adj_T(T, index)
             span_length = self._get_span_length(S, index)
-            for Tbar in algo.lookup_ingest_times_batched(
+            Tbar = algo.lookup_ingest_times_batched(
                 span_length,
                 adj_T,
                 parallel=parallel,
-            ):
-                num_chunks = self._get_num_chunks()
-                begin_chunk = self._fenceposts[index]
-                end_chunk = self._fenceposts[index + 1]
-                span_chunk_length = end_chunk - begin_chunk
+            )
+            num_chunks = self._get_num_chunks()
+            begin_chunk = self._fenceposts[index]
+            end_chunk = self._fenceposts[index + 1]
+            span_chunk_length = end_chunk - begin_chunk
 
-                subres = (
-                    begin_chunk
-                    + (Tbar // span_chunk_length) * num_chunks
-                    + Tbar % span_chunk_length
-                )
+            subres = (
+                begin_chunk
+                + (Tbar // span_chunk_length) * num_chunks
+                + Tbar % span_chunk_length
+            )
 
-                span_offset = self._get_span_offset(S, index)
-                span_length = self._get_span_length(S, index)
-                res[span_offset : span_offset + span_length] = subres
+            span_offset = self._get_span_offset(S, index)
+            span_length = self._get_span_length(S, index)
+            res[:, span_offset : span_offset + span_length] = subres
 
         return res
