@@ -28,7 +28,7 @@ def test_simple():
     assert [algo._get_adj_T(T, index=1) for T in range(10)] == expected
 
 
-def test_complex1():
+def test_complex():
     algo = algo_class(
         0,
         dstream.steady_algo,
