@@ -15,12 +15,12 @@ class hybrid_algo:
         self: "hybrid_algo",
         *layout: list,
     ) -> None:
-        self._algos = layout[1::2]
-        self._fenceposts = layout[::2]
+        self._algos = list(layout[1::2])
+        self._fenceposts = list(layout[::2])
         self._chunk_algo_indices = [
             index
             for index, __ in enumerate(self._algos)
-            for __ in range(*self._fenceposts[index : index + 1])
+            for __ in range(*self._fenceposts[index : index + 2])
         ]
 
         if not self._algos:
