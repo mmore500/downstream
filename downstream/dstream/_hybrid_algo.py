@@ -101,7 +101,7 @@ class hybrid_algo:
         )
         ingest_capacities = (
             algo.get_ingest_capacity(span_length)
-            for span_length, algo in zip(span_lengths, self.self._algos)
+            for span_length, algo in zip(span_lengths, self._algos)
         )
         num_chunks = self._get_num_chunks()
         return min(
