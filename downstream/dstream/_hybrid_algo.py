@@ -136,7 +136,7 @@ class hybrid_algo:
                 end_chunk = self._fenceposts[index + 1]
                 span_chunk_length = end_chunk - begin_chunk
                 if Tbar is not None:
-                    yield (
+                    yield begin_chunk + (
                         (Tbar // span_chunk_length) * num_chunks
                         + Tbar % span_chunk_length
                     )
@@ -171,8 +171,10 @@ class hybrid_algo:
                 span_chunk_length = end_chunk - begin_chunk
 
                 subres = (
-                    Tbar // span_chunk_length
-                ) * num_chunks + Tbar % span_chunk_length
+                    begin_chunk
+                    + (Tbar // span_chunk_length) * num_chunks
+                    + Tbar % span_chunk_length
+                )
 
                 span_offset = self._get_span_offset(S, index)
                 span_length = self._get_span_length(S, index)
