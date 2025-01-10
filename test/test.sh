@@ -22,6 +22,9 @@ python3 -m downstream.testing.debug_one \
     ./zig-out/bin/downstream 'dstream.stretched_algo.assign_storage_site'
 python3 -m downstream.testing.debug_one \
     ./zig-out/bin/downstream 'dstream.tilted_algo.assign_storage_site'
+python3 -m downstream.testing.debug_one \
+    ./zig-out/bin/downstream \
+    'dstream.hybrid_0_steady_1_stretched_2_algo.assign_storage_site'
 
 python3 -m downstream.testing.validate_one \
     ./zig-out/bin/downstream 'dstream.steady_algo.assign_storage_site'
@@ -29,3 +32,6 @@ python3 -m downstream.testing.validate_one \
     ./zig-out/bin/downstream 'dstream.stretched_algo.assign_storage_site'
 python3 -m downstream.testing.validate_one \
     ./zig-out/bin/downstream 'dstream.tilted_algo.assign_storage_site'
+python3 -m downstream.testing.validate_one \
+    ./zig-out/bin/downstream \
+    'dstream.hybrid_0_steady_1_stretched_2_algo.assign_storage_site'
