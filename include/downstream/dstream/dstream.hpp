@@ -2,6 +2,7 @@
 #ifndef DOWNSTREAM_DSTREAM_DSTREAM_HPP
 #define DOWNSTREAM_DSTREAM_DSTREAM_HPP
 
+#include "../auxlib/DOWNSTREAM_UINT.hpp"
 #include "./hybrid_0_steady_1_stretched_2/algo.hpp"
 #include "./hybrid_0_steady_1_tilted_2/algo.hpp"
 #include "./steady/algo.hpp"
@@ -11,13 +12,29 @@
 namespace downstream {
 namespace dstream {
 
+template <std::unsigned_integral UINT>
+using hybrid_0_steady_1_stretched_2_algo_ =
+    dstream_hybrid_0_steady_1_stretched_2::algo<UINT>;
 using hybrid_0_steady_1_stretched_2_algo =
-    dstream_hybrid_0_steady_1_stretched_2::algo;
+    hybrid_0_steady_1_stretched_2_algo_<DOWNSTREAM_UINT>;
+
+template <std::unsigned_integral UINT>
+using hybrid_0_steady_1_tilted_2_algo_ =
+    dstream_hybrid_0_steady_1_tilted_2::algo<UINT>;
 using hybrid_0_steady_1_tilted_2_algo =
-    dstream_hybrid_0_steady_1_tilted_2::algo;
-using steady_algo = dstream_steady::algo;
-using stretched_algo = dstream_stretched::algo;
-using tilted_algo = dstream_tilted::algo;
+    hybrid_0_steady_1_tilted_2_algo_<DOWNSTREAM_UINT>;
+
+template <std::unsigned_integral UINT>
+using steady_algo_ = dstream_steady::algo<UINT>;
+using steady_algo = steady_algo_<DOWNSTREAM_UINT>;
+
+template <std::unsigned_integral UINT>
+using stretched_algo_ = dstream_stretched::algo<UINT>;
+using stretched_algo = stretched_algo_<DOWNSTREAM_UINT>;
+
+template <std::unsigned_integral UINT>
+using tilted_algo_ = dstream_tilted::algo<UINT>;
+using tilted_algo = tilted_algo_<DOWNSTREAM_UINT>;
 
 }  // namespace dstream
 }  // namespace downstream

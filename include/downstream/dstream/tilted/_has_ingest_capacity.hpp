@@ -4,7 +4,9 @@
 
 #include <bit>
 #include <cassert>
-#include <cstdint>
+#include <concepts>
+
+#include "../../auxlib/DOWNSTREAM_UINT.hpp"
 
 namespace downstream {
 namespace dstream_tilted {
@@ -19,12 +21,13 @@ namespace dstream_tilted {
  *
  * @exceptsafe no-throw
  */
-const bool has_ingest_capacity(const uint64_t S, const uint64_t T) {
+template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
+const bool has_ingest_capacity(const UINT S, const UINT T) {
   const bool surface_size_ok = S > 1 and (std::popcount(S) == 1);
   if (!surface_size_ok) return false;
-  if (S >= 8 * sizeof(uint64_t)) return true;
+  if (S >= 8 * sizeof(UINT)) return true;
 
-  const uint64_t ingest_capacity = (uint64_t{1} << S) - 1;
+  const UINT ingest_capacity = (UINT{1} << S) - 1;
   return T < ingest_capacity;
 }
 

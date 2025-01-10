@@ -4,9 +4,10 @@
 
 #include <algorithm>
 #include <cassert>
-#include <cstdint>
+#include <concepts>
 #include <optional>
 
+#include "../../auxlib/DOWNSTREAM_UINT.hpp"
 #include "../steady/_assign_storage_site.hpp"
 #include "../tilted/_assign_storage_site.hpp"
 #include "./_has_ingest_capacity.hpp"
@@ -23,16 +24,18 @@ namespace dstream_hybrid_0_steady_1_tilted_2 {
  *
  * @exceptsafe no-throw
  */
-const uint64_t _assign_storage_site(const uint64_t S, const uint64_t T) {
-  assert(dstream_hybrid_0_steady_1_tilted_2::has_ingest_capacity(S, T));
+template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
+const UINT _assign_storage_site(const UINT S, const UINT T) {
+  assert(dstream_hybrid_0_steady_1_tilted_2::has_ingest_capacity<UINT>(S, T));
 
-  const uint64_t half_S = S >> 1;
-  const uint64_t half_T = T >> 1;
+  const UINT half_S = S >> 1;
+  const UINT half_T = T >> 1;
   if ((T & 1) == 0) {
-    const uint64_t site = dstream_steady::_assign_storage_site(half_S, half_T);
+    const UINT site =
+        dstream_steady::_assign_storage_site<UINT>(half_S, half_T);
     return (site == half_S) ? S : site;
   } else {
-    return half_S + dstream_tilted::_assign_storage_site(half_S, half_T);
+    return half_S + dstream_tilted::_assign_storage_site<UINT>(half_S, half_T);
   }
 }
 
@@ -46,11 +49,11 @@ const uint64_t _assign_storage_site(const uint64_t S, const uint64_t T) {
  *
  * @exceptsafe no-throw
  */
-const std::optional<uint64_t> assign_storage_site(const uint64_t S,
-                                                  const uint64_t T) {
-  const uint64_t site =
-      dstream_hybrid_0_steady_1_tilted_2::_assign_storage_site(S, T);
-  return site == S ? std::nullopt : std::optional<uint64_t>(site);
+template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
+const std::optional<UINT> assign_storage_site(const UINT S, const UINT T) {
+  const UINT site =
+      dstream_hybrid_0_steady_1_tilted_2::_assign_storage_site<UINT>(S, T);
+  return site == S ? std::nullopt : std::optional<UINT>(site);
 }
 
 }  // namespace dstream_hybrid_0_steady_1_tilted_2

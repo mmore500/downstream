@@ -4,7 +4,9 @@
 
 #include <bit>
 #include <cassert>
-#include <cstdint>
+#include <concepts>
+
+#include "../../auxlib/DOWNSTREAM_UINT.hpp"
 
 namespace downstream {
 namespace dstream_steady {
@@ -19,7 +21,8 @@ namespace dstream_steady {
  *
  * @exceptsafe no-throw
  */
-const bool has_ingest_capacity(const uint64_t S, const uint64_t T) {
+template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
+const bool has_ingest_capacity(const UINT S, const UINT T) {
   assert(T >= 0);
   return (std::popcount(S) == 1) and S > 1;
 }

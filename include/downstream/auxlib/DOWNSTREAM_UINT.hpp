@@ -1,0 +1,9 @@
+#pragma once
+#ifndef DOWNSTREAM_AUXLIB_DOWNSTREAM_UINT_HPP
+#define DOWNSTREAM_AUXLIB_DOWNSTREAM_UINT_HPP
+
+#include <cstdint>
+
+#define DOWNSTREAM_UINT std::uint64_t
+
+#endif  // DOWNSTREAM_AUXLIB_DOWNSTREAM_UINT_HPP
