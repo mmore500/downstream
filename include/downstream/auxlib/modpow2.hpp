@@ -20,7 +20,7 @@ namespace auxlib {
  * @exceptsafe no-throw
  */
 template <std::unsigned_integral UINT>
-inline const UINT modpow2(const UINT x, const UINT n) {
+inline UINT modpow2(const UINT x, const UINT n) {
   assert(std::has_single_bit(n));
   return x & (n - 1);
 }

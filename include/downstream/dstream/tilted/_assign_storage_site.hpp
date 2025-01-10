@@ -25,7 +25,7 @@ namespace dstream_tilted {
  * @exceptsafe no-throw
  */
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
-const UINT _assign_storage_site(const UINT S, const UINT T) {
+UINT _assign_storage_site(const UINT S, const UINT T) {
   assert(dstream_tilted::has_ingest_capacity<UINT>(S, T));
   const UINT s = std::bit_width(S) - 1;
   const UINT t = std::max(std::bit_width(T) - s, UINT{0});  // Current epoch
@@ -83,7 +83,7 @@ const UINT _assign_storage_site(const UINT S, const UINT T) {
  * @exceptsafe no-throw
  */
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
-const std::optional<UINT> assign_storage_site(const UINT S, const UINT T) {
+std::optional<UINT> assign_storage_site(const UINT S, const UINT T) {
   const UINT site = dstream_tilted::_assign_storage_site<UINT>(S, T);
   return std::optional<UINT>(site);
 }

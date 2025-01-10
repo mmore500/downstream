@@ -25,7 +25,7 @@ namespace dstream_hybrid_0_steady_1_tilted_2 {
  * @exceptsafe no-throw
  */
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
-const UINT _assign_storage_site(const UINT S, const UINT T) {
+UINT _assign_storage_site(const UINT S, const UINT T) {
   assert(dstream_hybrid_0_steady_1_tilted_2::has_ingest_capacity<UINT>(S, T));
 
   const UINT half_S = S >> 1;
@@ -50,7 +50,7 @@ const UINT _assign_storage_site(const UINT S, const UINT T) {
  * @exceptsafe no-throw
  */
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
-const std::optional<UINT> assign_storage_site(const UINT S, const UINT T) {
+std::optional<UINT> assign_storage_site(const UINT S, const UINT T) {
   const UINT site =
       dstream_hybrid_0_steady_1_tilted_2::_assign_storage_site<UINT>(S, T);
   return site == S ? std::nullopt : std::optional<UINT>(site);

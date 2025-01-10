@@ -24,7 +24,7 @@ namespace dstream_steady {
  * @exceptsafe no-throw
  */
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
-const UINT _assign_storage_site(const UINT S, const UINT T) {
+UINT _assign_storage_site(const UINT S, const UINT T) {
   assert(dstream_steady::has_ingest_capacity<UINT>(S, T));
   const UINT s = std::bit_width(S) - 1;
   const UINT blT = std::bit_width(T);
@@ -63,7 +63,7 @@ const UINT _assign_storage_site(const UINT S, const UINT T) {
  * @exceptsafe no-throw
  */
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
-const std::optional<UINT> assign_storage_site(const UINT S, const UINT T) {
+std::optional<UINT> assign_storage_site(const UINT S, const UINT T) {
   const UINT site = dstream_steady::_assign_storage_site<UINT>(S, T);
   return site == S ? std::nullopt : std::optional<UINT>(site);
 }
