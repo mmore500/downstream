@@ -27,7 +27,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y g++-12 clang clang-tidy
           python3 -m pip install pip --upgrade
-          python3 -m pip install downstream
+          python3 -m pip install -r requirements.txt
       - name: Run lint checks
         run: ./lint.sh
       - name: Run C++ syntax checks

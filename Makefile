@@ -39,7 +39,11 @@ $(MAIN_BIN): $(MAIN_BIN).cpp $(HEADERS)
 
 validate: build
 	@echo "Running validation tests..."
-	@for algo in steady_algo stretched_algo tilted_algo; do \
+	@for algo in \
+		dstream.steady_algo \
+		dstream.stretched_algo \
+		dstream.tilted_algo \
+	; do \
 		echo "Validating assign_storage_site for $$algo..."; \
 		$(PYTHON) -m downstream.testing.debug_one \
 			$(MAIN_BIN) \
