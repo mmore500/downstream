@@ -1,6 +1,5 @@
 import argparse
 import sys
-import typing
 
 import more_itertools as mit
 import numpy as np
