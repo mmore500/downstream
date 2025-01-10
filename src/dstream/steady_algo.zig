@@ -35,9 +35,9 @@ pub fn assign_storage_site(comptime u: type, S: u, T: u) u {
     o = if (!is_zeroth_bunch) o else 0;
     w = if (!is_zeroth_bunch) w else s + 1;
 
-    std.debug.assert(w > 0);
-    const p = h % w; // Within-segment offset, avoiding divide by zero
+    std.debug.assert(w > 0 or h < t); // ensure no divide-by-zero
 
     // handle discard without storing for non-top n(T) hanoi value...
-    return if (h >= t) k_b + o + p else S;
+    return if (h >= t) k_b + o + (h % w) else S;
+    // within-segment offset: p  ^^^%^^^
 }
