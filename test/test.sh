@@ -12,19 +12,20 @@ source "${venv}/bin/activate"
 
 python3 -m pip install uv
 python3 -m uv pip install -r test/requirements.txt
+python3 -m downstream --version
 
 zig build
 
 python3 -m downstream.testing.debug_one \
-    ./zig-out/bin/downstream 'steady_algo.assign_storage_site'
+    ./zig-out/bin/downstream 'dstream.steady_algo.assign_storage_site'
 python3 -m downstream.testing.debug_one \
-    ./zig-out/bin/downstream 'stretched_algo.assign_storage_site'
+    ./zig-out/bin/downstream 'dstream.stretched_algo.assign_storage_site'
 python3 -m downstream.testing.debug_one \
-    ./zig-out/bin/downstream 'tilted_algo.assign_storage_site'
+    ./zig-out/bin/downstream 'dstream.tilted_algo.assign_storage_site'
 
 python3 -m downstream.testing.validate_one \
-    ./zig-out/bin/downstream 'steady_algo.assign_storage_site'
+    ./zig-out/bin/downstream 'dstream.steady_algo.assign_storage_site'
 python3 -m downstream.testing.validate_one \
-    ./zig-out/bin/downstream 'stretched_algo.assign_storage_site'
+    ./zig-out/bin/downstream 'dstream.stretched_algo.assign_storage_site'
 python3 -m downstream.testing.validate_one \
-    ./zig-out/bin/downstream 'tilted_algo.assign_storage_site'
+    ./zig-out/bin/downstream 'dstream.tilted_algo.assign_storage_site'

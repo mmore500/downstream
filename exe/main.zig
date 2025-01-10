@@ -45,9 +45,9 @@ fn dispatch_tilted_algo_assign_storage_site(S: u32, T: u32) !void {
 }
 
 fn dispatch(algo_name: []const u8, values: []const u32) !void {
-    const steady_assign = "steady_algo.assign_storage_site";
-    const stretched_assign = "stretched_algo.assign_storage_site";
-    const tilted_assign = "tilted_algo.assign_storage_site";
+    const steady_assign = "dstream.steady_algo.assign_storage_site";
+    const stretched_assign = "dstream.stretched_algo.assign_storage_site";
+    const tilted_assign = "dstream.tilted_algo.assign_storage_site";
 
     if (std.mem.eql(u8, algo_name, steady_assign)) {
         try dispatch_steady_algo_assign_storage_site(values[0], values[1]);
