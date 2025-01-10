@@ -6,7 +6,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description=(
             "Debug a downstream implementation against selected reference "
-            "test cases."
+            "test cases. This script does not test hybrid algorithms --- use "
+            "debug_one to test these directly."
         ),
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
