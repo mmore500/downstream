@@ -1,6 +1,6 @@
 import argparse
 import re
-import textwrap as _textwrap
+import textwrap
 
 
 # adapted from https://stackoverflow.com/a/35925919/17332200
@@ -9,6 +9,8 @@ class ArgparseFormatter(
     argparse.RawDescriptionHelpFormatter,
     argparse.ArgumentDefaultsHelpFormatter,
 ):
+    """Format argparse help output to be more readable."""
+
     def __add_whitespace(self, idx, iWSpace, text):
         if idx == 0:
             return text
@@ -24,7 +26,7 @@ class ArgparseFormatter(
                 lWSpace = search.end()
                 lines = [
                     self.__add_whitespace(i, lWSpace, x)
-                    for i, x in enumerate(_textwrap.wrap(line, width))
+                    for i, x in enumerate(textwrap.wrap(line, width))
                 ]
                 textRows[idx] = lines
 
