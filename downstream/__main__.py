@@ -30,7 +30,7 @@ if __name__ == "__main__":
         epilog="""
         Example usage:
         $ python3 -m downstream.testing.generate_test_cases \
-            | python3 -m downstream 'steady_algo.assign_storage_site'
+            | python3 -m downstream 'dstream.steady_algo.assign_storage_site'
 
         Additional available commands:
         $ python3 -m downstream.dataframe.explode_lookup_packed
@@ -50,7 +50,7 @@ if __name__ == "__main__":
         "target",
         help=(
             "The algorithm function to test. "
-            "Example: 'steady_algo.assign_storage_site'."
+            "Example: 'dstream.steady_algo.assign_storage_site'."
         ),
     )
     parser.add_argument(
