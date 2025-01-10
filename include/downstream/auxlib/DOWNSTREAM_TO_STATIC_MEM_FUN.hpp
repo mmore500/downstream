@@ -1,6 +1,6 @@
 #pragma once
-#ifndef DOWNSTREAM_AUXLIB_TO_STATIC_MEM_FUN_HPP
-#define DOWNSTREAM_AUXLIB_TO_STATIC_MEM_FUN_HPP
+#ifndef DOWNSTREAM_AUXLIB_DOWNSTREAM_TO_STATIC_MEM_FUN_HPP
+#define DOWNSTREAM_AUXLIB_DOWNSTREAM_TO_STATIC_MEM_FUN_HPP
 
 #include <type_traits>
 
@@ -9,4 +9,4 @@
   static_assert(std::is_function<decltype(ns::fun<T>)>::value, "not a func"); \
   constexpr static decltype(ns::fun<T>)* fun = ns::fun<T>
 
-#endif  // DOWNSTREAM_AUXLIB_TO_STATIC_MEM_FUN_HPP
+#endif  // DOWNSTREAM_AUXLIB_DOWNSTREAM_TO_STATIC_MEM_FUN_HPP
