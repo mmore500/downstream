@@ -114,7 +114,6 @@ jobs:
       - run: python3 -m downstream.testing.debug_one 'python3 -m downstream' '${{ matrix.algo }}'
       - run: python3 -m downstream.testing.validate_one 'python3 -m downstream' '${{ matrix.algo }}'
 
-
   test-validators:
     runs-on: ubuntu-24.04
     strategy:
