@@ -1,6 +1,6 @@
 #pragma once
-#ifndef DOWNSTREAM_DSTREAM_STEADY_HAS_INGEST_CAPACITY_HPP
-#define DOWNSTREAM_DSTREAM_STEADY_HAS_INGEST_CAPACITY_HPP
+#ifndef DOWNSTREAM_DSTREAM_STEADY__HAS_INGEST_CAPACITY_HPP
+#define DOWNSTREAM_DSTREAM_STEADY__HAS_INGEST_CAPACITY_HPP
 
 #include <bit>
 #include <cassert>
@@ -27,4 +27,4 @@ const bool has_ingest_capacity(const uint64_t S, const uint64_t T) {
 }  // namespace dstream_steady
 }  // namespace downstream
 
-#endif  // DOWNSTREAM_DSTREAM_STEADY_HAS_INGEST_CAPACITY_HPP
+#endif  // DOWNSTREAM_DSTREAM_STEADY__HAS_INGEST_CAPACITY_HPP

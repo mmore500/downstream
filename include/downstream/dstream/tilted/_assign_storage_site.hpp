@@ -1,6 +1,6 @@
 #pragma once
-#ifndef DOWNSTREAM_DSTREAM_TILTED_ASSIGN_STORAGE_SITE_HPP
-#define DOWNSTREAM_DSTREAM_TILTED_ASSIGN_STORAGE_SITE_HPP
+#ifndef DOWNSTREAM_DSTREAM_TILTED__ASSIGN_STORAGE_SITE_HPP
+#define DOWNSTREAM_DSTREAM_TILTED__ASSIGN_STORAGE_SITE_HPP
 
 #include <algorithm>
 #include <bit>
@@ -105,4 +105,4 @@ const std::optional<uint64_t> assign_storage_site(const uint64_t S,
 }  // namespace dstream_tilted
 }  // namespace downstream
 
-#endif  // DOWNSTREAM_DSTREAM_TILTED_ASSIGN_STORAGE_SITE_HPP
+#endif  // DOWNSTREAM_DSTREAM_TILTED__ASSIGN_STORAGE_SITE_HPP
