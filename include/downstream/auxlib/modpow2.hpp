@@ -4,6 +4,7 @@
 
 #include <bit>
 #include <cassert>
+#include <concepts>
 
 namespace downstream {
 namespace auxlib {
