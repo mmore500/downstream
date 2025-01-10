@@ -1,13 +1,12 @@
-#ifndef DOWNSTREAM_DSTREAM_STRETCHED_ALGO_STRETCHED_HAS_INGEST_CAPACITY_HPP
-#define DOWNSTREAM_DSTREAM_STRETCHED_ALGO_STRETCHED_HAS_INGEST_CAPACITY_HPP
+#ifndef DOWNSTREAM_DSTREAM_STRETCHED_HAS_INGEST_CAPACITY_HPP
+#define DOWNSTREAM_DSTREAM_STRETCHED_HAS_INGEST_CAPACITY_HPP
 
 #include <bit>
 #include <cassert>
 #include <cstdint>
 
 namespace downstream {
-namespace dstream {
-namespace stretched_algo {
+namespace dstream_stretched {
 
 /**
  * Does this algorithm have the capacity to ingest a data item at logical time
@@ -17,12 +16,9 @@ namespace stretched_algo {
  * @param T Queried logical time.
  * @returns Whether there is capacity to ingest at time T.
  *
- * @see stretched_algo::get_ingest_capacity How many data item ingestions does
- * this algorithm support?
- *
  * @exceptsafe no-throw
  */
-const bool stretched_has_ingest_capacity(const uint64_t S, const uint64_t T) {
+const bool has_ingest_capacity(const uint64_t S, const uint64_t T) {
   const bool surface_size_ok = S > 1 and (std::popcount(S) == 1);
   if (!surface_size_ok) return false;
   if (S >= 8 * sizeof(uint64_t)) return true;
@@ -31,8 +27,7 @@ const bool stretched_has_ingest_capacity(const uint64_t S, const uint64_t T) {
   return T < ingest_capacity;
 }
 
-}  // namespace stretched_algo
-}  // namespace dstream
+}  // namespace dstream_stretched
 }  // namespace downstream
 
-#endif  // DOWNSTREAM_DSTREAM_STRETCHED_ALGO_STRETCHED_HAS_INGEST_CAPACITY_HPP
+#endif  // DOWNSTREAM_DSTREAM_STRETCHED_HAS_INGEST_CAPACITY_HPP

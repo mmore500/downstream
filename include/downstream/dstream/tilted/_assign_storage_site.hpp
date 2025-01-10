@@ -1,14 +1,16 @@
-#ifndef DOWNSTREAM_DSTREAM_TILTED_ALGO_TILTED_ASSIGN_STORAGE_SITE_HPP
-#define DOWNSTREAM_DSTREAM_TILTED_ALGO_TILTED_ASSIGN_STORAGE_SITE_HPP
+#ifndef DOWNSTREAM_DSTREAM_TILTED_ASSIGN_STORAGE_SITE_HPP
+#define DOWNSTREAM_DSTREAM_TILTED_ASSIGN_STORAGE_SITE_HPP
 
 #include <algorithm>
 #include <bit>
+#include <cassert>
 #include <cstdint>
 #include <optional>
 
+#include "./_has_ingest_capacity.hpp"
+
 namespace downstream {
-namespace dstream {
-namespace tilted_algo {
+namespace dstream_tilted {
 
 /**
  * Perform fast mod using bitwise operations.
@@ -34,7 +36,8 @@ inline const uint64_t modpow2(const uint64_t x, const uint64_t n) {
  *
  * @exceptsafe no-throw
  */
-const uint64_t _tilted_assign_storage_site(const uint64_t S, const uint64_t T) {
+const uint64_t _assign_storage_site(const uint64_t S, const uint64_t T) {
+  assert(dstream_tilted::has_ingest_capacity(S, T));
   const uint64_t s = std::bit_width(S) - 1;
   const uint64_t t =
       std::max(std::bit_width(T) - s, uint64_t{0});  // Current epoch
@@ -92,14 +95,13 @@ const uint64_t _tilted_assign_storage_site(const uint64_t S, const uint64_t T) {
  *
  * @exceptsafe no-throw
  */
-const std::optional<uint64_t> tilted_assign_storage_site(const uint64_t S,
-                                                         const uint64_t T) {
-  const uint64_t site = _tilted_assign_storage_site(S, T);
+const std::optional<uint64_t> assign_storage_site(const uint64_t S,
+                                                  const uint64_t T) {
+  const uint64_t site = dstream_tilted::_assign_storage_site(S, T);
   return std::optional<uint64_t>(site);
 }
 
-}  // namespace tilted_algo
-}  // namespace dstream
+}  // namespace dstream_tilted
 }  // namespace downstream
 
-#endif  // DOWNSTREAM_DSTREAM_TILTED_ALGO_TILTED_ASSIGN_STORAGE_SITE_HPP
+#endif  // DOWNSTREAM_DSTREAM_TILTED_ASSIGN_STORAGE_SITE_HPP

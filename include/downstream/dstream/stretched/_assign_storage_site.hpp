@@ -1,14 +1,16 @@
-#ifndef DOWNSTREAM_DSTREAM_STRETCHED_ALGO_STRETCHED_ASSIGN_STORAGE_SITE_HPP
-#define DOWNSTREAM_DSTREAM_STRETCHED_ALGO_STRETCHED_ASSIGN_STORAGE_SITE_HPP
+#ifndef DOWNSTREAM_DSTREAM_STRETCHED_ASSIGN_STORAGE_SITE_HPP
+#define DOWNSTREAM_DSTREAM_STRETCHED_ASSIGN_STORAGE_SITE_HPP
 
 #include <algorithm>
 #include <bit>
+#include <cassert>
 #include <cstdint>
 #include <optional>
 
+#include "./_has_ingest_capacity.hpp"
+
 namespace downstream {
-namespace dstream {
-namespace stretched_algo {
+namespace dstream_stretched {
 
 /**
  * Internal implementation of site selection algorithm for stretched curation.
@@ -19,8 +21,8 @@ namespace stretched_algo {
  *
  * @exceptsafe no-throw
  */
-const uint64_t _stretched_assign_storage_site(const uint64_t S,
-                                              const uint64_t T) {
+const uint64_t _assign_storage_site(const uint64_t S, const uint64_t T) {
+  assert(dstream_stretched::has_ingest_capacity(S, T));
   const uint64_t s = std::bit_width(S) - 1;
   const uint64_t t =
       std::max(std::bit_width(T) - s, uint64_t{0});  // Current epoch
@@ -75,13 +77,13 @@ const uint64_t _stretched_assign_storage_site(const uint64_t S,
  *
  * @exceptsafe no-throw
  */
-const std::optional<uint64_t> stretched_assign_storage_site(const uint64_t S,
-                                                            const uint64_t T) {
-  const uint64_t site = _stretched_assign_storage_site(S, T);
+const std::optional<uint64_t> assign_storage_site(const uint64_t S,
+                                                  const uint64_t T) {
+  const uint64_t site = dstream_stretched::_assign_storage_site(S, T);
   return site == S ? std::nullopt : std::optional<uint64_t>(site);
 }
 
-}  // namespace stretched_algo
-}  // namespace dstream
+}  // namespace dstream_stretched
 }  // namespace downstream
-#endif  // DOWNSTREAM_DSTREAM_STRETCHED_ALGO_STRETCHED_ASSIGN_STORAGE_SITE_HPP
+
+#endif  // DOWNSTREAM_DSTREAM_STRETCHED_ASSIGN_STORAGE_SITE_HPP

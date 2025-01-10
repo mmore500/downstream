@@ -1,5 +1,5 @@
-#ifndef DOWNSTREAM_DSTREAM_STEADY_ALGO_STEADY_ASSIGN_STORAGE_SITE_HPP
-#define DOWNSTREAM_DSTREAM_STEADY_ALGO_STEADY_ASSIGN_STORAGE_SITE_HPP
+#ifndef DOWNSTREAM_DSTREAM_STEADY_ASSIGN_STORAGE_SITE_HPP
+#define DOWNSTREAM_DSTREAM_STEADY_ASSIGN_STORAGE_SITE_HPP
 
 #include <algorithm>
 #include <bit>
@@ -7,9 +7,10 @@
 #include <cstdint>
 #include <optional>
 
+#include "./_has_ingest_capacity.hpp"
+
 namespace downstream {
-namespace dstream {
-namespace steady_algo {
+namespace dstream_steady {
 
 /**
  * Internal implementation of site selection algorithm for steady curation.
@@ -20,7 +21,8 @@ namespace steady_algo {
  *
  * @exceptsafe no-throw
  */
-const uint64_t _steady_assign_storage_site(const uint64_t S, const uint64_t T) {
+const uint64_t _assign_storage_site(const uint64_t S, const uint64_t T) {
+  assert(dstream_steady::has_ingest_capacity(S, T));
   const uint64_t s = std::bit_width(S) - 1;
   const uint64_t blT = std::bit_width(T);
   const uint64_t t = blT - std::min(s, blT);   // Current epoch
@@ -57,14 +59,13 @@ const uint64_t _steady_assign_storage_site(const uint64_t S, const uint64_t T) {
  *
  * @exceptsafe no-throw
  */
-const std::optional<uint64_t> steady_assign_storage_site(const uint64_t S,
-                                                         const uint64_t T) {
-  const uint64_t site = _steady_assign_storage_site(S, T);
+const std::optional<uint64_t> assign_storage_site(const uint64_t S,
+                                                  const uint64_t T) {
+  const uint64_t site = dstream_steady::_assign_storage_site(S, T);
   return site == S ? std::nullopt : std::optional<uint64_t>(site);
 }
 
-}  // namespace steady_algo
-}  // namespace dstream
+}  // namespace dstream_steady
 }  // namespace downstream
 
-#endif  // DOWNSTREAM_DSTREAM_STEADY_ALGO_STEADY_ASSIGN_STORAGE_SITE_HPP
+#endif  // DOWNSTREAM_DSTREAM_STEADY_ASSIGN_STORAGE_SITE_HPP
