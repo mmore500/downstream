@@ -10,7 +10,7 @@ namespace auxlib {
 
 template <typename T, typename U>
 bool can_type_fit_value(const U value) {
-  # adapted from https://stackoverflow.com/a/17251989/17332200
+  // adapted from https://stackoverflow.com/a/17251989/17332200
   using std::numeric_limits;
   const std::intmax_t botT = std::intmax_t(numeric_limits<T>::min());
   const std::intmax_t botU = std::intmax_t(numeric_limits<U>::min());
