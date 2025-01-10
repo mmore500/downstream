@@ -1,3 +1,4 @@
+import numbers
 import typing
 
 import numpy as np
@@ -17,6 +18,11 @@ class hybrid_algo:
     ) -> None:
         self._algos = list(layout[1::2])
         self._fenceposts = list(layout[::2])
+        if not all(
+            isinstance(val, numbers.Integral) for val in self._fenceposts
+        ):
+            raise ValueError("Fencepost values must be integers")
+
         self._chunk_algo_indices = [
             index
             for index, __ in enumerate(self._algos)
@@ -24,11 +30,11 @@ class hybrid_algo:
         ]
 
         if not self._algos:
-            raise ValueError
+            raise ValueError("At least one algorithm required")
         if not len(self._fenceposts) >= 2:
-            raise ValueError
+            raise ValueError("At least two fenceposts required")
         if not all(val >= i for i, val in enumerate(self._fenceposts)):
-            raise ValueError
+            raise ValueError("Fenceposts must be in increasing order")
 
     def _get_num_chunks(self: "hybrid_algo") -> int:
         return self._fenceposts[-1]
@@ -57,7 +63,9 @@ class hybrid_algo:
     def _get_span_scale(self: "hybrid_algo", S: int) -> _maybe_np_T:
         num_chunks = self._get_num_chunks()
         if not S % num_chunks == 0:
-            raise ValueError
+            raise ValueError("chunks must evenly divide buffer size S")
+        if num_chunks > S:
+            raise ValueError("chunks must contain at least one buffer site")
         return S // num_chunks
 
     def _get_span_length(
@@ -91,7 +99,9 @@ class hybrid_algo:
     def assign_storage_site_batched(
         self: "hybrid_algo", S: int, T: _maybe_np_T
     ) -> np.ndarray:
-        raise NotImplementedError
+        raise NotImplementedError(
+            "batched site assignment not yet implemented",
+        )
 
     def get_ingest_capacity(
         self: "hybrid_algo", S: int
