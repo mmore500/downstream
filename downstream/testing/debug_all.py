@@ -4,6 +4,7 @@ import sys
 import warnings
 
 from .. import _version
+from .._auxlib._ArgparseFormatter import ArgparseFormatter
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -13,7 +14,7 @@ if __name__ == "__main__":
             "debug_one to test these directly."
         ),
         epilog=f"downstream version {_version.__version__}",
-        formatter_class=argparse.ArgparseFormatter,
+        formatter_class=ArgparseFormatter,
     )
     parser.add_argument(
         "command",
