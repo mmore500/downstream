@@ -103,14 +103,9 @@ jobs:
           "has_ingest_capacity",
           "lookup_ingest_times",
         ]
-        python: ["3.10", "3.11", "3.12"]
         requirements: ["requirements.txt", "requirements-jit.txt"]
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Python ${{ matrix.python }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: "${{ matrix.python }}"
       - run: |
           python3 -m pip install setuptools pip --upgrade
           python3 -m pip install -r ${{ matrix.requirements }}
