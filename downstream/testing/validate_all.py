@@ -27,7 +27,11 @@ set -e
 rm -rf /tmp/dstream
 mkdir -p /tmp/dstream
 
-for algo in "steady_algo" "stretched_algo" "tilted_algo"; do
+for algo in \
+    "dstream.steady_algo" \
+    "dstream.stretched_algo" \
+    "dstream.tilted_algo" \
+; do
     for func in \
         "assign_storage_site" \
         "has_ingest_capacity" \

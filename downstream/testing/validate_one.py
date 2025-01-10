@@ -18,7 +18,7 @@ if __name__ == "__main__":
         "target",
         help=(
             "The algorithm function to test. "
-            "Example: 'steady_algo.assign_storage_site'"
+            "Example: 'dstream.steady_algo.assign_storage_site'"
         ),
     )
     parser.add_argument(

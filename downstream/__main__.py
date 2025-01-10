@@ -5,9 +5,7 @@ import sys
 
 import opytional as opyt
 
-from downstream.dstream import steady_algo  # noqa: F401
-from downstream.dstream import stretched_algo  # noqa: F401
-from downstream.dstream import tilted_algo  # noqa: F401
+from downstream import dstream  # noqa: F401
 
 if __name__ == "__main__":
     signal(SIGPIPE, SIG_BLOCK)  # prevent broken pipe errors from head, tail
@@ -63,7 +61,7 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    algo = eval(args.target.split(".")[0])
+    algo = eval(".".join(args.target.split(".")[:-1]))
     target = eval(args.target)
     for line in sys.stdin:
         S, T = map(int, line.rstrip().split())

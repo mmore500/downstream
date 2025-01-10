@@ -25,7 +25,11 @@ if __name__ == "__main__":
 pv=$(which pv && echo "--size $((17*512))" || echo "cat")
 
 EXITCODE=0
-for algo in "steady_algo" "stretched_algo" "tilted_algo"; do
+for algo in \
+    "dstream.steady_algo" \
+    "dstream.stretched_algo" \
+    "dstream.tilted_algo" \
+; do
     for func in \
         "assign_storage_site" \
         "has_ingest_capacity" \
