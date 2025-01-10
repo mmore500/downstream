@@ -41,6 +41,7 @@ validate: build
 	@echo "Running validation tests..."
 	@for algo in \
 		dstream.hybrid_0_steady_1_stretched_2_algo \
+		dstream.hybrid_0_steady_1_tilted_2_algo \
 		dstream.steady_algo \
 		dstream.stretched_algo \
 		dstream.tilted_algo \
