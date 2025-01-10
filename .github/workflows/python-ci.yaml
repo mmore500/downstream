@@ -98,6 +98,11 @@ jobs:
           "dstream.stretched_algo",
           "dstream.tilted_algo",
         ]
+        op: [
+          "assign_storage_site",
+          "has_ingest_capacity",
+          "lookup_ingest_times",
+        ]
         python: ["3.10", "3.11", "3.12"]
         requirements: ["requirements.txt", "requirements-jit.txt"]
     steps:
@@ -111,8 +116,8 @@ jobs:
           python3 -m pip install -r ${{ matrix.requirements }}
       - run: python3 -m pip install . --upgrade
       - run: python3 -m downstream --version
-      - run: python3 -m downstream.testing.debug_one 'python3 -m downstream' '${{ matrix.algo }}'
-      - run: python3 -m downstream.testing.validate_one 'python3 -m downstream' '${{ matrix.algo }}'
+      - run: python3 -m downstream.testing.debug_one 'python3 -m downstream' '${{ matrix.algo }}.${{ matrix.op }}'
+      - run: python3 -m downstream.testing.validate_one 'python3 -m downstream' '${{ matrix.algo }}.${{ matrix.op }}''
 
   test-validators:
     runs-on: ubuntu-24.04
