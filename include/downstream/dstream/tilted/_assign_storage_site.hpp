@@ -9,26 +9,11 @@
 #include <optional>
 
 #include "../../auxlib/DOWNSTREAM_UINT.hpp"
+#include "../../auxlib/modpow2.hpp"
 #include "./_has_ingest_capacity.hpp"
 
 namespace downstream {
 namespace dstream_tilted {
-
-/**
- * Perform fast mod using bitwise operations.
- *
- * @param x The dividend of the mod operation. Must be a positive integer.
- * @param n The divisor of the mod operation. Must be a positive integer and a
- * power of 2.
- * @returns The remainder of dividing the dividend by the divisor.
- *
- * @exceptsafe no-throw
- */
-template <std::unsigned_integral UINT>
-inline const UINT modpow2(const UINT x, const UINT n) {
-  if (n <= 0) return 0;
-  return x & (n - 1);
-}
 
 /**
  * Internal implementation of site selection algorithm for tilted curation.
@@ -61,7 +46,8 @@ const UINT _assign_storage_site(const UINT S, const UINT T) {
                      ? (S >> (tau + 1 - epsilon_b))
                      : 1;  // Num bunches available to h.v.
 
-  const UINT b_l = modpow2(i, B);  // Logical bunch index...
+  assert(B);
+  const UINT b_l = downstream::auxlib::modpow2(i, B);  // Logical bunch index...
   // ... i.e., in order filled (increasing nestedness/decreasing init size r)
 
   // Need to calculate physical bunch index...
