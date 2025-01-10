@@ -31,9 +31,7 @@ fn assign_storage_site(S: u32, T: u32) u32 {
     o = if (!is_zeroth_bunch) o else 0;
     w = if (!is_zeroth_bunch) w else s + 1;
 
-    // Within-segment offset, avoiding divide by zero
-    const p = h % w;
-
     // handle discard without storing for non-top n(T) hanoi value...
-    return if (h >= t) k_b + o + p else S;
+    return if (h >= t) k_b + o + (h % w) else S;
+    // within-segment offset: p  ^^^^^^^
 }
