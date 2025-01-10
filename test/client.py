@@ -1,6 +1,5 @@
 import argparse
 import sys
-import typing
 
 import more_itertools as mit
 import numpy as np
@@ -72,9 +71,11 @@ for bounds in tqdm([*mit.pairwise({*range(0, nCases, chunkSize), nCases})]):
     )
 
     launcher = {
-        "steady_algo.assign_storage_site": "launch_steady_algo_assign_storage_site",
-        "stretched_algo.assign_storage_site": "launch_stretched_algo_assign_storage_site",
-        "tilted_algo.assign_storage_site": "launch_tilted_algo_assign_storage_site",
+        "dstream.hybrid_0_steady_1_stretched_2_algo.assign_storage_site": "launch_hybrid_0_steady_1_stretched_2_algo_assign_storage_site",
+        "dstream.hybrid_0_steady_1_tilted_2_algo.assign_storage_site": "launch_hybrid_0_steady_1_tilted_2_algo_assign_storage_site",
+        "dstream.steady_algo.assign_storage_site": "launch_steady_algo_assign_storage_site",
+        "dstream.stretched_algo.assign_storage_site": "launch_stretched_algo_assign_storage_site",
+        "dstream.tilted_algo.assign_storage_site": "launch_tilted_algo_assign_storage_site",
     }[args.algo]
     runner.launch(launcher, nonblock=False)
 

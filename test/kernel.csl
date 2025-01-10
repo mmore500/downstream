@@ -13,6 +13,32 @@ var ptr_cases : [*]u32 = &cases;
 var results = @zeros([chunkSize]u32);
 var ptr_results : [*]u32 = &results;
 
+fn launch_hybrid_0_steady_1_stretched_2_algo_assign_storage_site() void {
+  for(@range(u32, chunkSize)) |case| {
+    const S = cases[2*case];
+    const T = cases[2*case + 1];
+    const has_capacity = dstream.hybrid_0_steady_1_stretched_2_algo.has_ingest_capacity(S, T);
+    results[case] = (
+      if (has_capacity) dstream.hybrid_0_steady_1_stretched_2_algo.assign_storage_site(S, T)
+      else S + 1
+    );
+  }
+  memcpy.unblock_cmd_stream();
+}
+
+fn launch_hybrid_0_steady_1_tilted_2_algo_assign_storage_site() void {
+  for(@range(u32, chunkSize)) |case| {
+    const S = cases[2*case];
+    const T = cases[2*case + 1];
+    const has_capacity = dstream.hybrid_0_steady_1_tilted_2_algo.has_ingest_capacity(S, T);
+    results[case] = (
+      if (has_capacity) dstream.hybrid_0_steady_1_tilted_2_algo.assign_storage_site(S, T)
+      else S + 1
+    );
+  }
+  memcpy.unblock_cmd_stream();
+}
+
 fn launch_steady_algo_assign_storage_site() void {
   for(@range(u32, chunkSize)) |case| {
     const S = cases[2*case];
@@ -55,6 +81,8 @@ fn launch_tilted_algo_assign_storage_site() void {
 comptime {
   @export_symbol(ptr_cases, "cases");
   @export_symbol(ptr_results, "results");
+  @export_symbol(launch_hybrid_0_steady_1_stretched_2_algo_assign_storage_site);
+  @export_symbol(launch_hybrid_0_steady_1_tilted_2_algo_assign_storage_site);
   @export_symbol(launch_steady_algo_assign_storage_site);
   @export_symbol(launch_stretched_algo_assign_storage_site);
   @export_symbol(launch_tilted_algo_assign_storage_site);

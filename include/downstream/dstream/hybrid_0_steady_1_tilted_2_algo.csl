@@ -1,0 +1,28 @@
+const aux = @import_module("<downstream/_auxlib>");
+
+const steady_algo = @import_module("<downstream/dstream/steady_algo>");
+const tilted_algo = @import_module("<downstream/dstream/tilted_algo>");
+
+fn has_ingest_capacity(S: u32, T: u32) bool {
+    const half_S = S >> 1;
+    const has_capacity_1st = steady_algo.has_ingest_capacity(
+        half_S,
+        T >> 1,
+    );
+    const has_capacity_2nd = ((T == 0) or tilted_algo.has_ingest_capacity(
+        half_S,
+        (T - 1) >> 1,
+    ));
+    return has_capacity_1st and has_capacity_2nd;
+}
+
+fn assign_storage_site(S: u32, T: u32) u32 {
+    const half_S = S >> 1;
+    const half_T = T >> 1;
+    if (T & 1 == 0) {
+        const site = steady_algo.assign_storage_site(half_S, half_T);
+        return if (site == half_S) S else site;
+    } else {
+        return half_S + tilted_algo.assign_storage_site(half_S, half_T);
+    }
+}
