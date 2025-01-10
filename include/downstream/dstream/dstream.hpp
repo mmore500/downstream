@@ -2,7 +2,7 @@
 #ifndef DOWNSTREAM_DSTREAM_DSTREAM_HPP
 #define DOWNSTREAM_DSTREAM_DSTREAM_HPP
 
-@include <concepts>
+#include <concepts>
 
 #include "../auxlib/DOWNSTREAM_UINT.hpp"
 #include "./hybrid_0_steady_1_stretched_2/algo.hpp"
