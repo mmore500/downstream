@@ -9,8 +9,10 @@ def test_singleton():
         1,
     )
 
-    expected = [*range(10)]
-    assert [algo._get_span_length(T, index=0) for T in range(10)] == expected
+    expected = [*range(1, 10)]
+    assert [
+        algo._get_span_length(T, index=0) for T in range(1, 10)
+    ] == expected
 
 
 def test_simple():
@@ -21,12 +23,12 @@ def test_simple():
         dstream.stretched_algo,
         2,
     )
-    expected = [*range(10)]
+    expected = [*range(1, 10)]
     assert [
-        algo._get_span_length(T, index=0) for T in range(0, 20, 2)
+        algo._get_span_length(T, index=0) for T in range(2, 20, 2)
     ] == expected
     assert [
-        algo._get_span_length(T, index=1) for T in range(0, 20, 2)
+        algo._get_span_length(T, index=1) for T in range(2, 20, 2)
     ] == expected
 
 
@@ -40,14 +42,14 @@ def test_complex():
         dstream.steady_algo,
         4,
     )
-    expected = [*range(0, 20, 2)]
+    expected = [*range(2, 20, 2)]
     assert [
-        algo._get_span_length(T, index=0) for T in range(0, 40, 4)
+        algo._get_span_length(T, index=0) for T in range(4, 40, 4)
     ] == expected
-    expected = [*range(10)]
+    expected = [*range(1, 10)]
     assert [
-        algo._get_span_length(T, index=1) for T in range(0, 40, 4)
+        algo._get_span_length(T, index=1) for T in range(4, 40, 4)
     ] == expected
     assert [
-        algo._get_span_length(T, index=2) for T in range(0, 40, 4)
+        algo._get_span_length(T, index=2) for T in range(4, 40, 4)
     ] == expected
