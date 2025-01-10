@@ -4,9 +4,6 @@
 #include <bit>
 #include <cassert>
 #include <cstdint>
-#include <optional>
-
-#include "_stretched_get_ingest_capacity.hpp"
 
 namespace downstream {
 namespace dstream {
@@ -26,18 +23,11 @@ namespace stretched_algo {
  * @exceptsafe no-throw
  */
 const bool stretched_has_ingest_capacity(const uint64_t S, const uint64_t T) {
-  assert(T >= 0);
-  const bool surface_size_ok = std::has_single_bit(S) && S > 1;
+  const bool surface_size_ok = S > 1 and (std::popcount(S) == 1);
+  if (!surface_size_ok) return false;
+  if (S >= 8 * sizeof(uint64_t)) return true;
 
-  if (!surface_size_ok) {
-    return false;
-  }
-
-  if (S >= 64) {
-    return true;
-  }
-
-  const uint64_t ingest_capacity = stretched_get_ingest_capacity(S);
+  const uint64_t ingest_capacity = (uint64_t{1} << S) - 1;
   return T < ingest_capacity;
 }
 
