@@ -23,7 +23,7 @@ namespace dstream_tilted {
  */
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
 const bool has_ingest_capacity(const UINT S, const UINT T) {
-  const bool surface_size_ok = S > 1 and (std::popcount(S) == 1);
+  const bool surface_size_ok = S > 1 and std::has_single_bit(S);
   if (!surface_size_ok) return false;
   if (S >= 8 * sizeof(UINT)) return true;
 

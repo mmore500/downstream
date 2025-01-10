@@ -24,7 +24,7 @@ namespace dstream_steady {
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
 const bool has_ingest_capacity(const UINT S, const UINT T) {
   assert(T >= 0);
-  return (std::popcount(S) == 1) and S > 1;
+  return std::has_single_bit(S) and S > 1;
 }
 
 }  // namespace dstream_steady
