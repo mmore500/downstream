@@ -3,6 +3,9 @@ import subprocess
 import sys
 import warnings
 
+from .. import _version
+from .._auxlib._ArgparseFormatter import ArgparseFormatter
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description=(
@@ -10,7 +13,8 @@ if __name__ == "__main__":
             "over a large battery of test cases. This script does not test "
             "hybrid algorithms --- use debug_one to test these directly."
         ),
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        epilog=f"downstream version {_version.__version__}",
+        formatter_class=ArgparseFormatter,
     )
     parser.add_argument(
         "command",
@@ -20,6 +24,9 @@ if __name__ == "__main__":
         "--reference",
         default="python3 -O -m downstream",
         help="Reference command to validate against.",
+    )
+    parser.add_argument(
+        "-v", "--version", action="version", version=_version.__version__
     )
     args = parser.parse_args()
 

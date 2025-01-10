@@ -2,12 +2,15 @@ import argparse
 import subprocess
 import sys
 
+from .. import _version
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description=(
             "Test a target downstream algorithm function implementation "
             "against a reference implementation over a large test case battery."
         ),
+        epilog=f"downstream version {_version.__version__}",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
@@ -25,6 +28,9 @@ if __name__ == "__main__":
         "--reference",
         default="python3 -O -m downstream",
         help="Reference command to validate against.",
+    )
+    parser.add_argument(
+        "-v", "--version", action="version", version=_version.__version__
     )
     args = parser.parse_args()
 

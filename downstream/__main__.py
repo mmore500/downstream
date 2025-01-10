@@ -5,7 +5,9 @@ import sys
 
 import opytional as opyt
 
-from downstream import dstream  # noqa: F401
+from . import _version
+from . import dstream  # noqa: F401
+from ._auxlib._ArgparseFormatter import ArgparseFormatter
 
 if __name__ == "__main__":
     signal(SIGPIPE, SIG_BLOCK)  # prevent broken pipe errors from head, tail
@@ -27,9 +29,9 @@ if __name__ == "__main__":
         If the algorithm does not have ingest capacity for the given S and T, a
         blank line is printed.
         """,
-        epilog="""
+        epilog=f"""
         Example usage:
-        $ python3 -m downstream.testing.generate_test_cases \
+        $ python3 -m downstream.testing.generate_test_cases \\
             | python3 -m downstream 'dstream.steady_algo.assign_storage_site'
 
         Additional available commands:
@@ -43,8 +45,13 @@ if __name__ == "__main__":
         $ python3 -m downstream.testing.validate_one
 
         For information on a command, invoke it with the --help flag.
+
+        downstream version {_version.__version__}
         """,
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        formatter_class=ArgparseFormatter,
+    )
+    parser.add_argument(
+        "-v", "--version", action="version", version=_version.__version__
     )
     parser.add_argument(
         "target",
