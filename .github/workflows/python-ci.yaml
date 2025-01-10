@@ -112,7 +112,7 @@ jobs:
       - run: python3 -m pip install . --upgrade
       - run: python3 -m downstream --version
       - run: python3 -m downstream.testing.debug_one 'python3 -m downstream' '${{ matrix.algo }}.${{ matrix.op }}'
-      - run: python3 -m downstream.testing.validate_one 'python3 -m downstream' '${{ matrix.algo }}.${{ matrix.op }}''
+      - run: python3 -m downstream.testing.validate_one 'python3 -m downstream' '${{ matrix.algo }}.${{ matrix.op }}'
 
   test-validators:
     runs-on: ubuntu-24.04
