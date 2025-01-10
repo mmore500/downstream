@@ -1,6 +1,7 @@
 import argparse
 import subprocess
 import sys
+import warnings
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -54,6 +55,12 @@ exit $EXITCODE
 """
 
 if __name__ == "__main__":
+    warnings.warn(
+        "downstream.testing.debug_all should NOT be used in automated "
+        "tests, as the suite of algorithms tested may change over time. "
+        "Instead, use downstream.testing.validate_one to test specific "
+        "algorithms explicitly.",
+    )
     result = subprocess.run(
         [
             "bash",

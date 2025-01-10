@@ -1,6 +1,8 @@
 import argparse
 import subprocess
 import sys
+import warnings
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -62,6 +64,12 @@ rm -f /tmp/dstream
 """
 
 if __name__ == "__main__":
+    warnings.warn(
+        "downstream.testing.validate_all should NOT be used in automated "
+        "tests, as the suite of algorithms tested may change over time. "
+        "Instead, use downstream.testing.validate_one to test specific "
+        "algorithms explicitly.",
+    )
     result = subprocess.run(
         [
             "bash",
