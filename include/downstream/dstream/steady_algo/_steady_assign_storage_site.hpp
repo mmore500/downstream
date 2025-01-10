@@ -40,9 +40,6 @@ const uint64_t _steady_assign_storage_site(const uint64_t S, const uint64_t T) {
     k_b = (1 << B) * (s - B + 1);              // Bunch position
     // substituting t = s - blT into h + 1 - t
     w = h + s + 1 - blT;  // Segment width
-    if (w <= 0) {
-      return S;
-    }
     o = w * (i - j - 1);  // Within-bunch offset
   }
   assert(w > 0);
