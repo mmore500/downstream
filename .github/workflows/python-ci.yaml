@@ -86,6 +86,34 @@ jobs:
           python3 -m pip install -r ${{ matrix.requirements }}
       - run: python3 -m pytest -n auto ${{ matrix.module }}
 
+  validate-downstream:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        algo: [
+          "dstream.hybrid_0_steady_1_stretched_2_algo",
+          "dstream.hybrid_0_steady_1_tilted_2_algo",
+          "dstream.steady_algo",
+          "dstream.stretched_algo",
+          "dstream.tilted_algo",
+        ]
+        op: [
+          "assign_storage_site",
+          "has_ingest_capacity",
+          "lookup_ingest_times",
+        ]
+        requirements: ["requirements.txt", "requirements-jit.txt"]
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          python3 -m pip install setuptools pip --upgrade
+          python3 -m pip install -r ${{ matrix.requirements }}
+      - run: python3 -m pip install . --upgrade
+      - run: python3 -m downstream --version
+      - run: python3 -m downstream.testing.debug_one 'python3 -m downstream' '${{ matrix.algo }}.${{ matrix.op }}'
+      - run: python3 -m downstream.testing.validate_one 'python3 -m downstream' '${{ matrix.algo }}.${{ matrix.op }}'
+
   test-validators:
     runs-on: ubuntu-24.04
     strategy:
@@ -110,13 +138,13 @@ jobs:
       - run: python3 -m pip install .
       - run: python3 -m downstream -h
       # should detect correct output
-      - run: python3 -m downstream.testing.${{ matrix.which }}_one 'python3 -m downstream' steady_algo.assign_storage_site
+      - run: python3 -m downstream.testing.${{ matrix.which }}_one 'python3 -m downstream' dstream.steady_algo.assign_storage_site
       - run: python3 -m downstream.testing.${{ matrix.which }}_all 'python3 -m downstream'
       # should detect incorrect output
-      - run: python3 -m downstream.testing.${{ matrix.which }}_one 'echo 42' steady_algo.assign_storage_site && exit 1 || echo "expected fail"
+      - run: python3 -m downstream.testing.${{ matrix.which }}_one 'echo 42' dstream.steady_algo.assign_storage_site && exit 1 || echo "expected fail"
       - run: python3 -m downstream.testing.${{ matrix.which }}_all 'echo 42' && exit 1 || echo "expected fail"
       # should detect crash
-      - run: python3 -m downstream.testing.${{ matrix.which }}_one 'false' steady_algo.assign_storage_site && exit 1 || echo "expected fail"
+      - run: python3 -m downstream.testing.${{ matrix.which }}_one 'false' dstream.steady_algo.assign_storage_site && exit 1 || echo "expected fail"
       - run: python3 -m downstream.testing.${{ matrix.which }}_all 'false' && exit 1 || echo "expected fail"
 
   test-packaging:
@@ -244,6 +272,7 @@ jobs:
       - packaging-sdist
       - packaging-source
       - test-downstream
+      - validate-downstream
       - test-packaging
       - test-validators
       - lint

@@ -268,6 +268,10 @@ class hybrid_algo:
         has_ingest_capacity : Does this algorithm have the capacity to ingest
             `n` data items?
         """
+        num_chunks = self._get_num_chunks()
+        if S < num_chunks:
+            return 0
+
         span_lengths = (
             self._get_span_length(S, i) for i, __ in enumerate(self._algos)
         )
@@ -275,7 +279,6 @@ class hybrid_algo:
             algo.get_ingest_capacity(span_length)
             for span_length, algo in zip(span_lengths, self._algos)
         )
-        num_chunks = self._get_num_chunks()
         return min(
             (
                 capacity * num_chunks + self._fenceposts[i]
@@ -308,6 +311,9 @@ class hybrid_algo:
             support?
         """
         num_chunks = self._get_num_chunks()
+        if S < num_chunks:
+            return False
+
         for T_ in range(max(0, T - num_chunks + 1), T + 1):
             index = self._get_algo_index(T_)
             if not self._algos[index].has_ingest_capacity(

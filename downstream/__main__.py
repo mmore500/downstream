@@ -5,9 +5,9 @@ import sys
 
 import opytional as opyt
 
-from downstream.dstream import steady_algo  # noqa: F401
-from downstream.dstream import stretched_algo  # noqa: F401
-from downstream.dstream import tilted_algo  # noqa: F401
+from . import _version
+from . import dstream  # noqa: F401
+from ._auxlib._ArgparseFormatter import ArgparseFormatter
 
 if __name__ == "__main__":
     signal(SIGPIPE, SIG_BLOCK)  # prevent broken pipe errors from head, tail
@@ -29,10 +29,10 @@ if __name__ == "__main__":
         If the algorithm does not have ingest capacity for the given S and T, a
         blank line is printed.
         """,
-        epilog="""
+        epilog=f"""
         Example usage:
-        $ python3 -m downstream.testing.generate_test_cases \
-            | python3 -m downstream 'steady_algo.assign_storage_site'
+        $ python3 -m downstream.testing.generate_test_cases \\
+            | python3 -m downstream 'dstream.steady_algo.assign_storage_site'
 
         Additional available commands:
         $ python3 -m downstream.dataframe.explode_lookup_packed
@@ -45,14 +45,19 @@ if __name__ == "__main__":
         $ python3 -m downstream.testing.validate_one
 
         For information on a command, invoke it with the --help flag.
+
+        downstream version {_version.__version__}
         """,
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        formatter_class=ArgparseFormatter,
+    )
+    parser.add_argument(
+        "-v", "--version", action="version", version=_version.__version__
     )
     parser.add_argument(
         "target",
         help=(
             "The algorithm function to test. "
-            "Example: 'steady_algo.assign_storage_site'."
+            "Example: 'dstream.steady_algo.assign_storage_site'."
         ),
     )
     parser.add_argument(
@@ -63,7 +68,7 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    algo = eval(args.target.split(".")[0])
+    algo = eval(".".join(args.target.split(".")[:-1]))
     target = eval(args.target)
     for line in sys.stdin:
         S, T = map(int, line.rstrip().split())

@@ -1,14 +1,20 @@
 import argparse
 import subprocess
 import sys
+import warnings
+
+from .. import _version
+from .._auxlib._ArgparseFormatter import ArgparseFormatter
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description=(
             "Test a downstream implementation against reference implementation "
-            "over a large battery of test cases."
+            "over a large battery of test cases. This script does not test "
+            "hybrid algorithms --- use debug_one to test these directly."
         ),
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        epilog=f"downstream version {_version.__version__}",
+        formatter_class=ArgparseFormatter,
     )
     parser.add_argument(
         "command",
@@ -19,6 +25,9 @@ if __name__ == "__main__":
         default="python3 -O -m downstream",
         help="Reference command to validate against.",
     )
+    parser.add_argument(
+        "-v", "--version", action="version", version=_version.__version__
+    )
     args = parser.parse_args()
 
     script = r"""
@@ -27,7 +36,11 @@ set -e
 rm -rf /tmp/dstream
 mkdir -p /tmp/dstream
 
-for algo in "steady_algo" "stretched_algo" "tilted_algo"; do
+for algo in \
+    "dstream.steady_algo" \
+    "dstream.stretched_algo" \
+    "dstream.tilted_algo" \
+; do
     for func in \
         "assign_storage_site" \
         "has_ingest_capacity" \
@@ -57,6 +70,12 @@ rm -f /tmp/dstream
 """
 
 if __name__ == "__main__":
+    warnings.warn(
+        "downstream.testing.validate_all should NOT be used in automated "
+        "tests, as the suite of algorithms tested may change over time. "
+        "Instead, use downstream.testing.validate_one to test specific "
+        "algorithms explicitly.",
+    )
     result = subprocess.run(
         [
             "bash",
