@@ -29,7 +29,8 @@ const uint64_t _hybrid_assign_storage_site(const uint64_t S, const uint64_t T) {
   const uint64_t half_S = S >> 1;
   const uint64_t half_T = T >> 1;
   if ((T & 1) == 0) {
-    const uint64_t site = steady_algo::_steady_assign_storage_site(half_S, half_T);
+    const uint64_t site =
+        steady_algo::_steady_assign_storage_site(half_S, half_T);
     return (site == half_S) ? S : site;
   } else {
     return half_S +
