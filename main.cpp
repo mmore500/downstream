@@ -1,17 +1,44 @@
+#include <cassert>
 #include <csignal>
+#include <cstdint>
 #include <iostream>
 #include <string>
 #include <string_view>
 
+#include "include/downstream/auxlib/can_type_fit_value.hpp"
 #include "include/downstream/dstream/dstream.hpp"
 
 namespace {
 
-template<typename Algo>
+template<template<typename> typename Algo>
 void process_single_input(uint64_t S, uint64_t T) {
-    if (Algo::has_ingest_capacity(S, T)) {
-        auto result = Algo::assign_storage_site(S, T);
-        std::cout << (result ? std::to_string(*result) : "None") << '\n';
+    using algo = Algo<uint64_t>;
+    namespace downaux = downstream::auxlib;
+    const bool has_ingest_capacity = algo::has_ingest_capacity(S, T);
+    assert(!downaux::can_type_fit_value<uint8_t>(S + 1)
+           || !downaux::can_type_fit_value<uint8_t>(T + 1)
+           || Algo<uint8_t>::has_ingest_capacity(S, T) == has_ingest_capacity);
+    assert(!downaux::can_type_fit_value<uint16_t>(S + 1)
+           || !downaux::can_type_fit_value<uint16_t>(T + 1)
+           || Algo<uint16_t>::has_ingest_capacity(S, T) == has_ingest_capacity);
+    assert(!downaux::can_type_fit_value<uint32_t>(S + 1)
+           || !downaux::can_type_fit_value<uint32_t>(T + 1)
+           || Algo<uint32_t>::has_ingest_capacity(S, T) == has_ingest_capacity);
+
+    if (has_ingest_capacity) {
+        const auto maybe_site = algo::assign_storage_site(S, T);
+        // assert(!downaux::can_type_fit_value<uint8_t>(S + 1)
+        //     || !downaux::can_type_fit_value<uint8_t>(T + 1)
+        //     || Algo<uint8_t>::assign_storage_site(S, T) == maybe_site);
+        // assert(!downaux::can_type_fit_value<uint16_t>(S + 1)
+        //     || !downaux::can_type_fit_value<uint16_t>(T + 1)
+        //     || Algo<uint16_t>::assign_storage_site(S, T) == maybe_site);
+        // assert(!downaux::can_type_fit_value<uint32_t>(S + 1)
+        //     || !downaux::can_type_fit_value<uint32_t>(T + 1)
+        //     || Algo<uint32_t>::assign_storage_site(S, T) == maybe_site);
+
+        std::cout << (maybe_site ? std::to_string(*maybe_site) : "None");
+        std::cout << '\n';
     } else {
         std::cout << '\n';
     }
@@ -23,20 +50,20 @@ bool process_algorithm(const std::string_view target_function) {
     uint64_t T, S;
     while (std::cin >> S >> T) {
         if (target_function == "dstream.hybrid_0_steady_1_stretched_2_algo.assign_storage_site") {
-            process_single_input<hybrid_0_steady_1_stretched_2_algo>(S, T);
+            process_single_input<hybrid_0_steady_1_stretched_2_algo_>(S, T);
         }
         else if (target_function == "dstream.hybrid_0_steady_1_tilted_2_algo.assign_storage_site") {
-            process_single_input<hybrid_0_steady_1_tilted_2_algo>(S, T);
+            process_single_input<hybrid_0_steady_1_tilted_2_algo_>(S, T);
         }
         else if (target_function == "dstream.steady_algo.assign_storage_site") {
-            process_single_input<steady_algo>(S, T);
+            process_single_input<steady_algo_>(S, T);
         }
         else if (target_function == "dstream.stretched_algo.assign_storage_site") {
-            process_single_input<stretched_algo>(S, T);
+            process_single_input<stretched_algo_>(S, T);
 
         }
         else if (target_function == "dstream.tilted_algo.assign_storage_site") {
-            process_single_input<tilted_algo>(S, T);
+            process_single_input<tilted_algo_>(S, T);
         }
         else {
             std::cerr << "Error: Unknown algorithm function: " << target_function << '\n';
