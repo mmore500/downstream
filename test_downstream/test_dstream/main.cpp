@@ -3,6 +3,8 @@
 #include <string>
 #include <string_view>
 
+#include "include/downstream/dstream/hybrid_0_steady_1_stretched_2_algo/_hybrid_assign_storage_site.hpp"
+#include "include/downstream/dstream/hybrid_0_steady_1_stretched_2_algo/_hybrid_has_ingest_capacity.hpp"
 #include "include/downstream/dstream/steady_algo/_steady_assign_storage_site.hpp"
 #include "include/downstream/dstream/steady_algo/_steady_has_ingest_capacity.hpp"
 #include "include/downstream/dstream/stretched_algo/_stretched_assign_storage_site.hpp"
@@ -27,7 +29,12 @@ bool process_algorithm(const std::string_view target_function) {
 
     uint64_t T, S;
     while (std::cin >> S >> T) {
-        if (target_function == "dstream.steady_algo.assign_storage_site") {
+        if (target_function == "dstream.hybrid_0_steady_1_stretched_2_algo.assign_storage_site") {
+            process_single_input(S, T,
+                hybrid_0_steady_1_stretched_2_algo::hybrid_has_ingest_capacity,
+                hybrid_0_steady_1_stretched_2_algo::hybrid_assign_storage_site);
+        }
+        else if (target_function == "dstream.steady_algo.assign_storage_site") {
             process_single_input(S, T,
                 steady_algo::steady_has_ingest_capacity,
                 steady_algo::steady_assign_storage_site);
