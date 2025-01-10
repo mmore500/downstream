@@ -35,6 +35,7 @@ jobs:
       fail-fast: false
       matrix:
         target:
+          - "dstream.hybrid_0_steady_1_stretched_2_algo.assign_storage_site"
           - "dstream.steady_algo.assign_storage_site"
           - "dstream.stretched_algo.assign_storage_site"
           - "dstream.tilted_algo.assign_storage_site"
