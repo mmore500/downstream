@@ -72,9 +72,9 @@ for bounds in tqdm([*mit.pairwise({*range(0, nCases, chunkSize), nCases})]):
     )
 
     launcher = {
-        "steady_algo.assign_storage_site": "launch_steady_algo_assign_storage_site",
-        "stretched_algo.assign_storage_site": "launch_stretched_algo_assign_storage_site",
-        "tilted_algo.assign_storage_site": "launch_tilted_algo_assign_storage_site",
+        "dstream.steady_algo.assign_storage_site": "launch_steady_algo_assign_storage_site",
+        "dstream.stretched_algo.assign_storage_site": "launch_stretched_algo_assign_storage_site",
+        "dstream.tilted_algo.assign_storage_site": "launch_tilted_algo_assign_storage_site",
     }[args.algo]
     runner.launch(launcher, nonblock=False)
 
