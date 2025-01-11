@@ -13,5 +13,4 @@ push = true
 [bumpver.file_patterns]
 "CITATION.cff" = [
     'cff-version: {version}',
-    'date-released: {now:%Y-%m-%d}'
 ]
