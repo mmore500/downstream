@@ -63,9 +63,9 @@ UINT _assign_storage_site(const UINT S, const UINT T) {
   const UINT w =
       (S >> v) * (v != 0);  // Num bunches spaced between bunches in nest level
   const UINT o = w >> 1;  // Offset of nestedness level in physical bunch order
-  const UINT b_l_floor = b_l <= 0 ? 0 : 1 << (std::bit_width(b_l) - 1);
-  const UINT p = b_l - b_l_floor;  // Bunch position within nestedness level
-  const UINT b_p = o + w * p;      // Physical bunch index...
+  const UINT p =
+      b_l - std::bit_floor(b_l);  // Bunch position within nestedness level
+  const UINT b_p = o + w * p;     // Physical bunch index...
   // ... i.e., in left-to-right sequential bunch order
 
   // Need to calculate buffer position of b_p'th bunch
