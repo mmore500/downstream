@@ -12,9 +12,8 @@ namespace {
 
 template<template<typename> typename Algo>
 void process_single_input(uint64_t S, uint64_t T) {
-    using algo = Algo<uint64_t>;
     namespace downaux = downstream::auxlib;
-    const bool has_ingest_capacity = algo::has_ingest_capacity(S, T);
+    const bool has_ingest_capacity = Algo<uint64_t>::has_ingest_capacity(S, T);
     assert(!downaux::can_type_fit_value<uint8_t>(S + 1)
            || !downaux::can_type_fit_value<uint8_t>(T + 1)
            || Algo<uint8_t>::has_ingest_capacity(S, T) == has_ingest_capacity);
@@ -26,7 +25,7 @@ void process_single_input(uint64_t S, uint64_t T) {
            || Algo<uint32_t>::has_ingest_capacity(S, T) == has_ingest_capacity);
 
     if (has_ingest_capacity) {
-        const auto maybe_site = algo::assign_storage_site(S, T);
+        const auto maybe_site = Algo<uint64_t>::assign_storage_site(S, T);
         // assert(!downaux::can_type_fit_value<uint8_t>(S + 1)
         //     || !downaux::can_type_fit_value<uint8_t>(T + 1)
         //     || Algo<uint8_t>::assign_storage_site(S, T) == maybe_site);
