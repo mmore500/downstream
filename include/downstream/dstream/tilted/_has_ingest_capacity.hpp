@@ -26,7 +26,7 @@ namespace dstream_tilted {
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
 bool has_ingest_capacity(const UINT S, const UINT T) {
   const bool surface_size_ok = S > 1 and std::has_single_bit(S);
-  const UINT overflow_epsilon = T + 1 < T;
+  const UINT overflow_epsilon = T == std::numeric_limits<UINT>::max();
   return surface_size_ok and
          0 == downstream::auxlib::overflow_shr<UINT>(               //
                   (T - overflow_epsilon) + 1, S - overflow_epsilon  //
