@@ -13,8 +13,8 @@ fn bit_length(value: u32) u32 {
 // Helper: Bit floor (equivalent to std::bit_floor in C++)
 fn bit_floor(value: u32) u32 {
     if (0 < value) {
-        const one: u32 = 1;
-        return one << bit_length(value) - 1;
+        const _1: u32 = 1;
+        return _1 << bit_length(value) - 1;
     } else {
         return 0;
     }

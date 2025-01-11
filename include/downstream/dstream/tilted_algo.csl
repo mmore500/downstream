@@ -15,15 +15,16 @@ fn assign_storage_site(S: u32, T: u32) u32 {
     const s = aux.bit_length(S) - 1;
     const t = aux.floor_subtract(aux.bit_length(T), s); // Current epoch
     const h = aux.ctz(T + 1); // Current hanoi value
-    const i = T >> (h + 1); // Hanoi value incidence (i.e., num seen)
+    const i = aux.overflow_shr(T, h + 1);
+    // ^^^ Hanoi value incidence (i.e., num seen)
 
     const blt = aux.bit_length(t); // Bit length of t
     const epsilon_tau = @as(u32, aux.bit_floor(t << 1) > t + blt);
     // ^^^ Correction factor
     const tau = blt - epsilon_tau; // Current meta-epoch
-    const one: u32 = 1;
-    const t_0 = (one << tau) - tau; // Opening epoch of meta-epoch
-    const t_1 = (one << (tau + 1)) - (tau + 1);
+    const _1: u32 = 1;
+    const t_0 = (_1 << tau) - tau; // Opening epoch of meta-epoch
+    const t_1 = (_1 << (tau + 1)) - (tau + 1);
     // ^^^ Opening epoch of next meta-epoch
     const epsilon_b = @as(u32, t < h + t_0 and h + t_0 < t_1);
     // ^^^ uninvaded correction factor

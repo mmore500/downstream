@@ -12,16 +12,15 @@ fn assign_storage_site(S: u32, T: u32) u32 {
     const blT = aux.bit_length(T);
     const t = aux.floor_subtract(blT, s); // Current epoch
     const h = aux.ctz(T + 1); // Current hanoi value
-
-    // Hanoi value incidence (i.e., num seen)
-    const i = T >> (h + 1);
+    const i = aux.overflow_shr(T, h + 1);
+    // ^^^ Hanoi value incidence (i.e., num seen)
 
     // Num full-bunch segments
     const j = aux.bit_floor(i) - 1;
     const B = aux.bit_length(j); // Num full bunches
     // Bunch position
-    const one: u32 = 1;
-    var k_b = (one << B) * (s + 1 - B);
+    const _1: u32 = 1;
+    var k_b = (_1 << B) * (s + 1 - B);
     // substituting t = s - blT into h + 1 - t
     var w = h + s + 1 - blT; // Segment width
     var o = w * (i - (j + 1)); // Within-bunch offset
