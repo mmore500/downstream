@@ -16,11 +16,15 @@ namespace downstream {
 namespace dstream_hybrid_0_steady_1_stretched_2 {
 
 /**
- * Internal implementation of site selection algorithm for hybrid curation.
+ * Internal impl of site selection for hybrid steady/stretched curation.
  *
- * @param S Buffer size. Must be a power of two.
+ * @tparam UINT Unsigned integer type for operands and return value.
+ * @param S Buffer size.
+ *     Must be a power of two, greater than 2.
  * @param T Current logical time.
- * @returns The selected storage site, or S if no site should be selected.
+ *     Must be less than 2^(S - 1) - 1.
+ * @returns The selected storage site, if any.
+ *     Returns S if no site should be selected (i.e., discard).
  *
  * @exceptsafe no-throw
  */
@@ -42,12 +46,15 @@ UINT _assign_storage_site(const UINT S, const UINT T) {
 }
 
 /**
- * Site selection algorithm for hybrid curation.
+ * Site selection algorithm for hybrid steady/stretched curation.
  *
- * @param S Buffer size. Must be a power of two.
+ * @tparam UINT Unsigned integer type for operands and return value.
+ * @param S Buffer size.
+ *     Must be a power of two, greater than 2.
  * @param T Current logical time.
- * @returns Selected site, if any. Returns nullopt if no site should be
- * selected.
+ *     Must be less than 2^(S - 1) - 1.
+ * @returns Selected site, if any.
+ *     Returns nullopt if no site should be selected (i.e., discard).
  *
  * @exceptsafe no-throw
  */

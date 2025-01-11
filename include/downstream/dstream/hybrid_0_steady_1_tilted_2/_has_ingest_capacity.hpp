@@ -17,6 +17,7 @@ namespace dstream_hybrid_0_steady_1_tilted_2 {
  * Does this algorithm have the capacity to ingest a data item at logical time
  * T?
  *
+ * @tparam UINT Unsigned integer type for operands and return value.
  * @param S The number of buffer sites available.
  * @param T Queried logical time.
  * @returns Whether there is capacity to ingest at time T.

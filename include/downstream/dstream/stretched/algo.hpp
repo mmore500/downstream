@@ -14,6 +14,11 @@ namespace dstream_stretched {
 
 namespace _ns = dstream_stretched;
 
+/**
+ * Template-friendly packaging of stretched curation algorithm components.
+ *
+ * @tparam UINT Unsigned integer type for operands and return value.
+ */
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
 struct algo {
   algo() = delete;

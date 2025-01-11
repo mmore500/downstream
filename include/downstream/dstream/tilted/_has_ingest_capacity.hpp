@@ -5,8 +5,10 @@
 #include <bit>
 #include <cassert>
 #include <concepts>
+#include <limits>
 
 #include "../../auxlib/DOWNSTREAM_UINT.hpp"
+#include "../../auxlib/overflow_shr.hpp"
 
 namespace downstream {
 namespace dstream_tilted {
@@ -15,6 +17,7 @@ namespace dstream_tilted {
  * Does this algorithm have the capacity to ingest a data item at logical time
  * T?
  *
+ * @tparam UINT Unsigned integer type for operands and return value.
  * @param S The number of buffer sites available.
  * @param T Current logical time.
  * @returns Whether there is capacity to ingest at time T.
@@ -24,11 +27,11 @@ namespace dstream_tilted {
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
 bool has_ingest_capacity(const UINT S, const UINT T) {
   const bool surface_size_ok = S > 1 and std::has_single_bit(S);
-  if (!surface_size_ok) return false;
-  if (S >= 8 * sizeof(UINT)) return true;
-
-  const UINT ingest_capacity = (UINT{1} << S) - 1;
-  return T < ingest_capacity;
+  const UINT overflow_epsilon = T == std::numeric_limits<UINT>::max();
+  return surface_size_ok and
+         0 == downstream::auxlib::overflow_shr<UINT>(               //
+                  (T - overflow_epsilon) + 1, S - overflow_epsilon  //
+              );
 }
 
 }  // namespace dstream_tilted

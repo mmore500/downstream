@@ -10,44 +10,53 @@
 
 #include "../../auxlib/DOWNSTREAM_UINT.hpp"
 #include "../../auxlib/modpow2.hpp"
+#include "../../auxlib/overflow_shr.hpp"
+#include "../../auxlib/std_bit_casted.hpp"
 #include "./_has_ingest_capacity.hpp"
 
 namespace downstream {
 namespace dstream_tilted {
 
 /**
- * Internal implementation of site selection algorithm for tilted curation.
+ * Internal implementation of site selection for tilted curation.
  *
- * @param S Buffer size. Must be a power of two.
- * @param T Current logical time. Must be less than 2^S - 1.
- * @returns The selected storage site, or S if no site should be selected.
+ * @tparam UINT Unsigned integer type for operands and return value.
+ * @param S Buffer size.
+ *      Must be a power of two greater than 1, and 2 * S must not overflow UINT.
+ * @param T Current logical time.
+ *      Must be less than 2^S - 1.
+ * @returns The selected storage site, if any.
+ *     Returns S if no site should be selected (i.e., discard).
  *
  * @exceptsafe no-throw
  */
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
 UINT _assign_storage_site(const UINT S, const UINT T) {
   assert(dstream_tilted::has_ingest_capacity<UINT>(S, T));
-  const UINT s = std::bit_width(S) - 1;
-  const UINT t = std::max(std::bit_width(T) - s, UINT{0});  // Current epoch
-  const UINT h = std::countr_zero(T + 1);  // Current hanoi value
-  const UINT i =
-      (h + 1) >= 64 ? 0
-                    : (T >> (h + 1));  // Hanoi value incidence (i.e., num seen)
+  assert(2 * S > S);  // otherwise, calculations overflow
 
-  const UINT blt = std::bit_width(t);                   // Bit length of t
-  bool epsilon_tau = std::bit_floor(t << 1) > t + blt;  // Correction factor
-  const UINT tau = blt - epsilon_tau;                   // Current meta-epoch
+  namespace aux = downstream::auxlib;
+
+  const UINT s = std::bit_width(S) - 1;
+  const UINT blT = std::bit_width(T);
+  const UINT t = blT - std::min(s, blT);                // Current epoch
+  const UINT h = aux::countr_zero_casted<UINT>(T + 1);  // Current hanoi value
+  const UINT i = aux::overflow_shr<UINT>(T, h + 1);
+  // ^^^ Hanoi value incidence (i.e., num seen)
+
+  const UINT blt = std::bit_width(t);  // Bit length of t
+  bool epsilon_tau =
+      aux::bit_floor_casted<UINT>(t << 1) > t + blt;  // Correction factor
+  const UINT tau = blt - epsilon_tau;                 // Current meta-epoch
   const UINT t_0 = (UINT{1} << tau) - tau;  // Opening epoch of meta-epoch
   const UINT t_1 =
       (UINT{1} << (tau + 1)) - (tau + 1);  // Opening epoch of next meta-epoch
   const bool epsilon_b =
       t < h + t_0 && h + t_0 < t_1;  // Uninvaded correction factor
-  const UINT B = (S >> (tau + 1 - epsilon_b))
-                     ? (S >> (tau + 1 - epsilon_b))
-                     : 1;  // Num bunches available to h.v.
-
+  const UINT B = std::max<UINT>(S >> (tau + 1 - epsilon_b), UINT{1});
+  // ^^^ Num bunches available to h.v.
   assert(B);
-  const UINT b_l = downstream::auxlib::modpow2(i, B);  // Logical bunch index...
+  const UINT b_l = aux::modpow2(i, B);  // Logical bunch index...
   // ... i.e., in order filled (increasing nestedness/decreasing init size r)
 
   // Need to calculate physical bunch index...
@@ -65,7 +74,7 @@ UINT _assign_storage_site(const UINT S, const UINT T) {
   // Need to calculate buffer position of b_p'th bunch
   const bool epsilon_k_b = (b_l != 0);  // Correction factor for zeroth bunch...
   // ... i.e., bunch r=s at site k=0
-  const UINT k_b = (b_p << 1) + std::popcount((S << 1) - b_p) - 1 -
+  const UINT k_b = (b_p << 1) + aux::popcount_casted<UINT>((S << 1) - b_p) - 1 -
                    epsilon_k_b;  // Site index of bunch
 
   return k_b + h;  // Calculate placement site...
@@ -75,10 +84,13 @@ UINT _assign_storage_site(const UINT S, const UINT T) {
 /**
  * Site selection algorithm for tilted curation.
  *
- * @param S Buffer size. Must be a power of two.
- * @param T Current logical time. Must be less than 2^S - 1.
- * @returns Selected site, if any. Returns nullopt if no site should be
- * selected.
+ * @tparam UINT Unsigned integer type for operands and return value.
+ * @param S Buffer size.
+ *      Must be a power of two greater than 1, and 2 * S must not overflow UINT.
+ * @param T Current logical time.
+ *      Must be less than 2^S - 1.
+ * @returns Selected site, if any.
+ *      Returns nullopt if no site should be selected (i.e., discard).
  *
  * @exceptsafe no-throw
  */
