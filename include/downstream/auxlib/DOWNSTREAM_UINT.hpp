@@ -4,6 +4,8 @@
 
 #include <cstdint>
 
+#ifndef DOWNSTREAM_UINT  // allow override
 #define DOWNSTREAM_UINT std::uint64_t
+#endif  // DOWNSTREAM_UINT
 
 #endif  // DOWNSTREAM_AUXLIB_DOWNSTREAM_UINT_HPP
