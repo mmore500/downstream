@@ -13,18 +13,12 @@ pub fn has_ingest_capacity(comptime u: type, S: u, T: u) bool {
     aux.assert_unsigned(u);
 
     const surface_size_ok = S > 1 and (@popCount(S) == 1);
-    if (!surface_size_ok) {
-        return false;
-    }
-    if (S == @bitSizeOf(u)) { // TODO refactor away special case?
-        return (T +% 1) > T;
-    } else if (S > @bitSizeOf(u)) {
-        return true;
-    }
-
-    const one: u = 1;
-    const ingest_capacity = (one << @intCast(S)) - 1;
-    return T < ingest_capacity;
+    const overflow_epsilon: u = @intFromBool((T +% 1) < T);
+    return surface_size_ok and aux.overflow_shr(
+        u,
+        (T - overflow_epsilon) + 1,
+        S - overflow_epsilon,
+    ) == 0;
 }
 
 /// Site selection for stretched curation.
