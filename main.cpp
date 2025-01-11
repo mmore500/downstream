@@ -11,17 +11,17 @@
 namespace {
 
 template<template<typename> typename Algo>
-void process_single_input(uint64_t S, uint64_t T) {
+void process_single_input(uint64_t S, uint64_t T, uint64_t Smx) {
     namespace downaux = downstream::auxlib;
     const bool has_capacity = Algo<uint64_t>::has_ingest_capacity(S, T);
     assert(!downaux::can_type_fit_value<uint8_t>(S)
-        || !downaux::can_type_fit_value<uint8_t>(T + 1)
+        || !downaux::can_type_fit_value<uint8_t>(T)
         || (Algo<uint8_t>::has_ingest_capacity(S, T) == has_capacity));
     assert(!downaux::can_type_fit_value<uint16_t>(S)
-        || !downaux::can_type_fit_value<uint16_t>(T + 1)
+        || !downaux::can_type_fit_value<uint16_t>(T)
         || (Algo<uint16_t>::has_ingest_capacity(S, T) == has_capacity));
     assert(!downaux::can_type_fit_value<uint32_t>(S)
-        || !downaux::can_type_fit_value<uint32_t>(T + 1)
+        || !downaux::can_type_fit_value<uint32_t>(T)
         || (Algo<uint32_t>::has_ingest_capacity(S, T) == has_capacity));
 
     if (has_capacity) {
@@ -32,8 +32,8 @@ void process_single_input(uint64_t S, uint64_t T) {
         // assert(!downaux::can_type_fit_value<uint16_t>(S)
         //     || !downaux::can_type_fit_value<uint16_t>(T + 1)
         //     || (Algo<uint16_t>::assign_storage_site(S, T) == maybe_site));
-        assert(!downaux::can_type_fit_value<uint32_t>(S)
-            || !downaux::can_type_fit_value<uint32_t>(T + 1)
+        assert(!downaux::can_type_fit_value<uint32_t>(S * Smx)
+            || !downaux::can_type_fit_value<uint32_t>(T)
             || (Algo<uint32_t>::assign_storage_site(S, T) == maybe_site));
 
         std::cout << (maybe_site ? std::to_string(*maybe_site) : "None");
@@ -49,20 +49,20 @@ bool process_algorithm(const std::string_view target_function) {
     uint64_t T, S;
     while (std::cin >> S >> T) {
         if (target_function == "dstream.hybrid_0_steady_1_stretched_2_algo.assign_storage_site") {
-            process_single_input<hybrid_0_steady_1_stretched_2_algo_>(S, T);
+            process_single_input<hybrid_0_steady_1_stretched_2_algo_>(S, T, 1);
         }
         else if (target_function == "dstream.hybrid_0_steady_1_tilted_2_algo.assign_storage_site") {
-            process_single_input<hybrid_0_steady_1_tilted_2_algo_>(S, T);
+            process_single_input<hybrid_0_steady_1_tilted_2_algo_>(S, T, 1);
         }
         else if (target_function == "dstream.steady_algo.assign_storage_site") {
-            process_single_input<steady_algo_>(S, T);
+            process_single_input<steady_algo_>(S, T, 1);
         }
         else if (target_function == "dstream.stretched_algo.assign_storage_site") {
-            process_single_input<stretched_algo_>(S, T);
+            process_single_input<stretched_algo_>(S, T, 2);
 
         }
         else if (target_function == "dstream.tilted_algo.assign_storage_site") {
-            process_single_input<tilted_algo_>(S, T);
+            process_single_input<tilted_algo_>(S, T, 2);
         }
         else {
             std::cerr << "Error: Unknown algorithm function: " << target_function << '\n';
