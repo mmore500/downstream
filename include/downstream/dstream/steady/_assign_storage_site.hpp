@@ -9,6 +9,8 @@
 #include <optional>
 
 #include "../../auxlib/DOWNSTREAM_UINT.hpp"
+#include "../../auxlib/overflow_shl.hpp"
+#include "../../auxlib/overflow_shr.hpp"
 #include "../../auxlib/std_bit_casted.hpp"
 #include "./_has_ingest_capacity.hpp"
 
@@ -39,16 +41,17 @@ UINT _assign_storage_site(const UINT S, const UINT T) {
   if (h < t) {  // If not a top n(T) hanoi value...
     return S;   // ...discard without storing
   }
-  const UINT i = T >> (h + 1);  // Hanoi value incidence (i.e., num seen)
+  const UINT i = aux::overflow_shr<UINT>(T, h + 1);
+  // ^^^ Hanoi value incidence (i.e., num seen)
   UINT k_b, o, w;  // Bunch position, within-bunch offset, segment width
   if (i == 0) {    // Special case the 0th bunch
     k_b = 0;       // Bunch position
     o = 0;         // Within-bunch offset
     w = s + 1;     // Segment width
   } else {
-    const UINT j = std::bit_floor(i) - 1;  // Num full-bunch segments
-    const UINT B = std::bit_width(j);      // Num full bunches
-    k_b = (1 << B) * (s - B + 1);          // Bunch position
+    const UINT j = std::bit_floor(i) - one;  // Num full-bunch segments
+    const UINT B = std::bit_width(j);        // Num full bunches
+    k_b = aux::overflow_shl(UINT{1}, B) * (s - B + UINT{1});  // Bunch position
     // substituting t = s - blT into h + 1 - t
     w = h + s + 1 - blT;  // Segment width
     o = w * (i - j - 1);  // Within-bunch offset
