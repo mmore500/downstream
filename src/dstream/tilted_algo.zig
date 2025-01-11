@@ -14,11 +14,11 @@ pub fn has_ingest_capacity(comptime u: type, S: u, T: u) bool {
 
     const surface_size_ok = S > 1 and (@popCount(S) == 1);
     const overflow_epsilon: u = @intFromBool((T +% 1) < T);
-    return surface_size_ok and aux.overflow_shr(
+    return surface_size_ok and 0 == aux.overflow_shr(
         u,
         (T - overflow_epsilon) + 1,
         S - overflow_epsilon,
-    ) == 0;
+    );
 }
 
 /// Site selection for tilted curation.
