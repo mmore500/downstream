@@ -33,7 +33,7 @@ pub fn has_ingest_capacity(comptime u: type, S: u, T: u) bool {
 ///
 /// @param u Unsigned integer type for operands and return value.
 /// @param S Buffer size.
-///     Must be a power of two greater than, and 2 * S must not overflow u.
+///     Must be a power of two greater than 1, and 2 * S must not overflow u.
 /// @param T Current logical time.
 ///     Must be less than 2^S - 1.
 pub fn assign_storage_site(comptime u: type, S: u, T: u) u {
