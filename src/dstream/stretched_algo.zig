@@ -23,8 +23,8 @@ pub fn has_ingest_capacity(comptime u: type, S: u, T: u) bool {
 pub fn assign_storage_site(comptime u: type, S: u, T: u) u {
     aux.assert_unsigned(u);
     std.debug.assert(has_ingest_capacity(u, S, T));
-    std.debug.assert(S << 1 != 0); // otherwise, calculations overflow
-    std.debug.assert(T << 1 != 0); // otherwise, calculations overflow
+    std.debug.assert(S << 1 > S); // otherwise, calculations overflow
+    std.debug.assert((T << 1) >= T); // otherwise, calculations overflow
 
     const s = aux.bit_length(u, S) - 1;
     const t = aux.floor_subtract(u, aux.bit_length(u, T), s); // Current epoch
