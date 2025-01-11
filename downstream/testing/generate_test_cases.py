@@ -16,10 +16,10 @@ def generate_test_cases() -> typing.Iterable[typing.Tuple[int, int]]:
             yield S, rand.randint(0, 2**32 - 1)
 
     # test at edges of unsigned integer representations
-    for s, t in it.product(range(21), range(21)):
+    for s, t in it.product(range(21), range(3, 21)):
         S = 1 << s
         T = 1 << t
-        for T_ in range(max(0, T - 5), T + 6):
+        for T_ in range(T - 7, T + 8):
             yield S, T_
 
 
