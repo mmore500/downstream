@@ -33,6 +33,28 @@ fn dispatch_algo(comptime algo: anytype, S: u64, T: u64) !void {
 
     if (has_capacity) {
         const storage_site = algo.assign_storage_site(u64, S, T);
+        std.debug.assert( //
+            !aux.can_type_fit_value(u8, 2 * S) or //
+            !aux.can_type_fit_value(u8, 2 * (T + 1)) or //
+            (algo.assign_storage_site(u8, @intCast(S), @intCast(T)) //
+            == //
+            storage_site) //
+        );
+        std.debug.assert( //
+            !aux.can_type_fit_value(u16, 2 * S) or //
+            !aux.can_type_fit_value(u16, 2 * (T + 1)) or //
+            (algo.assign_storage_site(u16, @intCast(S), @intCast(T)) //
+            == //
+            storage_site) //
+        );
+        std.debug.assert( //
+            !aux.can_type_fit_value(u32, 2 * S) or //
+            !aux.can_type_fit_value(u32, 2 * (T + 1)) or //
+            (algo.assign_storage_site(u32, @intCast(S), @intCast(T)) //
+            == //
+            storage_site) //
+        );
+
         if (storage_site == S) {
             try stdout.print("None\n", .{});
         } else {
