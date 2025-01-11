@@ -1,92 +1,76 @@
 const std = @import("std");
 
 const dstream = @import("downstream").dstream;
+const aux = @import("downstream")._auxlib;
 
 var bw = std.io.bufferedWriter(std.io.getStdOut().writer());
 const stdout = bw.writer();
 
-fn dispatch_hybrid_0_steady_1_stretched_2_algo_assign_storage_site(
-    S: u32,
-    T: u32,
+fn dispatch_algo(
+    comptime algo: anytype,
+    S: u64,
+    T: u64,
+    Smx: u64,
 ) !void {
-    if (dstream.hybrid_0_steady_1_stretched_2_algo.has_ingest_capacity(
-        u32,
-        S,
-        T,
-    )) {
-        const algo = dstream.hybrid_0_steady_1_stretched_2_algo;
-        const result = algo.assign_storage_site(u32, S, T);
-        if (result == S) {
+    const has_capacity = algo.has_ingest_capacity(u64, S, T);
+
+    std.debug.assert( //
+        !aux.can_type_fit_value(u8, S) or //
+        !aux.can_type_fit_value(u8, T) or //
+        (algo.has_ingest_capacity(u8, @intCast(S), @intCast(T)) //
+        == //
+        has_capacity) //
+    );
+    std.debug.assert( //
+        !aux.can_type_fit_value(u16, S) or //
+        !aux.can_type_fit_value(u16, T) or //
+        (algo.has_ingest_capacity(u16, @intCast(S), @intCast(T)) //
+        == //
+        has_capacity) //
+    );
+    std.debug.assert( //
+        !aux.can_type_fit_value(u32, S) or //
+        !aux.can_type_fit_value(u32, T) or //
+        (algo.has_ingest_capacity(u32, @intCast(S), @intCast(T)) //
+        == //
+        has_capacity) //
+    );
+
+    if (has_capacity) {
+        const storage_site = algo.assign_storage_site(u64, S, T);
+        std.debug.assert( //
+            !aux.can_type_fit_value(u8, S * Smx) or //
+            !aux.can_type_fit_value(u8, T) or //
+            (algo.assign_storage_site(u8, @intCast(S), @intCast(T)) //
+            == //
+            storage_site) //
+        );
+        std.debug.assert( //
+            !aux.can_type_fit_value(u16, S * Smx) or //
+            !aux.can_type_fit_value(u16, T) or //
+            (algo.assign_storage_site(u16, @intCast(S), @intCast(T)) //
+            == //
+            storage_site) //
+        );
+        std.debug.assert( //
+            !aux.can_type_fit_value(u32, S * Smx) or //
+            !aux.can_type_fit_value(u32, T) or //
+            (algo.assign_storage_site(u32, @intCast(S), @intCast(T)) //
+            == //
+            storage_site) //
+        );
+
+        if (storage_site == S) {
             try stdout.print("None\n", .{});
         } else {
-            try stdout.print("{}\n", .{result});
+            try stdout.print("{}\n", .{storage_site});
         }
     } else {
         try stdout.print("\n", .{});
     }
 }
 
-fn dispatch_hybrid_0_steady_1_tilted_2_algo_assign_storage_site(
-    S: u32,
-    T: u32,
-) !void {
-    if (dstream.hybrid_0_steady_1_tilted_2_algo.has_ingest_capacity(
-        u32,
-        S,
-        T,
-    )) {
-        const algo = dstream.hybrid_0_steady_1_tilted_2_algo;
-        const result = algo.assign_storage_site(u32, S, T);
-        if (result == S) {
-            try stdout.print("None\n", .{});
-        } else {
-            try stdout.print("{}\n", .{result});
-        }
-    } else {
-        try stdout.print("\n", .{});
-    }
-}
-
-fn dispatch_steady_algo_assign_storage_site(S: u32, T: u32) !void {
-    if (dstream.steady_algo.has_ingest_capacity(u32, S, T)) {
-        const result = dstream.steady_algo.assign_storage_site(u32, S, T);
-        if (result == S) {
-            try stdout.print("None\n", .{});
-        } else {
-            try stdout.print("{}\n", .{result});
-        }
-    } else {
-        try stdout.print("\n", .{});
-    }
-}
-
-fn dispatch_stretched_algo_assign_storage_site(S: u32, T: u32) !void {
-    if (dstream.stretched_algo.has_ingest_capacity(u32, S, T)) {
-        const result = dstream.stretched_algo.assign_storage_site(u32, S, T);
-        if (result == S) {
-            try stdout.print("None\n", .{});
-        } else {
-            try stdout.print("{}\n", .{result});
-        }
-    } else {
-        try stdout.print("\n", .{});
-    }
-}
-
-fn dispatch_tilted_algo_assign_storage_site(S: u32, T: u32) !void {
-    if (dstream.tilted_algo.has_ingest_capacity(u32, S, T)) {
-        const result = dstream.tilted_algo.assign_storage_site(u32, S, T);
-        if (result == S) {
-            try stdout.print("None\n", .{});
-        } else {
-            try stdout.print("{}\n", .{result});
-        }
-    } else {
-        try stdout.print("\n", .{});
-    }
-}
-
-fn dispatch(algo_name: []const u8, values: []const u32) !void {
+fn dispatch(algo_name: []const u8, values: []const u64) !void {
     const hybrid_0_steady_1_stretched_2_assign = "dstream.hybrid_0_steady_1_stretched_2_algo.assign_storage_site";
     const hybrid_0_steady_1_tilted_2_assign = "dstream.hybrid_0_steady_1_tilted_2_algo.assign_storage_site";
     const steady_assign = "dstream.steady_algo.assign_storage_site";
@@ -94,21 +78,40 @@ fn dispatch(algo_name: []const u8, values: []const u32) !void {
     const tilted_assign = "dstream.tilted_algo.assign_storage_site";
 
     if (std.mem.eql(u8, algo_name, hybrid_0_steady_1_stretched_2_assign)) {
-        try dispatch_hybrid_0_steady_1_stretched_2_algo_assign_storage_site(
+        try dispatch_algo(
+            dstream.hybrid_0_steady_1_stretched_2_algo,
             values[0],
             values[1],
+            1,
         );
     } else if (std.mem.eql(u8, algo_name, hybrid_0_steady_1_tilted_2_assign)) {
-        try dispatch_hybrid_0_steady_1_tilted_2_algo_assign_storage_site(
+        try dispatch_algo(
+            dstream.hybrid_0_steady_1_tilted_2_algo,
             values[0],
             values[1],
+            1,
         );
     } else if (std.mem.eql(u8, algo_name, steady_assign)) {
-        try dispatch_steady_algo_assign_storage_site(values[0], values[1]);
+        try dispatch_algo(
+            dstream.steady_algo,
+            values[0],
+            values[1],
+            1,
+        );
     } else if (std.mem.eql(u8, algo_name, stretched_assign)) {
-        try dispatch_stretched_algo_assign_storage_site(values[0], values[1]);
+        try dispatch_algo(
+            dstream.stretched_algo,
+            values[0],
+            values[1],
+            2,
+        );
     } else if (std.mem.eql(u8, algo_name, tilted_assign)) {
-        try dispatch_tilted_algo_assign_storage_site(values[0], values[1]);
+        try dispatch_algo(
+            dstream.tilted_algo,
+            values[0],
+            values[1],
+            2,
+        );
     } else {
         std.debug.panic("unknown algorithm/operation: {s}\n", .{algo_name});
     }
@@ -123,10 +126,10 @@ pub fn main() !void {
     while (try reader.readUntilDelimiterOrEofAlloc(alloc, '\n', 4096)) |line| {
         var words = std.mem.split(u8, line, " ");
 
-        var values = std.ArrayList(u32).init(std.heap.page_allocator);
+        var values = std.ArrayList(u64).init(std.heap.page_allocator);
         defer values.deinit();
         while (words.next()) |word| {
-            const value = try std.fmt.parseInt(u32, word, 10);
+            const value = try std.fmt.parseInt(u64, word, 10);
             try values.append(value);
         }
         try dispatch(args[1], values.items);

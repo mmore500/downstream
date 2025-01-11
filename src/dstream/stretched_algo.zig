@@ -2,6 +2,13 @@ const std = @import("std");
 
 const aux = @import("../_auxlib.zig");
 
+/// Does this algorithm have the capacity to ingest a data item at logical time
+/// T?
+///
+/// @param u Unsigned integer type for operands and return value.
+/// @param S The number of buffer sites available.
+/// @param T Queried logical time.
+/// @returns Whether there is capacity to ingest at time T.
 pub fn has_ingest_capacity(comptime u: type, S: u, T: u) bool {
     aux.assert_unsigned(u);
 
@@ -9,7 +16,9 @@ pub fn has_ingest_capacity(comptime u: type, S: u, T: u) bool {
     if (!surface_size_ok) {
         return false;
     }
-    if (S >= @bitSizeOf(u)) {
+    if (S == @bitSizeOf(u)) { // TODO refactor away special case?
+        return (T +% 1) > T;
+    } else if (S > @bitSizeOf(u)) {
         return true;
     }
 
@@ -18,14 +27,25 @@ pub fn has_ingest_capacity(comptime u: type, S: u, T: u) bool {
     return T < ingest_capacity;
 }
 
+/// Site selection for stretched curation.
+///
+/// What buffer site should the T'th data item be stored to?
+///
+/// @param u Unsigned integer type for operands and return value.
+/// @param S Buffer size.
+///     Must be a power of two greater than, and 2 * S must not overflow u.
+/// @param T Current logical time.
+///     Must be less than 2^S - 1.
 pub fn assign_storage_site(comptime u: type, S: u, T: u) u {
     aux.assert_unsigned(u);
     std.debug.assert(has_ingest_capacity(u, S, T));
+    std.debug.assert(2 * S > S); // otherwise, calculations overflow
 
     const s = aux.bit_length(u, S) - 1;
     const t = aux.floor_subtract(u, aux.bit_length(u, T), s); // Current epoch
-    const h = @ctz(T + 1); // Current hanoi value
-    const i = T >> @intCast(h + 1); // Hanoi value incidence (i.e., num seen)
+    const h = @ctz(T +% 1); // Current hanoi value
+    const i = aux.overflow_shr(u, T, h + 1);
+    // ^^^ Hanoi value incidence (i.e., num seen)
 
     const blt = aux.bit_length(u, t); // Bit length of t
     const epsilon_tau: u = @intFromBool(aux.bit_floor(u, t << 1) > t + blt);
