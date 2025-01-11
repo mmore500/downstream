@@ -23,6 +23,8 @@ pub fn has_ingest_capacity(comptime u: type, S: u, T: u) bool {
 /// @param S Buffer size.
 ///     Must be a power of two greater than 1.
 /// @param T Current logical time.
+/// @returns The selected storage site, if any.
+///     Returns S if no site should be selected (i.e., discard).
 pub fn assign_storage_site(comptime u: type, S: u, T: u) u {
     aux.assert_unsigned(u);
     std.debug.assert(has_ingest_capacity(u, S, T));

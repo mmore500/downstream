@@ -13,18 +13,12 @@ pub fn has_ingest_capacity(comptime u: type, S: u, T: u) bool {
     aux.assert_unsigned(u);
 
     const surface_size_ok = S > 1 and (@popCount(S) == 1);
-    if (!surface_size_ok) {
-        return false;
-    }
-    if (S == @bitSizeOf(u)) { // TODO refactor away special case?
-        return (T +% 1) > T;
-    } else if (S >= @bitSizeOf(u)) {
-        return true;
-    }
-
-    const one: u = 1;
-    const ingest_capacity = (one << @intCast(S)) - 1;
-    return T < ingest_capacity;
+    const overflow_epsilon: u = @intFromBool((T +% 1) < T);
+    return surface_size_ok and 0 == aux.overflow_shr(
+        u,
+        (T - overflow_epsilon) + 1,
+        S - overflow_epsilon,
+    );
 }
 
 /// Site selection for tilted curation.
@@ -36,6 +30,8 @@ pub fn has_ingest_capacity(comptime u: type, S: u, T: u) bool {
 ///     Must be a power of two greater than 1, and 2 * S must not overflow u.
 /// @param T Current logical time.
 ///     Must be less than 2^S - 1.
+/// @returns The selected storage site, if any.
+///     Returns S if no site should be selected (i.e., discard).
 pub fn assign_storage_site(comptime u: type, S: u, T: u) u {
     aux.assert_unsigned(u);
     std.debug.assert(has_ingest_capacity(u, S, T));
