@@ -10,6 +10,7 @@
 
 #include "../../auxlib/DOWNSTREAM_UINT.hpp"
 #include "../../auxlib/modpow2.hpp"
+#include "../../auxlib/overflow_shr.hpp"
 #include "./_has_ingest_capacity.hpp"
 
 namespace downstream {
@@ -33,12 +34,13 @@ UINT _assign_storage_site(const UINT S, const UINT T) {
   assert(dstream_tilted::has_ingest_capacity<UINT>(S, T));
   assert(2 * S > S);  // otherwise, calculations overflow
 
+  namespace aux = downstream::auxlib;
+
   const UINT s = std::bit_width(S) - 1;
   const UINT t = std::max(std::bit_width(T) - s, UINT{0});  // Current epoch
   const UINT h = std::countr_zero(T + 1);  // Current hanoi value
-  const UINT i =
-      (h + 1) >= 64 ? 0
-                    : (T >> (h + 1));  // Hanoi value incidence (i.e., num seen)
+  const UINT i = aux::overflow_shr<UINT>(T, h + 1);
+  // ^^^ Hanoi value incidence (i.e., num seen)
 
   const UINT blt = std::bit_width(t);                   // Bit length of t
   bool epsilon_tau = std::bit_floor(t << 1) > t + blt;  // Correction factor
@@ -48,12 +50,10 @@ UINT _assign_storage_site(const UINT S, const UINT T) {
       (UINT{1} << (tau + 1)) - (tau + 1);  // Opening epoch of next meta-epoch
   const bool epsilon_b =
       t < h + t_0 && h + t_0 < t_1;  // Uninvaded correction factor
-  const UINT B = (S >> (tau + 1 - epsilon_b))
-                     ? (S >> (tau + 1 - epsilon_b))
-                     : 1;  // Num bunches available to h.v.
-
+  const UINT B = std::max(S >> (tau + 1 - epsilon_b), UINT{1});
+  // ^^^ Num bunches available to h.v.
   assert(B);
-  const UINT b_l = downstream::auxlib::modpow2(i, B);  // Logical bunch index...
+  const UINT b_l = aux::modpow2(i, B);  // Logical bunch index...
   // ... i.e., in order filled (increasing nestedness/decreasing init size r)
 
   // Need to calculate physical bunch index...
