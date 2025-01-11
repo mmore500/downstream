@@ -22,8 +22,9 @@ pub fn bit_floor(comptime u: type, value: u) u {
 }
 
 pub fn can_type_fit_value(comptime u: type, value: u64) bool {
+    assert_unsigned(u);
     const ansatz: u = @truncate(value);
-    const ansatz64: u54 = @intCast(ansatz);
+    const ansatz64: u64 = @intCast(ansatz);
     return ansatz64 == value;
 }
 
@@ -67,6 +68,20 @@ test "bit_floor" {
     try testing.expect(bit_floor(u64, 0xFFFF_FFFF_FFFF_FFFF) == (1 << 63));
 }
 
+test "can_type_fit_value" {
+    try testing.expect(can_type_fit_value(u8, 0));
+    try testing.expect(can_type_fit_value(u8, 255));
+    try testing.expect(!can_type_fit_value(u8, 256));
+    try testing.expect(can_type_fit_value(u16, 0));
+    try testing.expect(can_type_fit_value(u16, 65535));
+    try testing.expect(!can_type_fit_value(u16, 65536));
+    try testing.expect(can_type_fit_value(u32, 0));
+    try testing.expect(can_type_fit_value(u32, 4294967295));
+    try testing.expect(!can_type_fit_value(u32, 4294967296));
+    try testing.expect(can_type_fit_value(u64, 0));
+    try testing.expect(can_type_fit_value(u64, 18446744073709551615));
+}
+
 test "floor_subtract" {
     try testing.expect(floor_subtract(u32, 10, 5) == 5); // 10 - 5 = 5
     try testing.expect(floor_subtract(u32, 5, 10) == 0); // 5 - 10 = negative
@@ -94,4 +109,14 @@ test "overflow_shl" {
     try testing.expect(overflow_shl(u64, 1, 63) == (1 << 63));
     try testing.expect(overflow_shl(u32, 1, 64) == 0); // capped at 63
     try testing.expect(overflow_shl(u32, 2, 70) == 0); // also capped at 63
+}
+
+test "overflow_shr" {
+    // overflow_shr shifts right by `b`, but caps the shift at 63 bits.
+    try testing.expect(overflow_shr(u32, 2, 1) == 1); // 2 >> 1 = 1
+    try testing.expect(overflow_shr(u32, 2, 2) == 0); // 2 >> 2 = 0
+    try testing.expect(overflow_shr(u32, 2, 3) == 0); // 2 >> 2 = 0
+    try testing.expect(overflow_shr(u64, 1 << 63, 63) == 1);
+    try testing.expect(overflow_shr(u32, 1, 64) == 0); // capped at 63
+    try testing.expect(overflow_shr(u32, 2, 70) == 0); // also capped at 63
 }
