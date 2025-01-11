@@ -5,6 +5,7 @@
 #include <bit>
 #include <cassert>
 #include <concepts>
+#include <limits>
 
 #include "../../auxlib/DOWNSTREAM_UINT.hpp"
 #include "../../auxlib/overflow_shr.hpp"
