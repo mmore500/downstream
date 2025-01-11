@@ -32,9 +32,9 @@ void process_single_input(uint64_t S, uint64_t T) {
         // assert(!downaux::can_type_fit_value<uint16_t>(S + 1)
         //     || !downaux::can_type_fit_value<uint16_t>(T + 1)
         //     || (Algo<uint16_t>::assign_storage_site(S, T) == maybe_site));
-        // assert(!downaux::can_type_fit_value<uint32_t>(S + 1)
-        //     || !downaux::can_type_fit_value<uint32_t>(T + 1)
-        //     || (Algo<uint32_t>::assign_storage_site(S, T) == maybe_site));
+        assert(!downaux::can_type_fit_value<uint32_t>(S + 1)
+            || !downaux::can_type_fit_value<uint32_t>(T + 1)
+            || (Algo<uint32_t>::assign_storage_site(S, T) == maybe_site));
 
         std::cout << (maybe_site ? std::to_string(*maybe_site) : "None");
         std::cout << '\n';
