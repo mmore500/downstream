@@ -43,6 +43,11 @@ pub fn overflow_shl(comptime u: type, a: u, b: u) u {
     return if (b < @bitSizeOf(u)) a << @intCast(b) else 0;
 }
 
+pub fn overflow_shr(comptime u: type, a: u, b: u) u {
+    assert_unsigned(u);
+    return if (b < @bitSizeOf(u)) a >> @intCast(b) else 0;
+}
+
 test "bit_length" {
     try testing.expect(bit_length(u32, 0) == 0);
     try testing.expect(bit_length(u32, 1) == 1); // binary: 1

@@ -16,10 +16,10 @@ pub fn assign_storage_site(comptime u: type, S: u, T: u) u {
     const s = aux.bit_length(u, S) - 1;
     const blT = aux.bit_length(u, T);
     const t = aux.floor_subtract(u, blT, s); // Current epoch
-    const h = @ctz(T + 1); // Current hanoi value
+    const h = @ctz(T +% 1); // Current hanoi value
 
     // Hanoi value incidence (i.e., num seen)
-    const i = T >> @intCast(h + 1);
+    const i = aux.overflow_shr(u, T, h + 1);
 
     // Num full-bunch segments
     const j = aux.bit_floor(u, i) -% 1;
