@@ -2,6 +2,12 @@ const std = @import("std");
 
 const aux = @import("../_auxlib.zig");
 
+/// Does this algorithm have the capacity to ingest a data item at logical time
+/// T?
+///
+/// @param S The number of buffer sites available.
+/// @param T Queried logical time.
+/// @returns Whether there is capacity to ingest at time T.
 pub fn has_ingest_capacity(comptime u: type, S: u, T: u) bool {
     aux.assert_unsigned(u);
 
@@ -9,6 +15,14 @@ pub fn has_ingest_capacity(comptime u: type, S: u, T: u) bool {
     return (@popCount(S) == 1) and S > 1;
 }
 
+/// Site selection for steady curation.
+///
+/// What buffer site should the T'th data item be stored to?
+///
+/// @param u Unsigned integer type for operands and return value.
+/// @param S Buffer size.
+///     Must be a power of two greater than 1.
+/// @param T Current logical time.
 pub fn assign_storage_site(comptime u: type, S: u, T: u) u {
     aux.assert_unsigned(u);
     std.debug.assert(has_ingest_capacity(u, S, T));
