@@ -34,20 +34,21 @@ UINT _assign_storage_site(const UINT S, const UINT T) {
   assert(dstream_stretched::has_ingest_capacity<UINT>(S, T));
   assert(2 * S > S);  // otherwise, calculations overflow
 
+  constexpr UINT _1{1};
   namespace aux = downstream::auxlib;
 
-  const UINT s = std::bit_width(S) - 1;
+  const UINT s = std::bit_width(S) - _1;
   const UINT blT = std::bit_width(T);
-  const UINT t = blT - std::min(s, blT);                // Current epoch
-  const UINT h = aux::countr_zero_casted<UINT>(T + 1);  // Current hanoi value
-  const UINT i = aux::overflow_shr<UINT>(T, h + 1);
+  const UINT t = blT - std::min(s, blT);                 // Current epoch
+  const UINT h = aux::countr_zero_casted<UINT>(T + _1);  // Current hanoi value
+  const UINT i = aux::overflow_shr<UINT>(T, h + _1);
   // ^^^ Hanoi value incidence (i.e., num seen)
 
   const UINT blt = std::bit_width(t);  // Bit length of t
-  const UINT t_floor = t <= 0 ? 0 : 1 << (std::bit_width(t) - 1);
-  const bool epsilon_tau = t_floor << 1 > t + blt;  // Correction factor
-  const UINT tau = blt - epsilon_tau;               // Current meta-epoch
-  const UINT b = std::max<UINT>(S >> (tau + 1), UINT{1});
+  bool epsilon_tau =
+      aux::bit_floor_casted<UINT>(t << _1) > t + blt;  // Correction factor
+  const UINT tau = blt - epsilon_tau;                  // Current meta-epoch
+  const UINT b = std::max<UINT>(S >> (tau + _1), _1);
   // ^^^ Num bunches available to h.v.
   if (i >= b) {  // If seen more than sites reserved to hanoi value...
     return S;    // ... discard without storing
@@ -62,7 +63,7 @@ UINT _assign_storage_site(const UINT S, const UINT T) {
       std::bit_width(b_l);  // Nestedness depth level of physical bunch
   const UINT w =
       (S >> v) * (v != 0);  // Num bunches spaced between bunches in nest level
-  const UINT o = w >> 1;  // Offset of nestedness level in physical bunch order
+  const UINT o = w >> _1;  // Offset of nestedness level in physical bunch order
   const UINT p =
       b_l - std::bit_floor(b_l);  // Bunch position within nestedness level
   const UINT b_p = o + w * p;     // Physical bunch index...
