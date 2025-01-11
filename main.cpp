@@ -49,8 +49,8 @@ bool process_algorithm(const std::string_view target_function) {
 }  // namespace
 
 int main(int argc, char* argv[]) {
-    std::signal(SIGPIPE, SIG_IGN);
-    std::ios_base::sync_with_stdio(false);
+    std::signal(SIGPIPE, SIG_IGN); // Ignore broken pipe signals
+    std::ios_base::sync_with_stdio(false); // Disable synchronization with C stdio for performance
 
     std::string_view target_function(argv[1]);
     if (!process_algorithm(target_function)) {
