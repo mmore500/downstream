@@ -15,7 +15,8 @@ fn assign_storage_site(S: u32, T: u32) u32 {
     const s = aux.bit_length(S) - 1;
     const t = aux.floor_subtract(aux.bit_length(T), s); // Current epoch
     const h = aux.ctz(T + 1); // Current hanoi value
-    const i = T >> (h + 1); // Hanoi value incidence (i.e., num seen)
+    const i = aux.overflow_shr(T, h + 1);
+    // ^^^ Hanoi value incidence (i.e., num seen)
 
     const blt = aux.bit_length(t); // Bit length of t
     const epsilon_tau = @as(u32, aux.bit_floor(t << 1) > t + blt);

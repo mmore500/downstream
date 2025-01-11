@@ -20,7 +20,7 @@ fn assign_storage_site(S: u32, T: u32) u32 {
     const B = aux.bit_length(j); // Num full bunches
     // Bunch position
     const _1: u32 = 1;
-    var k_b = (_1 << B) * (s + 1 - B);
+    var k_b = aux.overflow_shl(_1, B) * (s + 1 - B);
     // substituting t = s - blT into h + 1 - t
     var w = h + s + 1 - blT; // Segment width
     var o = w * (i - (j + 1)); // Within-bunch offset
