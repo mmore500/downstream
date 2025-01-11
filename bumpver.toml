@@ -12,5 +12,5 @@ push = true
 
 [bumpver.file_patterns]
 "CITATION.cff" = [
-    'cff-version: {version}',
+    'cff-version: {pep440_version}',
 ]
