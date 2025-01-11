@@ -47,9 +47,9 @@ pub fn assign_storage_site(comptime u: type, S: u, T: u) u {
     const epsilon_tau: u = @intFromBool(aux.bit_floor(u, t << 1) > t + blt);
     // ^^^ Correction factor
     const tau = blt - epsilon_tau; // Current meta-epoch
-    const one: u = 1;
-    const t_0 = (one << @intCast(tau)) - tau; // Opening epoch of meta-epoch
-    const t_1 = (one << @intCast(tau + 1)) - (tau + 1);
+    const _1: u = 1;
+    const t_0 = (_1 << @intCast(tau)) - tau; // Opening epoch of meta-epoch
+    const t_1 = (_1 << @intCast(tau + 1)) - (tau + 1);
     // ^^^ Opening epoch of next meta-epoch
     const epsilon_b: u = @intFromBool(t < h + t_0 and h + t_0 < t_1);
     // ^^^ uninvaded correction factor
