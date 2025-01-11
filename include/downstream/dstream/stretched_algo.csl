@@ -4,16 +4,11 @@ const aux = @import_module("<downstream/_auxlib>");
 
 fn has_ingest_capacity(S: u32, T: u32) bool {
     const surface_size_ok = (aux.popcount(S) == 1) and S > 1;
-    if (!surface_size_ok) {
-        return false;
-    }
-    if (S >= 32) {
-        return true;
-    }
-
-    const one: u32 = 1;
-    const ingest_capacity = (one << S) - 1;
-    return T < ingest_capacity;
+    const overflow_epsilon: u32 = @as(u32, T == 0xFFFFFFFF);
+    return surface_size_ok and 0 == aux.overflow_shr(
+        (T - overflow_epsilon) + 1,
+        S - overflow_epsilon,
+    );
 }
 
 fn assign_storage_site(S: u32, T: u32) u32 {
