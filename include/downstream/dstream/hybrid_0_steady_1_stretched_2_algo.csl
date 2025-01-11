@@ -3,6 +3,12 @@ const aux = @import_module("<downstream/_auxlib>");
 const steady_algo = @import_module("<downstream/dstream/steady_algo>");
 const stretched_algo = @import_module("<downstream/dstream/stretched_algo>");
 
+/// Does this algorithm have the capacity to ingest a data item at logical time
+/// T?
+///
+/// @param S The number of buffer sites available.
+/// @param T Queried logical time.
+/// @returns Whether there is capacity to ingest at time T.
 fn has_ingest_capacity(S: u32, T: u32) bool {
     const half_S = S >> 1;
     const has_capacity_1st = steady_algo.has_ingest_capacity(
@@ -16,6 +22,17 @@ fn has_ingest_capacity(S: u32, T: u32) bool {
     return has_capacity_1st and has_capacity_2nd;
 }
 
+/// Site selection for hybrid steady/stretched curation.
+///
+/// What buffer site should the T'th data item be stored to?
+///
+/// @param u Unsigned integer type for operands and return value.
+/// @param S Buffer size.
+///     Must be a power of two, greater than 2.
+/// @param T Current logical time.
+///    Must be less than 2^(S - 1) - 1.
+/// @returns The selected storage site, if any.
+///     Returns S if no site should be selected (i.e., discard).
 fn assign_storage_site(S: u32, T: u32) u32 {
     const half_S = S >> 1;
     const half_T = T >> 1;

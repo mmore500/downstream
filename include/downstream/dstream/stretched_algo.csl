@@ -2,6 +2,12 @@ const math = @import_module("<math>");
 
 const aux = @import_module("<downstream/_auxlib>");
 
+/// Does this algorithm have the capacity to ingest a data item at logical time
+/// T?
+///
+/// @param S The number of buffer sites available.
+/// @param T Queried logical time.
+/// @returns Whether there is capacity to ingest at time T.
 fn has_ingest_capacity(S: u32, T: u32) bool {
     const surface_size_ok = (aux.popcount(S) == 1) and S > 1;
     const overflow_epsilon: u32 = @as(u32, T == 0xFFFFFFFF);
@@ -11,6 +17,16 @@ fn has_ingest_capacity(S: u32, T: u32) bool {
     );
 }
 
+/// Site selection for stretched curation.
+///
+/// What buffer site should the T'th data item be stored to?
+///
+/// @param S Buffer size.
+///     Must be a power of two greater than 1, and 2 * S must not overflow u32.
+/// @param T Current logical time.
+///     Must be less than 2^S - 1.
+/// @returns The selected storage site, if any.
+///     Returns S if no site should be selected (i.e., discard).
 fn assign_storage_site(S: u32, T: u32) u32 {
     const s = aux.bit_length(S) - 1;
     const t = aux.floor_subtract(aux.bit_length(T), s); // Current epoch
