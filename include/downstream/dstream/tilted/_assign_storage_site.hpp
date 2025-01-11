@@ -38,8 +38,8 @@ UINT _assign_storage_site(const UINT S, const UINT T) {
   namespace aux = downstream::auxlib;
 
   const UINT s = std::bit_width(S) - 1;
-  const UINT t = std::max<UINT>(aux::bit_width_casted<UINT>(T) - s,
-                                UINT{0});               // Current epoch
+  const UINT blT = std::bit_width(T);
+  const UINT t = blT - std::min(s, blT);                // Current epoch
   const UINT h = aux::countr_zero_casted<UINT>(T + 1);  // Current hanoi value
   const UINT i = aux::overflow_shr<UINT>(T, h + 1);
   // ^^^ Hanoi value incidence (i.e., num seen)
