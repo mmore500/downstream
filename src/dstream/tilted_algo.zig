@@ -23,13 +23,13 @@ pub fn has_ingest_capacity(comptime u: type, S: u, T: u) bool {
 pub fn assign_storage_site(comptime u: type, S: u, T: u) u {
     aux.assert_unsigned(u);
     std.debug.assert(has_ingest_capacity(u, S, T));
-    std.debug.assert(S << 1 > S); // otherwise, calculations overflow
-    std.debug.assert((T << 1) >= T); // otherwise, calculations overflow
+    std.debug.assert(2 * S > S); // otherwise, calculations overflow
 
     const s = aux.bit_length(u, S) - 1;
     const t = aux.floor_subtract(u, aux.bit_length(u, T), s); // Current epoch
-    const h = @ctz(T + 1); // Current hanoi value
-    const i = (T >> 1) >> @intCast(h); // Hanoi value incidence (i.e., num seen)
+    const h = @ctz(T +% 1); // Current hanoi value
+    const i = aux.overflow_shr(u, T, h + 1);
+    // ^^^ Hanoi value incidence (i.e., num seen)
 
     const blt = aux.bit_length(u, t); // Bit length of t
     const epsilon_tau: u = @intFromBool(aux.bit_floor(u, t << 1) > t + blt);
