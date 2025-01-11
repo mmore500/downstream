@@ -9,6 +9,7 @@
 #include <optional>
 
 #include "../../auxlib/DOWNSTREAM_UINT.hpp"
+#include "../../auxlib/overflow_shr.hpp"
 #include "./_has_ingest_capacity.hpp"
 
 namespace downstream {
@@ -32,19 +33,20 @@ UINT _assign_storage_site(const UINT S, const UINT T) {
   assert(dstream_stretched::has_ingest_capacity<UINT>(S, T));
   assert(2 * S > S);  // otherwise, calculations overflow
 
+  namespace aux = downstream::auxlib;
+
   const UINT s = std::bit_width(S) - 1;
   const UINT t = std::max(std::bit_width(T) - s, UINT{0});  // Current epoch
   const UINT h = std::countr_zero(T + 1);  // Current hanoi value
-  const UINT i =
-      (h + 1) >= 64 ? 0
-                    : (T >> (h + 1));  // Hanoi value incidence (i.e., num seen)
+  const UINT i = aux::overflow_shr<UINT>(T, h + 1);
+  // ^^^ Hanoi value incidence (i.e., num seen)
 
   const UINT blt = std::bit_width(t);  // Bit length of t
   const UINT t_floor = t <= 0 ? 0 : 1 << (std::bit_width(t) - 1);
   const bool epsilon_tau = t_floor << 1 > t + blt;  // Correction factor
   const UINT tau = blt - epsilon_tau;               // Current meta-epoch
-  const UINT b =
-      (S >> (tau + 1)) ? (S >> (tau + 1)) : 1;  // Num bunches available to h.v.
+  const UINT b = std::max(S >> (tau + 1), UINT{1});
+  // ^^^ Num bunches available to h.v.
   if (i >= b) {  // If seen more than sites reserved to hanoi value...
     return S;    // ... discard without storing
   }
