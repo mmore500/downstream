@@ -9,7 +9,9 @@ pub fn has_ingest_capacity(comptime u: type, S: u, T: u) bool {
     if (!surface_size_ok) {
         return false;
     }
-    if (S >= @bitSizeOf(u)) {
+    if (S == @bitSizeOf(u)) { // TODO refactor away special case?
+        return (T +% 1) > T;
+    } else if (S >= @bitSizeOf(u)) {
         return true;
     }
 

@@ -11,21 +11,21 @@ fn dispatch_algo(comptime algo: anytype, S: u64, T: u64) !void {
 
     std.debug.assert( //
         !aux.can_type_fit_value(u8, S) or //
-        !aux.can_type_fit_value(u8, T + 1) or //
+        !aux.can_type_fit_value(u8, T) or //
         (algo.has_ingest_capacity(u8, @intCast(S), @intCast(T)) //
         == //
         has_capacity) //
     );
     std.debug.assert( //
         !aux.can_type_fit_value(u16, S) or //
-        !aux.can_type_fit_value(u16, T + 1) or //
+        !aux.can_type_fit_value(u16, T) or //
         (algo.has_ingest_capacity(u16, @intCast(S), @intCast(T)) //
         == //
         has_capacity) //
     );
     std.debug.assert( //
         !aux.can_type_fit_value(u32, S) or //
-        !aux.can_type_fit_value(u32, T + 1) or //
+        !aux.can_type_fit_value(u32, T) or //
         (algo.has_ingest_capacity(u32, @intCast(S), @intCast(T)) //
         == //
         has_capacity) //
