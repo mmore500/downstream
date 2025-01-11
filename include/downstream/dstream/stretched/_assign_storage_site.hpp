@@ -10,6 +10,7 @@
 
 #include "../../auxlib/DOWNSTREAM_UINT.hpp"
 #include "../../auxlib/overflow_shr.hpp"
+#include "../../auxlib/std_bit_casted.hpp"
 #include "./_has_ingest_capacity.hpp"
 
 namespace downstream {
@@ -36,8 +37,9 @@ UINT _assign_storage_site(const UINT S, const UINT T) {
   namespace aux = downstream::auxlib;
 
   const UINT s = std::bit_width(S) - 1;
-  const UINT t = std::max(std::bit_width(T) - s, UINT{0});  // Current epoch
-  const UINT h = std::countr_zero(T + 1);  // Current hanoi value
+  const UINT t = std::max<UINT>(aux::bit_width_casted<UINT>(T) - s,
+                                UINT{0});               // Current epoch
+  const UINT h = aux::countr_zero_casted<UINT>(T + 1);  // Current hanoi value
   const UINT i = aux::overflow_shr<UINT>(T, h + 1);
   // ^^^ Hanoi value incidence (i.e., num seen)
 
@@ -45,7 +47,7 @@ UINT _assign_storage_site(const UINT S, const UINT T) {
   const UINT t_floor = t <= 0 ? 0 : 1 << (std::bit_width(t) - 1);
   const bool epsilon_tau = t_floor << 1 > t + blt;  // Correction factor
   const UINT tau = blt - epsilon_tau;               // Current meta-epoch
-  const UINT b = std::max(S >> (tau + 1), UINT{1});
+  const UINT b = std::max<UINT>(S >> (tau + 1), UINT{1});
   // ^^^ Num bunches available to h.v.
   if (i >= b) {  // If seen more than sites reserved to hanoi value...
     return S;    // ... discard without storing
@@ -69,7 +71,7 @@ UINT _assign_storage_site(const UINT S, const UINT T) {
   // Need to calculate buffer position of b_p'th bunch
   const bool epsilon_k_b = (b_l != 0);  // Correction factor for zeroth bunch...
   // ... i.e., bunch r=s at site k=0
-  const UINT k_b = (b_p << 1) + std::popcount((S << 1) - b_p) - 1 -
+  const UINT k_b = (b_p << 1) + aux::popcount_casted<UINT>((S << 1) - b_p) - 1 -
                    epsilon_k_b;  // Site index of bunch
 
   return k_b + h;  // Calculate placement site...

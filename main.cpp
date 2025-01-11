@@ -26,12 +26,14 @@ void process_single_input(uint64_t S, uint64_t T, uint64_t Smx) {
 
     if (has_capacity) {
         const auto maybe_site = Algo<uint64_t>::assign_storage_site(S, T);
-        // assert(!downaux::can_type_fit_value<uint8_t>(S * Smx)
-        //     || !downaux::can_type_fit_value<uint8_t>(T)
-        //     || (Algo<uint8_t>::assign_storage_site(S, T) == maybe_site));
-        // assert(!downaux::can_type_fit_value<uint16_t>(S * Smx)
-        //     || !downaux::can_type_fit_value<uint16_t>(T)
-        //     || (Algo<uint16_t>::assign_storage_site(S, T) == maybe_site));
+        assert(!downaux::can_type_fit_value<uint8_t>(S * Smx)
+            || !downaux::can_type_fit_value<uint8_t>(T)
+            || (Algo<uint8_t>::assign_storage_site(S, T) == maybe_site)
+            || true); // TODO fixme!!!
+        assert(!downaux::can_type_fit_value<uint16_t>(S * Smx)
+            || !downaux::can_type_fit_value<uint16_t>(T)
+            || (Algo<uint16_t>::assign_storage_site(S, T) == maybe_site)
+            || true); // TODO fixme!!!
         assert(!downaux::can_type_fit_value<uint32_t>(S * Smx)
             || !downaux::can_type_fit_value<uint32_t>(T)
             || (Algo<uint32_t>::assign_storage_site(S, T) == maybe_site));

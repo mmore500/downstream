@@ -11,6 +11,7 @@
 #include "../../auxlib/DOWNSTREAM_UINT.hpp"
 #include "../../auxlib/modpow2.hpp"
 #include "../../auxlib/overflow_shr.hpp"
+#include "../../auxlib/std_bit_casted.hpp"
 #include "./_has_ingest_capacity.hpp"
 
 namespace downstream {
@@ -37,20 +38,22 @@ UINT _assign_storage_site(const UINT S, const UINT T) {
   namespace aux = downstream::auxlib;
 
   const UINT s = std::bit_width(S) - 1;
-  const UINT t = std::max(std::bit_width(T) - s, UINT{0});  // Current epoch
-  const UINT h = std::countr_zero(T + 1);  // Current hanoi value
+  const UINT t = std::max<UINT>(aux::bit_width_casted<UINT>(T) - s,
+                                UINT{0});               // Current epoch
+  const UINT h = aux::countr_zero_casted<UINT>(T + 1);  // Current hanoi value
   const UINT i = aux::overflow_shr<UINT>(T, h + 1);
   // ^^^ Hanoi value incidence (i.e., num seen)
 
-  const UINT blt = std::bit_width(t);                   // Bit length of t
-  bool epsilon_tau = std::bit_floor(t << 1) > t + blt;  // Correction factor
-  const UINT tau = blt - epsilon_tau;                   // Current meta-epoch
+  const UINT blt = std::bit_width(t);  // Bit length of t
+  bool epsilon_tau =
+      aux::bit_floor_casted<UINT>(t << 1) > t + blt;  // Correction factor
+  const UINT tau = blt - epsilon_tau;                 // Current meta-epoch
   const UINT t_0 = (UINT{1} << tau) - tau;  // Opening epoch of meta-epoch
   const UINT t_1 =
       (UINT{1} << (tau + 1)) - (tau + 1);  // Opening epoch of next meta-epoch
   const bool epsilon_b =
       t < h + t_0 && h + t_0 < t_1;  // Uninvaded correction factor
-  const UINT B = std::max(S >> (tau + 1 - epsilon_b), UINT{1});
+  const UINT B = std::max<UINT>(S >> (tau + 1 - epsilon_b), UINT{1});
   // ^^^ Num bunches available to h.v.
   assert(B);
   const UINT b_l = aux::modpow2(i, B);  // Logical bunch index...
@@ -71,7 +74,7 @@ UINT _assign_storage_site(const UINT S, const UINT T) {
   // Need to calculate buffer position of b_p'th bunch
   const bool epsilon_k_b = (b_l != 0);  // Correction factor for zeroth bunch...
   // ... i.e., bunch r=s at site k=0
-  const UINT k_b = (b_p << 1) + std::popcount((S << 1) - b_p) - 1 -
+  const UINT k_b = (b_p << 1) + aux::popcount_casted<UINT>((S << 1) - b_p) - 1 -
                    epsilon_k_b;  // Site index of bunch
 
   return k_b + h;  // Calculate placement site...
