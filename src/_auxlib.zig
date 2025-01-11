@@ -1,6 +1,12 @@
 const std = @import("std");
 const testing = std.testing;
 
+pub fn can_type_fit_value(comptime u: type, value: u64) bool {
+    const ansatz: u = @truncate(value);
+    const ansatz64: u54 = @intCast(ansatz);
+    return ansatz64 == value;
+}
+
 pub fn assert_unsigned(comptime u: type) void {
     std.debug.assert(u == u8 or u == u16 or u == u32 or u == u64);
 }

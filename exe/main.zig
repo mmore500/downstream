@@ -1,14 +1,38 @@
 const std = @import("std");
 
 const dstream = @import("downstream").dstream;
+const aux = @import("downstream")._auxlib;
 
 var bw = std.io.bufferedWriter(std.io.getStdOut().writer());
 const stdout = bw.writer();
 
-fn dispatch_algo(comptime algo: anytype, S: u32, T: u32) !void {
-    const has_capacity = algo.has_ingest_capacity(u32, S, T);
+fn dispatch_algo(comptime algo: anytype, S: u64, T: u64) !void {
+    const has_capacity = algo.has_ingest_capacity(u64, S, T);
+
+    std.debug.assert( //
+        !aux.can_type_fit_value(u8, S) or //
+        !aux.can_type_fit_value(u8, T + 1) or //
+        (algo.has_ingest_capacity(u8, @intCast(S), @intCast(T)) //
+        == //
+        has_capacity) //
+    );
+    std.debug.assert( //
+        !aux.can_type_fit_value(u16, S) or //
+        !aux.can_type_fit_value(u16, T + 1) or //
+        (algo.has_ingest_capacity(u16, @intCast(S), @intCast(T)) //
+        == //
+        has_capacity) //
+    );
+    std.debug.assert( //
+        !aux.can_type_fit_value(u32, S) or //
+        !aux.can_type_fit_value(u32, T + 1) or //
+        (algo.has_ingest_capacity(u32, @intCast(S), @intCast(T)) //
+        == //
+        has_capacity) //
+    );
+
     if (has_capacity) {
-        const storage_site = algo.assign_storage_site(u32, S, T);
+        const storage_site = algo.assign_storage_site(u64, S, T);
         if (storage_site == S) {
             try stdout.print("None\n", .{});
         } else {
@@ -19,7 +43,7 @@ fn dispatch_algo(comptime algo: anytype, S: u32, T: u32) !void {
     }
 }
 
-fn dispatch(algo_name: []const u8, values: []const u32) !void {
+fn dispatch(algo_name: []const u8, values: []const u64) !void {
     const hybrid_0_steady_1_stretched_2_assign = "dstream.hybrid_0_steady_1_stretched_2_algo.assign_storage_site";
     const hybrid_0_steady_1_tilted_2_assign = "dstream.hybrid_0_steady_1_tilted_2_algo.assign_storage_site";
     const steady_assign = "dstream.steady_algo.assign_storage_site";
@@ -70,10 +94,10 @@ pub fn main() !void {
     while (try reader.readUntilDelimiterOrEofAlloc(alloc, '\n', 4096)) |line| {
         var words = std.mem.split(u8, line, " ");
 
-        var values = std.ArrayList(u32).init(std.heap.page_allocator);
+        var values = std.ArrayList(u64).init(std.heap.page_allocator);
         defer values.deinit();
         while (words.next()) |word| {
-            const value = try std.fmt.parseInt(u32, word, 10);
+            const value = try std.fmt.parseInt(u64, word, 10);
             try values.append(value);
         }
         try dispatch(args[1], values.items);
