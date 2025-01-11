@@ -13,28 +13,28 @@ namespace {
 template<template<typename> typename Algo>
 void process_single_input(uint64_t S, uint64_t T) {
     namespace downaux = downstream::auxlib;
-    const bool has_ingest_capacity = Algo<uint64_t>::has_ingest_capacity(S, T);
+    const bool has_capacity = Algo<uint64_t>::has_ingest_capacity(S, T);
     assert(!downaux::can_type_fit_value<uint8_t>(S + 1)
            || !downaux::can_type_fit_value<uint8_t>(T + 1)
-           || Algo<uint8_t>::has_ingest_capacity(S, T) == has_ingest_capacity);
+           || (Algo<uint8_t>::has_ingest_capacity(S, T) == has_capacity));
     assert(!downaux::can_type_fit_value<uint16_t>(S + 1)
            || !downaux::can_type_fit_value<uint16_t>(T + 1)
-           || Algo<uint16_t>::has_ingest_capacity(S, T) == has_ingest_capacity);
+           || (Algo<uint16_t>::has_ingest_capacity(S, T) == has_capacity));
     assert(!downaux::can_type_fit_value<uint32_t>(S + 1)
            || !downaux::can_type_fit_value<uint32_t>(T + 1)
-           || Algo<uint32_t>::has_ingest_capacity(S, T) == has_ingest_capacity);
+           || (Algo<uint32_t>::has_ingest_capacity(S, T) == has_capacity));
 
-    if (has_ingest_capacity) {
+    if (has_capacity) {
         const auto maybe_site = Algo<uint64_t>::assign_storage_site(S, T);
         // assert(!downaux::can_type_fit_value<uint8_t>(S + 1)
         //     || !downaux::can_type_fit_value<uint8_t>(T + 1)
-        //     || Algo<uint8_t>::assign_storage_site(S, T) == maybe_site);
+        //     || (Algo<uint8_t>::assign_storage_site(S, T) == maybe_site));
         // assert(!downaux::can_type_fit_value<uint16_t>(S + 1)
         //     || !downaux::can_type_fit_value<uint16_t>(T + 1)
-        //     || Algo<uint16_t>::assign_storage_site(S, T) == maybe_site);
+        //     || (Algo<uint16_t>::assign_storage_site(S, T) == maybe_site));
         // assert(!downaux::can_type_fit_value<uint32_t>(S + 1)
         //     || !downaux::can_type_fit_value<uint32_t>(T + 1)
-        //     || Algo<uint32_t>::assign_storage_site(S, T) == maybe_site);
+        //     || (Algo<uint32_t>::assign_storage_site(S, T) == maybe_site));
 
         std::cout << (maybe_site ? std::to_string(*maybe_site) : "None");
         std::cout << '\n';
