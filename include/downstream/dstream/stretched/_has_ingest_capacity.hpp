@@ -7,6 +7,7 @@
 #include <concepts>
 
 #include "../../auxlib/DOWNSTREAM_UINT.hpp"
+#include "../../auxlib/overflow_shr.hpp"
 
 namespace downstream {
 namespace dstream_stretched {
@@ -25,11 +26,11 @@ namespace dstream_stretched {
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
 bool has_ingest_capacity(const UINT S, const UINT T) {
   const bool surface_size_ok = S > 1 and std::has_single_bit(S);
-  if (!surface_size_ok) return false;
-  if (S >= 8 * sizeof(UINT)) return true;
-
-  const UINT ingest_capacity = (UINT{1} << S) - 1;
-  return T < ingest_capacity;
+  const UINT overflow_epsilon = T + 1 < T;
+  return surface_size_ok and
+         0 == downstream::auxlib::overflow_shr<UINT>(               //
+                  (T - overflow_epsilon) + 1, S - overflow_epsilon  //
+              );
 }
 
 }  // namespace dstream_stretched
