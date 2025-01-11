@@ -15,14 +15,14 @@ void process_single_input(uint64_t S, uint64_t T) {
     namespace downaux = downstream::auxlib;
     const bool has_capacity = Algo<uint64_t>::has_ingest_capacity(S, T);
     assert(!downaux::can_type_fit_value<uint8_t>(S)
-           || !downaux::can_type_fit_value<uint8_t>(T)
-           || (Algo<uint8_t>::has_ingest_capacity(S, T) == has_capacity));
+        || !downaux::can_type_fit_value<uint8_t>(T)
+        || (Algo<uint8_t>::has_ingest_capacity(S, T) == has_capacity));
     assert(!downaux::can_type_fit_value<uint16_t>(S)
-           || !downaux::can_type_fit_value<uint16_t>(T)
-           || (Algo<uint16_t>::has_ingest_capacity(S, T) == has_capacity));
+        || !downaux::can_type_fit_value<uint16_t>(T)
+        || (Algo<uint16_t>::has_ingest_capacity(S, T) == has_capacity));
     assert(!downaux::can_type_fit_value<uint32_t>(S)
-           || !downaux::can_type_fit_value<uint32_t>(T)
-           || (Algo<uint32_t>::has_ingest_capacity(S, T) == has_capacity));
+        || !downaux::can_type_fit_value<uint32_t>(T)
+        || (Algo<uint32_t>::has_ingest_capacity(S, T) == has_capacity));
 
     if (has_capacity) {
         const auto maybe_site = Algo<uint64_t>::assign_storage_site(S, T);
