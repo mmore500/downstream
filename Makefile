@@ -10,7 +10,7 @@ CFLAGS_nat_debug := -g $(CFLAGS_all)
 
 HEADERS := $(shell find include -name '*.hpp')
 
-MAIN_BIN := test_downstream/test_dstream/main
+MAIN_BIN := ./main
 
 default: build test
 
