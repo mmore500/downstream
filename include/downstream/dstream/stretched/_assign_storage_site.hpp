@@ -44,8 +44,8 @@ UINT _assign_storage_site(const UINT S, const UINT T) {
   // ^^^ Hanoi value incidence (i.e., num seen)
 
   const UINT blt = std::bit_width(t);  // Bit length of t
-  const UINT t_floor = t <= 0 ? 0 : 1 << (std::bit_width(t) - 1);
-  const bool epsilon_tau = t_floor << 1 > t + blt;  // Correction factor
+  bool epsilon_tau =
+      aux::bit_floor_casted<UINT>(t << 1) > t + blt;  // Correction factor
   const UINT tau = blt - epsilon_tau;               // Current meta-epoch
   const UINT b = std::max<UINT>(S >> (tau + 1), UINT{1});
   // ^^^ Num bunches available to h.v.
