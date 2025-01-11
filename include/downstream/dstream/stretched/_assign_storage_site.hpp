@@ -15,17 +15,23 @@ namespace downstream {
 namespace dstream_stretched {
 
 /**
- * Internal implementation of site selection algorithm for stretched curation.
+ * Internal implementation of site selection for stretched curation.
  *
- * @param S Buffer size. Must be a power of two.
- * @param T Current logical time. Must be less than 2^S - 1.
- * @returns The selected storage site, or S if no site should be selected.
+ * @tparam UINT Unsigned integer type for operands and return value.
+ * @param S Buffer size.
+ *      Must be a power of two greater than 1, and 2 * S must not overflow UINT.
+ * @param T Current logical time.
+ *      Must be less than 2^S - 1.
+ * @returns The selected storage site, if any.
+ *     Returns S if no site should be selected (i.e., discard).
  *
  * @exceptsafe no-throw
  */
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
 UINT _assign_storage_site(const UINT S, const UINT T) {
   assert(dstream_stretched::has_ingest_capacity<UINT>(S, T));
+  assert(2 * S > S);  // otherwise, calculations overflow
+
   const UINT s = std::bit_width(S) - 1;
   const UINT t = std::max(std::bit_width(T) - s, UINT{0});  // Current epoch
   const UINT h = std::countr_zero(T + 1);  // Current hanoi value
@@ -71,10 +77,15 @@ UINT _assign_storage_site(const UINT S, const UINT T) {
 /**
  * Site selection algorithm for stretched curation.
  *
- * @param S Buffer size. Must be a power of two.
- * @param T Current logical time. Must be less than 2^S - 1.
- * @returns Selected site, if any. Returns nullopt if no site should be
- * selected.
+ * What buffer site should the T'th data item be stored to?
+ *
+ * @tparam UINT Unsigned integer type for operands and return value.
+ * @param S Buffer size.
+ *      Must be a power of two greater than 1, and 2 * S must not overflow UINT.
+ * @param T Current logical time.
+ *      Must be less than 2^S - 1.
+ * @returns Selected site, if any.
+ *     Returns nullopt if no site should be selected (i.e., discard).
  *
  * @exceptsafe no-throw
  */

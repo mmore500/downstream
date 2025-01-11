@@ -15,6 +15,7 @@ namespace dstream_tilted {
  * Does this algorithm have the capacity to ingest a data item at logical time
  * T?
  *
+ * @tparam UINT Unsigned integer type for operands and return value.
  * @param S The number of buffer sites available.
  * @param T Current logical time.
  * @returns Whether there is capacity to ingest at time T.

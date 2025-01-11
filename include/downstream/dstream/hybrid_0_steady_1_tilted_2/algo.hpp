@@ -14,6 +14,11 @@ namespace dstream_hybrid_0_steady_1_tilted_2 {
 
 namespace _ns = dstream_hybrid_0_steady_1_tilted_2;
 
+/**
+ * Template-friendly packaging of hybrid curation algorithm components.
+ *
+ * @tparam UINT Unsigned integer type for operands and return value.
+ */
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
 struct algo {
   algo() = delete;

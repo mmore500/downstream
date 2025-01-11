@@ -14,6 +14,11 @@ namespace dstream_steady {
 
 namespace _ns = dstream_steady;
 
+/**
+ * Template-friendly packaging of steady curation algorithm components.
+ *
+ * @tparam UINT Unsigned integer type for operands and return value.
+ */
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
 struct algo {
   algo() = delete;

@@ -14,6 +14,11 @@ namespace dstream_tilted {
 
 namespace _ns = dstream_tilted;
 
+/**
+ * Template-friendly packaging of tilted curation algorithm components.
+ *
+ * @tparam UINT Unsigned integer type for operands and return value.
+ */
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
 struct algo {
   algo() = delete;

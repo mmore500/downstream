@@ -15,11 +15,13 @@ namespace downstream {
 namespace dstream_steady {
 
 /**
- * Internal implementation of site selection algorithm for steady curation.
+ * Internal implementation of site selection for steady curation.
  *
- * @param S Buffer size. Must be a power of two.
+ * @param S Buffer size.
+ *      Must be a power of two greater than 1.
  * @param T Current logical time.
- * @returns The selected storage site, or S if no site should be selected.
+ * @returns The selected storage site, if any.
+ *     Returns S if no site should be selected (i.e., discard).
  *
  * @exceptsafe no-throw
  */
@@ -55,10 +57,11 @@ UINT _assign_storage_site(const UINT S, const UINT T) {
 /**
  * Site selection algorithm for steady curation.
  *
- * @param S Buffer size. Must be a power of two.
+ * @param S Buffer size.
+ *      Must be a power of two greater than 1.
  * @param T Current logical time.
- * @returns Selected site, if any. Returns nullopt if no site should be
- * selected.
+ * @returns Selected site, if any.
+ *     Returns nullopt if no site should be selected (i.e., discard).
  *
  * @exceptsafe no-throw
  */
