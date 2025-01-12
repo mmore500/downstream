@@ -1,6 +1,6 @@
 [bumpver]
 current_version = "v1.6.1-cpp"
-version_pattern = "vMAJOR.MINOR.PATCH-cpp"
+version_pattern = "v{MAJOR}.{MINOR}.{PATCH}-cpp"
 commit = true
 tag = true
 push = true
