@@ -245,7 +245,7 @@ class hybrid_algo:
         Returns
         -------
         np.ndarray
-            Selected site, if any. Otherwise, S.
+            Selected site, if any. Otherwise, >= S.
 
         Raises
         ------

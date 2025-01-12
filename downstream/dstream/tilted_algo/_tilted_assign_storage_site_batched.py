@@ -24,7 +24,7 @@ def tilted_assign_storage_site_batched(
     Returns
     -------
     np.ndarray
-        Selected site, if any. Otherwise, S.
+        Selected site, if any. Otherwise, >= S.
     """
     S, T = np.atleast_1d(S).astype(np.int64), np.atleast_1d(T).astype(np.int64)
     assert np.logical_and(S > 1, np.bitwise_count(S) == 1).all()
