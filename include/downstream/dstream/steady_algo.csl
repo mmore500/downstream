@@ -21,7 +21,7 @@ fn has_ingest_capacity(S: u32, T: u32) bool {
 ///     Must be a power of two greater than 1.
 /// @param T Current logical time.
 /// @returns The selected storage site, if any.
-///     Returns S if no site should be selected (i.e., discard).
+///     Returns >= S if no site should be selected (i.e., discard).
 fn assign_storage_site(S: u32, T: u32) u32 {
     const s = aux.bit_length(S) - 1;
     const blT = aux.bit_length(T);
