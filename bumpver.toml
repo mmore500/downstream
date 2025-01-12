@@ -3,6 +3,7 @@ current_version = "v1.6.3"
 version_pattern = "vMAJOR.MINOR.PATCH"
 commit = true
 tag = true
+push = true
 
 [bumpver.file_patterns]
 "CITATION.cff" = [
