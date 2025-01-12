@@ -1,5 +1,5 @@
 [bumpver]
-current_version = "v1.6.2-zig"
+current_version = "v1.6.3-zig"
 version_pattern = "v{MAJOR}.{MINOR}.{PATCH}-zig"
 commit = true
 tag = true
