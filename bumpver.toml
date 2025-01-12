@@ -1,0 +1,12 @@
+[bumpver]
+current_version = "v1.6.1"
+version_pattern = "vMAJOR.MINOR.PATCH"
+tag_message = "{new_version}-cpp"
+commit = true
+tag = true
+push = true
+
+[bumpver.file_patterns]
+"CITATION.cff" = [
+    'version: {pep440_version}',
+]
