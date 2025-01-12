@@ -13,8 +13,8 @@ fn bit_length(value: u32) u32 {
 // Helper: Bit floor (equivalent to std::bit_floor in C++)
 fn bit_floor(value: u32) u32 {
     if (0 < value) {
-        const one: u32 = 1;
-        return one << bit_length(value) - 1;
+        const _1: u32 = 1;
+        return _1 << bit_length(value) - 1;
     } else {
         return 0;
     }
@@ -42,6 +42,14 @@ fn floor_subtract(minuend: u32, subtrahend: u32) u32 {
 
 fn modpow2(dividend: u32, divisor: u32) u32 {
     return dividend & (divisor - 1);
+}
+
+fn overflow_shl(a: u32, b: u32) u32 {
+    return if (b < 32) a << b else 0;
+}
+
+fn overflow_shr(a: u32, b: u32) u32 {
+    return if (b < 32) a >> b else 0;
 }
 
 // adapted from https://github.com/mmore500/wse-sketches/blob/e69b4d502ee9f328736e47e8f9baa14c6e67ebbd/cerebraslib/opscalar.csl

@@ -2,33 +2,45 @@ const math = @import_module("<math>");
 
 const aux = @import_module("<downstream/_auxlib>");
 
+/// Does this algorithm have the capacity to ingest a data item at logical time
+/// T?
+///
+/// @param S The number of buffer sites available.
+/// @param T Queried logical time.
+/// @returns Whether there is capacity to ingest at time T.
 fn has_ingest_capacity(S: u32, T: u32) bool {
     const surface_size_ok = (aux.popcount(S) == 1) and S > 1;
-    if (!surface_size_ok) {
-        return false;
-    }
-    if (S >= 32) {
-        return true;
-    }
-
-    const one: u32 = 1;
-    const ingest_capacity = (one << S) - 1;
-    return T < ingest_capacity;
+    const overflow_epsilon: u32 = @as(u32, T == 0xFFFFFFFF);
+    return surface_size_ok and 0 == aux.overflow_shr(
+        (T - overflow_epsilon) + 1,
+        S - overflow_epsilon,
+    );
 }
 
+/// Site selection for tilted curation.
+///
+/// What buffer site should the T'th data item be stored to?
+///
+/// @param S Buffer size.
+///     Must be a power of two greater than 1, and 2 * S must not overflow u32.
+/// @param T Current logical time.
+///     Must be less than 2^S - 1.
+/// @returns The selected storage site, if any.
+///     Returns S if no site should be selected (i.e., discard).
 fn assign_storage_site(S: u32, T: u32) u32 {
     const s = aux.bit_length(S) - 1;
     const t = aux.floor_subtract(aux.bit_length(T), s); // Current epoch
     const h = aux.ctz(T + 1); // Current hanoi value
-    const i = T >> (h + 1); // Hanoi value incidence (i.e., num seen)
+    const i = aux.overflow_shr(T, h + 1);
+    // ^^^ Hanoi value incidence (i.e., num seen)
 
     const blt = aux.bit_length(t); // Bit length of t
     const epsilon_tau = @as(u32, aux.bit_floor(t << 1) > t + blt);
     // ^^^ Correction factor
     const tau = blt - epsilon_tau; // Current meta-epoch
-    const one: u32 = 1;
-    const t_0 = (one << tau) - tau; // Opening epoch of meta-epoch
-    const t_1 = (one << (tau + 1)) - (tau + 1);
+    const _1: u32 = 1;
+    const t_0 = (_1 << tau) - tau; // Opening epoch of meta-epoch
+    const t_1 = (_1 << (tau + 1)) - (tau + 1);
     // ^^^ Opening epoch of next meta-epoch
     const epsilon_b = @as(u32, t < h + t_0 and h + t_0 < t_1);
     // ^^^ uninvaded correction factor
