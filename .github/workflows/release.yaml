@@ -36,31 +36,16 @@ jobs:
         working-directory: ./cpp
         run: |
           bumpver update --${{ github.event.inputs.bump_type }}
-          version=$(bumpver show -v)
-          git tag "v${version}-cpp"
-          git push origin "v${version}-cpp"
       - name: Update zig version
         working-directory: ./zig
         run: |
           bumpver update --${{ github.event.inputs.bump_type }}
-          version=$(bumpver show -v)
-          git tag "v${version}-zig"
-          git push origin "v${version}-zig"
       - name: Update csl version
         working-directory: ./csl
         run: |
           bumpver update --${{ github.event.inputs.bump_type }}
-          version=$(bumpver show -v)
-          git tag "v${version}-csl"
-          git push origin "v${version}-csl"
       - name: Update main version
         run: |
           git add .
           git commit -m "Update subrepo versions"
-
           bumpver update --${{ github.event.inputs.bump_type }}
-          version=$(bumpver show -v)
-
-          git tag "v${version}"
-          git push origin main
-          git push origin "v${version}"
