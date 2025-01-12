@@ -35,14 +35,17 @@ jobs:
       - name: Update cpp version
         working-directory: ./cpp
         run: |
+          git checkout cpp
           bumpver update --${{ github.event.inputs.bump_type }}
       - name: Update zig version
         working-directory: ./zig
         run: |
+          git checkout zig
           bumpver update --${{ github.event.inputs.bump_type }}
       - name: Update csl version
         working-directory: ./csl
         run: |
+          git checkout csl
           bumpver update --${{ github.event.inputs.bump_type }}
       - name: Update main version
         run: |
