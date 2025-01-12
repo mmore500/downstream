@@ -47,6 +47,11 @@ jobs:
         run: |
           git checkout csl
           bumpver update --${{ github.event.inputs.bump_type }}
+      - name: Update python version
+        working-directory: ./python
+        run: |
+          git checkout python
+          bumpver update --${{ github.event.inputs.bump_type }}
       - name: Update main version
         run: |
           git add .
