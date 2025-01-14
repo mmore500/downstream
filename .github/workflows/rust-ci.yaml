@@ -32,3 +32,19 @@ jobs:
           rustup default ${{ matrix.toolchain }}
       - run: cargo build --verbose
       - run: cargo test --verbose
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          rustup update stable
+          rustup default stable
+      - run: ./lint.sh
+  style:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          rustup update stable
+          rustup default stable
+      - run: ./style.sh
