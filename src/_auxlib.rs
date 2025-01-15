@@ -1,10 +1,20 @@
 // adapted from https://stackoverflow.com/a/26983395/17332200
 pub trait UnsignedTrait:
-    num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive
+    num_traits::PrimInt
+    + num_traits::Unsigned
+    + num_traits::FromPrimitive
+    + num_traits::WrappingAdd
+    + num_traits::WrappingMul
+    + num_traits::WrappingSub
 {
 }
 impl<T> UnsignedTrait for T where
-    T: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive
+    T: num_traits::PrimInt
+        + num_traits::Unsigned
+        + num_traits::FromPrimitive
+        + num_traits::WrappingAdd
+        + num_traits::WrappingMul
+        + num_traits::WrappingSub
 {
 }
 
