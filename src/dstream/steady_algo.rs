@@ -13,7 +13,7 @@ pub fn has_ingest_capacity<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> bool {
     (S.count_ones() == 1) && S > Uint::one()
 }
 
-/// Site selection for steady curation.
+/// Site selection implementation for steady curation.
 ///
 /// What buffer site should the T'th data item be stored to?
 ///
@@ -24,7 +24,7 @@ pub fn has_ingest_capacity<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> bool {
 /// @returns The selected storage site, if any.
 ///     Returns S if no site should be selected (i.e., discard).
 #[allow(non_snake_case)]
-pub fn assign_storage_site<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> Uint {
+pub fn _assign_storage_site<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> Uint {
     debug_assert!(has_ingest_capacity(S, T));
     let _0: Uint = Uint::zero();
     let _1: Uint = Uint::one();
@@ -62,6 +62,42 @@ pub fn assign_storage_site<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> Uint {
     // within-segment offset: p  ^^^%^^^
 }
 
+/// Site selection implementation for steady curation.
+///
+/// What buffer site should the T'th data item be stored to?
+///
+/// @template UInt Unsigned integer type for operands and return value.
+/// @param S Buffer size.
+///     Must be a power of two greater than 1.
+/// @param T Current logical time.
+/// @returns The selected storage site, if any.
+///     Returns S if no site should be selected (i.e., discard).
+#[allow(non_snake_case)]
+pub fn assign_storage_site<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> Option<Uint> {
+    let k = _assign_storage_site(S, T);
+    if k == S { None } else { Some(k) }
+}
+
+pub struct SteadyAlgo;
+
+#[allow(non_snake_case)]
+impl crate::dstream::HasIngestCapacityTrait for SteadyAlgo {
+    fn has_ingest_capacity<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> bool {
+        has_ingest_capacity::<Uint>(S, T)
+    }
+}
+
+#[allow(non_snake_case)]
+impl crate::dstream::AssignStorageSiteTrait for SteadyAlgo {
+    fn _assign_storage_site<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> Uint {
+        _assign_storage_site::<Uint>(S, T)
+    }
+
+    fn assign_storage_site<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> Option<Uint> {
+        assign_storage_site::<Uint>(S, T)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -69,6 +105,11 @@ mod tests {
     #[test]
     fn test_smoke_has_ingest_capacity() {
         has_ingest_capacity::<u32>(16, 101);
+    }
+
+    #[test]
+    fn test_smoke_impl_assign_storage_site() {
+        _assign_storage_site::<u32>(16, 101);
     }
 
     #[test]
