@@ -18,9 +18,7 @@ pub fn bit_length<T: UnsignedTrait>(value: T) -> T {
     if value == T::zero() {
         T::zero()
     } else {
-        let leading_zeros: u32 = value.leading_zeros();
-        let leading_zeros_t: T = unsafe { T::from_u32(leading_zeros).unwrap_unchecked() };
-        bit_size_of::<T>() - leading_zeros_t
+        bit_size_of::<T>() - clz::<T>(value)
     }
 }
 
@@ -39,6 +37,16 @@ pub fn bit_floor<T: UnsignedTrait>(value: T) -> T {
 /// Check if a `u64` value can fit into `T` without loss.
 pub fn can_type_fit_value<T: UnsignedTrait>(value: u64) -> bool {
     T::from_u64(value) != None
+}
+
+/// Count leading zeros in binary representation, casting result to arg type.
+pub fn clz<T: UnsignedTrait>(value: T) -> T {
+    unsafe { T::from_u32(value.leading_zeros()).unwrap_unchecked() }
+}
+
+/// Count trailing zeros in binary representation, casting result to arg type.
+pub fn ctz<T: UnsignedTrait>(value: T) -> T {
+    unsafe { T::from_u32(value.trailing_zeros()).unwrap_unchecked() }
 }
 
 /// If `minuend >= subtrahend`, returns `minuend - subtrahend`.
@@ -104,6 +112,26 @@ mod tests {
         assert_eq!(bit_floor::<u32>(4), 4); // power of 2 <= 4 is 4
         assert_eq!(bit_floor::<u32>(5), 4); // power of 2 <= 5 is 4
         assert_eq!(bit_floor::<u64>(0xFFFF_FFFF_FFFF_FFFF), 1 << 63);
+    }
+
+    #[test]
+    fn test_clz() {
+        assert_eq!(clz::<u32>(0), 32);
+        assert_eq!(clz::<u32>(1), 31);
+        assert_eq!(clz::<u32>(2), 30);
+        assert_eq!(clz::<u32>(3), 30);
+        assert_eq!(clz::<u32>(4), 29);
+        assert_eq!(clz::<u64>(0xFFFF_FFFF_FFFF_FFFF), 0);
+    }
+
+    #[test]
+    fn test_ctz() {
+        assert_eq!(ctz::<u32>(0), 32);
+        assert_eq!(ctz::<u32>(1), 0);
+        assert_eq!(ctz::<u32>(2), 1);
+        assert_eq!(ctz::<u32>(3), 0);
+        assert_eq!(ctz::<u32>(4), 2);
+        assert_eq!(ctz::<u64>(0xFFFF_FFFF_FFFF_FFFF), 0);
     }
 
     #[test]
