@@ -1,5 +1,7 @@
+mod _auxlib;
+
 pub fn add(left: u64, right: u64) -> u64 {
-    left + right
+    left + right + _auxlib::mul(0, right)
 }
 
 #[cfg(test)]
