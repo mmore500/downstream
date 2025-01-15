@@ -1,5 +1,3 @@
-use std::mem::size_of;
-
 // adapted from https://stackoverflow.com/a/26983395/17332200
 pub trait UnsignedTrait:
     num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive
@@ -12,7 +10,7 @@ impl<T> UnsignedTrait for T where
 
 /// Number of bits in type `T`.
 pub fn bit_size_of<T: UnsignedTrait>() -> T {
-    unsafe { T::from_usize(size_of::<T>() * 8).unwrap_unchecked() }
+    unsafe { T::from_usize(std::mem::size_of::<T>() * 8).unwrap_unchecked() }
 }
 
 /// Returns the position of the highest set bit (1-based).
