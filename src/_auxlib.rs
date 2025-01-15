@@ -46,7 +46,7 @@ pub fn bit_floor<T: UnsignedTrait>(value: T) -> T {
 
 /// Check if a `u64` value can fit into `T` without loss.
 pub fn can_type_fit_value<T: UnsignedTrait>(value: u64) -> bool {
-    T::from_u64(value) != None
+    T::from_u64(value).is_some()
 }
 
 /// Count leading zeros in binary representation, casting result to arg type.

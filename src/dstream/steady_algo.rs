@@ -23,7 +23,7 @@ pub fn has_ingest_capacity<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> bool {
 /// @param T Current logical time.
 /// @returns The selected storage site, if any.
 ///     Returns S if no site should be selected (i.e., discard).
-#[allow(non_snake_case)]
+#[allow(non_snake_case, clippy::just_underscores_and_digits)]
 pub fn _assign_storage_site<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> Uint {
     debug_assert!(has_ingest_capacity(S, T));
     let _0: Uint = Uint::zero();
@@ -75,7 +75,11 @@ pub fn _assign_storage_site<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> Uint 
 #[allow(non_snake_case)]
 pub fn assign_storage_site<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> Option<Uint> {
     let k = _assign_storage_site(S, T);
-    if k == S { None } else { Some(k) }
+    if k == S {
+        None
+    } else {
+        Some(k)
+    }
 }
 
 pub struct SteadyAlgo;

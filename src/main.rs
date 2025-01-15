@@ -6,7 +6,7 @@ fn dispatch_algo<Algo: dstream::AssignStorageSiteTrait + dstream::HasIngestCapac
     S: u64,
     T: u64,
     Smx: u64,
-) -> () {
+) {
     let has_capacity = Algo::has_ingest_capacity::<u64>(S, T);
     debug_assert!(
         !aux::can_type_fit_value::<u8>(S)
@@ -35,10 +35,7 @@ fn dispatch_algo<Algo: dstream::AssignStorageSiteTrait + dstream::HasIngestCapac
     );
 
     if has_capacity {
-        let storage_site = Algo::assign_storage_site::<u64>(
-            S.try_into().unwrap(), //
-            T.try_into().unwrap(), //
-        );
+        let storage_site = Algo::assign_storage_site::<u64>(S, T);
         debug_assert!(
             !aux::can_type_fit_value::<u8>(S * Smx)
                 || !aux::can_type_fit_value::<u8>(T)
@@ -46,12 +43,9 @@ fn dispatch_algo<Algo: dstream::AssignStorageSiteTrait + dstream::HasIngestCapac
                     S.try_into().unwrap(), //
                     T.try_into().unwrap(), //
                 )
-                .and_then(|x| Some(
-                    !storage_site.is_none() // nofmt
-                    && (x as u64 == storage_site.unwrap())
-                ))
-                .or(Some(storage_site.is_none()))
-                .unwrap()
+                .map(|x| (storage_site.is_some() // nofmt
+                    && (x as u64 == storage_site.unwrap())))
+                .unwrap_or(storage_site.is_none())
         );
         debug_assert!(
             !aux::can_type_fit_value::<u16>(S * Smx)
@@ -60,12 +54,9 @@ fn dispatch_algo<Algo: dstream::AssignStorageSiteTrait + dstream::HasIngestCapac
                     S.try_into().unwrap(), //
                     T.try_into().unwrap(), //
                 )
-                .and_then(|x| Some(
-                    !storage_site.is_none() // nofmt
-                    && (x as u64 == storage_site.unwrap())
-                ))
-                .or(Some(storage_site.is_none()))
-                .unwrap()
+                .map(|x| (storage_site.is_some() // nofmt
+                    && (x as u64 == storage_site.unwrap())))
+                .unwrap_or(storage_site.is_none())
         );
         debug_assert!(
             !aux::can_type_fit_value::<u32>(S * Smx)
@@ -74,12 +65,9 @@ fn dispatch_algo<Algo: dstream::AssignStorageSiteTrait + dstream::HasIngestCapac
                     S.try_into().unwrap(), //
                     T.try_into().unwrap(), //
                 )
-                .and_then(|x| Some(
-                    !storage_site.is_none() // nofmt
-                    && (x as u64 == storage_site.unwrap())
-                ))
-                .or(Some(storage_site.is_none()))
-                .unwrap()
+                .map(|x| (storage_site.is_some() // nofmt
+                    && (x as u64 == storage_site.unwrap())))
+                .unwrap_or(storage_site.is_none())
         );
 
         if let Some(storage_site) = storage_site {
@@ -88,12 +76,12 @@ fn dispatch_algo<Algo: dstream::AssignStorageSiteTrait + dstream::HasIngestCapac
             println!("None");
         }
     } else {
-        println!("");
+        println!();
     }
 }
 
 #[allow(non_snake_case)]
-fn dispatch(algo_name: &String, S: u64, T: u64) -> () {
+fn dispatch(algo_name: &String, S: u64, T: u64) {
     match algo_name.as_str() {
         "dstream.hybrid_0_steady_1_stretched_2_algo.assign_storage_site" => todo!(),
         "dstream.hybrid_0_steady_1_tilted_2_algo.assign_storage_site" => todo!(),
@@ -105,7 +93,7 @@ fn dispatch(algo_name: &String, S: u64, T: u64) -> () {
 }
 
 #[allow(non_snake_case)]
-pub fn main() -> () {
+pub fn main() {
     let args: Vec<String> = std::env::args().collect();
     let stdin = std::io::stdin();
     for line in stdin.lines() {
