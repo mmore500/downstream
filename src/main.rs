@@ -95,7 +95,7 @@ fn dispatch(algo_name: &String, S: u64, T: u64) {
             dispatch_algo::<dstream::StretchedAlgo>(S, T, 2) // nofmt
         }
         "dstream.tilted_algo.assign_storage_site" => {
-            todo!() // nofmt
+            dispatch_algo::<dstream::TiltedAlgo>(S, T, 2) // nofmt
         }
         _ => panic!("unknown algorithm/operation: {}", algo_name),
     }
