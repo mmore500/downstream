@@ -3,7 +3,7 @@ use crate::_auxlib as aux;
 /// Does this algorithm have the capacity to ingest a data item at logical time
 /// T?
 ///
-/// @template UInt Unsigned integer type for operands.
+/// @template Uint Unsigned integer type for operands.
 /// @param S The number of buffer sites available.
 /// @param T Queried logical time.
 /// @returns Whether there is capacity to ingest at time T.
@@ -17,7 +17,7 @@ pub fn has_ingest_capacity<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> bool {
 ///
 /// What buffer site should the T'th data item be stored to?
 ///
-/// @template UInt Unsigned integer type for operands and return value.
+/// @template Uint Unsigned integer type for operands and return value.
 /// @param S Buffer size.
 ///     Must be a power of two greater than 1.
 /// @param T Current logical time.
@@ -66,7 +66,7 @@ pub fn _assign_storage_site<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> Uint 
 ///
 /// What buffer site should the T'th data item be stored to?
 ///
-/// @template UInt Unsigned integer type for operands and return value.
+/// @template Uint Unsigned integer type for operands and return value.
 /// @param S Buffer size.
 ///     Must be a power of two greater than 1.
 /// @param T Current logical time.
