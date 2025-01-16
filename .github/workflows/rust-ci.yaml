@@ -63,6 +63,6 @@ jobs:
           rustup default ${{ matrix.toolchain }}
       - run: |
           python3 -m pip install -r requirements.txt
-          pyhton3 -m pip freeze
+          python3 -m pip freeze
       - run: |
           ./validate.sh
