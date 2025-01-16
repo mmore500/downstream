@@ -19,11 +19,7 @@ downstream provides efficient, constant-space implementations of stream curation
 
 To install from PyPi with pip, run
 
-`python3 -m pip install downstream[jit]`
-
-To install the latest develoment code directly from GitHub, run
-
-`python3 -m pip install "git+https://github.com/mmore500/downstream.git@v1.6.1#egg=downstream[jit]"`
+`python3 -m pip install "downstream[jit]"`
 
 A containerized release of `downstream` is available via <ghcr.io>
 
