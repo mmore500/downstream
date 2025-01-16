@@ -25,7 +25,7 @@ pub fn has_ingest_capacity<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> bool {
             ))
 }
 
-/// Site selection implementation for steady curation.
+/// Site selection implementation for stretched curation.
 ///
 /// What buffer site should the T'th data item be stored to?
 ///
@@ -90,7 +90,7 @@ pub fn _assign_storage_site<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> Uint 
     }
 }
 
-/// Site selection implementation for steady curation.
+/// Site selection implementation for stretched curation.
 ///
 /// What buffer site should the T'th data item be stored to?
 ///
