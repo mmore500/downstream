@@ -7,7 +7,7 @@ fn dispatch_algo<Algo: dstream::AssignStorageSiteTrait + dstream::HasIngestCapac
     T: u64,
     Smx: u64,
 ) {
-    let has_capacity = Algo::has_ingest_capacity::<u64>(S, T);
+    let has_capacity: bool = Algo::has_ingest_capacity::<u64>(S, T);
     debug_assert!(
         !aux::can_type_fit_value::<u8>(S)
             || !aux::can_type_fit_value::<u8>(T)
