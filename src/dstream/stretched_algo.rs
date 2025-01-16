@@ -37,26 +37,35 @@ pub fn has_ingest_capacity<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> bool {
 /// @returns The selected storage site, if any.
 ///     Returns S if no site should be selected (i.e., discard).
 #[allow(non_snake_case, clippy::just_underscores_and_digits)]
-pub fn _assign_storage_site<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> Uint {
+pub fn _assign_storage_site<Uint: aux::UnsignedTrait>(
+    S: Uint, // nofmt
+    T: Uint, // nofmt
+) -> Uint {
     let _0: Uint = Uint::zero();
     let _1: Uint = Uint::one();
     debug_assert!(aux::clz(S) >= _1); // otherwise, calculations overflow
     debug_assert!(has_ingest_capacity(S, T));
 
     let s: Uint = aux::bit_length::<Uint>(S) - _1;
-    let t: Uint = aux::floor_subtract::<Uint>(aux::bit_length::<Uint>(T), s);
+    let t: Uint = aux::floor_subtract::<Uint>(
+        aux::bit_length::<Uint>(T), // nofmt
+        s,                          // nofmt
+    );
     // ^^^ Current epoch
     let h: Uint = aux::ctz::<Uint>(T.wrapping_add(&_1)); // Current hanoi value
     let i: Uint = aux::overflow_shr::<Uint>(T, h + _1);
     // ^^^ Hanoi value incidence (i.e., num seen)
 
     let blt: Uint = aux::bit_length::<Uint>(t); // Bit length of t
-    let epsilon_tau: Uint = aux::from_bool::<Uint>((aux::bit_floor::<Uint>(t) << 1) > t + blt);
+    let epsilon_tau: Uint = aux::from_bool::<Uint>(
+        (aux::bit_floor::<Uint>(t) << 1) > t + blt, // nofmt
+    );
     // ^^^ Correction factor
     let tau: Uint = blt - epsilon_tau; // Current meta-epoch
 
     let b_l: Uint = i; // Logical bunch index...
-                       // ... i.e., in order filled (increasing nestedness/decreasing init size r)
+                       // ... i.e., in order filled
+                       // (increasing nestedness/decreasing init size r)
 
     // Need to calculate physical bunch index...
     // ... i.e., position among bunches left-to-right in buffer space
@@ -68,7 +77,8 @@ pub fn _assign_storage_site<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> Uint 
     let p: Uint = b_l - aux::bit_floor::<Uint>(b_l);
     // ^^^ Bunch position within nestedness level
     let b_p: Uint = o + w * p; // Physical bunch index...
-                               // ... i.e., in left-to-right sequential bunch order
+                               // ... i.e., in left-to-right
+                               // sequential bunch order
 
     // Need to calculate buffer position of b_p'th bunch
     let epsilon_k_b: Uint = aux::from_bool::<Uint>(b_l > _0);
@@ -78,14 +88,14 @@ pub fn _assign_storage_site<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> Uint 
         + aux::popcount::<Uint>((S << 1) - b_p).wrapping_sub(
             &(_1 + epsilon_k_b), // nofmt
         );
-    // Site index of bunch
+    // ^^^ Site index of bunch
 
-    let b: Uint = std::cmp::max(aux::shr::<Uint>(S, tau + _1), _1); // Num bunches available to h.v.
+    let b: Uint = std::cmp::max(aux::shr::<Uint>(S, tau + _1), _1);
+    // ^^^ Num bunches available to h.v.
     if i >= b {
         // If seen more than sites reserved to hanoi value...
-        S
+        S // ... discard without storing
     } else {
-        // ^^^ ... discard without storing
         k_b + h // Calculate placement site, h.v. h is offset within bunch
     }
 }
@@ -102,7 +112,10 @@ pub fn _assign_storage_site<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> Uint 
 /// @returns The selected storage site, if any.
 ///     Returns None if no site should be selected (i.e., discard).
 #[allow(non_snake_case)]
-pub fn assign_storage_site<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> Option<Uint> {
+pub fn assign_storage_site<Uint: aux::UnsignedTrait>(
+    S: Uint, // nofmt
+    T: Uint, // nofmt
+) -> Option<Uint> {
     let k = _assign_storage_site(S, T);
     if k == S {
         None
