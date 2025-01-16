@@ -86,7 +86,9 @@ fn dispatch(algo_name: &String, S: u64, T: u64) {
         "dstream.hybrid_0_steady_1_stretched_2_algo.assign_storage_site" => todo!(),
         "dstream.hybrid_0_steady_1_tilted_2_algo.assign_storage_site" => todo!(),
         "dstream.steady_algo.assign_storage_site" => dispatch_algo::<dstream::SteadyAlgo>(S, T, 1),
-        "dstream.stretched_algo.assign_storage_site" => todo!(),
+        "dstream.stretched_algo.assign_storage_site" => {
+            dispatch_algo::<dstream::StretchedAlgo>(S, T, 2)
+        }
         "dstream.tilted_algo.assign_storage_site" => todo!(),
         _ => panic!("unknown algorithm/operation: {}", algo_name),
     }

@@ -65,6 +65,15 @@ pub fn floor_subtract<T: UnsignedTrait>(minuend: T, subtrahend: T) -> T {
     minuend - std::cmp::min(minuend, subtrahend)
 }
 
+/// Convert a boolean to a `T` value.
+pub fn from_bool<T: UnsignedTrait>(value: bool) -> T {
+    if value {
+        T::one()
+    } else {
+        T::zero()
+    }
+}
+
 /// Equivalent to `(dividend % divisor)` when `divisor` is a power-of-two.
 pub fn modpow2<T: UnsignedTrait>(dividend: T, divisor: T) -> T {
     debug_assert_eq!(divisor.count_ones(), 1, "divisor must be a power of 2");
@@ -89,6 +98,21 @@ pub fn overflow_shr<T: UnsignedTrait>(a: T, b: T) -> T {
     } else {
         a >> unsafe { b.to_usize().unwrap_unchecked() }
     }
+}
+
+/// Count ones in binary representation, casting result to arg type.
+pub fn popcount<T: UnsignedTrait>(value: T) -> T {
+    unsafe { T::from_u32(value.count_ones()).unwrap_unchecked() }
+}
+
+/// Saturating shift-left,
+pub fn shl<T: UnsignedTrait>(a: T, b: T) -> T {
+    a << unsafe { b.to_usize().unwrap_unchecked() }
+}
+
+/// Saturating shift-right,
+pub fn shr<T: UnsignedTrait>(a: T, b: T) -> T {
+    a >> unsafe { b.to_usize().unwrap_unchecked() }
 }
 
 #[cfg(test)]
@@ -173,6 +197,13 @@ mod tests {
     }
 
     #[test]
+    fn test_from_bool() {
+        assert_eq!(from_bool::<u32>(false), 0);
+        assert_eq!(from_bool::<u32>(true), 1);
+        assert_eq!(from_bool::<u16>(true), 1);
+    }
+
+    #[test]
     fn test_modpow2() {
         assert_eq!(modpow2::<u32>(0, 1), 0);
         assert_eq!(modpow2::<u32>(1, 1), 0);
@@ -201,5 +232,31 @@ mod tests {
         assert_eq!(overflow_shr::<u64>(1 << 63, 63), 1);
         assert_eq!(overflow_shr::<u32>(1, 64), 0);
         assert_eq!(overflow_shr::<u32>(2, 70), 0);
+    }
+
+    #[test]
+    fn test_popcount() {
+        assert_eq!(popcount::<u32>(0), 0);
+        assert_eq!(popcount::<u32>(1), 1);
+        assert_eq!(popcount::<u32>(2), 1);
+        assert_eq!(popcount::<u32>(3), 2);
+        assert_eq!(popcount::<u32>(4), 1);
+        assert_eq!(popcount::<u32>(5), 2);
+        assert_eq!(popcount::<u32>(6), 2);
+    }
+
+    #[test]
+    fn test_shl() {
+        assert_eq!(shl::<u32>(1, 0), 1);
+        assert_eq!(shl::<u32>(1, 1), 2);
+        assert_eq!(shl::<u64>(1, 63), 1 << 63);
+    }
+
+    #[test]
+    fn test_shr() {
+        assert_eq!(shr::<u32>(2, 1), 1);
+        assert_eq!(shr::<u32>(2, 2), 0);
+        assert_eq!(shr::<u32>(2, 3), 0);
+        assert_eq!(shr::<u64>(1 << 63, 63), 1);
     }
 }
