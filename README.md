@@ -7,6 +7,7 @@
 [
 ![PyPi](https://img.shields.io/pypi/v/downstream.svg)
 ](https://pypi.python.org/pypi/downstream)
+![Crates.io](https://img.shields.io/crates/v/downstream)
 [![DOI](https://zenodo.org/badge/776865597.svg)](https://zenodo.org/doi/10.5281/zenodo.10866541)
 <!-- [![Documentation Status](https://readthedocs.org/projects/downstream/badge/?version=latest)](https://downstream.readthedocs.io/en/latest/?badge=latest) -->
 <!-- [![documentation coverage](https://img.shields.io/endpoint?url=https%3A%2F%2Fmmore500.github.io%2Fdownstream%2Fdocumentation-coverage-badge.json)](https://downstream.readthedocs.io/en/latest/) -->

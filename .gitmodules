@@ -14,3 +14,7 @@
 	path = cpp
 	url = https://github.com/mmore500/downstream
 	branch = cpp
+[submodule "downstream"]
+	path = downstream
+	url = https://github.com/mmore500/downstream.git
+	branch = rust
