@@ -82,17 +82,17 @@ pub fn assign_storage_site<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> Option
     }
 }
 
-pub struct SteadyAlgo;
+pub struct Algo;
 
 #[allow(non_snake_case)]
-impl crate::dstream::HasIngestCapacityTrait for SteadyAlgo {
+impl crate::dstream::HasIngestCapacityTrait for Algo {
     fn has_ingest_capacity<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> bool {
         has_ingest_capacity::<Uint>(S, T)
     }
 }
 
 #[allow(non_snake_case)]
-impl crate::dstream::AssignStorageSiteTrait for SteadyAlgo {
+impl crate::dstream::AssignStorageSiteTrait for Algo {
     fn _assign_storage_site<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> Uint {
         _assign_storage_site::<Uint>(S, T)
     }
