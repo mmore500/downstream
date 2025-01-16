@@ -38,10 +38,10 @@ pub fn has_ingest_capacity<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> bool {
 ///     Returns S if no site should be selected (i.e., discard).
 #[allow(non_snake_case, clippy::just_underscores_and_digits)]
 pub fn _assign_storage_site<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> Uint {
-    debug_assert!(has_ingest_capacity(S, T));
     let _0: Uint = Uint::zero();
     let _1: Uint = Uint::one();
     debug_assert!(aux::clz(S) >= _1); // otherwise, calculations overflow
+    debug_assert!(has_ingest_capacity(S, T));
 
     let s: Uint = aux::bit_length::<Uint>(S) - _1;
     let t: Uint = aux::floor_subtract::<Uint>(aux::bit_length::<Uint>(T), s);
