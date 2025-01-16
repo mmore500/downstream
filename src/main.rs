@@ -12,25 +12,24 @@ fn dispatch_algo<Algo: dstream::AssignStorageSiteTrait + dstream::HasIngestCapac
         !aux::can_type_fit_value::<u8>(S)
             || !aux::can_type_fit_value::<u8>(T)
             || Algo::has_ingest_capacity::<u8>(
-                S.try_into().unwrap(), //
-                T.try_into().unwrap(), //
+                S.try_into().unwrap(), // nofmt
+                T.try_into().unwrap(), // nofmt
             ) == has_capacity
     );
     debug_assert!(
         !aux::can_type_fit_value::<u16>(S)
             || !aux::can_type_fit_value::<u16>(T)
             || Algo::has_ingest_capacity::<u16>(
-                S.try_into().unwrap(), //
-                T.try_into().unwrap(), //
+                S.try_into().unwrap(), // nofmt
+                T.try_into().unwrap(), // nofmt
             ) == has_capacity
     );
     debug_assert!(
         !aux::can_type_fit_value::<u32>(S)
             || !aux::can_type_fit_value::<u32>(T)
             || Algo::has_ingest_capacity::<u32>(
-                //
-                S.try_into().unwrap(), //
-                T.try_into().unwrap(), //
+                S.try_into().unwrap(), // nofmt
+                T.try_into().unwrap(), // nofmt
             ) == has_capacity
     );
 
@@ -40,8 +39,8 @@ fn dispatch_algo<Algo: dstream::AssignStorageSiteTrait + dstream::HasIngestCapac
             !aux::can_type_fit_value::<u8>(S * Smx)
                 || !aux::can_type_fit_value::<u8>(T)
                 || Algo::assign_storage_site::<u8>(
-                    S.try_into().unwrap(), //
-                    T.try_into().unwrap(), //
+                    S.try_into().unwrap(), // nofmt
+                    T.try_into().unwrap(), // nofmt
                 )
                 .map(|x| (storage_site.is_some() // nofmt
                     && (x as u64 == storage_site.unwrap())))
@@ -51,8 +50,8 @@ fn dispatch_algo<Algo: dstream::AssignStorageSiteTrait + dstream::HasIngestCapac
             !aux::can_type_fit_value::<u16>(S * Smx)
                 || !aux::can_type_fit_value::<u16>(T)
                 || Algo::assign_storage_site::<u16>(
-                    S.try_into().unwrap(), //
-                    T.try_into().unwrap(), //
+                    S.try_into().unwrap(), // nofmt
+                    T.try_into().unwrap(), // nofmt
                 )
                 .map(|x| (storage_site.is_some() // nofmt
                     && (x as u64 == storage_site.unwrap())))
@@ -62,8 +61,8 @@ fn dispatch_algo<Algo: dstream::AssignStorageSiteTrait + dstream::HasIngestCapac
             !aux::can_type_fit_value::<u32>(S * Smx)
                 || !aux::can_type_fit_value::<u32>(T)
                 || Algo::assign_storage_site::<u32>(
-                    S.try_into().unwrap(), //
-                    T.try_into().unwrap(), //
+                    S.try_into().unwrap(), // nofmt
+                    T.try_into().unwrap(), // nofmt
                 )
                 .map(|x| (storage_site.is_some() // nofmt
                     && (x as u64 == storage_site.unwrap())))
@@ -83,13 +82,21 @@ fn dispatch_algo<Algo: dstream::AssignStorageSiteTrait + dstream::HasIngestCapac
 #[allow(non_snake_case)]
 fn dispatch(algo_name: &String, S: u64, T: u64) {
     match algo_name.as_str() {
-        "dstream.hybrid_0_steady_1_stretched_2_algo.assign_storage_site" => todo!(),
-        "dstream.hybrid_0_steady_1_tilted_2_algo.assign_storage_site" => todo!(),
-        "dstream.steady_algo.assign_storage_site" => dispatch_algo::<dstream::SteadyAlgo>(S, T, 1),
-        "dstream.stretched_algo.assign_storage_site" => {
-            dispatch_algo::<dstream::StretchedAlgo>(S, T, 2)
+        "dstream.hybrid_0_steady_1_stretched_2_algo.assign_storage_site" => {
+            todo!() // nofmt
         }
-        "dstream.tilted_algo.assign_storage_site" => todo!(),
+        "dstream.hybrid_0_steady_1_tilted_2_algo.assign_storage_site" => {
+            todo!() // nofmt
+        }
+        "dstream.steady_algo.assign_storage_site" => {
+            dispatch_algo::<dstream::SteadyAlgo>(S, T, 1) // nofmt
+        }
+        "dstream.stretched_algo.assign_storage_site" => {
+            dispatch_algo::<dstream::StretchedAlgo>(S, T, 2) // nofmt
+        }
+        "dstream.tilted_algo.assign_storage_site" => {
+            todo!() // nofmt
+        }
         _ => panic!("unknown algorithm/operation: {}", algo_name),
     }
 }
