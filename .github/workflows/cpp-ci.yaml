@@ -18,6 +18,16 @@ jobs:
           sudo apt-get install -y clang-format
       - run: ./style.sh
 
+  lint:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-tidy
+      - run: ./lint.sh
+
   test-validators:
     runs-on: ubuntu-24.04
     strategy:
@@ -31,11 +41,9 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y g++-13 clang clang-tidy
+          sudo apt-get install -y g++-13 clang
           python3 -m pip install pip --upgrade
           python3 -m pip install -r requirements.txt
-      - name: Run lint checks
-        run: ./lint.sh
       - name: Run C++ syntax checks
         run: make check
       - name: Build and validate tests, debug mode
