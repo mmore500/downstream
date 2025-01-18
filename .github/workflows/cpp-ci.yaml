@@ -19,13 +19,13 @@ jobs:
       - run: ./style.sh
 
   test-validators:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v2
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y g++-12 clang clang-tidy
+          sudo apt-get install -y g++-13 clang clang-tidy
           python3 -m pip install pip --upgrade
           python3 -m pip install -r requirements.txt
       - name: Run lint checks
