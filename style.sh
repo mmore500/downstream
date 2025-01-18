@@ -1,5 +1,8 @@
 #!/bin/bash
-set -e  # Exit on any error
+
+set -euo pipefail  # Exit on any error
+
+cd "$(dirname "$0")"
 
 # Format C++ files
 echo "Formatting C++ files..."
