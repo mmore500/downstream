@@ -1,6 +1,6 @@
 PROJECT := downstream
 
-CXX ?= g++-12
+CXX ?= g++
 CXXCLANG ?= clang++
 PYTHON ?= python3
 
