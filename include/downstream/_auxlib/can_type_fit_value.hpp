@@ -6,7 +6,7 @@
 #include <limits>
 
 namespace downstream {
-namespace auxlib {
+namespace _auxlib {
 
 template <typename T, typename U>
 bool can_type_fit_value(const U value) {
@@ -20,7 +20,7 @@ bool can_type_fit_value(const U value) {
            (topT < topU && value > static_cast<U>(topT)));
 }
 
-}  // namespace auxlib
+}  // namespace _auxlib
 }  // namespace downstream
 
 #endif  // DOWNSTREAM_AUXLIB_CAN_TYPE_FIT_VALUE_HPP

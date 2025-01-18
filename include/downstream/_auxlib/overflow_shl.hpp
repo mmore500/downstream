@@ -5,7 +5,7 @@
 #include <concepts>
 
 namespace downstream {
-namespace auxlib {
+namespace _auxlib {
 
 /**
  * Perform bitwise shift-left that may overflow without undefined behavior.
@@ -17,7 +17,7 @@ inline UINT overflow_shl(const UINT a, const UINT b) {
   return b < sizeof(UINT) * 8 ? a << b : 0;
 }
 
-}  // namespace auxlib
+}  // namespace _auxlib
 }  // namespace downstream
 
 #endif  // DOWNSTREAM_AUXLIB_OVERFLOW_SHL_HPP
