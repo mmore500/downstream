@@ -4,7 +4,7 @@
 
 #include <concepts>
 
-#include "../auxlib/DOWNSTREAM_UINT.hpp"
+#include "../_auxlib/DOWNSTREAM_UINT.hpp"
 #include "./hybrid_0_steady_1_stretched_2/algo.hpp"
 #include "./hybrid_0_steady_1_tilted_2/algo.hpp"
 #include "./steady/algo.hpp"

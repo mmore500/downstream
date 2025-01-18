@@ -6,12 +6,12 @@
 #include <string>
 #include <string_view>
 
-#include "include/downstream/auxlib/can_type_fit_value.hpp"
+#include "include/downstream/_auxlib/can_type_fit_value.hpp"
 #include "include/downstream/dstream/dstream.hpp"
 
 template<template<typename> typename Algo>
 void eval_assign_storage_site(uint64_t S, uint64_t T, uint64_t Smx) {
-    namespace downaux = downstream::auxlib;
+    namespace downaux = downstream::_auxlib;
     const bool has_capacity = Algo<uint64_t>::has_ingest_capacity(S, T);
     assert(!downaux::can_type_fit_value<uint8_t>(S)
         || !downaux::can_type_fit_value<uint8_t>(T)

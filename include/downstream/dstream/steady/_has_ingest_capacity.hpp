@@ -6,7 +6,7 @@
 #include <cassert>
 #include <concepts>
 
-#include "../../auxlib/DOWNSTREAM_UINT.hpp"
+#include "../../_auxlib/DOWNSTREAM_UINT.hpp"
 
 namespace downstream {
 namespace dstream_steady {

@@ -7,7 +7,7 @@
 #include <concepts>
 
 namespace downstream {
-namespace auxlib {
+namespace _auxlib {
 
 /**
  * Perform fast mod using bitwise operations.
@@ -25,7 +25,7 @@ inline UINT modpow2(const UINT x, const UINT n) {
   return x & (n - 1);
 }
 
-}  // namespace auxlib
+}  // namespace _auxlib
 }  // namespace downstream
 
 #endif  // DOWNSTREAM_AUXLIB_MODPOW2_HPP

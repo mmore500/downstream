@@ -8,10 +8,10 @@
 #include <concepts>
 #include <optional>
 
-#include "../../auxlib/DOWNSTREAM_UINT.hpp"
-#include "../../auxlib/overflow_shl.hpp"
-#include "../../auxlib/overflow_shr.hpp"
-#include "../../auxlib/std_bit_casted.hpp"
+#include "../../_auxlib/DOWNSTREAM_UINT.hpp"
+#include "../../_auxlib/overflow_shl.hpp"
+#include "../../_auxlib/overflow_shr.hpp"
+#include "../../_auxlib/std_bit_casted.hpp"
 #include "./_has_ingest_capacity.hpp"
 
 namespace downstream {
@@ -33,7 +33,7 @@ UINT _assign_storage_site(const UINT S, const UINT T) {
   assert(dstream_steady::has_ingest_capacity<UINT>(S, T));
 
   constexpr UINT _1{1};
-  namespace aux = downstream::auxlib;
+  namespace aux = downstream::_auxlib;
 
   const UINT s = std::bit_width(S) - _1;
   const UINT blT = std::bit_width(T);

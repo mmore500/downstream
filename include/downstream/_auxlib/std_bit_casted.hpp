@@ -6,7 +6,7 @@
 #include <concepts>
 
 namespace downstream {
-namespace auxlib {
+namespace _auxlib {
 
 template <std::unsigned_integral UINT>
 inline UINT bit_floor_casted(const UINT v) {
@@ -28,7 +28,7 @@ inline UINT popcount_casted(const UINT v) {
   return static_cast<UINT>(std::popcount(v));
 }
 
-}  // namespace auxlib
+}  // namespace _auxlib
 }  // namespace downstream
 
 #endif  // DOWNSTREAM_AUXLIB_STD_BIT_CASTED_HPP
