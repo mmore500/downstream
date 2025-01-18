@@ -9,4 +9,8 @@
   static_assert(std::is_function<decltype(ns::fun<T>)>::value, "not a func"); \
   constexpr static decltype(ns::fun<T>)* fun = ns::fun<T>
 
+#define DOWNSTREAM_TO_STATIC_MEM_FUN_(ns, fun)                             \
+  static_assert(std::is_function<decltype(ns::fun)>::value, "not a func"); \
+  constexpr static decltype(ns::fun)* fun = ns::fun
+
 #endif  // DOWNSTREAM_AUXLIB_DOWNSTREAM_TO_STATIC_MEM_FUN_HPP
