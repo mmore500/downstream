@@ -34,6 +34,7 @@ jobs:
       fail-fast: false
       matrix:
         compiler: [g++, clang++]
+        mode: [release, debug]
     env:
       CXX: ${{ matrix.compiler }}
     steps:
@@ -46,13 +47,8 @@ jobs:
           python3 -m pip install -r requirements.txt
       - name: Run C++ syntax checks
         run: make check
-      - name: Build and validate tests, debug mode
+      - name: Build and validate tests
         run: |
           make clean
-          make debug
-          make validate
-      - name: Build and validate tests, build mode
-        run: |
-          make clean
-          make build
+          make ${{ matrix.build_mode }}
           make validate
