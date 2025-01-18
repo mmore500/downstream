@@ -12,14 +12,14 @@ HEADERS := $(shell find include -name '*.hpp')
 
 MAIN_BIN := ./main
 
-default: build test
+default: release test
 
-.PHONY: all clean test check debug default build run validate
-all: build test validate
+.PHONY: all clean test check debug default release run validate
+all: release test validate
 debug: CFLAGS_nat := $(CFLAGS_nat_debug)
-debug: build
+debug: release
 
-build: $(MAIN_BIN)
+release: $(MAIN_BIN)
 
 check:
 	@echo "Checking C++20 compatibility..."
@@ -37,7 +37,7 @@ $(MAIN_BIN): $(MAIN_BIN).cpp $(HEADERS)
 	@mkdir -p $(dir $@)
 	$(CXX) $(CFLAGS_nat) $< -o $@
 
-validate: build
+validate: debug
 	@echo "Running validation tests..."
 	@for algo in \
 		dstream.hybrid_0_steady_1_stretched_2_algo \
