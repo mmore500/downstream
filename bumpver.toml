@@ -8,3 +8,6 @@ push = true
 "CITATION.cff" = [
     'version: {version}',
 ]
+"include/downstream/version.hpp" = [
+    '#define DSTREAM_VERSION "{version}"',
+]
