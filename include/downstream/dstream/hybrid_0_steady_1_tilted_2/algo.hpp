@@ -4,9 +4,10 @@
 
 #include <concepts>
 
-#include "../../auxlib/DOWNSTREAM_TO_STATIC_MEM_FUN.hpp"
-#include "../../auxlib/DOWNSTREAM_UINT.hpp"
+#include "../../_auxlib/DOWNSTREAM_TO_STATIC_MEM_FUN.hpp"
+#include "../../_auxlib/DOWNSTREAM_UINT.hpp"
 #include "./_assign_storage_site.hpp"
+#include "./_get_algo_name.hpp"
 #include "./_has_ingest_capacity.hpp"
 
 namespace downstream {
@@ -24,6 +25,7 @@ struct algo {
   algo() = delete;
   DOWNSTREAM_TO_STATIC_MEM_FUN(_ns, _assign_storage_site, UINT);
   DOWNSTREAM_TO_STATIC_MEM_FUN(_ns, assign_storage_site, UINT);
+  DOWNSTREAM_TO_STATIC_MEM_FUN_(_ns, get_algo_name);
   DOWNSTREAM_TO_STATIC_MEM_FUN(_ns, has_ingest_capacity, UINT);
 };
 

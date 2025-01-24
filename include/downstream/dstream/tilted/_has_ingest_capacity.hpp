@@ -7,8 +7,8 @@
 #include <concepts>
 #include <limits>
 
-#include "../../auxlib/DOWNSTREAM_UINT.hpp"
-#include "../../auxlib/overflow_shr.hpp"
+#include "../../_auxlib/DOWNSTREAM_UINT.hpp"
+#include "../../_auxlib/overflow_shr.hpp"
 
 namespace downstream {
 namespace dstream_tilted {
@@ -29,7 +29,7 @@ bool has_ingest_capacity(const UINT S, const UINT T) {
   const bool surface_size_ok = S > 1 and std::has_single_bit(S);
   const UINT overflow_epsilon = T == std::numeric_limits<UINT>::max();
   return surface_size_ok and
-         0 == downstream::auxlib::overflow_shr<UINT>(               //
+         0 == downstream::_auxlib::overflow_shr<UINT>(              //
                   (T - overflow_epsilon) + 1, S - overflow_epsilon  //
               );
 }

@@ -2,17 +2,16 @@
 #include <csignal>
 #include <cstdint>
 #include <iostream>
+#include <format>
 #include <string>
 #include <string_view>
 
-#include "include/downstream/auxlib/can_type_fit_value.hpp"
+#include "include/downstream/_auxlib/can_type_fit_value.hpp"
 #include "include/downstream/dstream/dstream.hpp"
 
-namespace {
-
 template<template<typename> typename Algo>
-void process_single_input(uint64_t S, uint64_t T, uint64_t Smx) {
-    namespace downaux = downstream::auxlib;
+void eval_assign_storage_site(uint64_t S, uint64_t T, uint64_t Smx) {
+    namespace downaux = downstream::_auxlib;
     const bool has_capacity = Algo<uint64_t>::has_ingest_capacity(S, T);
     assert(!downaux::can_type_fit_value<uint8_t>(S)
         || !downaux::can_type_fit_value<uint8_t>(T)
@@ -43,45 +42,55 @@ void process_single_input(uint64_t S, uint64_t T, uint64_t Smx) {
     }
 }
 
-bool process_algorithm(const std::string_view target_function) {
+template<typename Algo>
+bool is_algo_op(
+    const std::string_view op_name, const std::string_view target_name
+) {
+    return target_name == std::format("{}.{}", Algo::get_algo_name(), op_name);
+}
+
+int dispatch_algo_op(const std::string_view target_name) {
     using namespace downstream::dstream;
 
     uint64_t T, S;
-    while (std::cin >> S >> T) {
-        if (target_function == "dstream.hybrid_0_steady_1_stretched_2_algo.assign_storage_site") {
-            process_single_input<hybrid_0_steady_1_stretched_2_algo_>(S, T, 1);
-        }
-        else if (target_function == "dstream.hybrid_0_steady_1_tilted_2_algo.assign_storage_site") {
-            process_single_input<hybrid_0_steady_1_tilted_2_algo_>(S, T, 1);
-        }
-        else if (target_function == "dstream.steady_algo.assign_storage_site") {
-            process_single_input<steady_algo_>(S, T, 1);
-        }
-        else if (target_function == "dstream.stretched_algo.assign_storage_site") {
-            process_single_input<stretched_algo_>(S, T, 2);
-
-        }
-        else if (target_function == "dstream.tilted_algo.assign_storage_site") {
-            process_single_input<tilted_algo_>(S, T, 2);
-        }
-        else {
-            std::cerr << "Error: Unknown algorithm function: " << target_function << '\n';
-            return false;
-        }
+    if (
+        is_algo_op<hybrid_0_steady_1_stretched_2_algo>(
+        "assign_storage_site", target_name)
+    ) while (std::cin >> S >> T) {
+        eval_assign_storage_site<hybrid_0_steady_1_stretched_2_algo_>(S, T, 1);
     }
-    return true;
+    else if (
+        is_algo_op<hybrid_0_steady_1_tilted_2_algo>(
+        "assign_storage_site", target_name)
+    ) while (std::cin >> S >> T) {
+        eval_assign_storage_site<hybrid_0_steady_1_tilted_2_algo_>(S, T, 1);
+    }
+    else if (
+        is_algo_op<steady_algo>("assign_storage_site", target_name)
+    ) while (std::cin >> S >> T) {
+        eval_assign_storage_site<steady_algo_>(S, T, 1);
+    }
+    else if (
+        is_algo_op<stretched_algo>("assign_storage_site", target_name)
+    ) while (std::cin >> S >> T) {
+        eval_assign_storage_site<stretched_algo_>(S, T, 2);
+    }
+    else if (
+        is_algo_op<tilted_algo>("assign_storage_site", target_name)
+    ) while (std::cin >> S >> T) {
+        eval_assign_storage_site<tilted_algo_>(S, T, 2);
+    }
+    else {
+        std::cerr << "Unknown algorithm op: " << target_name << '\n';
+        return 1;
+    }
+    return 0;
 }
-
-}  // namespace
 
 int main(int argc, char* argv[]) {
     std::signal(SIGPIPE, SIG_IGN); // Ignore broken pipe signals
-    std::ios_base::sync_with_stdio(false); // Disable synchronization with C stdio for performance
+    std::ios_base::sync_with_stdio(false); // Disable sync w/ C stdio for perf
 
-    std::string_view target_function(argv[1]);
-    if (!process_algorithm(target_function)) {
-        return 1;
-    }
-
-    return 0;
+    std::string_view target_name(argv[1]);
+    return dispatch_algo_op(target_name);
 }
