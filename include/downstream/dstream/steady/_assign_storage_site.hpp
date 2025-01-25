@@ -36,16 +36,17 @@ UINT _assign_storage_site(const UINT S, const UINT T) {
   namespace aux = downstream::_auxlib;
 
   const UINT s = std::bit_width(S) - _1;
-  { // If not a top n(T) hanoi value...
+  {  // If not a top n(T) hanoi value...
     const UINT hv_thresh = std::bit_width(static_cast<UINT>(T >> s));
     const UINT tz_mask = ((_1 << hv_thresh) - _1);
     const bool should_discard = (T + _1) & tz_mask;
-    if (should_discard) [[likely]] return S;  // ...discard without storing
+    if (should_discard) [[likely]]
+      return S;  // ...discard without storing
   }
 
   const UINT blT = std::bit_width(T);
-  [[maybe_unused]] const UINT t = blT - std::min(s, blT); // Current epoch
-  const UINT h = aux::countr_zero_casted<UINT>(T + _1);   // Current hanoi value
+  [[maybe_unused]] const UINT t = blT - std::min(s, blT);  // Current epoch
+  const UINT h = aux::countr_zero_casted<UINT>(T + _1);  // Current hanoi value
   assert(h >= t);  // otherwise, should have been discarded
   const UINT i = aux::overflow_shr<UINT>(T, h + _1);
   // ^^^ Hanoi value incidence (i.e., num seen)
