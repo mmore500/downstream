@@ -39,6 +39,13 @@ UINT _assign_storage_site(const UINT S, const UINT T) {
   const UINT blT = std::bit_width(T);
   const UINT t = blT - std::min(s, blT);                 // Current epoch
   const UINT h = aux::countr_zero_casted<UINT>(T + _1);  // Current hanoi value
+
+  if (T > S) {
+    const UINT thresh = std::bit_width(T >> s);
+    const bool discard = (T + 1) & ((1 << thresh) - 1);
+    assert(discard == (h < t));
+  }
+
   if (h < t) {  // If not a top n(T) hanoi value...
     return S;   // ...discard without storing
   }
