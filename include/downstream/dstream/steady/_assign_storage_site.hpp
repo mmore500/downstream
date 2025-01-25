@@ -41,7 +41,8 @@ UINT _assign_storage_site(const UINT S, const UINT T) {
   const UINT h = aux::countr_zero_casted<UINT>(T + _1);  // Current hanoi value
 
   if (T > S) {
-    const UINT thresh = std::bit_width(T >> s);
+    const UINT v = T >> s;
+    const UINT thresh = std::bit_width(v);
     const bool discard = (T + 1) & ((1 << thresh) - 1);
     assert(discard == (h < t));
   }
