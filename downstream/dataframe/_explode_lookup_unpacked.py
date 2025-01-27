@@ -160,14 +160,13 @@ def _lookup_ingest_times(
 ) -> pl.DataFrame:
     dstream_T = df.lazy().select("dstream_T").collect().to_numpy().ravel()
     dstream_Tbar_values = lookup_op(dstream_S, dstream_T)
+    logging.info(" - calculating argsort of ingest times...")
+    dstream_Tbar_argv = np.argsort(dstream_Tbar_values, axis=1)
+    logging.info(" - adding dstream_Tbar_argv, dstream_Tbar columns...")
     df_long = (
         df_long.with_columns(
-            dstream_Tbar_argv=pl.Series(
-                np.argsort(dstream_Tbar_values, axis=1).ravel(),
-            ),
-            dstream_Tbar=pl.Series(
-                values=dstream_Tbar_values.ravel(),
-            ),
+            dstream_Tbar_argv=pl.Series(dstream_Tbar_argv.ravel()),
+            dstream_Tbar=pl.Series(values=dstream_Tbar_values.ravel()),
         )
         .lazy()
         .collect()
