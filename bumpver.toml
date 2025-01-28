@@ -1,5 +1,0 @@
-[bumpver]
-current_version = "v1.6.9"
-version_pattern = "v{MAJOR}.{MINOR}.{PATCH}"
-commit = true
-push = true
