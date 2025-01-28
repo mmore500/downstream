@@ -155,21 +155,25 @@ def _unpack_hex_strings(
 def _lookup_ingest_times(
     df: pl.DataFrame,
     df_long: pl.DataFrame,
+    calc_Tbar_argv: bool,
     lookup_op: typing.Callable,
     dstream_S: int,
 ) -> pl.DataFrame:
+
     dstream_T = df.lazy().select("dstream_T").collect().to_numpy().ravel()
-    df_long = (
-        df_long.with_columns(
-            dstream_Tbar=pl.Series(
-                name="dstream_Tbar",
-                values=lookup_op(dstream_S, dstream_T).ravel(),
-            ),
-        )
-        .lazy()
-        .collect()
+    dstream_Tbar_values = lookup_op(dstream_S, dstream_T)
+    df_long = df_long.with_columns(
+        dstream_Tbar=pl.Series(values=dstream_Tbar_values.ravel()),
     )
-    return df_long
+
+    if calc_Tbar_argv:
+        logging.info(" - calculating argsort of ingest times...")
+        dstream_Tbar_argv = np.argsort(dstream_Tbar_values, axis=1)
+        df_long = df_long.with_columns(
+            dstream_Tbar_argv=pl.Series(values=dstream_Tbar_argv.ravel()),
+        )
+
+    return df_long.lazy().collect()
 
 
 def _perform_validation(df_long: pl.DataFrame) -> pl.DataFrame:
@@ -234,6 +238,7 @@ def _finalize_result_schema(
 def explode_lookup_unpacked(
     df: pl.DataFrame,
     *,
+    calc_Tbar_argv: bool = False,
     value_type: typing.Literal["hex", "uint64", "uint32", "uint16", "uint8"],
     result_schema: typing.Literal["coerce", "relax", "shrink"] = "coerce",
 ) -> pl.DataFrame:
@@ -274,6 +279,10 @@ def explode_lookup_unpacked(
 
         Additional user-defined columns will be forwarded to the output
         DataFrame.
+
+    calc_Tbar_argv : bool, default False
+        Should the algorithm calculate the argsort of ingest times for each
+        buffer?
 
     value_type : {'hex', 'uint64', 'uint32', 'uint16', 'uint8'}
         The desired data type for the 'dstream_value' column in the output
@@ -361,6 +370,7 @@ def explode_lookup_unpacked(
     df_long = _lookup_ingest_times(
         df,
         df_long,
+        calc_Tbar_argv=calc_Tbar_argv,
         lookup_op=dstream_algo.lookup_ingest_times_batched,
         dstream_S=dstream_S,
     )

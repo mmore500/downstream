@@ -1,3 +1,4 @@
+import numpy as np
 import polars as pl
 from polars import testing as pl_testing
 
@@ -136,13 +137,17 @@ def test_explode_lookup_packed_pup():
             "downstream_exclude_unpacked": [None, False],
         },
     )
-    res = explode_lookup_packed(df, value_type="uint64")
+    res = explode_lookup_packed(df, calc_Tbar_argv=True, value_type="uint64")
 
     expected = pl.DataFrame(
         {
             "dstream_data_id": [0] * 8 + [1] * 8,
             "dstream_T": [surface1.T] * 8 + [surface2.T] * 8,
             "dstream_Tbar": [*surface1.lookup(), *surface2.lookup()],
+            "dstream_Tbar_argv": [
+                *np.argsort(np.fromiter(surface1.lookup(), dtype=int)),
+                *np.argsort(np.fromiter(surface2.lookup(), dtype=int)),
+            ],
             "dstream_value": [*surface1, *surface2],
             "dstream_value_bitwidth": [8] * 16,
         }
@@ -183,13 +188,16 @@ def test_explode_lookup_packed_pup_exclude():
             "downstream_exclude_exploded": [True, False],
         },
     )
-    res = explode_lookup_packed(df, value_type="uint64")
+    res = explode_lookup_packed(df, calc_Tbar_argv=True, value_type="uint64")
 
     expected = pl.DataFrame(
         {
             "dstream_data_id": [1] * 8,
             "dstream_T": [surface2.T] * 8,
             "dstream_Tbar": [*surface2.lookup()],
+            "dstream_Tbar_argv": np.argsort(
+                np.fromiter(surface2.lookup(), dtype=int),
+            ),
             "dstream_value": [*surface2],
             "dstream_value_bitwidth": [8] * 8,
         }
