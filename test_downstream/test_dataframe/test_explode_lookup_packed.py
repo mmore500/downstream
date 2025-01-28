@@ -137,7 +137,7 @@ def test_explode_lookup_packed_pup():
             "downstream_exclude_unpacked": [None, False],
         },
     )
-    res = explode_lookup_packed(df, value_type="uint64")
+    res = explode_lookup_packed(df, calc_Tbar_argv=True, value_type="uint64")
 
     expected = pl.DataFrame(
         {
@@ -188,7 +188,7 @@ def test_explode_lookup_packed_pup_exclude():
             "downstream_exclude_exploded": [True, False],
         },
     )
-    res = explode_lookup_packed(df, value_type="uint64")
+    res = explode_lookup_packed(df, calc_Tbar_argv=True, value_type="uint64")
 
     expected = pl.DataFrame(
         {

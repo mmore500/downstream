@@ -9,6 +9,7 @@ from ._unpack_data_packed import unpack_data_packed
 def explode_lookup_packed(
     df: pl.DataFrame,
     *,
+    calc_Tbar_argv: bool = False,
     value_type: typing.Literal["hex", "uint64", "uint32", "uint16", "uint8"],
     result_schema: typing.Literal["coerce", "relax", "shrink"] = "coerce",
 ) -> pl.DataFrame:
@@ -17,5 +18,8 @@ def explode_lookup_packed(
     downstream lookup to identify origin time `Tbar` of each item."""
     df = unpack_data_packed(df, result_schema=result_schema)
     return explode_lookup_unpacked(
-        df, result_schema=result_schema, value_type=value_type
+        df,
+        calc_Tbar_argv=calc_Tbar_argv,
+        result_schema=result_schema,
+        value_type=value_type,
     )
