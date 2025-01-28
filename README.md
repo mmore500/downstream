@@ -1,4 +1,4 @@
-# Downstream --- Python Implementation
+# Downstream --- C++ Implementation
 
 [![CI](https://github.com/mmore500/downstream/actions/workflows/ci.yaml/badge.svg?branch=cpp)](https://github.com/mmore500/downstream/actions/workflows/cpp-ci.yaml?query=branch:cpp)
 [![GitHub stars](https://img.shields.io/github/stars/mmore500/downstream.svg?style=flat-square&logo=github&label=Stars&logoColor=white)](https://github.com/mmore500/downstream)
@@ -17,14 +17,8 @@ downstream provides efficient, constant-space implementations of stream curation
 
 ## Installation
 
-To install from PyPi with pip, run
-
-`python3 -m pip install downstream`
-
-To install the latest develoment code directly from GitHub, run
-
-`python3 -m pip install "git+https://github.com/mmore500/downstream.git@v0.4.4#egg=downstream"`
-
+C++ downstream is packaged as a header-only library.
+It can be added to a system-wide include path, or incorporated as a git submodule in another project.
 
 ## Citing
 
