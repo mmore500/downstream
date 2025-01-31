@@ -1,5 +1,5 @@
+use super::{AssignStorageSiteTrait, HasIngestCapacityTrait, SteadyAlgo, StretchedAlgo};
 use crate::_auxlib as aux;
-use super::{SteadyAlgo, StretchedAlgo, AssignStorageSiteTrait, HasIngestCapacityTrait};
 
 /// Does this algorithm have the capacity to ingest a data item at logical time
 /// T?
@@ -11,15 +11,10 @@ use super::{SteadyAlgo, StretchedAlgo, AssignStorageSiteTrait, HasIngestCapacity
 #[allow(non_snake_case)]
 pub fn has_ingest_capacity<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> bool {
     let half_S: Uint = S >> 1;
-    let has_capacity_1st = SteadyAlgo::has_ingest_capacity(
-        half_S,
-        T >> 1,
-    );
+    let has_capacity_1st = SteadyAlgo::has_ingest_capacity(half_S, T >> 1);
 
-    let has_capacity_2nd = T == Uint::zero() || StretchedAlgo::has_ingest_capacity(
-        half_S,
-        (T - Uint::one()) >> 1,
-    );
+    let has_capacity_2nd =
+        T == Uint::zero() || StretchedAlgo::has_ingest_capacity(half_S, (T - Uint::one()) >> 1);
 
     has_capacity_1st && has_capacity_2nd
 }
