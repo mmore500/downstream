@@ -103,26 +103,22 @@ def _make_empty(value_dtype: pl.DataType) -> pl.DataFrame:
     )
 
 
-def _prep_and_sort_data(
+def _prep_data(
     df: pl.DataFrame, num_records: int, dstream_S: int
 ) -> pl.DataFrame:
-    df = (
-        df.with_columns(
-            pl.coalesce(
-                pl.col("^dstream_data_id$"),
-                pl.arange(num_records, dtype=pl.UInt64),
-            ).alias("dstream_data_id"),
-        )
-        .select(
-            pl.selectors.matches(
-                "^dstream_data_id$"
-                "|^dstream_storage_hex$"
-                "|^dstream_T$"
-                "|^downstream_validate_exploded$"
-                "|^downstream_exclude_exploded$",
-            ),
-        )
-        .sort("dstream_T")
+    df = df.with_columns(
+        pl.coalesce(
+            pl.col("^dstream_data_id$"),
+            pl.arange(num_records, dtype=pl.UInt64),
+        ).alias("dstream_data_id"),
+    ).select(
+        pl.selectors.matches(
+            "^dstream_data_id$"
+            "|^dstream_storage_hex$"
+            "|^dstream_T$"
+            "|^downstream_validate_exploded$"
+            "|^downstream_exclude_exploded$",
+        ),
     )
 
     df = df.with_columns(
@@ -353,7 +349,7 @@ def explode_lookup_unpacked(
 
     logging.info("begin explode_lookup_unpacked")
     logging.info(" - prepping data...")
-    df = _prep_and_sort_data(df, num_records=num_records, dstream_S=dstream_S)
+    df = _prep_data(df, num_records=num_records, dstream_S=dstream_S)
     _check_bitwidths(df)
 
     logging.info(" - exploding dataframe...")
