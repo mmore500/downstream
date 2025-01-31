@@ -52,6 +52,11 @@ jobs:
         run: |
           git checkout python
           bumpver update --${{ github.event.inputs.bump_type }}
+      - name: Update rust version
+        working-directory: ./rust
+        run: |
+          git checkout rust
+          bumpver update --${{ github.event.inputs.bump_type }}
       - name: Update main version
         run: |
           git add .
