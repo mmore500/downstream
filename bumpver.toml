@@ -3,3 +3,8 @@ current_version = "v1.6.13"
 version_pattern = "v{MAJOR}.{MINOR}.{PATCH}"
 commit = true
 push = true
+
+[bumpver.file_patterns]
+"Cargo.toml" = [
+  'version: {version}',
+]
