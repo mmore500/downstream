@@ -6,5 +6,5 @@ push = true
 
 [bumpver.file_patterns]
 "Cargo.toml" = [
-  'version: {version}',
+  'version: {pep440_version}',
 ]
