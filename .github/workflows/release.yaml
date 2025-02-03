@@ -32,6 +32,10 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+      - name: Update main version
+        run: |
+          git add .
+          git commit -m "Pull recent subrepo versions"
       - name: Update cpp version
         working-directory: ./cpp
         run: |
