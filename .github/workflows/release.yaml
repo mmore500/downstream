@@ -57,6 +57,9 @@ jobs:
         run: |
           git checkout rust
           bumpver update --${{ github.event.inputs.bump_type }}
+          git add .
+          git commit -m "Update Cargo.lock"
+          git push
       - name: Update main version
         run: |
           git add .
