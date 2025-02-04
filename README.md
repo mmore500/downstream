@@ -24,7 +24,7 @@ To install from PyPi with pip, run
 A containerized release of `downstream` is available via <https://ghcr.io>
 
 ```bash
-singularity exec docker://ghcr.io/mmore500/downstream:v1.6.20 python3 -m downstream --help
+singularity exec docker://ghcr.io/mmore500/downstream:v1.6.21 python3 -m downstream --help
 ```
 
 ## Citing
