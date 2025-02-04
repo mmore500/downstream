@@ -9,7 +9,7 @@ license = "MIT"
 homepage = "https://mmore500.github.io/downstream/"
 repository = "https://github.com/mmore500/downstream"
 readme = "README.md"
-categories = ["data structures", "algorithms", "memory management", "science"]
+categories = ["data-structures", "algorithms", "memory-management", "science"]
 
 [dependencies]
 num-traits = "0.2"
