@@ -1,4 +1,4 @@
-cff-version: 1.6.16
+cff-version: 1.6.17
 message: "If you use this software, please cite it as below."
 title: 'downstream: a software package for stream curation algorithms'
 abstract: "downstream provides efficient, constant-space algorithms for stream curation."
