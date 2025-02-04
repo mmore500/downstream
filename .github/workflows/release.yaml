@@ -79,4 +79,8 @@ jobs:
         working-directory: ./rust
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-        run: cargo publish
+        run: |
+          git add .
+          git commit -m "Update Cargo.lock" || true
+          git push || true
+          cargo publish
