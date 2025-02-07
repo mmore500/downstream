@@ -1,5 +1,5 @@
 [bumpver]
-current_version = "v1.6.25"
+current_version = "v1.6.26"
 version_pattern = "v{MAJOR}.{MINOR}.{PATCH}"
 commit = true
 push = true
