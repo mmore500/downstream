@@ -13,7 +13,7 @@ jobs:
           cd docs
           python -m pip install --upgrade pip
           python -m pip install --upgrade uv
-          uv pip install -r test/requirements.txt --system
+          uv pip install -r requirements.txt --system
       - run: |
           mkdocs gh-deploy
           git add -A
