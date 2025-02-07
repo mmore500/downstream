@@ -9,5 +9,5 @@ push = true
     'version = "{pep440_version}"',
 ]
 "Cargo.lock" = [
-    'name = "downstream"\nversion = "{pep440_version}"',
+    '^name = "downstream"$\nversion = "{version_no_v}"',
 ]
