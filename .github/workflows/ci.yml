@@ -18,6 +18,9 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install --upgrade uv
           uv pip install -r requirements.txt --system
+      - name: Initialize submodules
+        run: |
+          git submodule update --init --recursive
       - name: Deploy
         run: |
           cd docs
