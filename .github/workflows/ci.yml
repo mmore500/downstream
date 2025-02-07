@@ -24,6 +24,6 @@ jobs:
       - name: Deploy
         run: |
           cd docs
-          mkdocs gh-deploy
+          mkdocs gh-deploy --force
           git add -A
           git commit -m "Deploy documentation"
