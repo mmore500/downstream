@@ -6,5 +6,8 @@ push = true
 
 [bumpver.file_patterns]
 "Cargo.toml" = [
-  'version = "{pep440_version}"',
+    'version = "{pep440_version}"',
+]
+"Cargo.lock" = [
+    'name = "downstream"\nversion = "{pep440_version}"',
 ]
