@@ -29,5 +29,3 @@ jobs:
         run: |
           cd docs
           mkdocs gh-deploy --force
-          git add -A
-          git commit -m "Deploy documentation"
