@@ -1,0 +1,25 @@
+site_name: My Docs
+theme:
+  name: material
+nav:
+  - Home: index.md
+  - C++: cpp.md
+  - Zig: zig.md
+  - CSL: csl.md
+  - Rust: rust.md
+  - Python:
+    - Steady: python/steady_algo.md
+    - Stretched: python/stretched_algo.md
+    - Tilted: python/tilted_algo.md
+  - Python: python.md
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [../python/downstream/dstream]
+          options:
+            docstring_style: numpy
+            show_root_heading: true
+            heading_level: 1
