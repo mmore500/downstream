@@ -18,7 +18,8 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install --upgrade uv
           uv pip install -r requirements.txt --system
-      - run: |
+      - name: Deploy
+        run: |
           cd docs
           mkdocs gh-deploy
           git add -A
