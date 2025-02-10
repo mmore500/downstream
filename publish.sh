@@ -2,4 +2,4 @@
 
 set -euo pipefail
 
-cargo update
+cargo publish
