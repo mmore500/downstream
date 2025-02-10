@@ -9,6 +9,3 @@ push = true
 "Cargo.toml" = [
     'version = "{pep440_version}"',
 ]
-"Cargo.lock" = [
-    'name = "downstream"\nversion = "{pep440_version}"',
-]
