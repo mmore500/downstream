@@ -1,6 +1,6 @@
 [package]
 name = "downstream"
-version = "1.6.23"
+version = "1.6.24"
 edition = "2021"
 
 authors = ["Matthew Andres Moreno", "Connor Yang"]
