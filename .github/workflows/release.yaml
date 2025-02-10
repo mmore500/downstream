@@ -54,8 +54,6 @@ jobs:
           bumpver update --${{ github.event.inputs.bump_type }}
       - name: Update rust version
         working-directory: ./rust
-        env:
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: |
           git checkout rust
           bumpver update --${{ github.event.inputs.bump_type }}
@@ -77,3 +75,9 @@ jobs:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
           packages-dir: python/dist
+      - name: Publish Rust crate
+        working-directory: ./rust
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: |
+          cargo publish
