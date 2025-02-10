@@ -1,6 +1,7 @@
 [bumpver]
 current_version = "v1.6.20"
 version_pattern = "vMAJOR.MINOR.PATCH"
+pre_commit_hook = "./update.sh"
 commit = true
 push = true
 
