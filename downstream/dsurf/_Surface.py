@@ -6,14 +6,14 @@ from ._Policy import Policy
 
 class Surface:
 
-    _storage: list  # storage sites
+    _storage: typing.MutableSequence  # storage sites
     T: int  # current logical time
     policy: Policy  # policy
 
     def __init__(
         self: "Surface",
         policy: Policy,
-        storage: typing.MutableSequence[typing.Any],
+        storage: typing.MutableSequence[object],
     ) -> None:
         self.T = 0
         self._storage = opyt.or_value(storage, [None] * policy.S)
