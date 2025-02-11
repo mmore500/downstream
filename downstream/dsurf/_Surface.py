@@ -1,4 +1,5 @@
 import typing
+import opytional as opyt
 
 from ._Policy import Policy
 
@@ -9,9 +10,17 @@ class Surface:
     T: int  # current logical time
     policy: Policy  # policy
 
-    def __init__(self: "Surface", policy: Policy) -> None:
+    def __init__(
+        self: "Surface",
+        policy: Policy,
+        storage: typing.MutableSequence[typing.Any],
+    ) -> None:
         self.T = 0
-        self._storage = [None] * policy.S
+        self._storage = opyt.or_value(storage, [None] * policy.S)
+        if len(self._storage) != policy.S:
+            raise ValueError(
+                "Storage must have length equal to the surface size defined in `policy`"
+            )
         self.policy = policy
 
     def __iter__(self: "Surface") -> typing.Iterable[object]:
