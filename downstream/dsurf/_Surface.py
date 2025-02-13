@@ -4,11 +4,10 @@ import typing
 
 class Surface:
 
-    __slots__ = ("_storage", "algo", "S", "T")
+    __slots__ = ("_storage", "algo", "T")
 
     algo: types.ModuleType
     _storage: typing.MutableSequence  # storage sites
-    S: int  # surface size
     T: int  # current logical time
 
     def __init__(
@@ -21,7 +20,6 @@ class Surface:
             self._storage = [None] * storage
         else:
             self._storage = storage
-        self.S = len(self._storage)
         self.algo = algo
 
     def __iter__(self: "Surface") -> typing.Iterable[object]:
@@ -29,6 +27,10 @@ class Surface:
 
     def __getitem__(self: "Surface", site: int) -> object:
         return self._storage[site]
+
+    @property 
+    def S(self):
+        return len(self._storage)
 
     def enumerate(
         self: "Surface",
@@ -43,7 +45,6 @@ class Surface:
         not retained.
         """
         assert self.algo.has_ingest_capacity(self.S, self.T)
-        assert len(self._storage) == self.S
 
         site = self.algo.assign_storage_site(self.S, self.T)
         if site is not None:
