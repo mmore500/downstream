@@ -13,8 +13,8 @@ class Surface:
 
     def __init__(
         self: "Surface",
-        algo:types.ModuleType,
-        storage: typing.Union[typing.MutableSequence[object], int]
+        algo: types.ModuleType,
+        storage: typing.Union[typing.MutableSequence[object], int],
     ) -> None:
         self.T = 0
         if isinstance(storage, int):
@@ -29,7 +29,7 @@ class Surface:
     def __getitem__(self: "Surface", site: int) -> object:
         return self._storage[site]
 
-    @property 
+    @property
     def S(self):
         return len(self._storage)
 
