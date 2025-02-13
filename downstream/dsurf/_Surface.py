@@ -23,7 +23,7 @@ class Surface:
             self._storage = storage
         self.algo = algo
 
-    def __iter__(self: "Surface") -> typing.Iterable[object]:
+    def __iter__(self: "Surface") -> typing.Iterator[object]:
         return iter(self._storage)
 
     def __getitem__(self: "Surface", site: int) -> object:
