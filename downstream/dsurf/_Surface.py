@@ -1,24 +1,37 @@
+import types
 import typing
-
-from ._Policy import Policy
+import opytional as opyt
 
 
 class Surface:
 
-    _storage: list  # storage sites
+    __slots__ = ("_storage", "algo", "T")
+
+    algo: types.ModuleType
+    _storage: typing.MutableSequence  # storage sites
     T: int  # current logical time
-    policy: Policy  # policy
 
-    def __init__(self: "Surface", policy: Policy) -> None:
+    def __init__(
+        self: "Surface",
+        algo: types.ModuleType,
+        storage: typing.Union[typing.MutableSequence[object], int],
+    ) -> None:
         self.T = 0
-        self._storage = [None] * policy.S
-        self.policy = policy
+        if isinstance(storage, int):
+            self._storage = [None] * storage
+        else:
+            self._storage = storage
+        self.algo = algo
 
-    def __iter__(self: "Surface") -> typing.Iterable[object]:
+    def __iter__(self: "Surface") -> typing.Iterator[object]:
         return iter(self._storage)
 
     def __getitem__(self: "Surface", site: int) -> object:
         return self._storage[site]
+
+    @property
+    def S(self):
+        return len(self._storage)
 
     def enumerate(
         self: "Surface",
@@ -32,8 +45,9 @@ class Surface:
         Returns the storage site of the data item, or None if the data item is
         not retained.
         """
-        assert self.policy.has_ingest_capacity(self.T)
-        site = self.policy.assign_storage_site(self.T)
+        assert self.algo.has_ingest_capacity(self.S, self.T)
+
+        site = self.algo.assign_storage_site(self.S, self.T)
         if site is not None:
             self._storage[site] = item
         self.T += 1
@@ -41,4 +55,5 @@ class Surface:
 
     def lookup(self: "Surface") -> typing.Iterable[int]:
         """Iterate over ingest times of retained data items."""
-        return self.policy.lookup_ingest_times(self.T)
+        assert len(self._storage) == self.S
+        return self.algo.lookup_ingest_times(self.S, self.T)
