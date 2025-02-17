@@ -108,14 +108,14 @@ def test_explode_lookup_packed_64():
 
 def test_explode_lookup_packed_pup():
 
-    surface1 = dsurf.Surface(dsurf.Policy(dstream.steady_algo, 8))
+    surface1 = dsurf.Surface(dstream.steady_algo, 8)
     for i in range(8):
         surface1.ingest(i)
 
     buffer1 = "".join(map("{:02x}".format, surface1))
     data1 = "{:02x}".format(surface1.T) + buffer1
 
-    surface2 = dsurf.Surface(dsurf.Policy(dstream.steady_algo, 8))
+    surface2 = dsurf.Surface(dstream.steady_algo, 8)
     for i in range(11):
         surface2.ingest(i)
 
@@ -160,14 +160,14 @@ def test_explode_lookup_packed_pup():
 
 def test_explode_lookup_packed_pup_exclude():
 
-    surface1 = dsurf.Surface(dsurf.Policy(dstream.steady_algo, 8))
+    surface1 = dsurf.Surface(dstream.steady_algo, 8)
     for i in range(8):
         surface1.ingest(i)
 
     buffer1 = "".join(map("{:02x}".format, surface1))
     data1 = "{:02x}".format(surface1.T) + buffer1
 
-    surface2 = dsurf.Surface(dsurf.Policy(dstream.steady_algo, 8))
+    surface2 = dsurf.Surface(dstream.steady_algo, 8)
     for i in range(11):
         surface2.ingest(i)
 
