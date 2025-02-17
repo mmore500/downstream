@@ -3,6 +3,7 @@ import typing
 
 
 class Surface:
+    "Container orchestrating downstream curation over a fixed-size buffer."
 
     __slots__ = ("_storage", "algo", "T")
 
@@ -29,7 +30,7 @@ class Surface:
         return self._storage[site]
 
     @property
-    def S(self):
+    def S(self: "Surface") -> int:
         return len(self._storage)
 
     def enumerate(

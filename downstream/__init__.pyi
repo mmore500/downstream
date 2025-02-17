@@ -2,7 +2,7 @@ from . import dataframe, dstream, dsurf
 
 __author__: str
 __email__: str
-from ._version import __version__  # noqa: F401
+from ._version import __version__
 
 __all__ = [
     "__author__",
