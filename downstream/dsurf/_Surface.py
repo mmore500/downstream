@@ -16,6 +16,21 @@ class Surface:
         algo: types.ModuleType,
         storage: typing.Union[typing.MutableSequence[object], int],
     ) -> None:
+        """Initialize a downstream Surface object, which stores hereditary 
+        stratigraphic annotations using a provided algorithm.
+
+        Parameters
+        ----------
+        algo: module
+            The algorithm used by the surface to determine the placements  
+            of data items. Should be one of the modules in `downstream.dstream`.
+        storage: int or MutableSequence
+            The object used to hold any ingested data. If an integer is 
+            passed in, a list of length `storage` is used. Otherwise, the 
+            `storage` is used directly. Random access and `__len__` must be 
+            supported. For example, for efficient storage, a user may pass 
+            in a NumPy array.
+        """
         self.T = 0
         if isinstance(storage, int):
             self._storage = [None] * storage
