@@ -1,5 +1,7 @@
 # Downstream
 
+![downstream wordmark](docs/assets/downstream-wordmark.png)
+
 [![GitHub stars](https://img.shields.io/github/stars/mmore500/downstream.svg?style=flat-square&logo=github&label=Stars&logoColor=white)](https://github.com/mmore500/downstream)
 [
 ![PyPi](https://img.shields.io/pypi/v/downstream.svg)
