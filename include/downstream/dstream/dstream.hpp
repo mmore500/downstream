@@ -5,6 +5,7 @@
 #include <concepts>
 
 #include "../_auxlib/DOWNSTREAM_UINT.hpp"
+#include "./circular/algo.hpp"
 #include "./compressing/algo.hpp"
 #include "./hybrid_0_steady_1_stretched_2/algo.hpp"
 #include "./hybrid_0_steady_1_tilted_2/algo.hpp"
@@ -14,6 +15,12 @@
 
 namespace downstream {
 namespace dstream {
+
+/** Convenience typedef of compressing algo template. */
+template <std::unsigned_integral UINT>
+using circular_algo_ = dstream_circular::algo<UINT>;
+/** Convenience typedef instantiating steady/stretched hybrid algo obj. */
+using circular_algo = circular_algo_<DOWNSTREAM_UINT>;
 
 /** Convenience typedef of compressing algo template. */
 template <std::unsigned_integral UINT>

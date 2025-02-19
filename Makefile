@@ -40,6 +40,7 @@ $(MAIN_BIN): $(MAIN_BIN).cpp $(HEADERS)
 validate: debug
 	@echo "Running validation tests..."
 	@for algo in \
+		dstream.circular_algo \
 		dstream.compressing_algo \
 		dstream.hybrid_0_steady_1_stretched_2_algo \
 		dstream.hybrid_0_steady_1_tilted_2_algo \
