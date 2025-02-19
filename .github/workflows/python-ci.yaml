@@ -66,6 +66,7 @@ jobs:
         module: [
           "test_downstream/test_auxlib",
           "test_downstream/test_dataframe",
+          "test_downstream/test_dstream/test_compressing_algo",
           "test_downstream/test_dstream/test_hybrid_algo",
           "test_downstream/test_dstream/test_hybrid_algo_prefab",
           "test_downstream/test_dstream/test_steady_algo",
@@ -92,6 +93,7 @@ jobs:
       fail-fast: false
       matrix:
         algo: [
+          "dstream.compressing_algo",
           "dstream.hybrid_0_steady_1_stretched_2_algo",
           "dstream.hybrid_0_steady_1_tilted_2_algo",
           "dstream.steady_algo",
