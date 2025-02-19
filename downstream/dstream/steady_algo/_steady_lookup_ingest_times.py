@@ -39,7 +39,7 @@ def steady_lookup_impl(S: int, T: int) -> typing.Iterable[int]:
     k_m__ = s + 1  # Countdown on sites traversed within segment
     h_ = None  # Candidate hanoi value__
 
-    for k in range(S):  # Iterate over buffer sites, except unused last one
+    for k in range(S):  # Iterate over buffer sites
         # Calculate info about current segment...
         epsilon_w = b == 0  # Correction on segment width if first segment
         # Number of sites in current segment (i.e., segment size)
