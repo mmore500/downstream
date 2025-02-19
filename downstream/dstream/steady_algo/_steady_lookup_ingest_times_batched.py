@@ -66,7 +66,7 @@ def _steady_lookup_ingest_times_batched(
     k_m__ = s + 1  # Countdown on sites traversed within segment
 
     res = np.empty((T.size, S), dtype=np.uint64)
-    for k in range(S):  # Iterate over buffer sites, except unused last one
+    for k in range(S):  # Iterate over buffer sites
         # Calculate info about current segment...
         epsilon_w = b == 0  # Correction on segment width if first segment
         # Number of sites in current segment (i.e., segment size)

@@ -4,10 +4,10 @@ import typing
 import numpy as np
 import pytest
 
-from downstream.dstream import compressing_algo as algo
+from downstream.dstream import circular_algo as algo
 
 
-def validate_compressing_time_lookup(fn: typing.Callable) -> typing.Callable:
+def validate_circular_time_lookup(fn: typing.Callable) -> typing.Callable:
     """Decorator to validate pre- and post-conditions on time lookup."""
 
     @functools.wraps(fn)
@@ -22,11 +22,11 @@ def validate_compressing_time_lookup(fn: typing.Callable) -> typing.Callable:
     return wrapper
 
 
-time_lookup = validate_compressing_time_lookup(algo.lookup_ingest_times)
+time_lookup = validate_circular_time_lookup(algo.lookup_ingest_times)
 
 
 @pytest.mark.parametrize("s", range(3, 12))
-def test_compressing_time_lookup_against_site_selection(s: int):
+def test_circular_time_lookup_against_site_selection(s: int):
     S = 1 << s
     T_max = min(1 << 17 - s, 2**S - 1)
     expected = [None] * S
@@ -43,7 +43,7 @@ def test_compressing_time_lookup_against_site_selection(s: int):
 @pytest.mark.parametrize(
     "T", [*range(10**2), *np.random.randint(2**63, size=10**2)]
 )
-def test_compressing_time_lookup_fuzz(S: int, T: int):
+def test_circular_time_lookup_fuzz(S: int, T: int):
     if not algo.has_ingest_capacity(S, T):
         T = S
     [*time_lookup(S, T)]
