@@ -90,6 +90,7 @@ class Surface:
             if t1 != t2 and t2 is not None:
                 self._storage[site] = item_getter(t2)
                 sites.append((site, t2))
+        self.T += n_ingests
         return sites
 
     def ingest(self: "Surface", item: object) -> typing.Optional[int]:
