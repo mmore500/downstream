@@ -54,6 +54,35 @@ class Surface:
         """Iterate over ingest times and values of retained data items."""
         return zip(self.lookup(), self._storage)
 
+    def ingest_multiple(
+        self: "Surface",
+        n_ingests: int,
+        item_getter: typing.Callable[[int], object],
+    ):
+        """Ingest many data items.
+
+        Optimizes for the fact that if large amounts of data are ingested,
+        then we can skip assigning multiple objects to the same site, and 
+        simply iterate through sites that would get new data after items 
+        would be ingested.
+
+        Parameters
+        ----------
+        n_ingests : int 
+            The number of data to ingest
+        item_getter : int -> object
+            A function that takes in the time of the datum at a site and 
+            returns the object to ingest at that site
+        """
+        for site, (t1, t2) in enumerate(
+            zip(
+                self.lookup(),
+                self.algo.lookup_ingest_times(self.S, self.T + n_ingests),
+            )
+        ):
+            if t1 != t2 and t2 is not None:
+                self._storage[site] = item_getter(t2)
+
     def ingest(self: "Surface", item: object) -> typing.Optional[int]:
         """Ingest data item.
 
