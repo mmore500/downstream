@@ -1,10 +1,7 @@
 import itertools as it
 import typing
 
-from ..._auxlib._ctz import ctz
-from ._compressing_assign_storage_site import (
-    compressing_assign_storage_site,
-)
+from ._compressing_assign_storage_site import compressing_assign_storage_site
 
 
 def compressing_lookup_ingest_times_eager(S: int, T: int) -> typing.List[int]:
