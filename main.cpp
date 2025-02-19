@@ -54,6 +54,12 @@ int dispatch_algo_op(const std::string_view target_name) {
 
     uint64_t T, S;
     if (
+        is_algo_op<compressing_algo>(
+        "assign_storage_site", target_name)
+    ) while (std::cin >> S >> T) {
+        eval_assign_storage_site<compressing_algo_>(S, T, 1);
+    }
+    else if (
         is_algo_op<hybrid_0_steady_1_stretched_2_algo>(
         "assign_storage_site", target_name)
     ) while (std::cin >> S >> T) {

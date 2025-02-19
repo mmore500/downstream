@@ -5,6 +5,7 @@
 #include <concepts>
 
 #include "../_auxlib/DOWNSTREAM_UINT.hpp"
+#include "./compressing/algo.hpp"
 #include "./hybrid_0_steady_1_stretched_2/algo.hpp"
 #include "./hybrid_0_steady_1_tilted_2/algo.hpp"
 #include "./steady/algo.hpp"
@@ -13,6 +14,12 @@
 
 namespace downstream {
 namespace dstream {
+
+/** Convenience typedef of compressing algo template. */
+template <std::unsigned_integral UINT>
+using compressing_algo_ = dstream_compressing::algo<UINT>;
+/** Convenience typedef instantiating steady/stretched hybrid algo obj. */
+using compressing_algo = compressing_algo_<DOWNSTREAM_UINT>;
 
 /** Convenience typedef of steady/stretched hybrid algo template. */
 template <std::unsigned_integral UINT>
