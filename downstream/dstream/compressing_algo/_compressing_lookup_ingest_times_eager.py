@@ -21,6 +21,12 @@ def compressing_lookup_ingest_times_eager(S: int, T: int) -> typing.List[int]:
     -------
     typing.List[int]
         Ingest time of stored item at buffer sites in index order.
+
+    References
+    ----------
+    John C. Gunther. 2014. Algorithm 938: Compressing circular buffers. ACM
+    Trans. Math. Softw. 40, 2, Article 17 (February 2014), 12 pages.
+    https://doi.org/10.1145/2559995
     """
     if T < S:
         raise ValueError("T < S not supported for eager lookup")

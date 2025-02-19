@@ -21,6 +21,12 @@ def compressing_has_ingest_capacity(S: int, T: int) -> bool:
     get_ingest_capacity : How many data item ingestions does this algorithm
     support?
     has_ingest_capacity_batched : Numpy-friendly implementation.
+
+    References
+    ----------
+    John C. Gunther. 2014. Algorithm 938: Compressing circular buffers. ACM
+    Trans. Math. Softw. 40, 2, Article 17 (February 2014), 12 pages.
+    https://doi.org/10.1145/2559995
     """
     assert T >= 0
     ingest_capacity = compressing_get_ingest_capacity(S)

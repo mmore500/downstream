@@ -25,6 +25,12 @@ def compressing_assign_storage_site(S: int, T: int) -> typing.Optional[int]:
         If insufficient ingest capacity is available.
 
         See `compressing_algo.has_ingest_capacity` for details.
+
+    References
+    ----------
+    John C. Gunther. 2014. Algorithm 938: Compressing circular buffers. ACM
+    Trans. Math. Softw. 40, 2, Article 17 (February 2014), 12 pages.
+    https://doi.org/10.1145/2559995
     """
     if not compressing_has_ingest_capacity(S, T):
         raise ValueError(f"Insufficient ingest capacity for {S=}, {T=}")
