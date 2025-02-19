@@ -8,7 +8,9 @@ import pytest
 from downstream.dstream import compressing_algo as algo
 
 
-def validate_compressing_site_selection(fn: typing.Callable) -> typing.Callable:
+def validate_compressing_site_selection(
+    fn: typing.Callable,
+) -> typing.Callable:
     """Decorator to validate pre- and post-conditions on site selection."""
 
     @functools.wraps(fn)

@@ -37,7 +37,7 @@ def compressing_assign_storage_site(S: int, T: int) -> typing.Optional[int]:
     si = (T // (S - 1)).bit_length()  # Current sampling interval
     h = ctz(T or 1)  # Current hanoi value
 
-    if (h < si):
+    if h < si:
         return None
 
     return T % (S - 1) + 1

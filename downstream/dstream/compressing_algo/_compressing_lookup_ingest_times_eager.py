@@ -7,9 +7,7 @@ from ._compressing_assign_storage_site import (
 )
 
 
-def compressing_lookup_ingest_times_eager(
-    S: int, T: int
-) -> typing.List[int]:
+def compressing_lookup_ingest_times_eager(S: int, T: int) -> typing.List[int]:
     """Ingest time lookup algorithm for compressing curation.
 
     Parameters
@@ -35,7 +33,7 @@ def compressing_lookup_ingest_times_eager(
     candidates = it.chain(
         (0,),
         range(1, T, si_),
-        reversed(range(1 + si_//2, (S - 1) * (si_//2), si_))
+        reversed(range(1 + (si_ >> 1), (S - 1) * (si_ >> 1), si_)),
     )
     for Tbar in it.islice(candidates, S):
         assert Tbar < T
