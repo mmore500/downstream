@@ -35,6 +35,7 @@ def compressing_assign_storage_site(S: int, T: int) -> typing.Optional[int]:
     if not compressing_has_ingest_capacity(S, T):
         raise ValueError(f"Insufficient ingest capacity for {S=}, {T=}")
 
+    # special-case site 0 for T = 0, to fill entire buffer
     if T == 0:
         return 0
     else:
@@ -42,11 +43,7 @@ def compressing_assign_storage_site(S: int, T: int) -> typing.Optional[int]:
 
     si = (T // (S - 1)).bit_length()  # Current sampling interval
     h = ctz(T or 1)  # Current hanoi value
-
-    if h < si:
-        return None
-
-    return T % (S - 1) + 1
+    return None if h < si else (T >> si) % (S - 1) + 1
 
 
 assign_storage_site = compressing_assign_storage_site  # lazy loader workaround
