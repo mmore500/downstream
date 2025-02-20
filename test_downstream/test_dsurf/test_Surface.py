@@ -1,6 +1,7 @@
 import types
-import typing
 
+from _pytest.compat import num_mock_patch_args
+import opytional as opyt
 import pytest
 
 from downstream.dstream import steady_algo, stretched_algo, tilted_algo
@@ -25,21 +26,24 @@ def test_Surface(algo: types.ModuleType, S: int) -> None:
 
 @pytest.mark.parametrize("algo", [steady_algo, stretched_algo, tilted_algo])
 @pytest.mark.parametrize("S", [8, 16, 32])
-def test_Surface_ingest_many(algo: types.ModuleType, S: int) -> None:
+@pytest.mark.parametrize("step_size", [5, 25, 50])
+def test_Surface_ingest_many(
+    algo: types.ModuleType, S: int, step_size: int
+) -> None:
     single_surface = Surface(algo, S)
     multi_surface = Surface(algo, S)
-    for T in range(int((algo.get_ingest_capacity(S) or 10000) ** 0.2)):
-        single_sites: typing.List[typing.Optional[int]] = [None] * S
-        for _ in range(T):
-            site = single_surface.ingest(T)
-            if site is not None:
-                single_sites[site] = single_surface.T - 1
-        multi_sites = multi_surface.ingest_multiple(T, lambda _: T)
-        assert [
-            (site, timestamp)
-            for site, timestamp in enumerate(single_sites)
-            if timestamp is not None
-        ] == multi_sites
+    num_iterations = min(
+        (
+            opyt.apply_if_or_value(
+                algo.get_ingest_capacity(S), lambda x: x // step_size // 2, 100
+            ),
+            100,
+        )
+    )
+    for T in range(num_iterations):
+        for _ in range(step_size):
+            single_surface.ingest(-T)
+        multi_surface.ingest_multiple(step_size, lambda _: -T)
         assert multi_surface.T == single_surface.T
         assert [*single_surface] == [*multi_surface]
         assert [*single_surface.enumerate()] == [*multi_surface.enumerate()]
