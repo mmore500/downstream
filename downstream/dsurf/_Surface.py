@@ -49,9 +49,9 @@ class Surface(typing.Generic[_Item]):
     def __getitem__(self: "Surface", site: int) -> typing.Optional[_Item]:
         return self._storage[site]
 
-    def __deepcopy__(self: "Surface") -> "Surface":
+    def __deepcopy__(self: "Surface", memo: dict) -> "Surface":
         """An overloaded deepcopy to prevent a pickle error with cloning modules"""
-        return Surface(self.algo, deepcopy(self._storage))
+        return Surface(self.algo, deepcopy(self._storage, memo))
 
     @property
     def S(self: "Surface") -> int:

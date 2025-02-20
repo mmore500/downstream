@@ -55,7 +55,7 @@ def test_Surface_ingest_none(algo: types.ModuleType, S: int):
     surf = Surface(algo, S)
     for T in range(100):
         surf.ingest(T)
-        new_surf = Surface(algo, deepcopy(surf._storage))
+        new_surf = deepcopy(surf)
         new_surf.ingest_multiple(0, lambda _: None)
         assert [*new_surf] == [*surf]
 
