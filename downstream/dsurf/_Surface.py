@@ -1,20 +1,25 @@
+from copy import deepcopy
 import types
 import typing
 
+_Item = typing.TypeVar("_Item")
 
-class Surface:
+
+class Surface(typing.Generic[_Item]):
     "Container orchestrating downstream curation over a fixed-size buffer."
 
     __slots__ = ("_storage", "algo", "T")
 
     algo: types.ModuleType
-    _storage: typing.MutableSequence  # storage sites
+    _storage: typing.MutableSequence[typing.Optional[_Item]]  # storage sites
     T: int  # current logical time
 
     def __init__(
         self: "Surface",
         algo: types.ModuleType,
-        storage: typing.Union[typing.MutableSequence[object], int],
+        storage: typing.Union[
+            typing.MutableSequence[typing.Optional[_Item]], int
+        ],
     ) -> None:
         """Initialize a downstream Surface object, which stores hereditary
         stratigraphic annotations using a provided algorithm.
@@ -38,11 +43,15 @@ class Surface:
             self._storage = storage
         self.algo = algo
 
-    def __iter__(self: "Surface") -> typing.Iterator[object]:
+    def __iter__(self: "Surface") -> typing.Iterator[typing.Optional[_Item]]:
         return iter(self._storage)
 
-    def __getitem__(self: "Surface", site: int) -> object:
+    def __getitem__(self: "Surface", site: int) -> typing.Optional[_Item]:
         return self._storage[site]
+
+    def __deepcopy__(self: "Surface", memo: dict) -> "Surface":
+        """An overloaded deepcopy to prevent a pickle error with cloning modules"""
+        return Surface(self.algo, deepcopy(self._storage, memo))
 
     @property
     def S(self: "Surface") -> int:
@@ -50,11 +59,59 @@ class Surface:
 
     def enumerate(
         self: "Surface",
-    ) -> typing.Iterable[typing.Tuple[int, object]]:
-        """Iterate over ingest times and values of retained data items."""
+    ) -> typing.Iterable[
+        typing.Tuple[typing.Optional[int], typing.Optional[_Item]]
+    ]:
+        """Iterate over ingest times and values of (possibly null) data items."""
         return zip(self.lookup(), self._storage)
 
-    def ingest(self: "Surface", item: object) -> typing.Optional[int]:
+    def enumerate_retained(
+        self: "Surface",
+    ) -> typing.Iterable[typing.Tuple[int, _Item]]:
+        """Iterate over ingest times and values of retained data items."""
+        return (
+            (t, v)
+            for t, v in self.enumerate()
+            if t is not None and v is not None
+        )
+
+    def ingest_multiple(
+        self: "Surface",
+        n_ingests: int,
+        item_getter: typing.Callable[[int], _Item],
+    ) -> None:
+        """Ingest multiple data items.
+
+        Optimizes for the case where large amounts of data is ready to be ingested,
+        In such a scenario, we can avoid assigning multiple objects to the same site, and
+        simply iterate through sites that would be updated after items
+        were ingested.
+
+        Parameters
+        ----------
+        n_ingests : int
+            The number of data to ingest
+        item_getter : int -> object
+            For a given ingest time within the n_ingests window, should
+            return the associated data item.
+        """
+
+        assert n_ingests >= 0
+        if n_ingests == 0:
+            return
+
+        assert self.algo.has_ingest_capacity(self.S, self.T + n_ingests - 1)
+        for site, (t1, t2) in enumerate(
+            zip(
+                self.lookup(),
+                self.algo.lookup_ingest_times(self.S, self.T + n_ingests),
+            )
+        ):
+            if t1 != t2 and t2 is not None:
+                self._storage[site] = item_getter(t2)
+        self.T += n_ingests
+
+    def ingest(self: "Surface", item: _Item) -> typing.Optional[int]:
         """Ingest data item.
 
         Returns the storage site of the data item, or None if the data item is
@@ -68,7 +125,11 @@ class Surface:
         self.T += 1
         return site
 
-    def lookup(self: "Surface") -> typing.Iterable[int]:
-        """Iterate over ingest times of retained data items."""
+    def lookup(self: "Surface") -> typing.Iterable[typing.Optional[int]]:
+        """Iterate over ingest times of (possibly null) data items."""
         assert len(self._storage) == self.S
         return self.algo.lookup_ingest_times(self.S, self.T)
+
+    def lookup_retained(self: "Surface") -> typing.Iterable[int]:
+        """Iterate over ingest times of (possibly null) data items."""
+        return (t for t in self.lookup() if t is not None)
