@@ -58,3 +58,17 @@ def test_Surface_ingest_none(algo: types.ModuleType, S: int):
         new_surf = Surface(algo, deepcopy(surf._storage))
         new_surf.ingest_multiple(0, lambda _: None)
         assert [*new_surf] == [*surf]
+
+
+@pytest.mark.parametrize("algo", [steady_algo, stretched_algo, tilted_algo])
+@pytest.mark.parametrize("S", [8, 16, 32])
+def test_raises(algo: types.ModuleType, S: int):
+    cap = algo.get_ingest_capacity(S)
+    if cap is None:
+        return
+    with pytest.raises(AssertionError):
+        Surface(algo, S).ingest_multiple(cap + 1, lambda _: 1)
+    s = Surface(algo, S)
+    s.ingest_multiple(cap, lambda _: 1)
+    with pytest.raises(AssertionError):
+        s.ingest(1)
