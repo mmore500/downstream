@@ -1,20 +1,24 @@
 import types
 import typing
 
+Item_T = typing.TypeVar("Item_T")
 
-class Surface:
+
+class Surface(typing.Generic[Item_T]):
     "Container orchestrating downstream curation over a fixed-size buffer."
 
     __slots__ = ("_storage", "algo", "T")
 
     algo: types.ModuleType
-    _storage: typing.MutableSequence  # storage sites
+    _storage: typing.MutableSequence[typing.Optional[Item_T]]  # storage sites
     T: int  # current logical time
 
     def __init__(
         self: "Surface",
         algo: types.ModuleType,
-        storage: typing.Union[typing.MutableSequence[object], int],
+        storage: typing.Union[
+            typing.MutableSequence[typing.Optional[Item_T]], int
+        ],
     ) -> None:
         """Initialize a downstream Surface object, which stores hereditary
         stratigraphic annotations using a provided algorithm.
@@ -38,10 +42,10 @@ class Surface:
             self._storage = storage
         self.algo = algo
 
-    def __iter__(self: "Surface") -> typing.Iterator[object]:
+    def __iter__(self: "Surface") -> typing.Iterator[typing.Optional[Item_T]]:
         return iter(self._storage)
 
-    def __getitem__(self: "Surface", site: int) -> object:
+    def __getitem__(self: "Surface", site: int) -> typing.Optional[Item_T]:
         return self._storage[site]
 
     @property
@@ -50,28 +54,30 @@ class Surface:
 
     def enumerate(
         self: "Surface",
-    ) -> typing.Iterable[typing.Tuple[int, object]]:
+    ) -> typing.Iterable[
+        typing.Tuple[typing.Optional[int], typing.Optional[Item_T]]
+    ]:
         """Iterate over ingest times and values of retained data items."""
         return zip(self.lookup(), self._storage)
 
     def ingest_multiple(
         self: "Surface",
         n_ingests: int,
-        item_getter: typing.Callable[[int], object],
+        item_getter: typing.Callable[[int], Item_T],
     ) -> None:
         """Ingest multiple data items.
 
         Optimizes for the case where large amounts of data is ready to be ingested,
-        In such a scenario, we can avoid assigning multiple objects to the same site, and 
-        simply iterate through sites that would be updated after items 
+        In such a scenario, we can avoid assigning multiple objects to the same site, and
+        simply iterate through sites that would be updated after items
         were ingested.
 
         Parameters
         ----------
-        n_ingests : int 
+        n_ingests : int
             The number of data to ingest
         item_getter : int -> object
-            For a given ingest time within the n_ingests window, should 
+            For a given ingest time within the n_ingests window, should
             return the associated data item.
         """
 
@@ -90,7 +96,7 @@ class Surface:
                 self._storage[site] = item_getter(t2)
         self.T += n_ingests
 
-    def ingest(self: "Surface", item: object) -> typing.Optional[int]:
+    def ingest(self: "Surface", item: Item_T) -> typing.Optional[int]:
         """Ingest data item.
 
         Returns the storage site of the data item, or None if the data item is
@@ -104,7 +110,7 @@ class Surface:
         self.T += 1
         return site
 
-    def lookup(self: "Surface") -> typing.Iterable[int]:
+    def lookup(self: "Surface") -> typing.Iterable[typing.Optional[int]]:
         """Iterate over ingest times of retained data items."""
         assert len(self._storage) == self.S
         return self.algo.lookup_ingest_times(self.S, self.T)
