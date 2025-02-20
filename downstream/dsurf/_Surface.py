@@ -75,8 +75,6 @@ class Surface:
             return the associated data item.
         """
 
-        # we return a list rather than a generator so that we cannot have the  
-        # case of users modifying the surface in the middle of iteration
         for site, (t1, t2) in enumerate(
             zip(
                 self.lookup(),
