@@ -58,7 +58,7 @@ class Surface:
         self: "Surface",
         n_ingests: int,
         item_getter: typing.Callable[[int], object],
-    ) -> typing.List[typing.Tuple[int, int]]:
+    ) -> None:
         """Ingest multiple data items.
 
         Optimizes for the case where large amounts of data is ready to be ingested,
@@ -66,20 +66,17 @@ class Surface:
         simply iterate through sites that would be updated after items 
         were ingested.
 
-        Returns a list of any sites with new data, and the corresponding 
-        timestamp associated with the new data.
-
         Parameters
         ----------
         n_ingests : int 
             The number of data to ingest
         item_getter : int -> object
-            For a given ingest time within the n_ingests window, should return the associated data item.
+            For a given ingest time within the n_ingests window, should 
+            return the associated data item.
         """
 
         # we return a list rather than a generator so that we cannot have the  
         # case of users modifying the surface in the middle of iteration
-        sites = []
         for site, (t1, t2) in enumerate(
             zip(
                 self.lookup(),
@@ -88,9 +85,7 @@ class Surface:
         ):
             if t1 != t2 and t2 is not None:
                 self._storage[site] = item_getter(t2)
-                sites.append((site, t2))
         self.T += n_ingests
-        return sites
 
     def ingest(self: "Surface", item: object) -> typing.Optional[int]:
         """Ingest data item.
