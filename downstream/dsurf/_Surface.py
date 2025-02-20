@@ -75,7 +75,8 @@ class Surface:
             return the associated data item.
         """
 
-        if n_ingests <= 0:
+        assert n_ingests >= 0
+        if n_ingests == 0:
             return
 
         assert self.algo.has_ingest_capacity(self.S, self.T + n_ingests - 1)
