@@ -75,6 +75,7 @@ class Surface:
             return the associated data item.
         """
 
+        assert self.algo.has_ingest_capacity(self.S, self.T + n_ingests)
         for site, (t1, t2) in enumerate(
             zip(
                 self.lookup(),
