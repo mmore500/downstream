@@ -1,23 +1,23 @@
 import types
 import typing
 
-Item_T = typing.TypeVar("Item_T")
+_Item = typing.TypeVar("_Item")
 
 
-class Surface(typing.Generic[Item_T]):
+class Surface(typing.Generic[_Item]):
     "Container orchestrating downstream curation over a fixed-size buffer."
 
     __slots__ = ("_storage", "algo", "T")
 
     algo: types.ModuleType
-    _storage: typing.MutableSequence[typing.Optional[Item_T]]  # storage sites
+    _storage: typing.MutableSequence[typing.Optional[_Item]]  # storage sites
     T: int  # current logical time
 
     def __init__(
         self: "Surface",
         algo: types.ModuleType,
         storage: typing.Union[
-            typing.MutableSequence[typing.Optional[Item_T]], int
+            typing.MutableSequence[typing.Optional[_Item]], int
         ],
     ) -> None:
         """Initialize a downstream Surface object, which stores hereditary
@@ -42,10 +42,10 @@ class Surface(typing.Generic[Item_T]):
             self._storage = storage
         self.algo = algo
 
-    def __iter__(self: "Surface") -> typing.Iterator[typing.Optional[Item_T]]:
+    def __iter__(self: "Surface") -> typing.Iterator[typing.Optional[_Item]]:
         return iter(self._storage)
 
-    def __getitem__(self: "Surface", site: int) -> typing.Optional[Item_T]:
+    def __getitem__(self: "Surface", site: int) -> typing.Optional[_Item]:
         return self._storage[site]
 
     @property
@@ -55,7 +55,7 @@ class Surface(typing.Generic[Item_T]):
     def enumerate(
         self: "Surface",
     ) -> typing.Iterable[
-        typing.Tuple[typing.Optional[int], typing.Optional[Item_T]]
+        typing.Tuple[typing.Optional[int], typing.Optional[_Item]]
     ]:
         """Iterate over ingest times and values of retained data items."""
         return zip(self.lookup(), self._storage)
@@ -63,7 +63,7 @@ class Surface(typing.Generic[Item_T]):
     def ingest_multiple(
         self: "Surface",
         n_ingests: int,
-        item_getter: typing.Callable[[int], Item_T],
+        item_getter: typing.Callable[[int], _Item],
     ) -> None:
         """Ingest multiple data items.
 
@@ -96,7 +96,7 @@ class Surface(typing.Generic[Item_T]):
                 self._storage[site] = item_getter(t2)
         self.T += n_ingests
 
-    def ingest(self: "Surface", item: Item_T) -> typing.Optional[int]:
+    def ingest(self: "Surface", item: _Item) -> typing.Optional[int]:
         """Ingest data item.
 
         Returns the storage site of the data item, or None if the data item is
