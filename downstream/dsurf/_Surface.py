@@ -57,8 +57,18 @@ class Surface(typing.Generic[_Item]):
     ) -> typing.Iterable[
         typing.Tuple[typing.Optional[int], typing.Optional[_Item]]
     ]:
-        """Iterate over ingest times and values of retained data items."""
+        """Iterate over ingest times and values of (possibly null) data items."""
         return zip(self.lookup(), self._storage)
+
+    def enumerate_retained(
+        self: "Surface",
+    ) -> typing.Iterable[typing.Tuple[int, _Item]]:
+        """Iterate over ingest times and values of retained data items."""
+        return (
+            (t, v)
+            for t, v in self.enumerate()
+            if t is not None and v is not None
+        )
 
     def ingest_multiple(
         self: "Surface",
@@ -111,6 +121,10 @@ class Surface(typing.Generic[_Item]):
         return site
 
     def lookup(self: "Surface") -> typing.Iterable[typing.Optional[int]]:
-        """Iterate over ingest times of retained data items."""
+        """Iterate over ingest times of (possibly null) data items."""
         assert len(self._storage) == self.S
         return self.algo.lookup_ingest_times(self.S, self.T)
+
+    def lookup_retained(self: "Surface") -> typing.Iterable[int]:
+        """Iterate over ingest times of (possibly null) data items."""
+        return (t for t in self.lookup() if t is not None)
