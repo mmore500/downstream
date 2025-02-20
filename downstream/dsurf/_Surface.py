@@ -59,12 +59,12 @@ class Surface:
         n_ingests: int,
         item_getter: typing.Callable[[int], object],
     ) -> typing.List[typing.Tuple[int, int]]:
-        """Ingest many data items.
+        """Ingest multiple data items.
 
-        Optimizes for the fact that if large amounts of data are ingested,
-        then we can skip assigning multiple objects to the same site, and 
-        simply iterate through sites that would get new data after items 
-        would be ingested.
+        Optimizes for the case where large amounts of data is ready to be ingested,
+        In such a scenario, we can avoid assigning multiple objects to the same site, and 
+        simply iterate through sites that would be updated after items 
+        were ingested.
 
         Returns a list of any sites with new data, and the corresponding 
         timestamp associated with the new data.
@@ -74,8 +74,7 @@ class Surface:
         n_ingests : int 
             The number of data to ingest
         item_getter : int -> object
-            A function that takes in the time of the datum at a site and 
-            returns the object to ingest at that site
+            For a given ingest time within the n_ingests window, should return the associated data item.
         """
 
         # we return a list rather than a generator so that we cannot have the  
