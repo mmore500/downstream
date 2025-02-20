@@ -1,6 +1,7 @@
 from copy import deepcopy
 import types
 
+import numpy as np
 import opytional as opyt
 import pytest
 
@@ -13,8 +14,8 @@ from downstream.dsurf import Surface
 def test_Surface(algo: types.ModuleType, S: int) -> None:
     surface = Surface(algo, S)
     assert surface.T == 0
-    assert [*surface] == [None] * S
-    assert [*surface.lookup()] == [None] * S
+    assert [*surface] == [None] * surface.S
+    assert [*surface.lookup()] == [None] * surface.S
 
     for T in range(100):
         site = surface.ingest(T)
@@ -25,7 +26,7 @@ def test_Surface(algo: types.ModuleType, S: int) -> None:
 
 
 @pytest.mark.parametrize("algo", [steady_algo, stretched_algo, tilted_algo])
-@pytest.mark.parametrize("S", [8, 16, 32])
+@pytest.mark.parametrize("S", [8, 16, 32, np.empty(32, dtype=np.uint32)])
 @pytest.mark.parametrize("step_size", [1, 5, 25, 50])
 def test_Surface_ingest_many(
     algo: types.ModuleType, S: int, step_size: int
@@ -35,7 +36,9 @@ def test_Surface_ingest_many(
     num_iterations = min(
         (
             opyt.apply_if_or_value(
-                algo.get_ingest_capacity(S), lambda x: x // step_size // 2, 100
+                algo.get_ingest_capacity(single_surface.S),
+                lambda x: x // step_size // 2,
+                100,
             ),
             100,
         )
@@ -50,7 +53,7 @@ def test_Surface_ingest_many(
 
 
 @pytest.mark.parametrize("algo", [steady_algo, stretched_algo, tilted_algo])
-@pytest.mark.parametrize("S", [8, 16, 32])
+@pytest.mark.parametrize("S", [8, 16, 32, np.empty(32, dtype=np.uint32)])
 def test_Surface_ingest_none(algo: types.ModuleType, S: int):
     surf = Surface(algo, S)
     for T in range(100):
@@ -61,14 +64,14 @@ def test_Surface_ingest_none(algo: types.ModuleType, S: int):
 
 
 @pytest.mark.parametrize("algo", [steady_algo, stretched_algo, tilted_algo])
-@pytest.mark.parametrize("S", [8, 16, 32])
+@pytest.mark.parametrize("S", [8, 16, 32, np.empty(32, dtype=np.uint32)])
 def test_raises(algo: types.ModuleType, S: int):
-    cap = algo.get_ingest_capacity(S)
+    s = Surface(algo, S)
+    cap = algo.get_ingest_capacity(s.S)
     if cap is None:
         return
     with pytest.raises(AssertionError):
         Surface(algo, S).ingest_multiple(cap + 1, lambda _: 1)
-    s = Surface(algo, S)
     s.ingest_multiple(cap, lambda _: 1)
     with pytest.raises(AssertionError):
         s.ingest(1)
