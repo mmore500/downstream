@@ -60,25 +60,25 @@ class Surface(typing.Generic[_DSurfDataItem]):
         return len(self._storage)
 
     @typing.overload
-    def lookup_timestampped_items(
+    def lookup_zip_items(
         self: "Surface",
     ) -> typing.Iterable[
         typing.Tuple[typing.Optional[int], _DSurfDataItem]
     ]: ...
 
     @typing.overload
-    def lookup_timestampped_items(
+    def lookup_zip_items(
         self: "Surface", include_empty: typing.Literal[False]
     ) -> typing.Iterable[typing.Tuple[int, _DSurfDataItem]]: ...
 
     @typing.overload
-    def lookup_timestampped_items(
+    def lookup_zip_items(
         self: "Surface", include_empty: bool
     ) -> typing.Iterable[
         typing.Tuple[typing.Optional[int], _DSurfDataItem]
     ]: ...
 
-    def lookup_timestampped_items(
+    def lookup_zip_items(
         self: "Surface", include_empty: bool = True
     ) -> typing.Iterable[typing.Tuple[typing.Optional[int], _DSurfDataItem]]:
         """
@@ -86,7 +86,7 @@ class Surface(typing.Generic[_DSurfDataItem]):
         appear on the downstream storage, including sites not yet written to.
         """
         return zip(
-            self.lookup_ingest_times(include_empty=include_empty),
+            self.lookup(include_empty=include_empty),
             self._storage,
         )
 
@@ -99,7 +99,7 @@ class Surface(typing.Generic[_DSurfDataItem]):
         """
         return (
             (T, v)
-            for T, v in self.lookup_timestampped_items()
+            for T, v in self.lookup_zip_items()
             if T is not None
         )
 
@@ -135,7 +135,7 @@ class Surface(typing.Generic[_DSurfDataItem]):
         assert self.algo.has_ingest_capacity(self.S, self.T + n_ingests - 1)
         for site, (T_1, T_2) in enumerate(
             zip(
-                self.lookup_ingest_times(),
+                self.lookup(),
                 self.algo.lookup_ingest_times(self.S, self.T + n_ingests),
             )
         ):
@@ -162,21 +162,21 @@ class Surface(typing.Generic[_DSurfDataItem]):
         return site
 
     @typing.overload
-    def lookup_ingest_times(
+    def lookup(
         self: "Surface",
     ) -> typing.Iterable[typing.Optional[int]]: ...
 
     @typing.overload
-    def lookup_ingest_times(
+    def lookup(
         self: "Surface", include_empty: typing.Literal[False]
     ) -> typing.Iterable[int]: ...
 
     @typing.overload
-    def lookup_ingest_times(
+    def lookup(
         self: "Surface", include_empty: bool
     ) -> typing.Iterable[typing.Optional[int]]: ...
 
-    def lookup_ingest_times(
+    def lookup(
         self: "Surface", include_empty: bool = True
     ) -> typing.Union[
         typing.Iterable[typing.Optional[int]], typing.Iterable[int]

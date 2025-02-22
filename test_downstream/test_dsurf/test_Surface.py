@@ -12,7 +12,7 @@ from downstream.dsurf import Surface
 def assert_surfaces_equal(s1: Surface, s2: Surface):
     assert s1.T == s2.T
     assert [*s1] == [*s2]
-    assert [*s1.lookup_timestampped_items()] == [*s2.lookup_timestampped_items()]
+    assert [*s1.lookup_zip_items()] == [*s2.lookup_zip_items()]
 
 
 @pytest.mark.parametrize("algo", [steady_algo, stretched_algo, tilted_algo])
@@ -21,14 +21,14 @@ def test_Surface(algo: types.ModuleType, S: int) -> None:
     surface = Surface(algo, S)
     assert surface.T == 0
     assert [*surface] == [None] * surface.S
-    assert [*surface.lookup_ingest_times()] == [None] * surface.S
+    assert [*surface.lookup()] == [None] * surface.S
 
     for T in range(100):
         site = surface.ingest_one(T)
         if site is not None:
             assert surface[site] == T
-        assert [*surface] == [*surface.lookup_ingest_times()]
-        assert [*zip(surface.lookup_ingest_times(), surface)] == [*surface.lookup_timestampped_items()]
+        assert [*surface] == [*surface.lookup()]
+        assert [*zip(surface.lookup(), surface)] == [*surface.lookup_zip_items()]
 
 
 @pytest.mark.parametrize("algo", [steady_algo, stretched_algo, tilted_algo])
