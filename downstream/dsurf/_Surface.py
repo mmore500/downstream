@@ -61,7 +61,7 @@ class Surface(typing.Generic[_DSurfDataItem]):
         return self._storage[site]
 
     def __deepcopy__(self: "Surface", memo: dict) -> "Surface":
-        """An overloaded deepcopy to prevent a pickle error with cloning modules"""
+        """Ensure pickle compatibility when algo is a module. """
         return Surface(self.algo, deepcopy(self._storage, memo))
 
     @property
