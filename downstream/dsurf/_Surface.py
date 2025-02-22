@@ -41,6 +41,15 @@ class Surface(typing.Generic[_DSurfDataItem]):
             self._storage = storage
         self.algo = algo
 
+    def __eq__(self: "Surface", other: typing.Any) -> bool:
+        if not isinstance(other, Surface):
+            return False
+        return (
+            self.T == other.T
+            and self.algo is other.algo
+            and [*self.lookup_zip_items()] == [*other.lookup_zip_items()]
+        )
+
     def __iter__(
         self: "Surface",
     ) -> typing.Iterator[typing.Optional[_DSurfDataItem]]:
@@ -85,23 +94,13 @@ class Surface(typing.Generic[_DSurfDataItem]):
         Iterate over ingest times and values of data items in the order they
         appear on the downstream storage, including sites not yet written to.
         """
-        return zip(
-            self.lookup(include_empty=include_empty),
+        res = zip(
+            self.lookup(include_empty=True),
             self._storage,
         )
-
-    def enumerate_retained(
-        self: "Surface",
-    ) -> typing.Iterable[typing.Tuple[int, _DSurfDataItem]]:
-        """
-        Iterate over ingest times and value of data items in sites that
-        have been written to.
-        """
-        return (
-            (T, v)
-            for T, v in self.lookup_zip_items()
-            if T is not None
-        )
+        if not include_empty:
+            return ((T, v) for T, v in res if T is not None)
+        return res
 
     def ingest_many(
         self: "Surface",
