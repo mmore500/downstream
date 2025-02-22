@@ -12,7 +12,7 @@ from downstream.dsurf import Surface
 def assert_surfaces_equal(s1: Surface, s2: Surface):
     assert s1.T == s2.T
     assert [*s1] == [*s2]
-    assert [*s1.enumerate()] == [*s2.enumerate()]
+    assert [*s1.lookup_timestampped_items()] == [*s2.lookup_timestampped_items()]
 
 
 @pytest.mark.parametrize("algo", [steady_algo, stretched_algo, tilted_algo])
@@ -21,14 +21,14 @@ def test_Surface(algo: types.ModuleType, S: int) -> None:
     surface = Surface(algo, S)
     assert surface.T == 0
     assert [*surface] == [None] * surface.S
-    assert [*surface.lookup()] == [None] * surface.S
+    assert [*surface.lookup_ingest_times()] == [None] * surface.S
 
     for T in range(100):
-        site = surface.ingest_item(T)
+        site = surface.ingest_one(T)
         if site is not None:
             assert surface[site] == T
-        assert [*surface] == [*surface.lookup()]
-        assert [*zip(surface.lookup(), surface)] == [*surface.enumerate()]
+        assert [*surface] == [*surface.lookup_ingest_times()]
+        assert [*zip(surface.lookup_ingest_times(), surface)] == [*surface.lookup_timestampped_items()]
 
 
 @pytest.mark.parametrize("algo", [steady_algo, stretched_algo, tilted_algo])
@@ -51,8 +51,8 @@ def test_Surface_ingest_many(
     )
     for T in range(num_iterations):
         for i in range(step_size):
-            single_surface.ingest_item(T * step_size + i)
-        multi_surface.ingest_items(step_size, lambda x: x)
+            single_surface.ingest_one(T * step_size + i)
+        multi_surface.ingest_many(step_size, lambda x: x)
         assert_surfaces_equal(single_surface, multi_surface)
 
 
@@ -61,9 +61,9 @@ def test_Surface_ingest_many(
 def test_Surface_ingest_none(algo: types.ModuleType, S: int):
     surf = Surface(algo, S)
     for T in range(100):
-        surf.ingest_item(T)
+        surf.ingest_one(T)
         new_surf = deepcopy(surf)
-        new_surf.ingest_items(0, lambda _: None)
+        new_surf.ingest_many(0, lambda _: None)
         assert [*new_surf] == [*surf]
 
 
@@ -75,10 +75,10 @@ def test_ingest_cap(algo: types.ModuleType, S: int):
     if cap is None:
         return
     with pytest.raises(AssertionError):
-        Surface(algo, S).ingest_items(cap + 1, lambda _: 1)
-    surf.ingest_items(cap, lambda _: 1)
+        Surface(algo, S).ingest_many(cap + 1, lambda _: 1)
+    surf.ingest_many(cap, lambda _: 1)
     with pytest.raises(AssertionError):
-        surf.ingest_item(1)
+        surf.ingest_one(1)
 
 
 @pytest.mark.parametrize("algo", [steady_algo, stretched_algo, tilted_algo])
@@ -90,8 +90,8 @@ def test_ingest_items_relative_times(
     surf_absolute = Surface(algo, S)
     surf_relative = Surface(algo, S)
     for T in range(100):
-        surf_absolute.ingest_items(step_size, lambda x: x)
-        surf_relative.ingest_items(
+        surf_absolute.ingest_many(step_size, lambda x: x)
+        surf_relative.ingest_many(
             step_size, lambda x: T * step_size + x, use_relative_time=True
         )
         assert_surfaces_equal(surf_absolute, surf_relative)

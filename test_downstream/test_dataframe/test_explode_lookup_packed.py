@@ -110,14 +110,14 @@ def test_explode_lookup_packed_pup():
 
     surface1 = dsurf.Surface(dstream.steady_algo, 8)
     for i in range(8):
-        surface1.ingest_item(i)
+        surface1.ingest_one(i)
 
     buffer1 = "".join(map("{:02x}".format, surface1))
     data1 = "{:02x}".format(surface1.T) + buffer1
 
     surface2 = dsurf.Surface(dstream.steady_algo, 8)
     for i in range(11):
-        surface2.ingest_item(i)
+        surface2.ingest_one(i)
 
     buffer2 = "".join(map("{:02x}".format, surface2))
     data2 = "{:02x}".format(surface2.T) + buffer2
@@ -143,10 +143,10 @@ def test_explode_lookup_packed_pup():
         {
             "dstream_data_id": [0] * 8 + [1] * 8,
             "dstream_T": [surface1.T] * 8 + [surface2.T] * 8,
-            "dstream_Tbar": [*surface1.lookup(), *surface2.lookup()],
+            "dstream_Tbar": [*surface1.lookup_ingest_times(), *surface2.lookup_ingest_times()],
             "dstream_Tbar_argv": [
-                *np.argsort(np.fromiter(surface1.lookup(), dtype=int)),
-                *np.argsort(np.fromiter(surface2.lookup(), dtype=int)),
+                *np.argsort(np.fromiter(surface1.lookup_ingest_times(), dtype=int)),
+                *np.argsort(np.fromiter(surface2.lookup_ingest_times(), dtype=int)),
             ],
             "dstream_value": [*surface1, *surface2],
             "dstream_value_bitwidth": [8] * 16,
@@ -162,14 +162,14 @@ def test_explode_lookup_packed_pup_exclude():
 
     surface1 = dsurf.Surface(dstream.steady_algo, 8)
     for i in range(8):
-        surface1.ingest_item(i)
+        surface1.ingest_one(i)
 
     buffer1 = "".join(map("{:02x}".format, surface1))
     data1 = "{:02x}".format(surface1.T) + buffer1
 
     surface2 = dsurf.Surface(dstream.steady_algo, 8)
     for i in range(11):
-        surface2.ingest_item(i)
+        surface2.ingest_one(i)
 
     buffer2 = "".join(map("{:02x}".format, surface2))
     data2 = "{:02x}".format(surface2.T) + buffer2
@@ -194,9 +194,9 @@ def test_explode_lookup_packed_pup_exclude():
         {
             "dstream_data_id": [1] * 8,
             "dstream_T": [surface2.T] * 8,
-            "dstream_Tbar": [*surface2.lookup()],
+            "dstream_Tbar": [*surface2.lookup_ingest_times()],
             "dstream_Tbar_argv": np.argsort(
-                np.fromiter(surface2.lookup(), dtype=int),
+                np.fromiter(surface2.lookup_ingest_times(), dtype=int),
             ),
             "dstream_value": [*surface2],
             "dstream_value_bitwidth": [8] * 8,
