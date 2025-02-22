@@ -18,7 +18,7 @@ def test_Surface(algo: types.ModuleType, S: int) -> None:
     assert [*surface.lookup()] == [None] * surface.S
 
     for T in range(100):
-        site = surface.ingest(T)
+        site = surface.ingest_item(T)
         if site is not None:
             assert surface[site] == T
         assert [*surface] == [*surface.lookup()]
@@ -45,8 +45,8 @@ def test_Surface_ingest_many(
     )
     for T in range(num_iterations):
         for i in range(step_size):
-            single_surface.ingest(T * step_size + i)
-        multi_surface.ingest_multiple(step_size, lambda x: x)
+            single_surface.ingest_item(T * step_size + i)
+        multi_surface.ingest_items(step_size, lambda x: x)
         assert multi_surface.T == single_surface.T
         assert [*single_surface] == [*multi_surface]
         assert [*single_surface.enumerate()] == [*multi_surface.enumerate()]
@@ -57,9 +57,9 @@ def test_Surface_ingest_many(
 def test_Surface_ingest_none(algo: types.ModuleType, S: int):
     surf = Surface(algo, S)
     for T in range(100):
-        surf.ingest(T)
+        surf.ingest_item(T)
         new_surf = deepcopy(surf)
-        new_surf.ingest_multiple(0, lambda _: None)
+        new_surf.ingest_items(0, lambda _: None)
         assert [*new_surf] == [*surf]
 
 
@@ -71,7 +71,7 @@ def test_ingest_cap(algo: types.ModuleType, S: int):
     if cap is None:
         return
     with pytest.raises(AssertionError):
-        Surface(algo, S).ingest_multiple(cap + 1, lambda _: 1)
-    surf.ingest_multiple(cap, lambda _: 1)
+        Surface(algo, S).ingest_items(cap + 1, lambda _: 1)
+    surf.ingest_items(cap, lambda _: 1)
     with pytest.raises(AssertionError):
-        surf.ingest(1)
+        surf.ingest_item(1)

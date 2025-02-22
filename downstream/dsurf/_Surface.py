@@ -81,17 +81,18 @@ class Surface(typing.Generic[_DSurfDataItem]):
             if T is not None
         )
 
-    def ingest_multiple(
+    def ingest_items(
         self: "Surface",
         n_ingests: int,
         item_getter: typing.Callable[[int], _DSurfDataItem],
+        use_relative_time: bool = False,
     ) -> None:
         """Ingest multiple data items.
 
-        Optimizes for the case where large amounts of data is ready to be ingested,
-        In such a scenario, we can avoid assigning multiple objects to the same site, and
-        simply iterate through sites that would be updated after items
-        were ingested.
+        Optimizes for the case where large amounts of data is ready to be 
+        ingested, In such a scenario, we can avoid assigning multiple objects
+        to the same site, and simply iterate through sites that would be
+        updated after items were ingested.
 
         Parameters
         ----------
@@ -100,6 +101,9 @@ class Surface(typing.Generic[_DSurfDataItem]):
         item_getter : int -> object
             For a given ingest time within the n_ingests window, should
             return the associated data item.
+        use_relative_time : bool, default False 
+            Use the relative time (i.e. timesteps since current self.T) 
+            instead of the absolute time as input to `item_getter`
         """
 
         assert n_ingests >= 0
@@ -114,10 +118,10 @@ class Surface(typing.Generic[_DSurfDataItem]):
             )
         ):
             if T_1 != T_2 and T_2 is not None:
-                self._storage[site] = item_getter(T_2)
+                self._storage[site] = item_getter(T_2 - self.T if use_relative_time else T_2)
         self.T += n_ingests
 
-    def ingest(self: "Surface", item: _DSurfDataItem) -> typing.Optional[int]:
+    def ingest_item(self: "Surface", item: _DSurfDataItem) -> typing.Optional[int]:
         """Ingest data item.
 
         Returns the storage site of the data item, or None if the data item is
