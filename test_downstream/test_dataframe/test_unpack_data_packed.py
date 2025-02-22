@@ -111,15 +111,13 @@ def test_unpack_data_packed_single_row():
 def test_unpack_data_packed_pup():
 
     surface1 = dsurf.Surface(dstream.steady_algo, 8)
-    for i in range(8):
-        surface1.ingest(i)
+    surface1.ingest_multiple(8, lambda x: x)
 
     buffer1 = "".join(map("{:02x}".format, surface1))
     data1 = "{:02x}".format(surface1.T) + buffer1
 
     surface2 = dsurf.Surface(dstream.steady_algo, 8)
-    for i in range(11):
-        surface2.ingest(i)
+    surface2.ingest_multiple(11, lambda x: x)
 
     buffer2 = "".join(map("{:02x}".format, surface2))
     data2 = "{:02x}".format(surface2.T) + buffer2
@@ -144,15 +142,13 @@ def test_unpack_data_packed_pup():
 def test_unpack_data_packed_pup_validated():
 
     surface1 = dsurf.Surface(dstream.steady_algo, 8)
-    for i in range(8):
-        surface1.ingest(i)
+    surface1.ingest_multiple(8, lambda x: x)
 
     buffer1 = "".join(map("{:02x}".format, surface1))
     data1 = "{:02x}".format(surface1.T) + buffer1
 
     surface2 = dsurf.Surface(dstream.steady_algo, 8)
-    for i in range(11):
-        surface2.ingest(i)
+    surface2.ingest_multiple(11, lambda x: x)
 
     buffer2 = "".join(map("{:02x}".format, surface2))
     data2 = "{:02x}".format(surface2.T) + buffer2
