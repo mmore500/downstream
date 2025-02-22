@@ -65,8 +65,8 @@ def test_Surface_ingest_none(algo: types.ModuleType, S: int):
 
 @pytest.mark.parametrize("algo", [steady_algo, stretched_algo, tilted_algo])
 @pytest.mark.parametrize("S", [8, 16, 32, np.empty(32, dtype=np.uint32)])
-def test_raises(algo: types.ModuleType, S: int):
-    s = Surface(algo, S)
+def test_ingest_cap(algo: types.ModuleType, S: int):
+    surf = Surface(algo, S)
     cap = algo.get_ingest_capacity(s.S)
     if cap is None:
         return

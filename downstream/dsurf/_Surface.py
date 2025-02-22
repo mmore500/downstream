@@ -126,7 +126,7 @@ class Surface(typing.Generic[_Item]):
         return site
 
     def lookup(self: "Surface") -> typing.Iterable[typing.Optional[int]]:
-        """Iterate over ingest times of (possibly null) data items."""
+        """Iterate over data item ingest times, including null values for uninitialized sites."""
         assert len(self._storage) == self.S
         return self.algo.lookup_ingest_times(self.S, self.T)
 
