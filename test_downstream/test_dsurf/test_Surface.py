@@ -44,9 +44,9 @@ def test_Surface_ingest_many(
         )
     )
     for T in range(num_iterations):
-        for _ in range(step_size):
-            single_surface.ingest(T)
-        multi_surface.ingest_multiple(step_size, lambda _: T)
+        for i in range(step_size):
+            single_surface.ingest(T * step_size + i)
+        multi_surface.ingest_multiple(step_size, lambda x: x)
         assert multi_surface.T == single_surface.T
         assert [*single_surface] == [*multi_surface]
         assert [*single_surface.enumerate()] == [*multi_surface.enumerate()]
@@ -67,11 +67,11 @@ def test_Surface_ingest_none(algo: types.ModuleType, S: int):
 @pytest.mark.parametrize("S", [8, 16, 32, np.empty(32, dtype=np.uint32)])
 def test_ingest_cap(algo: types.ModuleType, S: int):
     surf = Surface(algo, S)
-    cap = algo.get_ingest_capacity(s.S)
+    cap = algo.get_ingest_capacity(surf.S)
     if cap is None:
         return
     with pytest.raises(AssertionError):
         Surface(algo, S).ingest_multiple(cap + 1, lambda _: 1)
-    s.ingest_multiple(cap, lambda _: 1)
+    surf.ingest_multiple(cap, lambda _: 1)
     with pytest.raises(AssertionError):
-        s.ingest(1)
+        surf.ingest(1)
