@@ -62,7 +62,9 @@ class Surface(typing.Generic[_DSurfDataItem]):
 
     def __deepcopy__(self: "Surface", memo: dict) -> "Surface":
         """Ensure pickle compatibility when algo is a module. """
-        return Surface(self.algo, deepcopy(self._storage, memo))
+        new_surf = Surface(self.algo, deepcopy(self._storage, memo))
+        new_surf.T = self.T
+        return new_surf
 
     @property
     def S(self: "Surface") -> int:

@@ -22,7 +22,9 @@ def test_Surface(algo: types.ModuleType, S: int) -> None:
         if site is not None:
             assert surface[site] == T
         assert [*surface] == [*surface.lookup()]
-        assert [*zip(surface.lookup(), surface)] == [*surface.lookup_zip_items()]
+        assert [*zip(surface.lookup(), surface)] == [
+            *surface.lookup_zip_items()
+        ]
 
 
 @pytest.mark.parametrize("algo", [steady_algo, stretched_algo, tilted_algo])
@@ -58,7 +60,7 @@ def test_Surface_ingest_none(algo: types.ModuleType, S: int):
         surf.ingest_one(T)
         new_surf = deepcopy(surf)
         new_surf.ingest_many(0, lambda _: None)
-        assert [*new_surf] == [*surf]
+        assert new_surf == surf
 
 
 @pytest.mark.parametrize("algo", [steady_algo, stretched_algo, tilted_algo])
