@@ -2,23 +2,23 @@ from copy import deepcopy
 import types
 import typing
 
-_Item = typing.TypeVar("_Item")
+_DSurfDataItem = typing.TypeVar("_DSurfDataItem")
 
 
-class Surface(typing.Generic[_Item]):
+class Surface(typing.Generic[_DSurfDataItem]):
     "Container orchestrating downstream curation over a fixed-size buffer."
 
     __slots__ = ("_storage", "algo", "T")
 
     algo: types.ModuleType
-    _storage: typing.MutableSequence[typing.Optional[_Item]]  # storage sites
+    _storage: typing.MutableSequence[typing.Optional[_DSurfDataItem]]  # storage sites
     T: int  # current logical time
 
     def __init__(
         self: "Surface",
         algo: types.ModuleType,
         storage: typing.Union[
-            typing.MutableSequence[typing.Optional[_Item]], int
+            typing.MutableSequence[typing.Optional[_DSurfDataItem]], int
         ],
     ) -> None:
         """Initialize a downstream Surface object, which stores hereditary
@@ -43,10 +43,10 @@ class Surface(typing.Generic[_Item]):
             self._storage = storage
         self.algo = algo
 
-    def __iter__(self: "Surface") -> typing.Iterator[typing.Optional[_Item]]:
+    def __iter__(self: "Surface") -> typing.Iterator[typing.Optional[_DSurfDataItem]]:
         return iter(self._storage)
 
-    def __getitem__(self: "Surface", site: int) -> typing.Optional[_Item]:
+    def __getitem__(self: "Surface", site: int) -> typing.Optional[_DSurfDataItem]:
         return self._storage[site]
 
     def __deepcopy__(self: "Surface", memo: dict) -> "Surface":
@@ -60,25 +60,31 @@ class Surface(typing.Generic[_Item]):
     def enumerate(
         self: "Surface",
     ) -> typing.Iterable[
-        typing.Tuple[typing.Optional[int], typing.Optional[_Item]]
+        typing.Tuple[typing.Optional[int], typing.Optional[_DSurfDataItem]]
     ]:
-        """Iterate over ingest times and values of (possibly null) data items."""
+        """
+        Iterate over ingest times and values of data items in the order they 
+        appear on the downstream storage, including sites not yet written to.
+        """
         return zip(self.lookup(), self._storage)
 
     def enumerate_retained(
         self: "Surface",
-    ) -> typing.Iterable[typing.Tuple[int, _Item]]:
-        """Iterate over ingest times and values of retained data items."""
-        return (
-            (t, v)
-            for t, v in self.enumerate()
-            if t is not None and v is not None
+    ) -> typing.Iterable[typing.Tuple[int, _DSurfDataItem]]:
+        """
+        Iterate over ingest times and value of data items in sites that 
+        have been written to.
+        """
+        return (  # type: ignore
+            (T, v)
+            for T, v in self.enumerate()
+            if T is not None
         )
 
     def ingest_multiple(
         self: "Surface",
         n_ingests: int,
-        item_getter: typing.Callable[[int], _Item],
+        item_getter: typing.Callable[[int], _DSurfDataItem],
     ) -> None:
         """Ingest multiple data items.
 
@@ -101,17 +107,17 @@ class Surface(typing.Generic[_Item]):
             return
 
         assert self.algo.has_ingest_capacity(self.S, self.T + n_ingests - 1)
-        for site, (t1, t2) in enumerate(
+        for site, (T_1, T_2) in enumerate(
             zip(
                 self.lookup(),
                 self.algo.lookup_ingest_times(self.S, self.T + n_ingests),
             )
         ):
-            if t1 != t2 and t2 is not None:
-                self._storage[site] = item_getter(t2)
+            if T_1 != T_2 and T_2 is not None:
+                self._storage[site] = item_getter(T_2)
         self.T += n_ingests
 
-    def ingest(self: "Surface", item: _Item) -> typing.Optional[int]:
+    def ingest(self: "Surface", item: _DSurfDataItem) -> typing.Optional[int]:
         """Ingest data item.
 
         Returns the storage site of the data item, or None if the data item is
@@ -132,4 +138,4 @@ class Surface(typing.Generic[_Item]):
 
     def lookup_retained(self: "Surface") -> typing.Iterable[int]:
         """Iterate over ingest times of (possibly null) data items."""
-        return (t for t in self.lookup() if t is not None)
+        return (T for T in self.lookup() if T is not None)
