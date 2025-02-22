@@ -9,12 +9,6 @@ from downstream.dstream import steady_algo, stretched_algo, tilted_algo
 from downstream.dsurf import Surface
 
 
-def assert_surfaces_equal(s1: Surface, s2: Surface):
-    assert s1.T == s2.T
-    assert [*s1] == [*s2]
-    assert [*s1.lookup_zip_items()] == [*s2.lookup_zip_items()]
-
-
 @pytest.mark.parametrize("algo", [steady_algo, stretched_algo, tilted_algo])
 @pytest.mark.parametrize("S", [8, 16, 32])
 def test_Surface(algo: types.ModuleType, S: int) -> None:
@@ -53,7 +47,7 @@ def test_Surface_ingest_many(
         for i in range(step_size):
             single_surface.ingest_one(T * step_size + i)
         multi_surface.ingest_many(step_size, lambda x: x)
-        assert_surfaces_equal(single_surface, multi_surface)
+        assert single_surface == multi_surface
 
 
 @pytest.mark.parametrize("algo", [steady_algo, stretched_algo, tilted_algo])
@@ -94,4 +88,4 @@ def test_ingest_items_relative_times(
         surf_relative.ingest_many(
             step_size, lambda x: T * step_size + x, use_relative_time=True
         )
-        assert_surfaces_equal(surf_absolute, surf_relative)
+        assert surf_absolute == surf_relative
