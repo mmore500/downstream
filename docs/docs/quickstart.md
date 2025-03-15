@@ -15,6 +15,10 @@ DStream generalizes this concept with by maintaining representative, approximate
 
 To install from PyPi with pip, run
 
+`python3 -m pip install downstream`
+
+Or optionally, to install with JIT
+
 `python3 -m pip install "downstream[jit]"`
 
 A containerized release of `downstream` is available via <https://ghcr.io>
@@ -23,6 +27,7 @@ A containerized release of `downstream` is available via <https://ghcr.io>
 singularity exec docker://ghcr.io/mmore500/downstream python3 -m downstream --help
 ```
 
+`downstream` is also available in [C++](cpp.md), [Rust](rust.md), [Zig](zig.md), and [CSL](csl.md). Installation instructions are avaiable on each of their respective pages.
 
 ## Working with the Data Structure
 
