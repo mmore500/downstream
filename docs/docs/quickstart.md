@@ -13,6 +13,16 @@ DStream generalizes this concept with by maintaining representative, approximate
 
 ## Installing
 
+To install from PyPi with pip, run
+
+`python3 -m pip install "downstream[jit]"`
+
+A containerized release of `downstream` is available via <https://ghcr.io>
+
+```bash
+singularity exec docker://ghcr.io/mmore500/downstream python3 -m downstream --help
+```
+
 
 ## Working with the Data Structure
 
