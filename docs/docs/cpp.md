@@ -16,20 +16,20 @@ Each algorithm variant is accessible through its own namespace:
 
 See [selecting a dstream algorithm](algorithm.md) for more information.
 
-```
+```cpp
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
 bool has_ingest_capacity(const UINT S, const UINT T);
 ```
 Determines if there is capacity to ingest a data item at logical time T.
 
-```
+```cpp
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
 std::optional<UINT> assign_storage_site(const UINT S, const UINT T);
 ```
 Site selection algorithm for steady curation. Returns selected site or nullopt if data should be discarded.
 
 ### Internal Implementation
-```
+```cpp
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
 UINT _assign_storage_site(const UINT S, const UINT T);
 ```
