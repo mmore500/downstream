@@ -9,9 +9,11 @@ C++ downstream is packaged as a header-only library. It can be added to a system
 ## API Reference
 
 Each algorithm variant is accessible through its own namespace:
-- Steady: `downstream::dstream_steady`
-- Stretched: `downstream::dstream_stretched`
-- Tilted: `downstream::dstream_tilted`
+
+* Steady: `downstream::dstream_steady`
+* Stretched: `downstream::dstream_stretched`
+* Tilted: `downstream::dstream_tilted`
+
 See [selecting a dstream algorithm](algorithm.md) for more information.
 
 ```
