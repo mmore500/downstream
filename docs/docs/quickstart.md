@@ -1,5 +1,7 @@
 # Quickstart
 
+[Selecting a DStream Algorithm](algorithm.md)
+
 ## Ring Buffer Generalization Intuition
 
 ![Traditional ring buffer](buffer-2.png)
@@ -31,6 +33,9 @@ singularity exec docker://ghcr.io/mmore500/downstream python3 -m downstream --he
 
 ## Working with the Data Structure
 
+```
+
+```
 
 ## Lookup
 
