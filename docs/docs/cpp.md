@@ -1,8 +1,12 @@
-# Installation
+# C++
 
-# API Reference
+See the [Python quickstart](quickstart.md) for outline and intuition.
 
+## Installation
 
+C++ downstream is packaged as a header-only library. It can be added to a system-wide include path, or incorporated as a git submodule in another project.
+
+## API Reference
 
 ```
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
