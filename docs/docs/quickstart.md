@@ -6,7 +6,7 @@
 
 ![Traditional ring buffer](buffer-2.png)
 
-A traditional circular ring buffer maintains the n most recent data points through oldest-value overwriting.
+Data streams consist of a strictly-ordered sequence of read-once inputs that often exceed available memory capacity. Traditional approaches like circular ring buffers address this limitation by maintaining only the most recent data points and discarding older information. In contrast, Downstream maintains representative, approximate records of stream history by introducing three novel algorithms: 1) "steady" creates evenly spaced snapshots across the entire history, 2) "stretched" preserves important older data points, and 3) "tilted" prioritizes recent information.
 
 ![DStream](buffer-1.png)
 
