@@ -16,6 +16,7 @@ nav:
   - Contributing: contributing.md
   - Credits: credits.md
   - Glossary: glossary.md
+  # (ingest, lookup, algorithms, s, t, site, )
 
 plugins:
   - search
