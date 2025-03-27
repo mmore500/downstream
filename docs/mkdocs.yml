@@ -20,6 +20,7 @@ nav:
 
 plugins:
   - search
+  - include-markdown
   - mkdocstrings:
       handlers:
         python:
