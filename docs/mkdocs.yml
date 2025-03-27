@@ -15,6 +15,7 @@ nav:
   - Citing: citing.md
   - Contributing: contributing.md
   - Credits: credits.md
+  - Glossary: glossary.md
 
 plugins:
   - search
