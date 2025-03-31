@@ -28,7 +28,7 @@ bibliography: paper.bib
 
 # Projects Using the Software
 
-
+[@moreno2022hstrat]
 
 # Related Software
 
