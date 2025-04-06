@@ -2,7 +2,6 @@ site_name: downstream
 theme:
   name: material
 nav:
-  # - Home: index.md
   - Python Quickstart: quickstart.md
   - Selecting a DStream Algorithm: algorithm.md
   - Python API Reference: python.md
@@ -16,7 +15,6 @@ nav:
   - Contributing: contributing.md
   - Credits: credits.md
   - Glossary: glossary.md
-  # (ingest, lookup, algorithms, s, t, site, )
 
 plugins:
   - search
