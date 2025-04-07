@@ -33,8 +33,29 @@ singularity exec docker://ghcr.io/mmore500/downstream python3 -m downstream --he
 
 ## Working with the Data Structure
 
-```
+- Buffer size must be a power of 2 (e.g., 8, 16, 32)
+- Site assignment maps data item index T to a storage location using either:
 
+    - `assign_storage_site`: For processing single data points
+    - `assign_storage_site_batched`: For efficient processing of multiple data points
+
+- For hstrat users: You can store a random differentia or make a random choice whether to toggle one-bit differentia with each data point
+
+### Example: Using the Steady Algorithm
+```python
+from downstream import dstream
+
+# Initialize a buffer with size 8 (must be a power of 2)
+buffer_size = 8
+
+# Process a stream of data items
+for data_index in range(20):
+    # Determine site based on buffer size and index T
+    site = dstream.steady_algo.assign_storage_site(buffer_size, data_index)
+
+    if site is not None:
+        # Store data at the selected site
+        print(f"Data point {data_index} stored at position {site}")
 ```
 
 ## Lookup
