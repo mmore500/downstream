@@ -20,7 +20,7 @@ If you create an implementation in another language, we're happy to either link 
 
 If you'd like to request that we implement a specific language, please open an issue.
 
-All contributions must follow our code of conduct. This Code of Conduct is adapted from the Contributor Covenant, version 2.0, available at https://www.contributor-covenant.org/version/2/0/code_of_conduct.html.
+All contributions must follow our code of conduct. This Code of Conduct is adapted from the Contributor Covenant, version 2.0, available at [https://www.contributor-covenant.org/version/2/0/code_of_conduct.html](https://www.contributor-covenant.org/version/2/0/code_of_conduct.html).
 
 ### Report Bugs
 
