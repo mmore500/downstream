@@ -27,3 +27,12 @@ plugins:
             docstring_style: numpy
             show_root_heading: true
             heading_level: 1
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
