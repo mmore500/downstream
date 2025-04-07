@@ -1,6 +1,6 @@
 # Quickstart
 
-[Selecting a downstream Algorithm](algorithm.md).
+For choosing between downstream algorithms, see [Selecting a downstream Algorithm](algorithm.md).
 
 ## Ring Buffer Generalization Intuition
 
