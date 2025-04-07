@@ -3,14 +3,14 @@ theme:
   name: material
 nav:
   - Python Quickstart: quickstart.md
-  - Selecting a DStream Algorithm: algorithm.md
+  - Selecting a downtream Algorithm: algorithm.md
   - Python API Reference: python.md
   - C++ API Reference: cpp.md
   - Rust API Reference: rust.md
   - CSL API Reference: csl.md
   - Zig API Reference: zig.md
   - Publications and Presentations: publications.md
-  - Projects Using Downstream: projects.md
+  - Projects Using downstream: projects.md
   - Citing: citing.md
   - Contributing: contributing.md
   - Credits: credits.md
