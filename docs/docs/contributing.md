@@ -7,11 +7,13 @@ You can contribute in many ways:
 ### Language Implementations
 
 Each language implementation exists on its own corresponding branch (e.g., Python on the `python` branch, C++ on the `cpp` branch) with the following structure:
+
 - Core algorithm variants under `dstream/` directory including:
-   - `steady_algo`
-   - `stretched_algo`
-   - `tilted_algo`
-   - Optional hybrid variants (e.g., `hybrid_0_steady_1_stretched_2_algo`)
+      - `steady_algo`
+      - `stretched_algo`
+      - `tilted_algo`
+      - Optional hybrid variants (e.g., `hybrid_0_steady_1_stretched_2_algo`)
+
 - Auxiliary functions in `_auxlib` module
 
 If you create an implementation in another language, we're happy to either link to your repository or include it directly in ours on a dedicated branch. New implementations should follow the existing structure and include the CLI-based tester/debugger for compatibility with our testing framework (see the Python CI workflow for examples of how tests are run across implementations).
