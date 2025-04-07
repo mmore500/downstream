@@ -17,11 +17,15 @@ DStream generalizes this concept with by maintaining representative, approximate
 
 To install from PyPi with pip, run
 
-`python3 -m pip install downstream`
+```bash
+python3 -m pip install downstream
+```
 
 Or optionally, to install with JIT
 
-`python3 -m pip install "downstream[jit]"`
+```bash
+python3 -m pip install "downstream[jit]"
+```
 
 A containerized release of `downstream` is available via <https://ghcr.io>
 
