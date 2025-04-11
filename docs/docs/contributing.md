@@ -6,7 +6,8 @@ You can contribute in many ways:
 
 ### Language Implementations
 
-Each language implementation exists on its own corresponding branch (e.g., Python on the `python` branch, C++ on the `cpp` branch) with the following structure:
+Library code for each supported programming language is implemented on a dedicated branch (e.g., Python on the `python` branch, C++ on the `cpp` branch).
+Implementations generally follow the following structure:
 
 - Core algorithm variants under `dstream/` directory including:
       - `steady_algo`
