@@ -41,7 +41,7 @@ downstream is also available in [C++](cpp.md), [Rust](rust.md), [Zig](zig.md), a
     - `assign_storage_site`: For processing single data points
     - `assign_storage_site_batched`: For efficient processing of multiple data points
 
-- For hstrat users: You can store a random differentia or make a random choice whether to toggle one-bit differentia with each data point
+- For [hstrat](https://github.com/mmore500/hstrat) users: you can store a random differentia or make a random choice whether to toggle single-bit differentia with each generations elapsed
 
 ### Example: Using the Steady Algorithm
 ```python
