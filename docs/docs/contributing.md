@@ -18,7 +18,10 @@ Implementations generally follow the following structure:
 
 Internal support code is organized into an accompanying `_auxlib` module.
 
-If you create an implementation in another language, we're happy to either link to your repository or include it directly in ours on a dedicated branch. New implementations should follow the existing structure and include the CLI-based tester/debugger for compatibility with our testing framework (see the Python CI workflow for examples of how tests are run across implementations).
+Additional implementations and outside contributions are welcome!
+If you create an implementation in another language, we're happy to either link to your repository or host it directly in ours on a dedicated branch.
+New implementations should follow the existing conventions and structure, as far as possible.
+Also consider implementing the project's established CLI interface for testing/debugging, which will enable out-of-the-box compatibility with our testing framework --- see the cpp or zig CI workflow for examples of how tests are run across implementations.
 
 If you'd like to request that we implement a specific language, please open an issue.
 
