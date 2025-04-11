@@ -15,7 +15,8 @@ Implementations generally follow the following structure:
       - `tilted_algo`
       - Optional hybrid variants (e.g., `hybrid_0_steady_1_stretched_2_algo`)
 
-- Auxiliary functions in `_auxlib` module
+
+Internal support code is organized into an accompanying `_auxlib` module.
 
 If you create an implementation in another language, we're happy to either link to your repository or include it directly in ours on a dedicated branch. New implementations should follow the existing structure and include the CLI-based tester/debugger for compatibility with our testing framework (see the Python CI workflow for examples of how tests are run across implementations).
 
