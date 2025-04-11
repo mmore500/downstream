@@ -23,7 +23,7 @@ If you create an implementation in another language, we're happy to either link 
 New implementations should follow the existing conventions and structure, as far as possible.
 Also consider implementing the project's established CLI interface for testing/debugging, which will enable out-of-the-box compatibility with our testing framework --- see the cpp or zig CI workflow for examples of how tests are run across implementations.
 
-If you'd like to request that we implement a specific language, please open an issue.
+If you'd like to request support for an additional programming language, please open an issue!
 
 Contributions to the repository are governed by our Code of Conduct, based on the [Contributor Covenant, version 2.0](https://www.contributor-covenant.org/version/2/0/code_of_conduct.html).
 
