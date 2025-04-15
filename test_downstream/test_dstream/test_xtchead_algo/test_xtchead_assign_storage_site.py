@@ -31,22 +31,22 @@ def test_xtchead_site_selection8():
     # fmt: off
     actual = (site_selection(8, T) for T in it.count())
     expected = [
-        0, 1, 2, 4, 3, 5, 6, 7,  # T 0-7
-        4, None, None, None, None, None, None, None,  # T 8-15
-        5, None, None, None, None, None, None, None,  # T 16-23
-        None, None, None, None, None, None, None, None,  # T 24-31
-        6, None, None, None, None, None, None, None, # T 32-39
+        0, 1, 4, 2, 5, 6, 7, 3,  # T 0-7
+        None, None, None, None, None, None, None, 4,  # T 8-15
+        None, None, None, None, None, None, None, None,  # T 16-23
+        None, None, None, None, None, None, None, 5,  # T 24-31
+        None, None, None, None, None, None, None, None, # T 32-39
         None, None, None, None, None, None, None, None, # T 40-47
         None, None, None, None, None, None, None, None, # T 48-55
-        None, None, None, None, None, None, None, None, # T 56-63
-        7, None, None, None, None, None, None, None, # T 64-71
+        None, None, None, None, None, None, None, 6, # T 56-63
+        None, None, None, None, None, None, None, None, # T 64-71
         None, None, None, None, None, None, None, None, # T 72-79
         None, None, None, None, None, None, None, None, # T 80-87
         None, None, None, None, None, None, None, None, # T 88-95
         None, None, None, None, None, None, None, None, # T 96-103
         None, None, None, None, None, None, None, None, # T 104-111
         None, None, None, None, None, None, None, None, # T 112-119
-        None, None, None, None, None, None, None, None, # T 120-127
+        None, None, None, None, None, None, None, 7, # T 120-127
         None, None, None, None, None, None, None, None, # T 128-135
         None, None, None, None, None, None, None, None, # T 136-143
         None, None, None, None, None, None, None, None, # T 144-151
@@ -63,7 +63,7 @@ def test_xtchead_site_selection8():
         None, None, None, None, None, None, None, None, # T 232-239
         None, None, None, None, None, None, None, None, # T 240-247
         None, None, None, None, None, None, None, None, # T 248-255
-        2, None, None, None, None, None, None, None, # T 256-263
+        None, None, None, None, None, None, None, None, # T 256-263
         None, None, None, None, None, None, None, None, # T 264-271
         None, None, None, None, None, None, None, None, # T 272-279
         None, None, None, None, None, None, None, None, # T 280-287
@@ -94,7 +94,7 @@ def test_xtchead_site_selection8():
         None, None, None, None, None, None, None, None, # T 480-487
         None, None, None, None, None, None, None, None, # T 488-495
         None, None, None, None, None, None, None, None, # T 496-503
-        None, None, None, None, None, None, None, None, # T 504-511
+        None, None, None, None, None, None, None, 2, # T 504-511
         None, None, None, None, None, None, None, None, # T 512-519
 
     ]
@@ -105,10 +105,10 @@ def test_xtchead_site_selection16():
     # fmt: off
     actual = (site_selection(16, T) for T in it.count())
     expected = [
-        0, 1, 2, 5, 3, 6, 7, 8,  # T 0-7
-        4, 9, 10, 11, 12, 13, 14, 15,  # T 8-15
-        5, None, None, None, None, None, None, None,  # T 16-23
-        None, None, None, None, None, None, None, None,  # T 24-31
+        0, 1, 5, 2, 6, 7, 8, 3,  # T 0-7
+        9, 10, 11, 12, 13, 14, 15, 4,  # T 8-15
+        None, None, None, None, None, None, None, None,  # T 16-23
+        None, None, None, None, None, None, None, 5,  # T 24-31
     ]
     assert all(x == y for x, y in zip(actual, expected))
 

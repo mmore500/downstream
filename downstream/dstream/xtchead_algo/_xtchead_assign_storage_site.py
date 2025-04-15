@@ -40,11 +40,11 @@ def xtchead_assign_storage_site(S: int, T: int) -> typing.Optional[int]:
     # special-case site 0 for T = 0, to fill entire buffer
     S, T = int(S), int(T)
 
-    if T.bit_count() <= 1:
+    if (T + 1).bit_count() <= 1:
         return compressing_assign_storage_site(S, T.bit_length())
     elif T < S:
         # inverse of https://oeis.org/A057716
-        return S.bit_length() + T - T.bit_length() - 1
+        return S.bit_length() + T - T.bit_length()
     else:
         return None
 
