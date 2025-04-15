@@ -59,17 +59,18 @@ class Surface(typing.Generic[_DSurfDataItem]):
             16,
         )
         batch_size = dstream_storage_bitwidth // 4 // dstream_S
-        ret = Surface(
+        return Surface(
             algo,
             [
                 int(dstream_storage_hex[i : i + batch_size], 16)
                 for i in range(0, len(dstream_storage_hex), batch_size)
             ],
+            dstream_T,
         )
-        ret.T = dstream_T
-        return ret
 
-    def to_hex(self, item_bitwidth) -> str: 
+    def to_hex(self, item_bitwidth) -> str:
+        if not all(isinstance(x, typing.SupportsInt) for x in self._storage):
+            raise ValueError("Cannot serialize non-integer elements")
         T_arr = np.asarray(self.T, dtype=np.uint32)
         T_bytes = T_arr.astype(">u4").tobytes()  # big-endian u32
         T_hex = T_bytes.hex()
@@ -79,7 +80,16 @@ class Surface(typing.Generic[_DSurfDataItem]):
             lambda x: x.astype(f">u{item_bytewidth}"),  # big-endian
             np.packbits,  # default big bitorder
         ][item_bitwidth == 1]
-        surface_bits = pack_op(np.array(self._storage, dtype=np.int256))
+        surface_bits = pack_op(
+            np.array(
+                self._storage,
+                dtype=(
+                    np.int64
+                    if any(x < 0 for x in self._storage)
+                    else np.uint64
+                ),
+            )
+        )
         surface_bytes = surface_bits.tobytes()
         surface_hex = surface_bytes.hex()
 
@@ -89,6 +99,7 @@ class Surface(typing.Generic[_DSurfDataItem]):
         self: "Surface",
         algo: types.ModuleType,
         storage: typing.Union[typing.MutableSequence[_DSurfDataItem], int],
+        T: int = 0,
     ) -> None:
         """Initialize a downstream Surface object, which stores hereditary
         stratigraphic annotations using a provided algorithm.
@@ -104,13 +115,18 @@ class Surface(typing.Generic[_DSurfDataItem]):
             `storage` is used directly. Random access and `__len__` must be
             supported. For example, for efficient storage, a user may pass
             in a NumPy array.
+        T: int, default 0
+            The initial logical time (i.e. how many items have been ingested)
         """
-        self.T = 0
+        self.T = T
         if isinstance(storage, int):
             self._storage = [None] * storage
         else:
             self._storage = storage
         self.algo = algo
+
+    def __repr__(self) -> str:
+        return f"Surface(algo={self.algo}, storage={self._storage})"
 
     def __eq__(self: "Surface", other: typing.Any) -> bool:
         if not isinstance(other, Surface):

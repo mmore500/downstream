@@ -91,3 +91,14 @@ def test_ingest_items_relative_times(
             step_size, lambda x: T * step_size + x, use_relative_time=True
         )
         assert surf_absolute == surf_relative
+
+
+@pytest.mark.parametrize("algo", [steady_algo, stretched_algo, tilted_algo])
+@pytest.mark.parametrize("S", [32, np.empty(32, dtype=np.uint32)])
+def test_serialization(algo: types.ModuleType, S: int):
+    surf = Surface(algo, S)
+    surf.ingest_many(surf.S * 3, lambda x: x)
+    assert (
+        Surface.from_hex(surf.to_hex(8), algo, 32, surf.S * 8, 0, 32, surf.S)
+        == surf
+    )
