@@ -1,1 +1,1 @@
-# Selecting a DStream Algorithm
+# Selecting a downstream Algorithm

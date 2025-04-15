@@ -1,0 +1,15 @@
+[package]
+name = "downstream"
+version = "1.10.0"
+edition = "2021"
+
+authors = ["Matthew Andres Moreno", "Connor Yang"]
+description = "downstream provides efficient, constant-space implementations of stream curation algorithms"
+license = "MIT"
+homepage = "https://mmore500.github.io/downstream/"
+repository = "https://github.com/mmore500/downstream"
+readme = "README.md"
+categories = ["data-structures", "algorithms", "memory-management", "science"]
+
+[dependencies]
+num-traits = "0.2"

@@ -1,7 +1,7 @@
 name: CI
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master", "docs-scaffold"]
   workflow_dispatch:
 jobs:
   docs:

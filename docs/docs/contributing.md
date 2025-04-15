@@ -6,7 +6,26 @@ You can contribute in many ways:
 
 ### Language Implementations
 
-Implementations in additional languages are welcome.
+Library code for each supported programming language is implemented on a dedicated branch (e.g., Python on the `python` branch, C++ on the `cpp` branch).
+Implementations generally follow the following structure:
+
+- Core algorithm variants under `dstream/` directory including:
+      - `steady_algo`
+      - `stretched_algo`
+      - `tilted_algo`
+      - as needed for particular use cases, secondary algorithms and hybrid variants (e.g., `hybrid_0_steady_1_stretched_2_algo`)
+
+
+Internal support code is organized into an accompanying `_auxlib` module.
+
+Additional implementations and outside contributions are welcome!
+If you create an implementation in another language, we're happy to either link to your repository or host it directly in ours on a dedicated branch.
+New implementations should follow the existing conventions and structure, as far as possible.
+Also consider implementing the project's established CLI interface for testing/debugging, which will enable out-of-the-box compatibility with our testing framework --- see the cpp or zig CI workflow for examples of how tests are run across implementations.
+
+If you'd like to request support for an additional programming language, please open an issue!
+
+Contributions to the repository are governed by our Code of Conduct, based on the [Contributor Covenant, version 2.0](https://www.contributor-covenant.org/version/2/0/code_of_conduct.html).
 
 ### Report Bugs
 
