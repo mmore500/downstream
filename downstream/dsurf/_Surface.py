@@ -61,7 +61,7 @@ class Surface(typing.Generic[_DSurfDataItem]):
         return self._storage[site]
 
     def __deepcopy__(self: "Surface", memo: dict) -> "Surface":
-        """Ensure pickle compatibility when algo is a module. """
+        """Ensure pickle compatibility when algo is a module."""
         new_surf = Surface(self.algo, deepcopy(self._storage, memo))
         new_surf.T = self.T
         return new_surf
@@ -73,21 +73,20 @@ class Surface(typing.Generic[_DSurfDataItem]):
     @typing.overload
     def lookup_zip_items(
         self: "Surface",
-    ) -> typing.Iterable[
-        typing.Tuple[typing.Optional[int], _DSurfDataItem]
-    ]: ...
+    ) -> typing.Iterable[typing.Tuple[typing.Optional[int], _DSurfDataItem]]:
+        ...
 
     @typing.overload
     def lookup_zip_items(
         self: "Surface", include_empty: typing.Literal[False]
-    ) -> typing.Iterable[typing.Tuple[int, _DSurfDataItem]]: ...
+    ) -> typing.Iterable[typing.Tuple[int, _DSurfDataItem]]:
+        ...
 
     @typing.overload
     def lookup_zip_items(
         self: "Surface", include_empty: bool
-    ) -> typing.Iterable[
-        typing.Tuple[typing.Optional[int], _DSurfDataItem]
-    ]: ...
+    ) -> typing.Iterable[typing.Tuple[typing.Optional[int], _DSurfDataItem]]:
+        ...
 
     def lookup_zip_items(
         self: "Surface", include_empty: bool = True
@@ -165,24 +164,28 @@ class Surface(typing.Generic[_DSurfDataItem]):
     @typing.overload
     def lookup(
         self: "Surface",
-    ) -> typing.Iterable[typing.Optional[int]]: ...
+    ) -> typing.Iterable[typing.Optional[int]]:
+        ...
 
     @typing.overload
     def lookup(
         self: "Surface", include_empty: typing.Literal[False]
-    ) -> typing.Iterable[int]: ...
+    ) -> typing.Iterable[int]:
+        ...
 
     @typing.overload
     def lookup(
         self: "Surface", include_empty: bool
-    ) -> typing.Iterable[typing.Optional[int]]: ...
+    ) -> typing.Iterable[typing.Optional[int]]:
+        ...
 
     def lookup(
         self: "Surface", include_empty: bool = True
     ) -> typing.Union[
         typing.Iterable[typing.Optional[int]], typing.Iterable[int]
     ]:
-        """Iterate over data item ingest times, including null values for uninitialized sites."""
+        """Iterate over data item ingest times, including null values for
+        uninitialized sites."""
         assert len(self._storage) == self.S
         return (
             T

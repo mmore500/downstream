@@ -62,16 +62,24 @@ badline="$( \
 if [ -n "${badline}" ]; then
     sleep 1
     echo "Tests failed on line ${badline}"
-    inline=$(python3 -m downstream.testing.generate_test_cases | head -n "${badline}" | tail -n 1)
-    S=$(echo "${inline}" | cut -d ' ' -f 1)
-    T=$(echo "${inline}" | cut -d ' ' -f 2)
+    inline="$(python3 -m downstream.testing.generate_test_cases \
+        | head -n "${badline}" \
+        | tail -n 1)"
+    S="$(echo "${inline}" | cut -d ' ' -f 1)"
+    T="$(echo "${inline}" | cut -d ' ' -f 2)"
     echo "S=${S}, T=${T}"
 
-    aline="$(python3 -m downstream.testing.generate_test_cases | $1 $3 | head -n "${badline}" | tail -n 1)"
+    aline="$(python3 -m downstream.testing.generate_test_cases \
+        | $1 $3 \
+        | head -n "${badline}" \
+        | tail -n 1)"
     echo "python3 -m downstream $3"
     echo ">>> ${aline}"
 
-    bline="$(python3 -m downstream.testing.generate_test_cases | $2 $3 | head -n "${badline}" | tail -n 1)"
+    bline="$(python3 -m downstream.testing.generate_test_cases \
+        | $2 $3 \
+        | head -n "${badline}" \
+        | tail -n 1)"
     echo "$2 $3"
     echo ">>> ${bline}"
 
