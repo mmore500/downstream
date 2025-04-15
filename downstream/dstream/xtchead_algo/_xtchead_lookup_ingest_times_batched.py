@@ -50,18 +50,18 @@ def xtchead_lookup_ingest_times_batched(
     if (T < S).any():
         raise ValueError("T < S not supported for batched lookup")
 
-    epoch = bitlen32_batched(T - 1).astype(T.dtype) + 1
+    epoch = bitlen32_batched(T).astype(T.dtype)
 
     S_ = np.asarray(S, dtype=T.dtype)
     res1 = compressing_lookup_ingest_times_batched(
         S, np.maximum(S_, epoch), parallel=parallel
     )
-    res1 = (np.sign(res1) << res1) >> 1
+    res1 = (1 << res1) - 1
 
     S_indices = np.arange(S)[None, :]  # shape becomes (1, S)
 
     x = np.maximum(S_indices - int(S).bit_length() + 1, 0)
-    res2 = x + bitlen32_batched(x + bitlen32_batched(x))
+    res2 = x + bitlen32_batched(x + bitlen32_batched(x)) - 1
 
     return np.where(
         S_indices < epoch[:, None],
