@@ -29,16 +29,16 @@ def xtchead_lookup_ingest_times_eager(S: int, T: int) -> typing.List[int]:
     if T < S:
         raise ValueError("T < S not supported for eager lookup")
 
-    epoch = (T - 1).bit_length() + 1
+    epoch = T.bit_length()
     res = [
-        (bool(x) << x) >> 1
+        (1 << x) - 1
         for x in compressing_lookup_ingest_times_eager(S, max(S, epoch))
     ]
 
     for k in range(epoch, S):
         # see https://oeis.org/A057716
         x = k - S.bit_length() + 1
-        res[k] = x + (x + x.bit_length()).bit_length()
+        res[k] = x + (x + x.bit_length()).bit_length() - 1
 
     return res
 
