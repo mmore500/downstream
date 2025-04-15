@@ -1,3 +1,5 @@
+import warnings
+
 import numpy as np
 
 from ..._auxlib._bitlen32_batched import bitlen32_batched
@@ -9,6 +11,7 @@ from ._compressing_assign_storage_site_batched import (
 def compressing_lookup_ingest_times_batched(
     S: int,
     T: np.ndarray,
+    parallel: bool = False,
 ) -> np.ndarray:
     """Ingest time lookup algorithm for compressing curation.
 
@@ -18,6 +21,8 @@ def compressing_lookup_ingest_times_batched(
         Buffer size. Must be a power of two.
     T : np.ndarray
         One-dimensional array of current logical times.
+    parallel : bool, default False
+        Should numba be applied to parallelize operations?
 
     Returns
     -------
@@ -35,6 +40,12 @@ def compressing_lookup_ingest_times_batched(
     """
     assert np.issubdtype(np.asarray(S).dtype, np.integer), S
     assert np.issubdtype(T.dtype, np.integer), T
+
+    if parallel:
+        warnings.warn(
+            "parallel compressing lookup not yet implemented, "
+            "falling back to serial implementation",
+        )
 
     if (T < S).any():
         raise ValueError("T < S not supported for batched lookup")
