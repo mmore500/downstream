@@ -36,7 +36,7 @@ def validate_compressing_time_lookup(fn: typing.Callable) -> typing.Callable:
 @pytest.mark.parametrize("s", range(1, 12))
 def test_compressing_time_lookup_batched_against_site_selection(s: int):
     S = 1 << s
-    T_max = min(1 << 20 - s, 2**S - 1)
+    T_max = 1 << 20 - s
     expected = [None] * S
 
     expecteds = []
