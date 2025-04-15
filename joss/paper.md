@@ -20,28 +20,51 @@ bibliography: paper.bib
 
 # Summary
 
-Downstream offers efficient algorithms for curation of continuous data streams across multiple programming languages including C++, Python, Rust, Zig, and the Cerebras Software Language. These data streams consist of a strictly-ordered sequence of read-once inputs that often exceed available memory capacity. While traditional approaches like circular ring buffers address this limitation by retaining only the most recent data points, Downstream maintains representative, approximate records of stream history through three novel algorithms: (1) "steady," which creates evenly spaced snapshots across the entire history; (2) "stretched," which preserves important older data points; and (3) "tilted," which prioritizes recent information. The library features extensive cross-implementation testing, automated documentation and deployment, and is available through standard package managers.
+Downstream offers efficient algorithms for curation of continuous data streams across multiple programming languages including C++, Python, Rust, Zig, and the Cerebras Software Language. These data streams often exceed available memory capacity and consist of a strictly-ordered sequence of read-once inputs. While traditional approaches like circular ring buffers address this limitation by retaining only the most recent data points, Downstream maintains representative, approximate records of stream history through three novel algorithms: (1) "steady," which creates evenly spaced snapshots across the entire history; (2) "stretched," which preserves important older data points; and (3) "tilted," which prioritizes recent information. The library features extensive cross-implementation testing, automated documentation and deployment, and is available through standard package managers.
 
 # Statement of Need
 
-Efficient operations over data streams are critical in harnessing the ever-increasing volume and velocity of data generation. Operations over data streams typically hinge on efficient mechanisms to aggregate or summarize history on a rolling basis. For high-volume data streams, it is critical to manage state in a manner that is fast and memory efficient — particularly in resource-constrained or real-time contexts. Work with data streams assumes input greatly exceeds memory capacity, with streams often treated as unbounded. Indeed, real-world computing often requires real-time operations on a continuous, indefinite basis. Notable application domains involving data streams include sensor networks, distributed big-data processing, real-time network traffic analysis, systems log management, fraud monitoring, trading in financial markets, environmental monitoring, and astronomy. Drawing only on primitive, low-level operations and ensuring full, overhead-free use of available memory, this “DStream” framework ideally suits domains that are resource-constrained (e.g., embedded systems), performance-critical (e.g., real-time), and fine-grained (e.g., individual data items as small as single bits or bytes).
+Efficient data stream processing is a foundational challenge in modern computing systems, where the ability to analyze continuous, high-velocity data has become critical across domains. Digital evolution systems, sensor networks, financial markets, and environmental monitoring applications all generate data at rates that exceed practical storage capacity while requiring longitudinal analysis across varying time horizons.
+
+Traditional approaches to data stream synopsis maintenance include sliding window models, reservoir sampling, sketching techniques, and dimensionality reduction methods. While these approaches provide valuable tools for specific use cases, they often fail critically when (1) analytical value extends beyond recent time points, (2) specific historical patterns require preservation, or (3) resource constraints demand maximum efficiency without metadata overhead.
+
+Downstream addresses these limitations by providing algorithms that intelligently compress stream history while preserving significant information across configurable temporal distributions. By operating exclusively with primitive operations and eliminating metadata overhead, the framework enables efficient operation in severely resource-constrained environments like IoT devices, where available memory may be measured in kilobytes rather than gigabytes. This capability is particularly valuable for applications such as hereditary stratigraphy in phylogenetic tracking [@moreno2022hstrat], where memory-efficient lineage record keeping must be maintained across distributed computing environments.
+
+# Implementation
+
+Downstream has been implemented across five programming languages in order to maximize compatibility with diverse computing environments. Each of the implementations are located in a separate branch of the Downstream GitHub repository and contain implementations for site selection using any of the three Downstream algorithms. In addition, some branches implement additional algorithms including hybrid variants, etc. In order the enhance usability and reliability, the framework incorporates several features:
+1. Each algorithm is run against cross-validation tests with other language versions to ensure consistent behavior.
+2. Documentation is available for all languages, with function headings listed for at least for one of the algorithms. All other algorithms should share the same heading.
+3. The library is available through standard package managers for each supported language, including pip for Python and Cargo for Rust. It is also available for C++ as a header-only library.
+4. Users can specify precise memory constraints, allowing the framework to adapt to varying resource environments without compromising functionality.
+
+# Results and Performance
+
+![\label{fig:benchmark}](assets/benchmark_combined.png)
+
+Preliminary testing has shown that for all Downstream algorithms, there appears to be no variation in execution time for site selection operations regardless of the buffer size or the number of data poitns. That is, due to Downstream’s zero overhead approach, it can maintain efficient stream curation regardless of the environment. Though statistical analysis has yet to be done to confirm this result, the output of the tests thus far can be seen in \autoref{fig:benchmark}.
 
 
 # Projects Using the Software
 
-[@moreno2022hstrat]
+The work by [@moreno2022hstrat] incorporates Downstream algorithms for maintaining historical records in distributed digital evolution simulations, tracking phylogenetic information across massively distributed, agent-based experiments conducted on the 850,000 core Cerebras Wafer-Scale Engine (Moreno et al. (2024)).
 
 # Related Software
 
-
+Several existing frameworks address aspects of data stream processing with approaches distinct from Downstream. Algorithm 938 [@10.1145/2559995] employs a circular buffer-related methodology for data sequence compression but implements different mechanisms for data point selection and historical representation.
 
 # Future Work
 
-My research has produced three novel data streaming algorithms that operate within fixed memory constraints while preserving representative information. The "steady" algorithm provides even coverage of elapsed history, the "stretched" algorithm prioritizes preservation of older data points, and the "tilted" algorithm emphasizes recent data while maintaining historical context. To validate these algorithms, I plan to conduct comprehensive benchmarks comparing memory efficiency, throughput, and information retention quality across all five language implementations (Python, C++, Rust, Zig, and CSL). These benchmarks will measure performance under various resource constraints, simulating real-world scenarios in embedded systems and high-throughput applications. I'll also quantify the information preservation capabilities of each algorithm compared to traditional circular buffers using statistical metrics. By semester's end, I aim to complete all language implementations, cross-implementation testing, benchmarking, documentation, and packaging for distribution through standard package managers. The final product will provide researchers with efficient tools for handling large data streams across various computational environments, particularly benefiting resource-constrained and performance-critical applications that require fine-grained data processing.
+To validate these algorithms, we plan to conduct further  benchmarks comparing memory efficiency, throughput, and information retention quality across all five language implementations (Python, C++, Rust, Zig, and CSL). These benchmarks will measure performance under various resource constraints, simulating real-world scenarios in embedded systems and high-throughput applications.
+
+To further improve accessibility, we plan to continue implementing Downstream in more languages, e.g. Julia. Each new implementation will follow the existing structure mentioned previously.
+
+For stretched and tilted algorithms, which currently support ingestions up to 2^S-2, future work will address behavior past this point, potentially by switching to steady curation on logical time hanoi value H(T) rather than on logical time T itself.
 
 
 # Acknowledgements
 
+This material is based upon work supported by the U.S. Department of Energy, Office of Science, Office of Advanced Scientific Computing Research (ASCR), under Award Number DE-SC0025634. This report was prepared as an account of work sponsored by an agency of the United States Government. Neither the United States Government nor any agency thereof, nor any of their employees, makes any warranty, express or implied, or assumes any legal liability or responsibility for the accuracy, completeness, or usefulness of any information, apparatus, product, or process disclosed, or represents that its use would not infringe privately owned rights. Reference herein to any specific commercial product, process, or service by trade name, trademark, manufacturer, or otherwise does not necessarily constitute or imply its endorsement, recommendation, or favoring by the United States Government or any agency thereof. The views and opinions of authors expressed herein do not necessarily state or reflect those of the United States Government or any agency thereof. This material is also based upon work supported by the Eric and Wendy Schmidt AI in Science Postdoctoral Fellowship, a Schmidt Sciences program. Computational resources were provided in part by the Michigan State University Institute for Cyber-Enabled Research (ICER).
 
 
 # References
