@@ -10,6 +10,7 @@ Data streams consist of a strictly-ordered sequence of read-once inputs that oft
 
 In contrast, downstream maintains representative, approximate records of stream history by introducing three novel algorithms: 1) "steady" creates evenly spaced snapshots across the entire history, 2) "stretched" preserves important older data points, and 3) "tilted" prioritizes recent information.
 ![downstream](buffer-1.png)
+We provide a more detailed description of available algorithms,and guidance on picking one for your use case in [Selecting a downstream Algorithm](algorithm.md).
 
 ## Installing
 
