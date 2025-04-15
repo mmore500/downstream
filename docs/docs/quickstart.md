@@ -4,7 +4,10 @@
 ## Ring Buffer Generalization Intuition
 
 
-Data streams consist of a strictly-ordered sequence of read-once inputs that often exceed available memory capacity. Traditional approaches like circular ring buffers address this limitation by maintaining only the most recent data points and discarding older information.
+Data streams consist of a strictly-ordered sequence of read-once inputs that often exceed available memory capacity.
+
+Traditional approaches like circular ring buffers address this limitation by maintaining only the most recent data points and discarding older information.
+
 ![Traditional ring buffer](buffer-2.png)
 
 
@@ -31,7 +34,9 @@ A containerized release of downstream is available via <https://ghcr.io>
 singularity exec docker://ghcr.io/mmore500/downstream python3 -m downstream --help
 ```
 
-downstream is also available in [C++](cpp.md), [Rust](rust.md), [Zig](zig.md), and [CSL](csl.md). Installation instructions are avaiable on each of their respective pages.
+downstream is also available in [C++](cpp.md), [Rust](rust.md), [Zig](zig.md), and [CSL](csl.md).
+
+Installation instructions are avaiable on each of their respective pages.
 
 ## Working with the Data Structure
 
