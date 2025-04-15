@@ -28,19 +28,19 @@ class Surface(typing.Generic[_DSurfDataItem]):
     ) -> "Surface":
         if dstream_storage_bitoffset % 4:
             raise NotImplementedError(
-                "`dstream_storage_bitoffset` must be divisible by 4"
+                "hex-unaligned `dstream_storage_bitoffset` not yet supported"
             )
         if dstream_storage_bitwidth % 4:
             raise NotImplementedError(
-                "`dstream_storage_bitwidth must be divisible by 4"
+                "hex-unaligned `dstream_storage_bitwidth` not yet supported"
             )
         if dstream_T_bitoffset % 4:
             raise NotImplementedError(
-                "`dstream_T_bitoffset must be divisible by 4"
+                "hex-unaligned `dstream_T_bitoffset` not yet supported"
             )
         if dstream_T_bitwidth % 4:
             raise NotImplementedError(
-                "`dstream_T_bitwidth must be divisible by 4"
+                "hex-unaligned `dstream_T_bitwidth` not yet supported"
             )
         if dstream_storage_bitwidth // 4 % dstream_S:
             raise ValueError(
