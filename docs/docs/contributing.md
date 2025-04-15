@@ -13,7 +13,7 @@ Implementations generally follow the following structure:
       - `steady_algo`
       - `stretched_algo`
       - `tilted_algo`
-      - Optional hybrid variants (e.g., `hybrid_0_steady_1_stretched_2_algo`)
+      - as needed for particular use cases, secondary algorithms and hybrid variants (e.g., `hybrid_0_steady_1_stretched_2_algo`)
 
 
 Internal support code is organized into an accompanying `_auxlib` module.
