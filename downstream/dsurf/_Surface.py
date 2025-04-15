@@ -56,19 +56,19 @@ class Surface(typing.Generic[_DSurfDataItem]):
                 dstream_T_bitoffset // 4 : dstream_T_bitoffset // 4
                 + dstream_T_bitwidth // 4
             ],
-            16,
+            base=16,
         )
-        batch_size = dstream_storage_bitwidth // 4 // dstream_S
+        batch_size = dstream_storage_bitwidth // (4 * dstream_S)
         return Surface(
             algo,
             [
-                int(dstream_storage_hex[i : i + batch_size], 16)
+                int(dstream_storage_hex[i : i + batch_size], base=16)
                 for i in range(0, len(dstream_storage_hex), batch_size)
             ],
             dstream_T,
         )
 
-    def to_hex(self, item_bitwidth) -> str:
+    def to_hex(self: "Surface", item_bitwidth: int) -> str:
         if not all(isinstance(x, typing.SupportsInt) for x in self._storage):
             raise ValueError("Cannot serialize non-integer elements")
         T_arr = np.asarray(self.T, dtype=np.uint32)
