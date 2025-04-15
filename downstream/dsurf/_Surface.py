@@ -1,6 +1,9 @@
 from copy import deepcopy
+import itertools
 import types
 import typing
+
+import numpy as np
 
 _DSurfDataItem = typing.TypeVar("_DSurfDataItem")
 
@@ -13,6 +16,75 @@ class Surface(typing.Generic[_DSurfDataItem]):
     algo: types.ModuleType
     _storage: typing.MutableSequence[_DSurfDataItem]
     T: int  # current logical time
+
+    @staticmethod
+    def from_hex(
+        hex_string: str,
+        algo: types.ModuleType,
+        dstream_storage_bitoffset: int,
+        dstream_storage_bitwidth: int,
+        dstream_T_bitoffset: int,
+        dstream_T_bitwidth: int,
+        dstream_S: int,
+    ) -> "Surface":
+        if dstream_storage_bitoffset % 4:
+            raise NotImplementedError(
+                "`dstream_storage_bitoffset` must be divisible by 4"
+            )
+        if dstream_storage_bitwidth % 4:
+            raise NotImplementedError(
+                "`dstream_storage_bitwidth must be divisible by 4"
+            )
+        if dstream_T_bitoffset % 4:
+            raise NotImplementedError(
+                "`dstream_T_bitoffset must be divisible by 4"
+            )
+        if dstream_T_bitwidth % 4:
+            raise NotImplementedError(
+                "`dstream_T_bitwidth must be divisible by 4"
+            )
+        if dstream_storage_bitwidth // 4 % dstream_S:
+            raise ValueError(
+                "Storage is not evenly divisible into `dstream_S` parts"
+            )
+
+        dstream_storage_hex = hex_string[
+            dstream_storage_bitoffset // 4 : dstream_storage_bitoffset // 4
+            + dstream_storage_bitwidth // 4
+        ]
+        dstream_T = int(
+            hex_string[
+                dstream_T_bitoffset // 4 : dstream_T_bitoffset // 4
+                + dstream_T_bitwidth // 4
+            ],
+            16,
+        )
+        batch_size = dstream_storage_bitwidth // 4 // dstream_S
+        ret = Surface(
+            algo,
+            [
+                int(dstream_storage_hex[i : i + batch_size], 16)
+                for i in range(0, len(dstream_storage_hex), batch_size)
+            ],
+        )
+        ret.T = dstream_T
+        return ret
+
+    def to_hex(self, item_bitwidth) -> str: 
+        T_arr = np.asarray(self.T, dtype=np.uint32)
+        T_bytes = T_arr.astype(">u4").tobytes()  # big-endian u32
+        T_hex = T_bytes.hex()
+
+        item_bytewidth = item_bitwidth // 8
+        pack_op = [
+            lambda x: x.astype(f">u{item_bytewidth}"),  # big-endian
+            np.packbits,  # default big bitorder
+        ][item_bitwidth == 1]
+        surface_bits = pack_op(np.array(self._storage, dtype=np.int256))
+        surface_bytes = surface_bits.tobytes()
+        surface_hex = surface_bytes.hex()
+
+        return T_hex + surface_hex
 
     def __init__(
         self: "Surface",
@@ -61,7 +133,7 @@ class Surface(typing.Generic[_DSurfDataItem]):
         return self._storage[site]
 
     def __deepcopy__(self: "Surface", memo: dict) -> "Surface":
-        """Ensure pickle compatibility when algo is a module. """
+        """Ensure pickle compatibility when algo is a module."""
         new_surf = Surface(self.algo, deepcopy(self._storage, memo))
         new_surf.T = self.T
         return new_surf
