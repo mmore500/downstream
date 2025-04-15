@@ -1,1 +1,1 @@
-{%include "https://raw.githubusercontent.com/mmore500/downstream/refs/heads/cpp/README.md" %}
+{%include "../../cpp/README.md" %}
