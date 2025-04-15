@@ -70,7 +70,7 @@ class Surface(typing.Generic[_DSurfDataItem]):
 
     def to_hex(self: "Surface", item_bitwidth: int) -> str:
         if not all(isinstance(x, typing.SupportsInt) for x in self._storage):
-            raise ValueError("Cannot serialize non-integer elements")
+            raise NotImplementedError("Non-integer hex serialization not yet implemented")
         T_arr = np.asarray(self.T, dtype=np.uint32)
         T_bytes = T_arr.astype(">u4").tobytes()  # big-endian u32
         T_hex = T_bytes.hex()
