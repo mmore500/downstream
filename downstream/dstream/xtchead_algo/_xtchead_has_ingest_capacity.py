@@ -1,7 +1,7 @@
-from ._xtc_get_ingest_capacity import xtc_get_ingest_capacity
+from ._xtchead_get_ingest_capacity import xtchead_get_ingest_capacity
 
 
-def xtc_has_ingest_capacity(S: int, T: int) -> bool:
+def xtchead_has_ingest_capacity(S: int, T: int) -> bool:
     """Does this algorithm have the capacity to ingest a data item at logical
     time T?
 
@@ -29,8 +29,8 @@ def xtc_has_ingest_capacity(S: int, T: int) -> bool:
     https://doi.org/10.1145/2559995
     """
     assert T >= 0
-    ingest_capacity = xtc_get_ingest_capacity(S)
+    ingest_capacity = xtchead_get_ingest_capacity(S)
     return ingest_capacity is None or T < ingest_capacity
 
 
-has_ingest_capacity = xtc_has_ingest_capacity  # lazy loader workaround
+has_ingest_capacity = xtchead_has_ingest_capacity  # lazy loader workaround

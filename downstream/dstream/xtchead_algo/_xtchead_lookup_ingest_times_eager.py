@@ -5,8 +5,8 @@ from ..compressing_algo._compressing_lookup_ingest_times_eager import (
 )
 
 
-def xtc_lookup_ingest_times_eager(S: int, T: int) -> typing.List[int]:
-    """Ingest time lookup algorithm for xtc curation.
+def xtchead_lookup_ingest_times_eager(S: int, T: int) -> typing.List[int]:
+    """Ingest time lookup algorithm for xtchead curation.
 
     Parameters
     ----------
@@ -44,4 +44,4 @@ def xtc_lookup_ingest_times_eager(S: int, T: int) -> typing.List[int]:
 
 
 # lazy loader workaround
-lookup_ingest_times_eager = xtc_lookup_ingest_times_eager
+lookup_ingest_times_eager = xtchead_lookup_ingest_times_eager

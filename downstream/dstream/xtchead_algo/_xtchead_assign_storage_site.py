@@ -3,11 +3,11 @@ import typing
 from ..compressing_algo._compressing_assign_storage_site import (
     compressing_assign_storage_site,
 )
-from ._xtc_has_ingest_capacity import xtc_has_ingest_capacity
+from ._xtchead_has_ingest_capacity import xtchead_has_ingest_capacity
 
 
-def xtc_assign_storage_site(S: int, T: int) -> typing.Optional[int]:
-    """Site selection algorithm for xtc curation.
+def xtchead_assign_storage_site(S: int, T: int) -> typing.Optional[int]:
+    """Site selection algorithm for xtchead curation.
 
     Parameters
     ----------
@@ -26,7 +26,7 @@ def xtc_assign_storage_site(S: int, T: int) -> typing.Optional[int]:
     ValueError
         If insufficient ingest capacity is available.
 
-        See `xtc_algo.has_ingest_capacity` for details.
+        See `xtchead_algo.has_ingest_capacity` for details.
 
     References
     ----------
@@ -34,7 +34,7 @@ def xtc_assign_storage_site(S: int, T: int) -> typing.Optional[int]:
     Trans. Math. Softw. 40, 2, Article 17 (February 2014), 12 pages.
     https://doi.org/10.1145/2559995
     """
-    if not xtc_has_ingest_capacity(S, T):
+    if not xtchead_has_ingest_capacity(S, T):
         raise ValueError(f"Insufficient ingest capacity for {S=}, {T=}")
 
     # special-case site 0 for T = 0, to fill entire buffer
@@ -49,4 +49,4 @@ def xtc_assign_storage_site(S: int, T: int) -> typing.Optional[int]:
         return None
 
 
-assign_storage_site = xtc_assign_storage_site  # lazy loader workaround
+assign_storage_site = xtchead_assign_storage_site  # lazy loader workaround

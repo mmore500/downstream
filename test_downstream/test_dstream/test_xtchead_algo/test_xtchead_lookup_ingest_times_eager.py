@@ -3,10 +3,10 @@ import typing
 
 import pytest
 
-from downstream.dstream import xtc_algo as algo
+from downstream.dstream import xtchead_algo as algo
 
 
-def validate_xtc_time_lookup(fn: typing.Callable) -> typing.Callable:
+def validate_xtchead_time_lookup(fn: typing.Callable) -> typing.Callable:
     """Decorator to validate pre- and post-conditions on time lookup."""
 
     @functools.wraps(fn)
@@ -21,13 +21,13 @@ def validate_xtc_time_lookup(fn: typing.Callable) -> typing.Callable:
     return wrapper
 
 
-time_lookup = validate_xtc_time_lookup(
+time_lookup = validate_xtchead_time_lookup(
     algo.lookup_ingest_times_eager,
 )
 
 
 @pytest.mark.parametrize("s", range(1, 12))
-def test_xtc_time_lookup_eager_against_site_selection(s: int):
+def test_xtchead_time_lookup_eager_against_site_selection(s: int):
     S = 1 << s
     T_max = min(1 << 17 - s, 2**S - 1)
     expected = [None] * S

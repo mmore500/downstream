@@ -5,10 +5,10 @@ import typing
 
 import pytest
 
-from downstream.dstream import xtc_algo as algo
+from downstream.dstream import xtchead_algo as algo
 
 
-def validate_xtc_site_selection(
+def validate_xtchead_site_selection(
     fn: typing.Callable,
 ) -> typing.Callable:
     """Decorator to validate pre- and post-conditions on site selection."""
@@ -24,10 +24,10 @@ def validate_xtc_site_selection(
     return wrapper
 
 
-site_selection = validate_xtc_site_selection(algo.assign_storage_site)
+site_selection = validate_xtchead_site_selection(algo.assign_storage_site)
 
 
-def test_xtc_site_selection8():
+def test_xtchead_site_selection8():
     # fmt: off
     actual = (site_selection(8, T) for T in it.count())
     expected = [
@@ -101,7 +101,7 @@ def test_xtc_site_selection8():
     assert all(x == y for x, y in zip(actual, expected))
 
 
-def test_xtc_site_selection16():
+def test_xtchead_site_selection16():
     # fmt: off
     actual = (site_selection(16, T) for T in it.count())
     expected = [
@@ -113,7 +113,7 @@ def test_xtc_site_selection16():
     assert all(x == y for x, y in zip(actual, expected))
 
 
-def test_xtc_site_selection_fuzz():
+def test_xtchead_site_selection_fuzz():
     testS = (1 << s for s in range(1, 33))
     testT = it.chain(range(10**5), (rand(2**128) for _ in range(10**5)))
     for S, T in it.product(testS, testT):
@@ -121,12 +121,12 @@ def test_xtc_site_selection_fuzz():
 
 
 @pytest.mark.parametrize("S", [1 << s for s in range(1, 21)])
-def test_xtc_site_selection_epoch0(S: int):
+def test_xtchead_site_selection_epoch0(S: int):
     actual = {site_selection(S, T) for T in range(S)}
     expected = set(range(S))
     assert actual == expected
 
 
-def test_xtc_site_selection_exceeds_capacity():
+def test_xtchead_site_selection_exceeds_capacity():
     with pytest.raises(ValueError):
         algo.assign_storage_site(7, 7)

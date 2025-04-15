@@ -6,10 +6,10 @@ from ..compressing_algo._compressing_lookup_ingest_times import (
 )
 
 
-def xtc_lookup_ingest_times(
+def xtchead_lookup_ingest_times(
     S: int, T: int
 ) -> typing.Iterable[typing.Optional[int]]:
-    """Ingest time lookup algorithm for xtc curation.
+    """Ingest time lookup algorithm for xtchead curation.
 
     Parameters
     ----------
@@ -25,16 +25,16 @@ def xtc_lookup_ingest_times(
     """
     assert T >= 0
     if T < S:  # Patch for before buffer is filled...
-        return (v if v < T else None for v in xtc_lookup_impl(S, S))
+        return (v if v < T else None for v in xtchead_lookup_impl(S, S))
     else:  # ... assume buffer has been filled
-        return xtc_lookup_impl(S, T)
+        return xtchead_lookup_impl(S, T)
 
 
-def xtc_lookup_impl(S: int, T: int) -> typing.Iterable[int]:
-    """Implementation detail for `xtc_lookup_ingest_times`."""
+def xtchead_lookup_impl(S: int, T: int) -> typing.Iterable[int]:
+    """Implementation detail for `xtchead_lookup_ingest_times`."""
     S, T = int(S), int(T)  # play nice with numpy types
     assert S > 1 and S.bit_count() == 1
-    assert T >= S  # T < S handled by T = S via xtc_lookup_ingest_times
+    assert T >= S  # T < S handled by T = S via xtchead_lookup_ingest_times
 
     epoch = (T - 1).bit_length() + 1
     for x in it.islice(
@@ -49,4 +49,4 @@ def xtc_lookup_impl(S: int, T: int) -> typing.Iterable[int]:
         yield x + (x + x.bit_length()).bit_length()
 
 
-lookup_ingest_times = xtc_lookup_ingest_times  # lazy loader workaround
+lookup_ingest_times = xtchead_lookup_ingest_times  # lazy loader workaround
