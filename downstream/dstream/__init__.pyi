@@ -3,6 +3,7 @@ from . import (
     compressing_algo,
     steady_algo,
     stretched_algo,
+    stretchedxtc_algo,
     tilted_algo,
     xtcheadhead_algo,
 )
@@ -20,6 +21,7 @@ __all__ = [
     "hybrid_0_steady_1_tilted_2_algo",
     "steady_algo",
     "stretched_algo",
+    "stretchedxtc_algo",
     "tilted_algo",
     "xtcheadhead_algo",
 ]
