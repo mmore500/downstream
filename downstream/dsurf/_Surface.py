@@ -74,9 +74,6 @@ class Surface(typing.Generic[_DSurfDataItem]):
                 msg = f"Hex-unaligned `{arg}` not yet supported"
                 raise NotImplementedError(msg)
 
-        if storage_bitwidth * S % 4:
-            raise ValueError("Hex-unaligned storage not yet supported")
-
         storage_hexoffset = storage_bitoffset // 4
         storage_hexwidth = storage_bitwidth // 4
         storage_hex = hex_string[
