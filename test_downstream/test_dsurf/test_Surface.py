@@ -102,3 +102,28 @@ def test_serialization(algo: types.ModuleType, S: int):
         Surface.from_hex(surf.to_hex(8), algo, 32, surf.S * 8, 0, 32, surf.S)
         == surf
     )
+
+
+@pytest.mark.parametrize("item_bitwidth", [8, 16, 64])
+@pytest.mark.parametrize("dstream_T_bitwidth", [4, 8, 16, 64])
+def test_to_hex(item_bitwidth: int, dstream_T_bitwidth: int):
+
+    item_strings = [
+        "000000000000aafe",
+        "123456789abc0def",
+        "000000005619ab3d",
+        "000000000000008a",
+    ]
+    T_string = "000000000000feb1"
+    test_surface = Surface(
+        steady_algo, [0xAAFE, 0x123456789ABC0DEF, 0x5619AB3D, 0x8A], 0xFEB1
+    )
+
+    expected_item_strings = [x[-(item_bitwidth // 4) :] for x in item_strings]
+    expected_T_string = T_string[-(dstream_T_bitwidth // 4) :]
+    assert int(expected_T_string, base=16) == int(
+        hex(int(T_string, base=16) % 2**dstream_T_bitwidth), base=16
+    )
+    assert test_surface.to_hex(item_bitwidth, dstream_T_bitwidth) == (
+        expected_T_string + "".join(expected_item_strings)
+    )

@@ -28,19 +28,19 @@ class Surface(typing.Generic[_DSurfDataItem]):
     ) -> "Surface":
         if dstream_storage_bitoffset % 4:
             raise NotImplementedError(
-                "hex-unaligned `dstream_storage_bitoffset` not yet supported"
+                "Hex-unaligned `dstream_storage_bitoffset` not yet supported"
             )
         if dstream_storage_bitwidth % 4:
             raise NotImplementedError(
-                "hex-unaligned `dstream_storage_bitwidth` not yet supported"
+                "Hex-unaligned `dstream_storage_bitwidth` not yet supported"
             )
         if dstream_T_bitoffset % 4:
             raise NotImplementedError(
-                "hex-unaligned `dstream_T_bitoffset` not yet supported"
+                "Hex-unaligned `dstream_T_bitoffset` not yet supported"
             )
         if dstream_T_bitwidth % 4:
             raise NotImplementedError(
-                "hex-unaligned `dstream_T_bitwidth` not yet supported"
+                "Hex-unaligned `dstream_T_bitwidth` not yet supported"
             )
         if dstream_storage_bitwidth // 4 % dstream_S:
             raise ValueError(
@@ -68,16 +68,27 @@ class Surface(typing.Generic[_DSurfDataItem]):
             dstream_T,
         )
 
-    def to_hex(self: "Surface", item_bitwidth: int) -> str:
+    def to_hex(
+        self: "Surface", item_bitwidth: int, dstream_T_bitwidth: int = 32
+    ) -> str:
+        if dstream_T_bitwidth % 4:
+            raise NotImplementedError(
+                "Hex-unaligned `dstream_T_bitwidth` not yet supported"
+            )
+
         if not all(isinstance(x, typing.SupportsInt) for x in self._storage):
-            raise NotImplementedError("Non-integer hex serialization not yet implemented")
-        T_arr = np.asarray(self.T, dtype=np.uint32)
-        T_bytes = T_arr.astype(">u4").tobytes()  # big-endian u32
-        T_hex = T_bytes.hex()
+            raise NotImplementedError(
+                "Non-integer hex serialization not yet implemented"
+            )
+        T_arr = np.asarray(self.T, dtype=np.uint64)
+        T_bytes = T_arr.astype(">u8").tobytes()  # big-endian u32
+        T_hex = T_bytes.hex()[-dstream_T_bitwidth // 4:]
 
         item_bytewidth = item_bitwidth // 8
         pack_op = [
-            lambda x: x.astype(f">u{item_bytewidth}"),  # big-endian
+            lambda x: x.astype(
+                f">u{item_bytewidth}"
+            ),  # big-endian (let this throw if invalid)
             np.packbits,  # default big bitorder
         ][item_bitwidth == 1]
         surface_bits = pack_op(
@@ -85,7 +96,7 @@ class Surface(typing.Generic[_DSurfDataItem]):
                 self._storage,
                 dtype=(
                     np.int64
-                    if any(x < 0 for x in self._storage)
+                    if any(x < 0 for x in self._storage)  # type: ignore
                     else np.uint64
                 ),
             )
