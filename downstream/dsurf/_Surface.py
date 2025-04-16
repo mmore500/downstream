@@ -30,7 +30,7 @@ class Surface(typing.Generic[_DSurfDataItem]):
         T_bitwidth: int = 32,
     ) -> "Surface":
         """
-        Deserializes Surface object from a hex string representation.
+        Deserialize a Surface object from a hex string representation.
 
         Hex string representation needs exactly two contiguous parts:
         1. dstream_T (which is the number of ingesgted data items), and
@@ -92,7 +92,7 @@ class Surface(typing.Generic[_DSurfDataItem]):
         self: "Surface", *, item_bitwidth: int, T_bitwidth: int = 32
     ) -> str:
         """
-        Serializes a Surface object into a hex string representation.
+        Serialize a Surface object into a hex string representation.
 
         Serialized data comprises two components:
             1. dstream_T (the number of data items ingested) and
