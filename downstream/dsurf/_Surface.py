@@ -10,7 +10,7 @@ _DSurfDataItem = typing.TypeVar("_DSurfDataItem")
 
 
 class Surface(typing.Generic[_DSurfDataItem]):
-    "Container orchestrating downstream curation over a fixed-size buffer."
+    """Container orchestrating downstream curation over a fixed-size buffer."""
 
     __slots__ = ("_storage", "algo", "T")
 
