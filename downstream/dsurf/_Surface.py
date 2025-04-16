@@ -2,11 +2,15 @@ from copy import deepcopy
 import types
 import typing
 
+import numpy as np
+
+from .._auxlib._unpack_hex import unpack_hex
+
 _DSurfDataItem = typing.TypeVar("_DSurfDataItem")
 
 
 class Surface(typing.Generic[_DSurfDataItem]):
-    "Container orchestrating downstream curation over a fixed-size buffer."
+    """Container orchestrating downstream curation over a fixed-size buffer."""
 
     __slots__ = ("_storage", "algo", "T")
 
@@ -14,10 +18,152 @@ class Surface(typing.Generic[_DSurfDataItem]):
     _storage: typing.MutableSequence[_DSurfDataItem]
     T: int  # current logical time
 
+    @staticmethod
+    def from_hex(
+        hex_string: str,
+        algo: types.ModuleType,
+        *,
+        S: int,
+        storage_bitoffset: int = 32,
+        storage_bitwidth: int,
+        T_bitoffset: int = 0,
+        T_bitwidth: int = 32,
+    ) -> "Surface":
+        """
+        Deserializes Surface object from a hex string representation.
+
+        Hex string representation needs exactly two contiguous parts:
+        1. dstream_T (which is the number of ingesgted differentia), and
+        2. dstream_storage (which holds all the stored data items).
+
+        Data items are deserialized as unsigned integers.
+
+        Data in hex string representation should use big-endian byte order.
+
+        Parameters
+        ----------
+        hex_string: str
+            Hex string to be parsed, which can be uppercase or lowercase.
+        algo: module
+            Dstream algorithm to use to create the new Surface object.
+        storage_bitoffset: int
+            Number of bits before the storage.
+        storage_bitwidth: int
+            Number of bits used for storage.
+        T_bitoffset: int
+            Number of bits before dstream_T.
+        storage_bitwidth: int
+            Number of bits used to store dstream_T.
+        S: int
+            Number of buffer sites used to store data items.
+
+            Determines how many items are unpacked from storage.
+
+        See Also
+        --------
+        Surface.to_hex()
+            Serializes a surface into a hex string.
+        """
+        for arg in (
+            "storage_bitoffset",
+            "storage_bitwidth",
+            "T_bitoffset",
+            "T_bitwidth",
+        ):
+            if locals()[arg] % 4:
+                msg = f"Hex-unaligned `{arg}` not yet supported"
+                raise NotImplementedError(msg)
+
+        if storage_bitwidth * S % 4:
+            raise ValueError("Hex-unaligned storage not yet supported")
+
+        storage_hexoffset = storage_bitoffset // 4
+        storage_hexwidth = storage_bitwidth // 4
+        storage_hex = hex_string[
+            storage_hexoffset : storage_hexoffset + storage_hexwidth
+        ]
+        storage = unpack_hex(storage_hex, S)
+
+        T_hexoffset = T_bitoffset // 4
+        T_hexwidth = T_bitwidth // 4
+        T_hex = hex_string[T_hexoffset : T_hexoffset + T_hexwidth]
+        T = int(T_hex, base=16)
+
+        return Surface(algo, storage, T)
+
+    def to_hex(
+        self: "Surface", *, item_bitwidth: int, T_bitwidth: int = 32
+    ) -> str:
+        """
+        Serializes a Surface object into a hex string representation.
+
+        Serialized data comprises two components:
+            1. dstream_T (the number of data items ingested) and
+            2. dstream_storage (binarydata of data item values).
+
+        The hex layout used is:
+
+           0x########**************************************************
+             ^                                                     ^
+           dstream_T, length = `dstream_T_bitwidth` / 4            |
+                                                                   |
+              dstream_storage, length = `item_bitwidth` / 4 * dstream_S
+
+        This hex string can be turned back into a surface through calling
+        the `Surface.from_hex()` function with the following parameters in
+        terms of the arguments to this function:
+            - `T_bitoffset` = 0
+            - `T_bitwidth` = `dstream_T_bitwidth`
+            - `storage_bitoffset` = `dstream_T_bitwidth`
+            - `storage_bitwidth` = `self.S * item_bitwidth`
+
+        Parameters
+        ----------
+        item_bitwidth: int
+            The number of bits to store each item in the storage.
+        dstream_T_bitwidth: int, default 32
+            The number of bits to store dstream_T (`self.T`) with.
+
+        See Also
+        --------
+        Surface.from_hex()
+            Deserialize a downstream Surface from a hex string.
+        """
+        if T_bitwidth % 4:
+            raise NotImplementedError(
+                "Hex-unaligned `T_bitwidth` not yet supported"
+            )
+
+        if not all(isinstance(x, typing.SupportsInt) for x in self._storage):
+            raise NotImplementedError(
+                "Non-integer hex serialization not yet implemented"
+            )
+        T_arr = np.asarray(self.T, dtype=np.uint64)
+        T_bytes = T_arr.astype(">u8").tobytes()  # big-endian u32
+        T_hexwidth = T_bitwidth // 4
+        T_hex = T_bytes.hex()[-T_hexwidth:]
+
+        item_bytewidth = item_bitwidth // 8
+        pack_op = [
+            lambda x: x.astype(
+                f">u{item_bytewidth}"
+            ),  # big-endian (let this throw if invalid)
+            np.packbits,  # default big bitorder
+        ][item_bitwidth == 1]
+        pack_dtype = [np.uint64, np.int64][any(x < 0 for x in self._storage)]
+        surface_bits = pack_op(
+            np.array(self._storage, dtype=pack_dtype),
+        )
+        surface_bytes = surface_bits.tobytes()
+        surface_hex = surface_bytes.hex()
+
+        return T_hex + surface_hex
+
     def __init__(
         self: "Surface",
         algo: types.ModuleType,
         storage: typing.Union[typing.MutableSequence[_DSurfDataItem], int],
+        T: int = 0,
     ) -> None:
         """Initialize a downstream Surface object, which stores hereditary
         stratigraphic annotations using a provided algorithm.
@@ -33,13 +179,18 @@ class Surface(typing.Generic[_DSurfDataItem]):
             `storage` is used directly. Random access and `__len__` must be
             supported. For example, for efficient storage, a user may pass
             in a NumPy array.
+        T: int, default 0
+            The initial logical time (i.e. how many items have been ingested)
         """
-        self.T = 0
+        self.T = T
         if isinstance(storage, int):
             self._storage = [None] * storage
         else:
             self._storage = storage
         self.algo = algo
+
+    def __repr__(self) -> str:
+        return f"Surface(algo={self.algo}, storage={self._storage})"
 
     def __eq__(self: "Surface", other: typing.Any) -> bool:
         if not isinstance(other, Surface):
@@ -61,7 +212,7 @@ class Surface(typing.Generic[_DSurfDataItem]):
         return self._storage[site]
 
     def __deepcopy__(self: "Surface", memo: dict) -> "Surface":
-        """Ensure pickle compatibility when algo is a module. """
+        """Ensure pickle compatibility when algo is a module."""
         new_surf = Surface(self.algo, deepcopy(self._storage, memo))
         new_surf.T = self.T
         return new_surf
@@ -73,21 +224,20 @@ class Surface(typing.Generic[_DSurfDataItem]):
     @typing.overload
     def lookup_zip_items(
         self: "Surface",
-    ) -> typing.Iterable[
-        typing.Tuple[typing.Optional[int], _DSurfDataItem]
-    ]: ...
+    ) -> typing.Iterable[typing.Tuple[typing.Optional[int], _DSurfDataItem]]:
+        ...
 
     @typing.overload
     def lookup_zip_items(
         self: "Surface", include_empty: typing.Literal[False]
-    ) -> typing.Iterable[typing.Tuple[int, _DSurfDataItem]]: ...
+    ) -> typing.Iterable[typing.Tuple[int, _DSurfDataItem]]:
+        ...
 
     @typing.overload
     def lookup_zip_items(
         self: "Surface", include_empty: bool
-    ) -> typing.Iterable[
-        typing.Tuple[typing.Optional[int], _DSurfDataItem]
-    ]: ...
+    ) -> typing.Iterable[typing.Tuple[typing.Optional[int], _DSurfDataItem]]:
+        ...
 
     def lookup_zip_items(
         self: "Surface", include_empty: bool = True
@@ -165,17 +315,20 @@ class Surface(typing.Generic[_DSurfDataItem]):
     @typing.overload
     def lookup(
         self: "Surface",
-    ) -> typing.Iterable[typing.Optional[int]]: ...
+    ) -> typing.Iterable[typing.Optional[int]]:
+        ...
 
     @typing.overload
     def lookup(
         self: "Surface", include_empty: typing.Literal[False]
-    ) -> typing.Iterable[int]: ...
+    ) -> typing.Iterable[int]:
+        ...
 
     @typing.overload
     def lookup(
         self: "Surface", include_empty: bool
-    ) -> typing.Iterable[typing.Optional[int]]: ...
+    ) -> typing.Iterable[typing.Optional[int]]:
+        ...
 
     def lookup(
         self: "Surface", include_empty: bool = True

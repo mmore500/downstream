@@ -91,3 +91,44 @@ def test_ingest_items_relative_times(
             step_size, lambda x: T * step_size + x, use_relative_time=True
         )
         assert surf_absolute == surf_relative
+
+
+@pytest.mark.parametrize("algo", [steady_algo, stretched_algo, tilted_algo])
+@pytest.mark.parametrize("S", [32, np.empty(32, dtype=np.uint32)])
+def test_serialization(algo: types.ModuleType, S: int):
+    surf = Surface(algo, S)
+    surf.ingest_many(surf.S * 3, lambda x: x)
+    assert (
+        Surface.from_hex(
+            surf.to_hex(item_bitwidth=8),
+            algo,
+            S=surf.S,
+            storage_bitwidth=8 * surf.S,
+        )
+        == surf
+    )
+
+
+@pytest.mark.parametrize("item_bitwidth", [8, 16, 64])
+@pytest.mark.parametrize("dstream_T_bitwidth", [4, 8, 16, 64])
+def test_to_hex(item_bitwidth: int, dstream_T_bitwidth: int):
+
+    item_strings = [
+        "000000000000aafe",
+        "123456789abc0def",
+        "000000005619ab3d",
+        "000000000000008a",
+    ]
+    T_string = "000000000000feb1"
+    test_surface = Surface(
+        steady_algo, [0xAAFE, 0x123456789ABC0DEF, 0x5619AB3D, 0x8A], 0xFEB1
+    )
+
+    expected_item_strings = [x[-(item_bitwidth // 4) :] for x in item_strings]
+    expected_T_string = T_string[-(dstream_T_bitwidth // 4) :]
+    assert int(expected_T_string, base=16) == int(
+        hex(int(T_string, base=16) % 2**dstream_T_bitwidth), base=16
+    )
+    assert test_surface.to_hex(
+        item_bitwidth=item_bitwidth, T_bitwidth=dstream_T_bitwidth
+    ) == (expected_T_string + "".join(expected_item_strings))
