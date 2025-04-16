@@ -75,6 +75,7 @@ jobs:
           "test_downstream/test_dstream/test_stretchedxtc_algo",
           "test_downstream/test_dstream/test_tilted_algo",
           "test_downstream/test_dstream/test_xtchead_algo",
+          "test_downstream/test_dstream/test_xtctail_algo",
           "test_downstream/test_dsurf",
         ]
         python: ["3.10", "3.11", "3.12"]
