@@ -26,6 +26,35 @@ class Surface(typing.Generic[_DSurfDataItem]):
         dstream_T_bitwidth: int,
         dstream_S: int,
     ) -> "Surface":
+        """
+        Creates a Surface given a hex string as input. The string needs exactly 
+        two contiguous parts: a storage (which holds all the differentia) and a 
+        dstream_T (which is the number of deposited differentia). Everything is
+        assumed to be formatted in big-endian. 
+
+        Parameters
+        ----------
+        hex_string: str 
+            The hex string to be parsed, which can be uppercase or lowercase.
+        algo: module 
+            The dstream algorithm to use to create the new Surface object.
+        dstream_storage_bitoffset: int 
+            The number of bits before the storage.
+        dstream_storage_bitwidth: int 
+            The number of bits that the storage takes up.
+        dstream_T_bitoffset: int 
+            The number of bits before dstream_T.
+        dstream_storage_bitwidth: int 
+            The number of bits that dstream_T takes up.
+        dstream_S: int 
+            The size of the surface upon which data was stored. This is an 
+            important parameter because it determines the way storage is split.
+
+        See Also
+        --------
+        Surface.to_hex()
+            Turns a surface into a hex string. See description for parameters.
+        """
         if dstream_storage_bitoffset % 4:
             raise NotImplementedError(
                 "Hex-unaligned `dstream_storage_bitoffset` not yet supported"
@@ -71,6 +100,37 @@ class Surface(typing.Generic[_DSurfDataItem]):
     def to_hex(
         self: "Surface", item_bitwidth: int, dstream_T_bitwidth: int = 32
     ) -> str:
+        """
+        Turns a Surface into a hex string with a dstream_T (the number of 
+        generations elapsed) and a dstream_storage (the actual retained 
+        differentia, stored as a series of hex values). The hex format is:
+
+           0x########**************************************************
+             ^                                                     ^
+           dstream_T, length = `dstream_storage_bitwidth` / 4      |
+                                                                   |
+              dstream_storage, length = `item_bitwidth` / 4 * dstream_S
+        
+        This hex string can be turned back into a surface through calling 
+        the `Surface.from_hex()` function with the following parameters in 
+        terms of the arguments to this function:
+            - `dstream_T_bitoffset` = 0
+            - `dstream_T_bitwidth` = `dstream_T_bitwidth`
+            - `dstream_storage_bitoffset` = `dstream_T_bitwidth`
+            - `dstream_storage_bitwidth` = `self.S * item_bitwidth`
+    
+        Parameters 
+        ---------- 
+        item_bitwidth: int 
+            The number of bits to store each item in the storage.
+        dstream_T_bitwidth: 
+            The number of bits to store dstream_T (`self.T`) with.
+
+        See Also
+        --------
+        Surface.from_hex()
+            Create a downstream Surface from a hex string and parameters.
+        """
         if dstream_T_bitwidth % 4:
             raise NotImplementedError(
                 "Hex-unaligned `dstream_T_bitwidth` not yet supported"
