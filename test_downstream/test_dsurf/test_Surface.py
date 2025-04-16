@@ -99,7 +99,12 @@ def test_serialization(algo: types.ModuleType, S: int):
     surf = Surface(algo, S)
     surf.ingest_many(surf.S * 3, lambda x: x)
     assert (
-        Surface.from_hex(surf.to_hex(8), algo, 32, surf.S * 8, 0, 32, surf.S)
+        Surface.from_hex(
+            surf.to_hex(item_bitwidth=8),
+            algo,
+            S=surf.S,
+            storage_bitwidth=8 * surf.S,
+        )
         == surf
     )
 
@@ -124,6 +129,6 @@ def test_to_hex(item_bitwidth: int, dstream_T_bitwidth: int):
     assert int(expected_T_string, base=16) == int(
         hex(int(T_string, base=16) % 2**dstream_T_bitwidth), base=16
     )
-    assert test_surface.to_hex(item_bitwidth, dstream_T_bitwidth) == (
-        expected_T_string + "".join(expected_item_strings)
-    )
+    assert test_surface.to_hex(
+        item_bitwidth=item_bitwidth, T_bitwidth=dstream_T_bitwidth
+    ) == (expected_T_string + "".join(expected_item_strings))

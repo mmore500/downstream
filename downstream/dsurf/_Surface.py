@@ -4,6 +4,8 @@ import typing
 
 import numpy as np
 
+from .._auxlib._unpack_hex import unpack_hex
+
 _DSurfDataItem = typing.TypeVar("_DSurfDataItem")
 
 
@@ -20,120 +22,116 @@ class Surface(typing.Generic[_DSurfDataItem]):
     def from_hex(
         hex_string: str,
         algo: types.ModuleType,
-        dstream_storage_bitoffset: int,
-        dstream_storage_bitwidth: int,
-        dstream_T_bitoffset: int,
-        dstream_T_bitwidth: int,
-        dstream_S: int,
+        *,
+        S: int,
+        storage_bitoffset: int = 32,
+        storage_bitwidth: int,
+        T_bitoffset: int = 0,
+        T_bitwidth: int = 32,
     ) -> "Surface":
         """
-        Creates a Surface given a hex string as input. The string needs exactly
-        two contiguous parts: a storage (which holds all the differentia) and a
-        dstream_T (which is the number of deposited differentia). Everything is
-        assumed to be formatted in big-endian.
+        Deserializes Surface object from a hex string representation.
+
+        Hex string representation needs exactly two contiguous parts:
+        1. dstream_T (which is the number of ingesgted differentia), and
+        2. dstream_storage (which holds all the stored data items).
+
+        Data items are deserialized as unsigned integers.
+
+        Data in hex string representation should use big-endian byte order.
 
         Parameters
         ----------
         hex_string: str
-            The hex string to be parsed, which can be uppercase or lowercase.
+            Hex string to be parsed, which can be uppercase or lowercase.
         algo: module
-            The dstream algorithm to use to create the new Surface object.
-        dstream_storage_bitoffset: int
-            The number of bits before the storage.
-        dstream_storage_bitwidth: int
-            The number of bits that the storage takes up.
-        dstream_T_bitoffset: int
-            The number of bits before dstream_T.
-        dstream_storage_bitwidth: int
-            The number of bits that dstream_T takes up.
-        dstream_S: int
-            The size of the surface upon which data was stored. This is an
-            important parameter because it determines the way storage is split.
+            Dstream algorithm to use to create the new Surface object.
+        storage_bitoffset: int
+            Number of bits before the storage.
+        storage_bitwidth: int
+            Number of bits used for storage.
+        T_bitoffset: int
+            Number of bits before dstream_T.
+        storage_bitwidth: int
+            Number of bits used to store dstream_T.
+        S: int
+            Number of buffer sites used to store data items.
+
+            Determines how many items are unpacked from storage.
 
         See Also
         --------
         Surface.to_hex()
-            Turns a surface into a hex string. See description for parameters.
+            Serializes a surface into a hex string.
         """
-        if dstream_storage_bitoffset % 4:
-            raise NotImplementedError(
-                "Hex-unaligned `dstream_storage_bitoffset` not yet supported"
-            )
-        if dstream_storage_bitwidth % 4:
-            raise NotImplementedError(
-                "Hex-unaligned `dstream_storage_bitwidth` not yet supported"
-            )
-        if dstream_T_bitoffset % 4:
-            raise NotImplementedError(
-                "Hex-unaligned `dstream_T_bitoffset` not yet supported"
-            )
-        if dstream_T_bitwidth % 4:
-            raise NotImplementedError(
-                "Hex-unaligned `dstream_T_bitwidth` not yet supported"
-            )
-        if dstream_storage_bitwidth // 4 % dstream_S:
-            raise ValueError(
-                "Storage is not evenly divisible into `dstream_S` parts"
-            )
+        for arg in (
+            "storage_bitoffset",
+            "storage_bitwidth",
+            "T_bitoffset",
+            "T_bitwidth",
+        ):
+            if locals()[arg] % 4:
+                msg = f"Hex-unaligned `{arg}` not yet supported"
+                raise NotImplementedError(msg)
 
-        dstream_storage_hex = hex_string[
-            dstream_storage_bitoffset // 4 : dstream_storage_bitoffset // 4
-            + dstream_storage_bitwidth // 4
+        if storage_bitwidth * S % 4:
+            raise ValueError("Hex-unaligned storage not yet supported")
+
+        storage_hexoffset = storage_bitoffset // 4
+        storage_hexwidth = storage_bitwidth // 4
+        storage_hex = hex_string[
+            storage_hexoffset : storage_hexoffset + storage_hexwidth
         ]
-        dstream_T = int(
-            hex_string[
-                dstream_T_bitoffset // 4 : dstream_T_bitoffset // 4
-                + dstream_T_bitwidth // 4
-            ],
-            base=16,
-        )
-        batch_size = dstream_storage_bitwidth // (4 * dstream_S)
-        return Surface(
-            algo,
-            [
-                int(dstream_storage_hex[i : i + batch_size], base=16)
-                for i in range(0, len(dstream_storage_hex), batch_size)
-            ],
-            dstream_T,
-        )
+        storage = unpack_hex(storage_hex, S)
+
+        T_hexoffset = T_bitoffset // 4
+        T_hexwidth = T_bitwidth // 4
+        T_hex = hex_string[T_hexoffset : T_hexoffset + T_hexwidth]
+        T = int(T_hex, base=16)
+
+        return Surface(algo, storage, T)
 
     def to_hex(
-        self: "Surface", item_bitwidth: int, dstream_T_bitwidth: int = 32
+        self: "Surface", *, item_bitwidth: int, T_bitwidth: int = 32
     ) -> str:
         """
-        Turns a Surface into a hex string with a dstream_T (the number of
-        generations elapsed) and a dstream_storage (the actual retained
-        differentia, stored as a series of hex values). The hex format is:
+        Serializes a Surface object into a hex string representation.
+
+        Serialized data comprises two components:
+            1. dstream_T (the number of data items ingested) and
+            2. dstream_storage (binarydata of data item values).
+
+        The hex layout used is:
 
            0x########**************************************************
              ^                                                     ^
-           dstream_T, length = `dstream_storage_bitwidth` / 4      |
+           dstream_T, length = `dstream_T_bitwidth` / 4            |
                                                                    |
               dstream_storage, length = `item_bitwidth` / 4 * dstream_S
 
         This hex string can be turned back into a surface through calling
         the `Surface.from_hex()` function with the following parameters in
         terms of the arguments to this function:
-            - `dstream_T_bitoffset` = 0
-            - `dstream_T_bitwidth` = `dstream_T_bitwidth`
-            - `dstream_storage_bitoffset` = `dstream_T_bitwidth`
-            - `dstream_storage_bitwidth` = `self.S * item_bitwidth`
+            - `T_bitoffset` = 0
+            - `T_bitwidth` = `dstream_T_bitwidth`
+            - `storage_bitoffset` = `dstream_T_bitwidth`
+            - `storage_bitwidth` = `self.S * item_bitwidth`
 
         Parameters
         ----------
         item_bitwidth: int
             The number of bits to store each item in the storage.
-        dstream_T_bitwidth:
+        dstream_T_bitwidth: int, default 32
             The number of bits to store dstream_T (`self.T`) with.
 
         See Also
         --------
         Surface.from_hex()
-            Create a downstream Surface from a hex string and parameters.
+            Deserialize a downstream Surface from a hex string.
         """
-        if dstream_T_bitwidth % 4:
+        if T_bitwidth % 4:
             raise NotImplementedError(
-                "Hex-unaligned `dstream_T_bitwidth` not yet supported"
+                "Hex-unaligned `T_bitwidth` not yet supported"
             )
 
         if not all(isinstance(x, typing.SupportsInt) for x in self._storage):
@@ -142,7 +140,8 @@ class Surface(typing.Generic[_DSurfDataItem]):
             )
         T_arr = np.asarray(self.T, dtype=np.uint64)
         T_bytes = T_arr.astype(">u8").tobytes()  # big-endian u32
-        T_hex = T_bytes.hex()[-dstream_T_bitwidth // 4 :]
+        T_hexwidth = T_bitwidth // 4
+        T_hex = T_bytes.hex()[-T_hexwidth:]
 
         item_bytewidth = item_bitwidth // 8
         pack_op = [
@@ -151,15 +150,9 @@ class Surface(typing.Generic[_DSurfDataItem]):
             ),  # big-endian (let this throw if invalid)
             np.packbits,  # default big bitorder
         ][item_bitwidth == 1]
+        pack_dtype = [np.uint64, np.int64][any(x < 0 for x in self._storage)]
         surface_bits = pack_op(
-            np.array(
-                self._storage,
-                dtype=(
-                    np.int64
-                    if any(x < 0 for x in self._storage)  # type: ignore
-                    else np.uint64
-                ),
-            )
+            np.array(self._storage, dtype=pack_dtype),
         )
         surface_bytes = surface_bits.tobytes()
         surface_hex = surface_bytes.hex()
