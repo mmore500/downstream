@@ -20,18 +20,17 @@ bibliography: paper.bib
 
 # Summary
 
-Downstream offers efficient algorithms for the curation of continuous data streams, implemented across multiple programming languages including C++, Rust, Python, Zig, and the Cerebras Software Language. In real-world applications, data streams often exceed available memory capacity and require real-time operations on a continuous, indefinite basis [@Cordeiro2016]. Applications include sensor networks [@Eiman2003], distributed big-data processing, real-time network traffic analysis, systems log management, fraud monitoring, trading in financial markets, environmental monitoring, and astronomy. While traditional approaches like circular ring buffers address this limitation by retaining only the most recent data points, Downstream maintains representative, approximate records of stream history through three novel algorithms: (1) "steady," which creates evenly spaced snapshots across the entire history; (2) "stretched," which preserves important older data points; and (3) "tilted," which prioritizes recent information. The library features extensive cross-implementation testing, automated documentation and deployment, and is available through standard package managers.
+Downstream offers efficient algorithms for the curation of continuous data streams, implemented across multiple programming languages including C++, Rust, Python, Zig, and the Cerebras Software Language. In real-world applications, data streams often exceed available memory capacity and require real-time operations on a continuous, indefinite basis [@Cordeiro2016]. While traditional approaches like circular ring buffers address this limitation by retaining only the most recent data points, Downstream maintains representative, approximate records of stream history through three novel algorithms: (1) "steady," which creates evenly spaced snapshots across the entire history; (2) "stretched," which preserves important older data points; and (3) "tilted," which prioritizes recent information. The library features extensive cross-implementation testing, automated documentation and deployment, and is available through standard package managers.
 
 # Statement of Need
 
-Efficient data stream processing is a foundational challenge in modern computing systems, where the ability to analyze continuous, high-volume data has become more prevalent. Applications include digital evolution systems, sensor networks, financial markets, and environmental monitoring applications, which all generate data at rates that exceed practical storage capacity while requiring longitudinal analysis across varying time horizons.
+Efficient data stream processing is a foundational challenge in modern computing systems, where the ability to analyze continuous, high-volume data has become more prevalent [@Cordeiro2016]. Applications include sensor networks [@Eiman2003], distributed big-data processing, real-time network traffic analysis, systems log management, fraud monitoring, trading in financial markets, environmental monitoring, and astronomy, which all generate data at rates that exceed practical storage capacity while requiring analysis across varying time horizons.
 
-Downstream addresses limitations of traditional approaches by providing algorithms that compress stream history while preserving significant information across various temporal distributions. By operating exclusively with primitive operations and eliminating memory overhead, the framework enables efficient operations in severely resource-constrained environments like embedded systems, where available memory may be measured in kilobytes rather than gigabytes. For instance, the Cerebras WSE-2 demonstrates this constraint clearly—despite having 850,000 cores and 40 gigabytes of on-chip memory, clearly demonstrates this constraint—despite its impressive computational power, each individual core has access to only 46 kilobytes of memory [@Lie2023].
+Downstream addresses limitations of traditional approaches to data streaming by providing algorithms that compress stream history into fixed memory capacities while preserving significant information across various temporal distributions. By exclusively operating with primitive operations and eliminating memory overhead, the framework enables efficient operations in severely resource-constrained environments including embedded systems, where available memory is often measured in kilobytes. For instance, the Cerebras WSE-2 demonstrates this constraint clearly—despite having 40 gigabytes of total on-chip memory, each individual core has access to under 50 kilobytes of memory [@Lie2023].
 
-This capability is particularly valuable for applications such as hereditary stratigraphy in phylogenetic tracking, where memory-efficient lineage record keeping must be maintained across distributed computing environments.
+This capability is particularly valuable for applications such as hereditary stratigraphy in large-scale phylogenetic tracking, where memory-efficient evolutionary history tracking must be maintained across distributed computing environments.
 
-The framework's distinct approach of requiring only single-operation "site selection" with no metadata storage provides significant improvements in space efficiency compared to previous methods. This makes Downstream valuable for applications where individual data items may be as small as single bits or bytes—scenarios where conventional approaches would consume more memory for metadata than for the data itself.
-
+The framework's distinct approach of requiring only single-operation "site selection" with no metadata storage provides significant improvements in space efficiency compared to previous methods. This makes Downstream especially valuable for applications where individual data items may be as small as single bits or bytes—scenarios, where conventional approaches would consume more memory for metadata than for the data itself.
 
 
 # Methods
@@ -40,16 +39,15 @@ To simplify the process of stream curation, this approach makes some assumptions
 
 To support diverse use cases, the three Downstream algorithms address different temporal distributions.
 
-The steady algorithm creates evenly distributed snapshots across stream history by preserving data points with the most historical significance while maintaining relatively uniform spacing between retained items. This approach serves applications where data across all time periods carry equivalent analytical value, such as long-term monitoring systems that need to detect patterns across their entire operational history.
+The steady algorithm creates evenly distributed snapshots across stream history by preserving data points with the most historical significance while maintaining relatively uniform spacing between retained items. This approach is best suited for applications in which it is important to maintain data from all time periods, such as long-term monitoring systems that need to detect patterns across their entire operational history [@microsoft_monitoring] and trend analysis across extended timeframes [@techtarget_monitoring].
 
-The stretched algorithm prioritizes older data while maintaining recent context, focusing on preserving the origins of the stream. This approach particularly benefits applications where understanding initial conditions and evolutionary patterns provides critical context for current behaviors, such as system diagnostics or developmental analysis.
+The stretched algorithm prioritizes older data while maintaining recent context, focusing on preserving the origins of the stream. This approach particularly benefits applications where understanding initial conditions is critical for providing context for current behaviors, such as system diagnostics, evolutionary patterns [@moreno2024algorithms], and environmental monitoring systems [@researchgate_monitoring].
 
-The tilted algorithm prioritizes recent information over older data. This makes it well-suited for monitoring and alerting systems where recent trends have immediate operational relevance, but historical context still provides valuable perspective.
-
+The tilted algorithm prioritizes recent information over older data. This makes it well-suited for monitoring and alerting systems where recent trends are most relevant, but historical context still provides valuable perspective such as in real-time monitoring systems [@tabassum2018sampling] where recent data carries more operational significance than older data [@aggarwal2006biased].
 
 # Implementation
 
-Downstream has been implemented across five programming languages in order to support diverse computing environments. Each of the implementations reside in a separate branch of the Downstream GitHub repository and contains site selection implementation for the three main Downstream algorithms. In addition, some branches include hybrid variants. To enhance usability and reliability, the framework incorporates features across all implementations:
+Downstream has been implemented across five programming languages in order to support diverse computing environments, including C++, Rust, Python, Zig, and the Cerebras Software Language. Each of the implementations reside in a separate branch of the Downstream GitHub repository and contains site selection implementation for the three main Downstream algorithms. In addition, some branches include hybrid variants. To enhance usability and reliability, the framework incorporates features across all implementations:
 1. Each algorithm is run against cross-validation tests with other language versions to ensure consistent behavior.
 2. Documentation is available for all languages, with function headings listed for at least one of the algorithms. All other algorithms should share the same heading.
 3. The library is available through standard package managers for each supported language, including pip for Python and Cargo for Rust. It is also available for C++ as a header-only library.
@@ -81,10 +79,11 @@ InfluxDB and TimescaleDB are time-series databases that offer storage solutions 
 
 The reservoir sampling algorithm maintains representative samples of data streams but lacks the temporal distribution guarantees provided by Downstream's specialized algorithms [@aggarwal2006biased].
 
+[@hentschel2018temporally]
 
 # Future Work
 
-To validate these algorithms, further benchmarks can be conducted to compare memory efficiency and throughput across all five language implementations (Python, C++, Rust, Zig, and CSL). These benchmarks can measure performance under various real-world constraints, simulating in embedded systems and high-throughput applications.
+To validate these algorithms, further benchmarks can be conducted to compare memory efficiency and throughput across all five language implementations. These benchmarks can measure performance under various real-world constraints, simulating in embedded systems and high-throughput applications.
 
 To further improve accessibility, we plan to continue implementing Downstream in more languages, including Julia, as well as any other implementations requested by users. Each new implementation will follow the existing structure mentioned previously.
 
