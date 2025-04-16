@@ -103,9 +103,9 @@ class Surface(typing.Generic[_DSurfDataItem]):
             0x...
               ########**************************************************
               ^                                                     ^
-             T, length = `T_bitwidth` / 4                          |
-                                                                   |
-                           storage, length = `item_bitwidth` / 4 * S
+              T, length = `T_bitwidth` / 4                          |
+                                                                    |
+                            storage, length = `item_bitwidth` / 4 * S
 
         This hex string can be reconstituted by calling `Surface.from_hex()`
         with the following parameters:
