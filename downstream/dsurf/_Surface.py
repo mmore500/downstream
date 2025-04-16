@@ -27,27 +27,27 @@ class Surface(typing.Generic[_DSurfDataItem]):
         dstream_S: int,
     ) -> "Surface":
         """
-        Creates a Surface given a hex string as input. The string needs exactly 
-        two contiguous parts: a storage (which holds all the differentia) and a 
+        Creates a Surface given a hex string as input. The string needs exactly
+        two contiguous parts: a storage (which holds all the differentia) and a
         dstream_T (which is the number of deposited differentia). Everything is
-        assumed to be formatted in big-endian. 
+        assumed to be formatted in big-endian.
 
         Parameters
         ----------
-        hex_string: str 
+        hex_string: str
             The hex string to be parsed, which can be uppercase or lowercase.
-        algo: module 
+        algo: module
             The dstream algorithm to use to create the new Surface object.
-        dstream_storage_bitoffset: int 
+        dstream_storage_bitoffset: int
             The number of bits before the storage.
-        dstream_storage_bitwidth: int 
+        dstream_storage_bitwidth: int
             The number of bits that the storage takes up.
-        dstream_T_bitoffset: int 
+        dstream_T_bitoffset: int
             The number of bits before dstream_T.
-        dstream_storage_bitwidth: int 
+        dstream_storage_bitwidth: int
             The number of bits that dstream_T takes up.
-        dstream_S: int 
-            The size of the surface upon which data was stored. This is an 
+        dstream_S: int
+            The size of the surface upon which data was stored. This is an
             important parameter because it determines the way storage is split.
 
         See Also
@@ -101,8 +101,8 @@ class Surface(typing.Generic[_DSurfDataItem]):
         self: "Surface", item_bitwidth: int, dstream_T_bitwidth: int = 32
     ) -> str:
         """
-        Turns a Surface into a hex string with a dstream_T (the number of 
-        generations elapsed) and a dstream_storage (the actual retained 
+        Turns a Surface into a hex string with a dstream_T (the number of
+        generations elapsed) and a dstream_storage (the actual retained
         differentia, stored as a series of hex values). The hex format is:
 
            0x########**************************************************
@@ -110,20 +110,20 @@ class Surface(typing.Generic[_DSurfDataItem]):
            dstream_T, length = `dstream_storage_bitwidth` / 4      |
                                                                    |
               dstream_storage, length = `item_bitwidth` / 4 * dstream_S
-        
-        This hex string can be turned back into a surface through calling 
-        the `Surface.from_hex()` function with the following parameters in 
+
+        This hex string can be turned back into a surface through calling
+        the `Surface.from_hex()` function with the following parameters in
         terms of the arguments to this function:
             - `dstream_T_bitoffset` = 0
             - `dstream_T_bitwidth` = `dstream_T_bitwidth`
             - `dstream_storage_bitoffset` = `dstream_T_bitwidth`
             - `dstream_storage_bitwidth` = `self.S * item_bitwidth`
-    
-        Parameters 
-        ---------- 
-        item_bitwidth: int 
+
+        Parameters
+        ----------
+        item_bitwidth: int
             The number of bits to store each item in the storage.
-        dstream_T_bitwidth: 
+        dstream_T_bitwidth:
             The number of bits to store dstream_T (`self.T`) with.
 
         See Also
@@ -142,7 +142,7 @@ class Surface(typing.Generic[_DSurfDataItem]):
             )
         T_arr = np.asarray(self.T, dtype=np.uint64)
         T_bytes = T_arr.astype(">u8").tobytes()  # big-endian u32
-        T_hex = T_bytes.hex()[-dstream_T_bitwidth // 4:]
+        T_hex = T_bytes.hex()[-dstream_T_bitwidth // 4 :]
 
         item_bytewidth = item_bitwidth // 8
         pack_op = [
@@ -231,21 +231,20 @@ class Surface(typing.Generic[_DSurfDataItem]):
     @typing.overload
     def lookup_zip_items(
         self: "Surface",
-    ) -> typing.Iterable[
-        typing.Tuple[typing.Optional[int], _DSurfDataItem]
-    ]: ...
+    ) -> typing.Iterable[typing.Tuple[typing.Optional[int], _DSurfDataItem]]:
+        ...
 
     @typing.overload
     def lookup_zip_items(
         self: "Surface", include_empty: typing.Literal[False]
-    ) -> typing.Iterable[typing.Tuple[int, _DSurfDataItem]]: ...
+    ) -> typing.Iterable[typing.Tuple[int, _DSurfDataItem]]:
+        ...
 
     @typing.overload
     def lookup_zip_items(
         self: "Surface", include_empty: bool
-    ) -> typing.Iterable[
-        typing.Tuple[typing.Optional[int], _DSurfDataItem]
-    ]: ...
+    ) -> typing.Iterable[typing.Tuple[typing.Optional[int], _DSurfDataItem]]:
+        ...
 
     def lookup_zip_items(
         self: "Surface", include_empty: bool = True
@@ -323,17 +322,20 @@ class Surface(typing.Generic[_DSurfDataItem]):
     @typing.overload
     def lookup(
         self: "Surface",
-    ) -> typing.Iterable[typing.Optional[int]]: ...
+    ) -> typing.Iterable[typing.Optional[int]]:
+        ...
 
     @typing.overload
     def lookup(
         self: "Surface", include_empty: typing.Literal[False]
-    ) -> typing.Iterable[int]: ...
+    ) -> typing.Iterable[int]:
+        ...
 
     @typing.overload
     def lookup(
         self: "Surface", include_empty: bool
-    ) -> typing.Iterable[typing.Optional[int]]: ...
+    ) -> typing.Iterable[typing.Optional[int]]:
+        ...
 
     def lookup(
         self: "Surface", include_empty: bool = True
