@@ -33,7 +33,7 @@ class Surface(typing.Generic[_DSurfDataItem]):
         Deserializes Surface object from a hex string representation.
 
         Hex string representation needs exactly two contiguous parts:
-        1. dstream_T (which is the number of ingesgted differentia), and
+        1. dstream_T (which is the number of ingesgted data items), and
         2. dstream_storage (which holds all the stored data items).
 
         Data items are deserialized as unsigned integers.
@@ -52,7 +52,7 @@ class Surface(typing.Generic[_DSurfDataItem]):
             Number of bits used for storage.
         T_bitoffset: int
             Number of bits before dstream_T.
-        storage_bitwidth: int
+        T_bitwidth: int
             Number of bits used to store dstream_T.
         S: int
             Number of buffer sites used to store data items.
@@ -62,7 +62,7 @@ class Surface(typing.Generic[_DSurfDataItem]):
         See Also
         --------
         Surface.to_hex()
-            Serializes a surface into a hex string.
+            Serialize a Surface object into a hex string.
         """
         for arg in (
             "storage_bitoffset",
@@ -96,35 +96,34 @@ class Surface(typing.Generic[_DSurfDataItem]):
 
         Serialized data comprises two components:
             1. dstream_T (the number of data items ingested) and
-            2. dstream_storage (binarydata of data item values).
+            2. dstream_storage (binary data of data item values).
 
         The hex layout used is:
 
            0x########**************************************************
              ^                                                     ^
-           dstream_T, length = `dstream_T_bitwidth` / 4            |
+             T, length = `T_bitwidth` / 4                          |
                                                                    |
-              dstream_storage, length = `item_bitwidth` / 4 * dstream_S
+                           storage, length = `item_bitwidth` / 4 * S
 
-        This hex string can be turned back into a surface through calling
-        the `Surface.from_hex()` function with the following parameters in
-        terms of the arguments to this function:
+        This hex string can be reconstituted by calling `Surface.from_hex()`
+        with the following parameters:
             - `T_bitoffset` = 0
-            - `T_bitwidth` = `dstream_T_bitwidth`
-            - `storage_bitoffset` = `dstream_T_bitwidth`
+            - `T_bitwidth` = `T_bitwidth`
+            - `storage_bitoffset` = `storage_bitoffset`
             - `storage_bitwidth` = `self.S * item_bitwidth`
 
         Parameters
         ----------
         item_bitwidth: int
-            The number of bits to store each item in the storage.
-        dstream_T_bitwidth: int, default 32
-            The number of bits to store dstream_T (`self.T`) with.
+            Number of storage bits used per data item.
+        T_bitwidth: int, default 32
+            Number of bits used to store ingested items count (`self.T`).
 
         See Also
         --------
         Surface.from_hex()
-            Deserialize a downstream Surface from a hex string.
+            Deserialize a Surface object from a hex string.
         """
         if T_bitwidth % 4:
             raise NotImplementedError(
@@ -332,7 +331,8 @@ class Surface(typing.Generic[_DSurfDataItem]):
     ) -> typing.Union[
         typing.Iterable[typing.Optional[int]], typing.Iterable[int]
     ]:
-        """Iterate over data item ingest times, including null values for uninitialized sites."""
+        """Iterate over data item ingest times, including null values for
+        uninitialized sites."""
         assert len(self._storage) == self.S
         return (
             T
