@@ -100,8 +100,9 @@ class Surface(typing.Generic[_DSurfDataItem]):
 
         The hex layout used is:
 
-           0x########**************************************************
-             ^                                                     ^
+            0x...
+              ########**************************************************
+              ^                                                     ^
              T, length = `T_bitwidth` / 4                          |
                                                                    |
                            storage, length = `item_bitwidth` / 4 * S
