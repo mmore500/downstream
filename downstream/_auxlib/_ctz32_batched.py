@@ -7,4 +7,5 @@ from ._jit import jit
 @jit(nogil=True, nopython=True)
 def ctz32_batched(x: np.ndarray) -> np.ndarray:
     """Count trailing zeros."""
-    return bitlen32_batched(x & -x) - 1
+    _1 = np.asarray(1, dtype=x.dtype)
+    return bitlen32_batched(x & -x) - _1
