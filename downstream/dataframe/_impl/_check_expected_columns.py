@@ -10,7 +10,9 @@ def check_expected_columns(
     """
     Check if the DataFrame contains the expected columns.
 
-    Verifies that all columns specified in `expected_columns` are present in the provided DataFrame `df`. Raises a ValueError if any expected columns are missing.
+    Verifies that all columns specified in `expected_columns` are present in
+    the provided DataFrame `df`. Raises a ValueError if any expected columns
+    are missing.
 
     Parameters
     ----------

@@ -68,7 +68,7 @@ def test_lookup_against_site_selection(algo: typing.Any, s: int):
     expected = [None] * S
     for T in range(min(T_max, 2**14)):
         actual = time_lookup(S, T)
-        assert all(x == y for x, y in zip(expected, actual))
+        assert [*actual] == expected
 
         site = algo.assign_storage_site(S, T)
         if site is not None:

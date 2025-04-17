@@ -13,7 +13,10 @@ if __name__ == "__main__":
         level=logging.INFO,
     )
     dataframe_cli(
-        description="Explode downstream-curated data from one-buffer-per-row (with each buffer containing multiple data items) to one-data-item-per-row, applying downstream lookup to identify origin time `Tbar` of each item.",
+        description="Explode downstream-curated data from one-buffer-per-row "
+        "(with each buffer containing multiple data items) to "
+        "one-data-item-per-row, applying downstream lookup to identify origin "
+        "time `Tbar` of each item.",
         module="downstream.dataframe.explode_lookup_unpacked_uint",
         version=downstream_version,
         output_dataframe_op=functools.partial(

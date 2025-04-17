@@ -3,7 +3,11 @@ from . import (
     compressing_algo,
     steady_algo,
     stretched_algo,
+    stretchedxtc_algo,
     tilted_algo,
+    tiltedxtc_algo,
+    xtchead_algo,
+    xtctail_algo,
 )
 from ._hybrid_algo import hybrid_algo
 from ._hybrid_algo_prefab import (
@@ -19,5 +23,9 @@ __all__ = [
     "hybrid_0_steady_1_tilted_2_algo",
     "steady_algo",
     "stretched_algo",
+    "stretchedxtc_algo",
     "tilted_algo",
+    "tiltedxtc_algo",
+    "xtchead_algo",
+    "xtctail_algo",
 ]

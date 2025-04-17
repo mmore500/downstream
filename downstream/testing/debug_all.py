@@ -46,7 +46,8 @@ for algo in \
     ; do
         target="${algo}.${func}"
         echo "target=${target}"
-        python3 -m downstream.testing.debug_one "$2" "${target}" --reference "$1" | ${pv} | grep -v "OK"
+        python3 -m downstream.testing.debug_one \
+            "$2" "${target}" --reference "$1" | ${pv} | grep -v "OK"
         status=${PIPESTATUS[0]}
 
         if [ ${status} != 0 ]; then

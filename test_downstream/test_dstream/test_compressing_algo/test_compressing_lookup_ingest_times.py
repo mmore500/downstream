@@ -25,14 +25,14 @@ def validate_compressing_time_lookup(fn: typing.Callable) -> typing.Callable:
 time_lookup = validate_compressing_time_lookup(algo.lookup_ingest_times)
 
 
-@pytest.mark.parametrize("s", range(3, 12))
+@pytest.mark.parametrize("s", range(1, 12))
 def test_compressing_time_lookup_against_site_selection(s: int):
     S = 1 << s
-    T_max = min(1 << 17 - s, 2**S - 1)
+    T_max = 1 << 17 - s
     expected = [None] * S
     for T in range(T_max):
         actual = time_lookup(S, T)
-        assert all(x == y for x, y in zip(expected, actual))
+        assert [*actual] == expected
 
         site = algo.assign_storage_site(S, T)
         if site is not None:

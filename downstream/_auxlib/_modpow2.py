@@ -18,5 +18,8 @@ def modpow2(dividend: int, divisor: int) -> int:
         The remainder of dividing the dividend by the divisor.
     """
     # Assert divisor is a power of two
-    assert (np.bitwise_count(np.asarray(divisor)) == 1).all()
+    assert (
+        np.min_scalar_type(divisor) == np.object_
+        or (np.bitwise_count(np.asarray(divisor)) == 1).all()
+    )
     return dividend & (divisor - 1)

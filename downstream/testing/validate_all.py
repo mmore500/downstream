@@ -49,7 +49,8 @@ for algo in \
         target="${algo}.${func}"
         echo "target=${target}"
         (\
-            python3 -m downstream.testing.validate_one "$2" "${target}" --reference "$1" >/dev/null \
+            python3 -m downstream.testing.validate_one \
+                "$2" "${target}" --reference "$1" >/dev/null \
             || touch "/tmp/dstream/${target}" \
         ) &
     done
