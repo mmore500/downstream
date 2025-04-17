@@ -1,6 +1,7 @@
 import functools
 import itertools as it
-from random import randrange as rand
+
+# from random import randrange as rand
 import typing
 
 import pytest
@@ -133,6 +134,7 @@ def test_xtctail_site_selection8():
         0, 1, 0, None, 0, 1, 0, 5,  # T 792-799 --- hv 0,1,0,2,0,1,0,5
     ]
     assert all(x == y for x, y in zip(actual, expected))
+
 
 def test_xtctail_site_selection16():
     # fmt: off

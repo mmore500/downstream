@@ -1,7 +1,6 @@
 import typing
 
 from ..._auxlib._ctz import ctz
-from ..._auxlib._modpow2 import modpow2
 from ..compressing_algo._compressing_assign_storage_site import (
     compressing_assign_storage_site,
 )
@@ -9,6 +8,7 @@ from ..compressing_algo._compressing_lookup_ingest_times import (
     compressing_lookup_ingest_times,
 )
 from ._xtctail_has_ingest_capacity import xtctail_has_ingest_capacity
+
 
 def xtctail_assign_storage_site(S: int, T: int) -> typing.Optional[int]:
     """Site selection algorithm for xtctail curation.
@@ -45,7 +45,7 @@ def xtctail_assign_storage_site(S: int, T: int) -> typing.Optional[int]:
     h = ctz(T + 1)  # Current hanoi value
 
     if T < S:  # handle initial fill
-        hvTs = [*range(2**h - 1, S, 2**(h + 1))]  # TODO optimize
+        hvTs = [*range(2**h - 1, S, 2 ** (h + 1))]  # TODO optimize
         assert T in hvTs
         T_ = hvTs[::-1][hvTs.index(T)]
         if (T_ + 1).bit_count() <= 1:
