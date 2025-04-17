@@ -55,15 +55,15 @@ def xtctail_assign_storage_site(S: int, T: int) -> typing.Optional[int]:
         else:
             # see https://oeis.org/A057716
             return S.bit_length() + T_ - T_.bit_length()
-    else:
-        epoch = (T + 1).bit_length()  # Current epoch
 
-        if h <= 1:
-            return h
-        elif h in [*compressing_lookup_ingest_times(S, epoch)]:  # TODO opt
-            return compressing_assign_storage_site(S, h)
-        else:
-            return None
+    epoch = (T + 1).bit_length()  # Current epoch
+
+    if h <= 1:
+        return h
+    elif h in [*compressing_lookup_ingest_times(S, epoch)]:  # TODO opt
+        return compressing_assign_storage_site(S, h)
+    else:
+        return None
 
 
 assign_storage_site = xtctail_assign_storage_site  # lazy loader workaround
