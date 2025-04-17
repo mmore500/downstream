@@ -1,7 +1,6 @@
 import functools
 import itertools as it
-
-# from random import randrange as rand
+from random import randrange as rand
 import typing
 
 import pytest
@@ -155,15 +154,14 @@ def test_xtctail_site_selection16():
     assert site_selection(16, 2 ** 17 + 3) is None
 
 
-# def test_xtctail_site_selection_fuzz():
-#     testS = (1 << s for s in range(1, 33))
-#     testT = it.chain(range(10**5), (rand(2**128) for _ in range(10**5)))
-#     for S, T in it.product(testS, testT):
-#         site_selection(S, T)  # Validated via wrapper
+def test_xtctail_site_selection_fuzz():
+    testS = (1 << s for s in range(1, 33))
+    testT = it.chain(range(10**5), (rand(2**128) for _ in range(10**5)))
+    for S, T in it.product(testS, testT):
+        site_selection(S, T)  # Validated via wrapper
 
 
-# @pytest.mark.parametrize("S", [1 << s for s in range(1, 21)])
-@pytest.mark.parametrize("S", [1 << s for s in range(1, 15)])
+@pytest.mark.parametrize("S", [1 << s for s in range(1, 21)])
 def test_xtctail_site_selection_epoch0(S: int):
     actual = {site_selection(S, T) for T in range(S)}
     expected = set(range(S))

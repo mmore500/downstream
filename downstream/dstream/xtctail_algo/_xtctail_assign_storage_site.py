@@ -5,9 +5,6 @@ from ..._auxlib._indexable_range import indexable_range
 from ..compressing_algo._compressing_assign_storage_site import (
     compressing_assign_storage_site,
 )
-from ..compressing_algo._compressing_lookup_ingest_times import (
-    compressing_lookup_ingest_times,
-)
 from ._xtctail_has_ingest_capacity import xtctail_has_ingest_capacity
 
 
@@ -55,12 +52,32 @@ def xtctail_assign_storage_site(S: int, T: int) -> typing.Optional[int]:
         else:
             # see https://oeis.org/A057716
             return S.bit_length() + T_ - T_.bit_length()
+    elif h <= 1:
+        return h
 
     epoch = (T + 1).bit_length()  # Current epoch
+    si = ((epoch - 2) // (S - 1)).bit_length()  # Current sampling interval
+    si_ = 1 << si
+    assert si_
+    prev_si_ = si_ >> 1
 
-    if h <= 1:
-        return h
-    elif h in [*compressing_lookup_ingest_times(S, epoch)]:  # TODO opt
+    cur_si_values = range(1, epoch, si_)
+    num_cur_si = len(cur_si_values)
+
+    if h % max(prev_si_, 1):
+        return None
+    elif h in cur_si_values or h == 0:
+        return compressing_assign_storage_site(S, h)
+
+    prev_si_values = reversed(
+        indexable_range(1 + prev_si_, (S - 1) * prev_si_, si_),
+    )
+    try:
+        min_prev_si = prev_si_values[S - 1 - num_cur_si - 1]
+    except IndexError:
+        min_prev_si = 0
+
+    if min_prev_si <= h < (S - 1) * prev_si_:
         return compressing_assign_storage_site(S, h)
     else:
         return None
