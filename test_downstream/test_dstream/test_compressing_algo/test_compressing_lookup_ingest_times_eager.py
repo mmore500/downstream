@@ -29,7 +29,7 @@ time_lookup = validate_compressing_time_lookup(
 @pytest.mark.parametrize("s", range(1, 12))
 def test_compressing_time_lookup_eager_against_site_selection(s: int):
     S = 1 << s
-    T_max = min(1 << 17 - s, 2**S - 1)
+    T_max = 1 << 17 - s
     expected = [None] * S
     for T in range(T_max):
         if T >= S:
