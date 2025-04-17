@@ -3,6 +3,7 @@ import typing
 
 from ..._auxlib._ctz import ctz
 from ..._auxlib._indexable_range import indexable_range
+from ..._auxlib._modpow2 import modpow2
 from ..compressing_algo._compressing_lookup_ingest_times import (
     compressing_lookup_impl,
 )
@@ -47,7 +48,7 @@ def xtctail_lookup_impl(S: int, T: int) -> typing.Iterable[int]:
         h_offset = (1 << h) - 1
         h_cadence = 2 << h
         assert T_ >= h_offset
-        h_remainder = (T_ - h_offset) % h_cadence
+        h_remainder = modpow2(T_ - h_offset, h_cadence)
         res = T_ - h_remainder
         assert ctz(res + 1) == h
         assert res <= T_
@@ -61,8 +62,21 @@ def xtctail_lookup_impl(S: int, T: int) -> typing.Iterable[int]:
         ansatz_h = ctz(ansatz + 1)  # Current hanoi value
         ansatz_h_offset = (1 << ansatz_h) - 1
         ansatz_h_cadence = 2 << ansatz_h
-        hvTs = indexable_range(ansatz_h_offset, S, ansatz_h_cadence)
-        yield reversed(hvTs)[hvTs.index(ansatz)]
+
+        res = (
+            2 * ansatz_h_offset
+            + ((S - ansatz_h_offset - 1) >> (ansatz_h + 1)) * ansatz_h_cadence
+            - ansatz
+        )
+        assert (
+            res
+            == reversed(indexable_range(ansatz_h_offset, S, ansatz_h_cadence))[
+                indexable_range(ansatz_h_offset, S, ansatz_h_cadence).index(
+                    ansatz,
+                )
+            ]
+        )
+        return res
 
 
 lookup_ingest_times = xtctail_lookup_ingest_times  # lazy loader workaround
