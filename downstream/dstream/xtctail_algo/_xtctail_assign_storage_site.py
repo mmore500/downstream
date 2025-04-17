@@ -58,8 +58,9 @@ def xtctail_assign_storage_site(S: int, T: int) -> typing.Optional[int]:
         else:
             # see https://oeis.org/A057716
             return S.bit_length() + T_ - T_.bit_length()
-    elif h <= 1:
-        return h
+
+    if h <= 1:  # optimization --- not strictly necessary
+        return h  # sites -0 and 1 always store hv's 0 and 1
 
     epoch = (T + 1).bit_length()  # Current epoch
     si = ((epoch - 2) // (S - 1)).bit_length()  # Current sampling interval
