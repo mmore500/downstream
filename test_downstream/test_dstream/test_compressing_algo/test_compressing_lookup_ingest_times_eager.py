@@ -14,6 +14,7 @@ def validate_compressing_time_lookup(fn: typing.Callable) -> typing.Callable:
         assert S.bit_count() == 1  # Assert S is a power of two
         assert 0 <= T  # Assert T is non-negative
         res = fn(S, T)
+        assert len(res) == S  # Assert output length matches buffer size
         for v in res:
             assert v is None or 0 <= v < T  # Assert valid output
         return res
