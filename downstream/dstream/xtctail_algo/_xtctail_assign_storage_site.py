@@ -2,6 +2,7 @@ import typing
 
 from ..._auxlib._ctz import ctz
 from ..._auxlib._indexable_range import indexable_range
+from ..._auxlib._modpow2 import modpow2
 from ..compressing_algo._compressing_assign_storage_site import (
     compressing_assign_storage_site,
 )
@@ -66,12 +67,12 @@ def xtctail_assign_storage_site(S: int, T: int) -> typing.Optional[int]:
     assert si_
     prev_si_ = si_ >> 1
 
-    num_cur_si = (epoch + si_ - 2) // si_
+    num_cur_si = (epoch + si_ - 2) >> si
     assert len(range(1, epoch, si_)) == num_cur_si
 
-    if h % max(prev_si_, 1):
+    if modpow2(h, max(prev_si_, 1)):
         return None
-    elif (h - bool(h)) % si_ == 0:
+    elif modpow2(h - bool(h), si_) == 0:
         return compressing_assign_storage_site(S, h)
 
     ub = (S - 1) * prev_si_
