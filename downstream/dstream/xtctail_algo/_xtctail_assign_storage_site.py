@@ -74,15 +74,9 @@ def xtctail_assign_storage_site(S: int, T: int) -> typing.Optional[int]:
     elif h in cur_si_values or h == 0:
         return compressing_assign_storage_site(S, h)
 
-    prev_si_values = reversed(
-        indexable_range(1 + prev_si_, (S - 1) * prev_si_, si_),
-    )
-    try:
-        min_prev_si = prev_si_values[S - 1 - num_cur_si - 1]
-    except IndexError:
-        min_prev_si = 0
-
-    if min_prev_si <= h < (S - 1) * prev_si_:
+    ub = (S - 1) * prev_si_
+    lb = ub - (S - 1 - num_cur_si) * si_ + 1
+    if lb <= h < ub:
         return compressing_assign_storage_site(S, h)
     else:
         return None
