@@ -66,12 +66,12 @@ def xtctail_assign_storage_site(S: int, T: int) -> typing.Optional[int]:
     assert si_
     prev_si_ = si_ >> 1
 
-    cur_si_values = range(1, epoch, si_)
-    num_cur_si = len(cur_si_values)
+    num_cur_si = (epoch + si_ - 2) // si_
+    assert len(range(1, epoch, si_)) == num_cur_si
 
     if h % max(prev_si_, 1):
         return None
-    elif h in cur_si_values or h == 0:
+    elif (h - bool(h)) % si_ == 0:
         return compressing_assign_storage_site(S, h)
 
     ub = (S - 1) * prev_si_
