@@ -43,6 +43,5 @@ def stretchedxtc_assign_storage_site(S: int, T: int) -> typing.Optional[int]:
         return xtchead_assign_storage_site(S, T)
 
 
-assign_storage_site = (
-    stretchedxtc_assign_storage_site  # lazy loader workaround
-)
+# lazy loader workaround
+assign_storage_site = stretchedxtc_assign_storage_site

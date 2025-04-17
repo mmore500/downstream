@@ -16,7 +16,7 @@ def stretchedxtc_lookup_ingest_times_batched(
     T: np.ndarray,
     parallel: bool = False,
 ) -> np.ndarray:
-    """Ingest time lookup algorithm for xtchead curation.
+    """Ingest time lookup algorithm for stretchedxtc curation.
 
     Parameters
     ----------

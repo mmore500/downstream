@@ -15,6 +15,5 @@ def stretchedxtc_get_ingest_capacity(S: int) -> typing.Optional[int]:
     return None if surface_size_ok else 0
 
 
-get_ingest_capacity = (
-    stretchedxtc_get_ingest_capacity  # lazy loader workaround
-)
+# lazy loader workaround
+get_ingest_capacity = stretchedxtc_get_ingest_capacity
