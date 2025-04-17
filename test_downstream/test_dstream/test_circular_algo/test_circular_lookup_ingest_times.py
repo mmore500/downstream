@@ -25,7 +25,7 @@ def validate_circular_time_lookup(fn: typing.Callable) -> typing.Callable:
 time_lookup = validate_circular_time_lookup(algo.lookup_ingest_times)
 
 
-@pytest.mark.parametrize("s", range(3, 12))
+@pytest.mark.parametrize("s", range(1, 12))
 def test_circular_time_lookup_against_site_selection(s: int):
     S = 1 << s
     T_max = 1 << 17 - s
