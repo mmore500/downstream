@@ -32,9 +32,7 @@ def test_stretchedxtc_time_lookup_against_site_selection(s: int):
     expected = [None] * S
     for T in range(T_max):
         actual = time_lookup(S, T)
-        vals = [*zip(expected, actual)]
-        print(vals)
-        assert all(x == y for x, y in vals)
+        assert [*actual] == expected
 
         site = algo.assign_storage_site(S, T)
         if site is not None:

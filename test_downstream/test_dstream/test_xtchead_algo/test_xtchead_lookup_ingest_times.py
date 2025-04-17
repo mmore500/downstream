@@ -32,7 +32,7 @@ def test_xtchead_time_lookup_against_site_selection(s: int):
     expected = [None] * S
     for T in range(T_max):
         actual = time_lookup(S, T)
-        assert all(x == y for x, y in zip(expected, actual))
+        assert [*actual] == expected
 
         site = algo.assign_storage_site(S, T)
         if site is not None:
