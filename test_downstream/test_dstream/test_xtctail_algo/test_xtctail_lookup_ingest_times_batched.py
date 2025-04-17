@@ -1,6 +1,5 @@
 import functools
-
-# import itertools as it
+import itertools as it
 import typing
 
 import numpy as np
@@ -34,8 +33,7 @@ def validate_xtctail_time_lookup(fn: typing.Callable) -> typing.Callable:
     return wrapper
 
 
-# @pytest.mark.parametrize("s", range(3, 12))
-@pytest.mark.parametrize("s", range(3, 6))
+@pytest.mark.parametrize("s", range(3, 12))
 def test_xtctail_time_lookup_batched_against_site_selection(s: int):
     S = 1 << s
     T_max = 1 << 17 - s
@@ -54,8 +52,7 @@ def test_xtctail_time_lookup_batched_against_site_selection(s: int):
     np.testing.assert_array_equal(expecteds, actual)
 
 
-# @pytest.mark.parametrize("s", range(3, 12))
-@pytest.mark.parametrize("s", range(3, 6))
+@pytest.mark.parametrize("s", range(3, 12))
 def test_xtctail_time_lookup_batched_empty(s: int):
     S = 1 << s
 
@@ -63,30 +60,30 @@ def test_xtctail_time_lookup_batched_empty(s: int):
     assert res.size == 0
 
 
-# @pytest.mark.parametrize("dtype1", _dtypes)
-# @pytest.mark.parametrize("dtype2", _dtypes)
-# @pytest.mark.parametrize("parallel", [False])
-# def test_xtctail_time_lookup_batched_fuzz(
-#     dtype1: typing.Type, dtype2: typing.Type, parallel: bool
-# ):
-#     Smax = min(np.iinfo(dtype1).max, [2**12, 2**8][bool(parallel)])
-#     testS = np.array(
-#         [2**s for s in range(1, 64) if 2**s <= Smax],
-#         dtype=dtype1,
-#     )
-#     Tmax = min(np.iinfo(dtype2).max, 2**52)
-#     testT = np.fromiter(
-#         it.chain(
-#             range(min(10**3, Tmax + 1)),
-#             np.random.randint(Tmax, size=10**3),
-#         ),
-#         dtype=dtype2,
-#     )
+@pytest.mark.parametrize("dtype1", _dtypes)
+@pytest.mark.parametrize("dtype2", _dtypes)
+@pytest.mark.parametrize("parallel", [False])
+def test_xtctail_time_lookup_batched_fuzz(
+    dtype1: typing.Type, dtype2: typing.Type, parallel: bool
+):
+    Smax = min(np.iinfo(dtype1).max, [2**12, 2**8][bool(parallel)])
+    testS = np.array(
+        [2**s for s in range(1, 64) if 2**s <= Smax],
+        dtype=dtype1,
+    )
+    Tmax = min(np.iinfo(dtype2).max, 2**52)
+    testT = np.fromiter(
+        it.chain(
+            range(min(10**3, Tmax + 1)),
+            np.random.randint(Tmax, size=10**3),
+        ),
+        dtype=dtype2,
+    )
 
-#     validate = validate_xtctail_time_lookup(algo.lookup_ingest_times_batched)
-#     for S in testS:
-#         if S <= Tmax:
-#             batchT = np.clip(testT, int(S), None)
-#             assert np.issubdtype(np.asarray(S).dtype, np.integer), S
-#             assert np.issubdtype(batchT.dtype, np.integer), batchT.dtype
-#             validate(S, batchT)
+    validate = validate_xtctail_time_lookup(algo.lookup_ingest_times_batched)
+    for S in testS:
+        if S <= Tmax:
+            batchT = np.clip(testT, int(S), None)
+            assert np.issubdtype(np.asarray(S).dtype, np.integer), S
+            assert np.issubdtype(batchT.dtype, np.integer), batchT.dtype
+            validate(S, batchT)

@@ -46,6 +46,7 @@ def xtctail_lookup_ingest_times_batched(
     _1, _2 = np.asarray(1, dtype=np.uint64), np.asarray(2, dtype=np.uint64)
     T = T.astype(np.uint64)
     T_ = T[:, None]  # make broadcastable with (T, S)
+    S_ = np.asarray(S, dtype=np.uint64)
 
     if parallel:
         warnings.warn(
@@ -56,40 +57,39 @@ def xtctail_lookup_ingest_times_batched(
     if (T < S).any():
         raise ValueError("T < S not supported for batched lookup")
 
-    epoch = bitlen32_batched(T)
+    epoch = bitlen32_batched(T).astype(np.uint64)
 
     # res1: compressing sites
     # -----------------------
     res1 = compressing_lookup_ingest_times_batched(
-        S, np.maximum(S, epoch), parallel=parallel
+        S_, np.maximum(S_, epoch), parallel=parallel
     )
-    res1 = T_ - modpow2_batched(T_ - (_1 << res1), _2 << res1) - _1
-    assert np.issubdtype(res1.dtype, np.integer), res1
+    res1 = (
+        T_
+        - modpow2_batched(
+            T_ - (_1 << res1), _2 << res1, allow_divisor_zero=True
+        )
+        - _1
+    )
 
     # res2: initialized sites
     # -----------------------
-    S_indices = np.arange(S)[None, :]  # shape becomes (1, S)
+    S_indices = np.arange(S, dtype=np.uint64)[None, :]  # shape becomes (1, S)
 
     x = S_indices + 1
-    x -= np.minimum(int(S).bit_length(), x).astype(x.dtype)
+    x -= np.minimum(int(S).bit_length(), x).astype(x.dtype)  # floor subtract S
     # see https://oeis.org/A057716
     ansatz_p1 = x + bitlen32_batched(x + bitlen32_batched(x))
-    assert np.issubdtype(ansatz_p1.dtype, np.integer), ansatz_p1
     assert (ansatz_p1 < T_ + 1).all()
     ansatz_h = ctz32_batched(ansatz_p1).astype(np.uint64)  # Current hv
     ansatz_h_offset = (_1 << ansatz_h) - _1
     ansatz_h_cadence = _2 << ansatz_h
-    S_ = np.asarray(S, dtype=np.uint64)
     res2 = (
         _2 * ansatz_h_offset
         + ((S_ - ansatz_h_offset - _1) >> (ansatz_h + _1)) * ansatz_h_cadence
         + _1
     ).astype(np.uint64)
-    assert np.issubdtype(res2.dtype, np.integer), res2
-    assert np.issubdtype(ansatz_p1.dtype, np.integer), ansatz_p1
-    assert np.issubdtype(ansatz_p1.dtype, np.integer), ansatz_p1
     res2 = np.subtract(res2, np.minimum(res2, ansatz_p1.astype(np.uint64)))
-    assert np.issubdtype(res2.dtype, np.integer), res2
 
     # combine res1 and res2
     # ---------------------
