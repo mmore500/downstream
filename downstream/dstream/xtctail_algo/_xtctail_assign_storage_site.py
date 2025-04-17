@@ -15,7 +15,7 @@ def xtctail_assign_storage_site(S: int, T: int) -> typing.Optional[int]:
     Parameters
     ----------
     S : int
-        Buffer size. Must be a power of two.
+        Buffer size. Must be a power of two greater than 4.
     T : int
         Current logical time.
 

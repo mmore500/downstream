@@ -155,13 +155,13 @@ def test_xtctail_site_selection16():
 
 
 def test_xtctail_site_selection_fuzz():
-    testS = (1 << s for s in range(1, 33))
+    testS = (1 << s for s in range(3, 33))
     testT = it.chain(range(10**5), (rand(2**128) for _ in range(10**5)))
     for S, T in it.product(testS, testT):
         site_selection(S, T)  # Validated via wrapper
 
 
-@pytest.mark.parametrize("S", [1 << s for s in range(1, 21)])
+@pytest.mark.parametrize("S", [1 << s for s in range(3, 21)])
 def test_xtctail_site_selection_epoch0(S: int):
     actual = {site_selection(S, T) for T in range(S)}
     expected = set(range(S))
