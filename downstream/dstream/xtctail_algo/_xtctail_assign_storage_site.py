@@ -58,8 +58,9 @@ def xtctail_assign_storage_site(S: int, T: int) -> typing.Optional[int]:
     else:
         epoch = (T + 1).bit_length()  # Current epoch
 
-        retained_hvs = [*compressing_lookup_ingest_times(S, epoch)]
-        if h in retained_hvs:  # TODO opt
+        if h <= 1:
+            return h
+        elif h in [*compressing_lookup_ingest_times(S, epoch)]:  # TODO opt
             return compressing_assign_storage_site(S, h)
         else:
             return None
