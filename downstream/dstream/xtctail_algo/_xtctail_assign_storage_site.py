@@ -68,19 +68,19 @@ def xtctail_assign_storage_site(S: int, T: int) -> typing.Optional[int]:
     assert si_
     prev_si_ = si_ >> 1
 
+    if modpow2(h, max(prev_si_, 1)):  # is not in either sampling interval
+        return None
+    elif modpow2(h - bool(h), si_) == 0:  # is in current sampling interval
+        return compressing_assign_storage_site(S, h)
+
     num_cur_si = (epoch + si_ - 2) >> si
     assert len(range(1, epoch, si_)) == num_cur_si
 
-    if modpow2(h, max(prev_si_, 1)):
-        return None
-    elif modpow2(h - bool(h), si_) == 0:
-        return compressing_assign_storage_site(S, h)
-
     ub = (S - 1) * prev_si_
     lb = ub - (S - 1 - num_cur_si) * si_ + 1
-    if lb <= h < ub:
+    if lb <= h < ub:  # is among remaining entries from previous si
         return compressing_assign_storage_site(S, h)
-    else:
+    else:  # is among discarded entries from previous si
         return None
 
 
