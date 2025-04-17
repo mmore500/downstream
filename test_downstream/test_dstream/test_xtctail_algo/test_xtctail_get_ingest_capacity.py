@@ -4,9 +4,9 @@ from downstream.dstream import xtctail_algo as algo
 def test_xtctail_get_ingest_capacity():
     assert algo.get_ingest_capacity(0) == 0
     assert algo.get_ingest_capacity(1) == 0
-    assert algo.get_ingest_capacity(2) is None
+    assert algo.get_ingest_capacity(2) == 0
     assert algo.get_ingest_capacity(3) == 0
-    assert algo.get_ingest_capacity(4) is None
+    assert algo.get_ingest_capacity(4) == 0
     assert algo.get_ingest_capacity(5) == 0
     assert algo.get_ingest_capacity(6) == 0
     assert algo.get_ingest_capacity(7) == 0
