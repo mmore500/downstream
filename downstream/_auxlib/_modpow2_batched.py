@@ -25,6 +25,9 @@ def modpow2_batched(dividend: np.ndarray, divisor: np.ndarray) -> np.ndarray:
     -----
     Numba-compatible implementation.
     """
+    _1 = np.asarray(1, dtype=divisor.dtype)
     # Assert divisor is a power of two
-    assert (bitwise_count64_batched(divisor.astype(np.uint64)) == 1).all()
-    return dividend & (divisor - 1)
+    assert (
+        bitwise_count64_batched(divisor.astype(np.uint64).ravel()) == _1
+    ).all()
+    return dividend & (divisor - _1)
