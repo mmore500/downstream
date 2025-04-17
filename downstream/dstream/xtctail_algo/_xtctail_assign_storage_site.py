@@ -45,8 +45,13 @@ def xtctail_assign_storage_site(S: int, T: int) -> typing.Optional[int]:
     if T < S:  # handle initial fill
         hv_offset = (1 << h) - 1
         hv_cadence = 2 << h
-        hvTs = indexable_range(hv_offset, S, hv_cadence)
-        T_ = reversed(hvTs)[hvTs.index(T)]
+        T_ = 2 * hv_offset + ((S - hv_offset - 1) >> (h + 1)) * hv_cadence - T
+        assert (
+            T_
+            == reversed(indexable_range(hv_offset, S, hv_cadence))[
+                indexable_range(hv_offset, S, hv_cadence).index(T)
+            ]
+        )
         if (T_ + 1).bit_count() <= 1:
             return h
         else:
