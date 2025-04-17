@@ -55,8 +55,8 @@ def xtctail_lookup_impl(S: int, T: int) -> typing.Iterable[int]:
         yield res
 
     for k in range(epoch, S):
-        # https://oeis.org/A057716
         x = k - S.bit_length() + 1
+        # see https://oeis.org/A057716
         ansatz = x + (x + x.bit_length()).bit_length() - 1
         assert ansatz < T
         ansatz_h = ctz(ansatz + 1)  # Current hanoi value
