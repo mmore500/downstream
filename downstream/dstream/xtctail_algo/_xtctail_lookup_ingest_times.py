@@ -76,7 +76,7 @@ def xtctail_lookup_impl(S: int, T: int) -> typing.Iterable[int]:
                 )
             ]
         )
-        return res
+        yield res
 
 
 lookup_ingest_times = xtctail_lookup_ingest_times  # lazy loader workaround
