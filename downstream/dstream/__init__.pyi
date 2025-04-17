@@ -5,7 +5,8 @@ from . import (
     stretched_algo,
     stretchedxtc_algo,
     tilted_algo,
-    xtcheadhead_algo,
+    xtchead_algo,
+    xtctail_algo,
 )
 from ._hybrid_algo import hybrid_algo
 from ._hybrid_algo_prefab import (
@@ -23,5 +24,6 @@ __all__ = [
     "stretched_algo",
     "stretchedxtc_algo",
     "tilted_algo",
-    "xtcheadhead_algo",
+    "xtchead_algo",
+    "xtctail_algo",
 ]
