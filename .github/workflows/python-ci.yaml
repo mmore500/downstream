@@ -74,6 +74,7 @@ jobs:
           "test_downstream/test_dstream/test_stretched_algo",
           "test_downstream/test_dstream/test_stretchedxtc_algo",
           "test_downstream/test_dstream/test_tilted_algo",
+          "test_downstream/test_dstream/test_tiltedxtc_algo",
           "test_downstream/test_dstream/test_xtchead_algo",
           "test_downstream/test_dstream/test_xtctail_algo",
           "test_downstream/test_dsurf",
@@ -105,6 +106,7 @@ jobs:
           "dstream.stretched_algo",
           "dstream.stretchedxtc_algo",
           "dstream.tilted_algo",
+          "dstream.tiltedxtc_algo",
           "dstream.xtchead_algo",
           "dstream.xtctail_algo",
         ]

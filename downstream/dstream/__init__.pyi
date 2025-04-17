@@ -5,6 +5,7 @@ from . import (
     stretched_algo,
     stretchedxtc_algo,
     tilted_algo,
+    tiltedxtc_algo,
     xtchead_algo,
     xtctail_algo,
 )
@@ -24,6 +25,7 @@ __all__ = [
     "stretched_algo",
     "stretchedxtc_algo",
     "tilted_algo",
+    "tiltedxtc_algo",
     "xtchead_algo",
     "xtctail_algo",
 ]
