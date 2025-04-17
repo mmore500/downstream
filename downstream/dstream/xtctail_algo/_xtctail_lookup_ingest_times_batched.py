@@ -40,6 +40,8 @@ def xtctail_lookup_ingest_times_batched(
     Trans. Math. Softw. 40, 2, Article 17 (February 2014), 12 pages.
     https://doi.org/10.1145/2559995
     """
+    T = np.ascontiguousarray(T)  # wtf... why is this needed?
+    # ... otherwise, tiltedxtc unit tests fail for S = 8
     assert np.issubdtype(np.asarray(S).dtype, np.integer), S
     assert np.issubdtype(T.dtype, np.integer), T
     assert np.asarray(np.asarray(T) < (1 << 63)).all()
