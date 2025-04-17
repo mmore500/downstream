@@ -106,6 +106,7 @@ jobs:
           "dstream.stretchedxtc_algo",
           "dstream.tilted_algo",
           "dstream.xtchead_algo",
+          "dstream.xtctail_algo",
         ]
         op: [
           "assign_storage_site",
