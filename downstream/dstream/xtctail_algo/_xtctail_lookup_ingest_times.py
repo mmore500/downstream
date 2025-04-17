@@ -2,6 +2,7 @@ import itertools as it
 import typing
 
 from ..._auxlib._ctz import ctz
+from ..._auxlib._indexable_range import indexable_range
 from ..compressing_algo._compressing_lookup_ingest_times import (
     compressing_lookup_impl,
 )
@@ -58,11 +59,10 @@ def xtctail_lookup_impl(S: int, T: int) -> typing.Iterable[int]:
         ansatz = x + (x + x.bit_length()).bit_length() - 1
         assert ansatz < T
         ansatz_h = ctz(ansatz + 1)  # Current hanoi value
-        hvTs = [
-            *range(2**ansatz_h - 1, S, 2 ** (ansatz_h + 1))
-        ]  # TODO optimize
-        assert ansatz in hvTs
-        yield hvTs[::-1][hvTs.index(ansatz)]
+        ansatz_h_offset = (1 << ansatz_h) - 1
+        ansatz_h_cadence = 2 << ansatz_h
+        hvTs = indexable_range(ansatz_h_offset, S, ansatz_h_cadence)
+        yield reversed(hvTs)[hvTs.index(ansatz)]
 
 
 lookup_ingest_times = xtctail_lookup_ingest_times  # lazy loader workaround

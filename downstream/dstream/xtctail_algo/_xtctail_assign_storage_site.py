@@ -1,6 +1,7 @@
 import typing
 
 from ..._auxlib._ctz import ctz
+from ..._auxlib._indexable_range import indexable_range
 from ..compressing_algo._compressing_assign_storage_site import (
     compressing_assign_storage_site,
 )
@@ -45,9 +46,10 @@ def xtctail_assign_storage_site(S: int, T: int) -> typing.Optional[int]:
     h = ctz(T + 1)  # Current hanoi value
 
     if T < S:  # handle initial fill
-        hvTs = [*range(2**h - 1, S, 2 ** (h + 1))]  # TODO optimize
-        assert T in hvTs
-        T_ = hvTs[::-1][hvTs.index(T)]
+        hv_offset = (1 << h) - 1
+        hv_cadence = 2 << h
+        hvTs = indexable_range(hv_offset, S, hv_cadence)
+        T_ = reversed(hvTs)[hvTs.index(T)]
         if (T_ + 1).bit_count() <= 1:
             return h
         else:
