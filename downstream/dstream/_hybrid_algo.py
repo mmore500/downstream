@@ -231,7 +231,7 @@ class hybrid_algo:
     def assign_storage_site_batched(
         self: "hybrid_algo", S: int, T: _maybe_np_T
     ) -> np.ndarray:
-        """Site selection algorithm for tilted curation.
+        """Site selection algorithm for hybrid curation.
 
         Not yet implemented.
 
