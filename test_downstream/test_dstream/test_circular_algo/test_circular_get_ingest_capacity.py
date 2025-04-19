@@ -1,7 +1,7 @@
 from downstream.dstream import circular_algo as algo
 
 
-def test_steady_get_ingest_capacity():
+def test_circular_get_ingest_capacity():
     assert algo.get_ingest_capacity(0) == 0
     assert algo.get_ingest_capacity(1) == 0
     assert algo.get_ingest_capacity(2) is None
