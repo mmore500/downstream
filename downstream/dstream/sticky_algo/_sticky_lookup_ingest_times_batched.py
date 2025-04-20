@@ -46,7 +46,7 @@ def _sticky_lookup_ingest_times_batched(
     T: np.ndarray,
 ) -> np.ndarray:
     """Implementation detail for sticky_lookup_ingest_times_batched."""
-    return np.broadcast_to(np.arange(S, dtype=np.uint64), (T.size, S))
+    return np.broadcast_to(np.arange(S, dtype=np.uint64), (T.size, S)).copy()
 
 
 # implementation detail for _sticky_lookup_ingest_times_batched_jit
