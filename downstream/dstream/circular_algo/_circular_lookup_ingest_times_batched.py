@@ -1,5 +1,3 @@
-import itertools as it
-
 import numpy as np
 
 from ..._auxlib._jit import jit
@@ -52,7 +50,7 @@ def _circular_lookup_ingest_times_batched(
     T_ = T - 1
     res = np.empty((T.size, S), dtype=np.uint64)
     res[:, 0] = T_ - T_ % S
-    for k_, k in it.pairwise(range(S)):
+    for k_, k in zip(range(S), range(1, S)):
         res[:, k] = res[:, k_] + 1
         overflow_mask = res[:, k] == T
         res[overflow_mask, k] -= np.asarray(S, dtype=np.uint64)
