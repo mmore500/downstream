@@ -4,6 +4,7 @@ import sys
 from . import circular_algo  # noqa: F401
 from . import compressing_algo  # noqa: F401
 from . import steady_algo  # noqa: F401
+from . import sticky_algo  # noqa: F401
 from . import stretched_algo  # noqa: F401
 from . import stretchedxtc_algo  # noqa: F401
 from . import tilted_algo  # noqa: F401
@@ -28,6 +29,7 @@ for pad, algo_name in it.product(
         "hybrid_0_steady_1_tilted_2_algo",
         "hybrid_0_steady_1_tiltedxtc_2_algo",
         "steady_algo",
+        "sticky_algo",
         "stretched_algo",
         "stretchedxtc_algo",
         "tilted_algo",

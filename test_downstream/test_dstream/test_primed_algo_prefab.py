@@ -65,6 +65,14 @@ def test_primed_0pad0_steady_algo_smoke():
     ] == [*range(S)]
 
 
+def test_primed_0pad0_sticky_algo_smoke():
+    S = 32 + 0
+    assert [
+        dstream.primed_0pad0_sticky_algo.assign_storage_site(S, T)
+        for T in range(S)
+    ] == [*range(S)]
+
+
 def test_primed_0pad0_stretched_algo_smoke():
     S = 32 + 0
     assert [
@@ -157,6 +165,14 @@ def test_primed_0pad4_steady_algo_smoke():
     S = 32 + 4
     assert [
         dstream.primed_0pad4_steady_algo.assign_storage_site(S, T)
+        for T in range(S)
+    ] == [*range(S)]
+
+
+def test_primed_0pad4_sticky_algo_smoke():
+    S = 32 + 4
+    assert [
+        dstream.primed_0pad4_sticky_algo.assign_storage_site(S, T)
         for T in range(S)
     ] == [*range(S)]
 
@@ -257,6 +273,14 @@ def test_primed_0pad8_steady_algo_smoke():
     ] == [*range(S)]
 
 
+def test_primed_0pad8_sticky_algo_smoke():
+    S = 32 + 8
+    assert [
+        dstream.primed_0pad8_sticky_algo.assign_storage_site(S, T)
+        for T in range(S)
+    ] == [*range(S)]
+
+
 def test_primed_0pad8_stretched_algo_smoke():
     S = 32 + 8
     assert [
@@ -349,6 +373,14 @@ def test_primed_0pad16_steady_algo_smoke():
     S = 32 + 16
     assert [
         dstream.primed_0pad16_steady_algo.assign_storage_site(S, T)
+        for T in range(S)
+    ] == [*range(S)]
+
+
+def test_primed_0pad16_sticky_algo_smoke():
+    S = 32 + 16
+    assert [
+        dstream.primed_0pad16_sticky_algo.assign_storage_site(S, T)
         for T in range(S)
     ] == [*range(S)]
 
@@ -449,6 +481,14 @@ def test_primed_0pad32_steady_algo_smoke():
     ] == [*range(S)]
 
 
+def test_primed_0pad32_sticky_algo_smoke():
+    S = 32 + 32
+    assert [
+        dstream.primed_0pad32_sticky_algo.assign_storage_site(S, T)
+        for T in range(S)
+    ] == [*range(S)]
+
+
 def test_primed_0pad32_stretched_algo_smoke():
     S = 32 + 32
     assert [
@@ -541,6 +581,14 @@ def test_primed_4pad0_steady_algo_smoke():
     S = 32 + 4
     assert [
         dstream.primed_4pad0_steady_algo.assign_storage_site(S, T)
+        for T in range(S)
+    ] == [*range(S)]
+
+
+def test_primed_4pad0_sticky_algo_smoke():
+    S = 32 + 4
+    assert [
+        dstream.primed_4pad0_sticky_algo.assign_storage_site(S, T)
         for T in range(S)
     ] == [*range(S)]
 
@@ -641,6 +689,14 @@ def test_primed_8pad0_steady_algo_smoke():
     ] == [*range(S)]
 
 
+def test_primed_8pad0_sticky_algo_smoke():
+    S = 32 + 8
+    assert [
+        dstream.primed_8pad0_sticky_algo.assign_storage_site(S, T)
+        for T in range(S)
+    ] == [*range(S)]
+
+
 def test_primed_8pad0_stretched_algo_smoke():
     S = 32 + 8
     assert [
@@ -737,6 +793,14 @@ def test_primed_16pad0_steady_algo_smoke():
     ] == [*range(S)]
 
 
+def test_primed_16pad0_sticky_algo_smoke():
+    S = 32 + 16
+    assert [
+        dstream.primed_16pad0_sticky_algo.assign_storage_site(S, T)
+        for T in range(S)
+    ] == [*range(S)]
+
+
 def test_primed_16pad0_stretched_algo_smoke():
     S = 32 + 16
     assert [
@@ -829,6 +893,14 @@ def test_primed_32pad0_steady_algo_smoke():
     S = 32 + 32
     assert [
         dstream.primed_32pad0_steady_algo.assign_storage_site(S, T)
+        for T in range(S)
+    ] == [*range(S)]
+
+
+def test_primed_32pad0_sticky_algo_smoke():
+    S = 32 + 32
+    assert [
+        dstream.primed_32pad0_sticky_algo.assign_storage_site(S, T)
         for T in range(S)
     ] == [*range(S)]
 
