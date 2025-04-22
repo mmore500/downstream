@@ -5,9 +5,6 @@ commit = true
 push = true
 
 [bumpver.file_patterns]
-"CITATION.cff" = [
-    'version: {version}',
-]
 "include/downstream/version.hpp" = [
     '#define DSTREAM_VERSION "{version}"',
 ]
