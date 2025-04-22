@@ -5,8 +5,7 @@ import sys
 
 import opytional as opyt
 
-from . import _version
-from . import dstream  # noqa: F401
+from . import _version, dstream
 from ._auxlib._ArgparseFormatter import ArgparseFormatter
 
 if __name__ == "__main__":
@@ -68,8 +67,9 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    algo = eval(".".join(args.target.split(".")[:-1]))
-    target = eval(args.target)
+    algo_name = ".".join(args.target.split(".")[:-1])
+    algo = eval(algo_name, {"dstream": dstream})
+    target = eval(args.target, {"dstream": dstream})
     for line in sys.stdin:
         S, T = map(int, line.rstrip().split())
         if algo.has_ingest_capacity(S, T):
