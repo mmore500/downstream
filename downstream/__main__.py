@@ -68,8 +68,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     algo_name = ".".join(args.target.split(".")[:-1])
-    algo = eval(algo_name, globals={"dstream": dstream})
-    target = eval(args.target, globals={"dstream": dstream})
+    algo = eval(algo_name, {"dstream": dstream})
+    target = eval(args.target, {"dstream": dstream})
     for line in sys.stdin:
         S, T = map(int, line.rstrip().split())
         if algo.has_ingest_capacity(S, T):

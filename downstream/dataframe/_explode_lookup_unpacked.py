@@ -179,7 +179,7 @@ def _perform_validation(df_long: pl.DataFrame) -> pl.DataFrame:
     num_validators = 0
     for (validator,), group in validation_groups:
         num_validators += bool(validator)
-        validation_expr = eval(validator or "pl.lit(True)", globals={"pl": pl})
+        validation_expr = eval(validator or "pl.lit(True)", {"pl": pl})
         validation_result = group.select(validation_expr).to_series()
         if not validation_result.all():
             err_msg = f"downstream_validate_exploded `{validator}` failed"
@@ -343,7 +343,7 @@ def explode_lookup_unpacked(
 
     dstream_S = df.lazy().select("dstream_S").limit(1).collect().item()
     dstream_algo = df.lazy().select("dstream_algo").limit(1).collect().item()
-    dstream_algo = eval(dstream_algo, globals={"dstream": dstream})
+    dstream_algo = eval(dstream_algo, {"dstream": dstream})
     num_records = df.lazy().select(pl.len()).collect().item()
     num_items = num_records * dstream_S
 

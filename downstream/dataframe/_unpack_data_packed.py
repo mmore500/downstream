@@ -130,7 +130,7 @@ def _perform_validations(df: pl.DataFrame) -> pl.DataFrame:
     num_validators = 0
     for (validator,), group in validation_groups:
         num_validators += bool(validator)
-        validation_expr = eval(validator or "pl.lit(True)", globals={"pl": pl})
+        validation_expr = eval(validator or "pl.lit(True)", {"pl": pl})
         validation_result = group.select(validation_expr).to_series()
         if not validation_result.all():
             err_msg = f"downstream_validate_exploded `{validator}` failed"
