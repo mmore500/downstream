@@ -1,4 +1,5 @@
 from copy import deepcopy
+import random
 import types
 
 import numpy as np
@@ -94,22 +95,86 @@ def test_ingest_items_relative_times(
 
 
 @pytest.mark.parametrize("algo", [steady_algo, stretched_algo, tilted_algo])
-@pytest.mark.parametrize("S", [32, np.empty(32, dtype=np.uint32)])
-def test_serialization(algo: types.ModuleType, S: int):
+@pytest.mark.parametrize("item_bitwidth", [1, 2, 4, 8, 16, 64])
+@pytest.mark.parametrize("S", [32, np.zeros(32, dtype=np.uint64)])
+def test_serialization_unsigned(
+    algo: types.ModuleType,
+    item_bitwidth: int,
+    S: int,
+):
+    S = deepcopy(S)
     surf = Surface(algo, S)
-    surf.ingest_many(surf.S * 3, lambda x: x)
+    if None in surf:
+        with pytest.raises(NotImplementedError):
+            surf.to_hex(item_bitwidth=item_bitwidth)
+    else:
+        assert (
+            Surface.from_hex(
+                surf.to_hex(item_bitwidth=item_bitwidth),
+                algo,
+                S=surf.S,
+                storage_bitwidth=item_bitwidth * surf.S,
+            )
+            == surf
+        )
+
+    max_val = 2**item_bitwidth - 1
+    surf.ingest_many(surf.S * 3, lambda x: random.randint(0, max_val))
     assert (
         Surface.from_hex(
-            surf.to_hex(item_bitwidth=8),
+            surf.to_hex(item_bitwidth=item_bitwidth),
             algo,
             S=surf.S,
-            storage_bitwidth=8 * surf.S,
+            storage_bitwidth=item_bitwidth * surf.S,
+        )
+        == surf
+    )
+
+    surf.ingest_many(surf.S, lambda x: x % max_val)
+    assert (
+        Surface.from_hex(
+            surf.to_hex(item_bitwidth=item_bitwidth),
+            algo,
+            S=surf.S,
+            storage_bitwidth=item_bitwidth * surf.S,
         )
         == surf
     )
 
 
+@pytest.mark.parametrize("algo", [steady_algo, stretched_algo, tilted_algo])
 @pytest.mark.parametrize("item_bitwidth", [8, 16, 64])
+@pytest.mark.parametrize("S", [32, np.zeros(32, dtype=np.int64)])
+def test_serialization_signed(
+    algo: types.ModuleType,
+    item_bitwidth: int,
+    S: int,
+):
+    S = deepcopy(S)
+    surf = Surface(algo, S)
+    if None in surf:
+        with pytest.raises(NotImplementedError):
+            surf.to_hex(item_bitwidth=item_bitwidth)
+    else:
+        assert (
+            Surface.from_hex(
+                surf.to_hex(item_bitwidth=item_bitwidth),
+                algo,
+                S=surf.S,
+                storage_bitwidth=item_bitwidth * surf.S,
+            )
+            == surf
+        )
+
+    min_val = -(2 ** (item_bitwidth - 1))
+    max_val = 2 ** (item_bitwidth - 1) - 1
+    surf.ingest_many(surf.S * 3, lambda x: random.randint(min_val, max_val))
+    if min(surf) < 0:
+        with pytest.raises(NotImplementedError):
+            surf.to_hex(item_bitwidth=item_bitwidth)
+
+
+@pytest.mark.parametrize("item_bitwidth", [64])
 @pytest.mark.parametrize("dstream_T_bitwidth", [4, 8, 16, 64])
 def test_to_hex(item_bitwidth: int, dstream_T_bitwidth: int):
 
@@ -129,6 +194,12 @@ def test_to_hex(item_bitwidth: int, dstream_T_bitwidth: int):
     assert int(expected_T_string, base=16) == int(
         hex(int(T_string, base=16) % 2**dstream_T_bitwidth), base=16
     )
-    assert test_surface.to_hex(
-        item_bitwidth=item_bitwidth, T_bitwidth=dstream_T_bitwidth
-    ) == (expected_T_string + "".join(expected_item_strings))
+    if int(test_surface.T).bit_length() > dstream_T_bitwidth:
+        with pytest.raises(ValueError):
+            test_surface.to_hex(
+                item_bitwidth=item_bitwidth, T_bitwidth=dstream_T_bitwidth
+            )
+    else:
+        assert test_surface.to_hex(
+            item_bitwidth=item_bitwidth, T_bitwidth=dstream_T_bitwidth
+        ) == (expected_T_string + "".join(expected_item_strings))

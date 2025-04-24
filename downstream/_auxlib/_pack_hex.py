@@ -24,11 +24,15 @@ def pack_hex(items: np.ndarray, item_bitwidth: int) -> str:
     -----
     - Hex data is packed using big-endian byte order.
     """
-    items = np.asarray(items)
+    try:
+        items = np.asarray(items, dtype=np.int64)
+    except OverflowError:
+        items = np.asarray(items, dtype=np.uint64)
+
     if not (1 <= item_bitwidth <= 64):
         raise ValueError("item_bitwidth must be between 1 and 64")
 
-    if not item_bitwidth * len(items) % 4 == 0:
+    if not item_bitwidth * len(items) & 3 == 0:
         raise NotImplementedError("non-hex-aligned data not yet supported")
 
     is_signed = np.any(items < 0)
@@ -37,11 +41,10 @@ def pack_hex(items: np.ndarray, item_bitwidth: int) -> str:
             f"signed data not representable with {item_bitwidth=}"
         )
 
-    norm_items = items.astype(np.uint64) + is_signed * np.asarray(
+    norm_items = items + is_signed * np.asarray(
         1 << (item_bitwidth - 1), dtype=np.uint64
     )
     if np.any(np.clip(norm_items, 0, (1 << item_bitwidth) - 1) != norm_items):
-        print(items, norm_items, item_bitwidth)
         raise ValueError(f"data not representable with {item_bitwidth=}")
 
     if item_bitwidth == 1:
