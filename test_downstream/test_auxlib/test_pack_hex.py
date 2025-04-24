@@ -20,6 +20,22 @@ def test_pack_hex_single_item():
     assert result == expected
 
 
+def test_pack_hex_single_byte():
+    items = np.array([0xAB], dtype=np.uint8)
+    item_bitwidth = 8
+    expected = "ab"
+    result = pack_hex(items, item_bitwidth)
+    assert result == expected
+
+
+def test_pack_hex_single_2byte():
+    items = np.array([0xAB, 0x06], dtype=np.uint16)
+    item_bitwidth = 8
+    expected = "ab06"
+    result = pack_hex(items, item_bitwidth)
+    assert result == expected
+
+
 def test_pack_hex_multiple_items():
     items = np.array([0x0000456789ABCDEF, 0x0123456789000000], dtype=np.uint64)
     item_bitwidth = 64
