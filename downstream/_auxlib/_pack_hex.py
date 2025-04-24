@@ -52,7 +52,7 @@ def pack_hex(items: np.ndarray, item_bitwidth: int) -> str:
         high = arr[0::2] << 4
         low = arr[1::2]
         packed_bytes = (high | low).astype(np.uint8).tobytes()
-    elif item_bitwidth % 8 == 0:
+    elif item_bitwidth & 7 == 0:
         bytewidth = item_bitwidth >> 3
         kind = "i" if is_signed else "u"
         dtype = np.dtype(f">{kind}{bytewidth}")

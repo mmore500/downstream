@@ -151,3 +151,73 @@ def test_pack_hex_bitwidth_range_error():
         pack_hex(items, 0)
     with pytest.raises(ValueError):
         pack_hex(items, 65)
+
+
+def test_pack_hex_uint64_extremes():
+    # Unsigned 64-bit extremes: 0 and max uint64
+    vals = [0, np.iinfo(np.uint64).max, 1, np.iinfo(np.uint64).max - 1]
+    items = np.array(vals, dtype=np.uint64)
+    item_bitwidth = 64
+    expected = "".join(f"{v:016x}" for v in vals)
+    result = pack_hex(items, item_bitwidth)
+    assert result == expected
+
+
+def test_pack_hex_int64_extremes():
+    # Signed 64-bit extremes: min int64 and max int64
+    vals = [
+        np.iinfo(np.int64).min,
+        np.iinfo(np.int64).min + 1,
+        np.iinfo(np.int64).max - 1,
+        np.iinfo(np.int64).max,
+    ]
+    items = np.array(vals, dtype=np.int64)
+    item_bitwidth = 64
+    reps = [(int(v) & ((1 << item_bitwidth) - 1)) for v in vals]
+    expected = "".join(f"{r:016x}" for r in reps)
+    result = pack_hex(items, item_bitwidth)
+    assert result == expected
+
+
+def test_pack_hex_uint32_extremes():
+    # Unsigned 32-bit extremes and near-extremes
+    vals = [0, np.iinfo(np.uint32).max, 1, np.iinfo(np.uint32).max - 1]
+    items = np.array(vals, dtype=np.uint32)
+    item_bitwidth = 32
+    expected = "".join(f"{v:08x}" for v in vals)
+    result = pack_hex(items, item_bitwidth)
+    assert result == expected
+
+
+def test_pack_hex_int32_extremes():
+    # Signed 32-bit extremes and near-extremes
+    im = np.iinfo(np.int32)
+    vals = [im.min, im.min + 1, im.max - 1, im.max]
+    items = np.array(vals, dtype=np.int32)
+    item_bitwidth = 32
+    reps = [(int(v) & ((1 << item_bitwidth) - 1)) for v in vals]
+    expected = "".join(f"{r:08x}" for r in reps)
+    result = pack_hex(items, item_bitwidth)
+    assert result == expected
+
+
+def test_pack_hex_int16_extremes():
+    # Signed 16-bit extremes
+    im = np.iinfo(np.int16)
+    vals = [im.min, im.min + 1, im.max - 1, im.max]
+    items = np.array(vals, dtype=np.int16)
+    item_bitwidth = 16
+    reps = [(int(v) & ((1 << item_bitwidth) - 1)) for v in vals]
+    expected = "".join(f"{r:04x}" for r in reps)
+    result = pack_hex(items, item_bitwidth)
+    assert result == expected
+
+
+def test_pack_hex_uint16_extremes():
+    # Unsigned 16-bit extremes
+    um = np.iinfo(np.uint16).max
+    items = np.array([0, um], dtype=np.uint16)
+    item_bitwidth = 16
+    expected = "0000" + f"{um:04x}"
+    result = pack_hex(items, item_bitwidth)
+    assert result == expected
