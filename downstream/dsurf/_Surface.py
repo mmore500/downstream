@@ -4,6 +4,7 @@ import typing
 
 import numpy as np
 
+from .._auxlib._pack_hex import pack_hex
 from .._auxlib._unpack_hex import unpack_hex
 
 _DSurfDataItem = typing.TypeVar("_DSurfDataItem")
@@ -135,24 +136,22 @@ class Surface(typing.Generic[_DSurfDataItem]):
             raise NotImplementedError(
                 "Non-integer hex serialization not yet implemented"
             )
+        if np.asarray(self._storage).min() < 0:
+            raise NotImplementedError(
+                "Negative integer hex serialization not yet implemented"
+            )
+
+        assert self.T >= 0
+        if int(self.T).bit_length() > T_bitwidth:
+            raise ValueError(
+                f"{self.T}= not representable in {T_bitwidth=} bits",
+            )
         T_arr = np.asarray(self.T, dtype=np.uint64)
-        T_bytes = T_arr.astype(">u8").tobytes()  # big-endian u32
-        T_hexwidth = T_bitwidth // 4
+        T_bytes = T_arr.astype(">u8").tobytes()  # big-endian u64
+        T_hexwidth = T_bitwidth >> 2
         T_hex = T_bytes.hex()[-T_hexwidth:]
 
-        item_bytewidth = item_bitwidth // 8
-        pack_op = [
-            lambda x: x.astype(
-                f">u{item_bytewidth}"
-            ),  # big-endian (let this throw if invalid)
-            np.packbits,  # default big bitorder
-        ][item_bitwidth == 1]
-        pack_dtype = [np.uint64, np.int64][any(x < 0 for x in self._storage)]
-        surface_bits = pack_op(
-            np.array(self._storage, dtype=pack_dtype),
-        )
-        surface_bytes = surface_bits.tobytes()
-        surface_hex = surface_bytes.hex()
+        surface_hex = pack_hex(self._storage, item_bitwidth)
 
         return T_hex + surface_hex
 
