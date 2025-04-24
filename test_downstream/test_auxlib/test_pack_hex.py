@@ -147,9 +147,9 @@ def test_pack_hex_signed_no_overflow_error():
 def test_pack_hex_bitwidth_range_error():
     # bitwidth outside [1,64] should raise ValueError
     items = np.array([0], dtype=np.uint8)
-    with pytest.raises(ValueError):
+    with pytest.raises(NotImplementedError):
         pack_hex(items, 0)
-    with pytest.raises(ValueError):
+    with pytest.raises(NotImplementedError):
         pack_hex(items, 65)
 
 

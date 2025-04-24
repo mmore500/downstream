@@ -30,7 +30,7 @@ def pack_hex(items: np.ndarray, item_bitwidth: int) -> str:
         items = np.asarray(items, dtype=np.uint64)
 
     if not (1 <= item_bitwidth <= 64):
-        raise ValueError("item_bitwidth must be between 1 and 64")
+        raise NotImplementedError(f"{item_bitwidth=} not yet supported")
 
     if not item_bitwidth * len(items) & 3 == 0:
         raise NotImplementedError("non-hex-aligned data not yet supported")
@@ -38,7 +38,7 @@ def pack_hex(items: np.ndarray, item_bitwidth: int) -> str:
     is_signed = np.any(items < 0)
     if item_bitwidth % 8 != 0 and is_signed:
         raise ValueError(
-            f"signed data not representable with {item_bitwidth=}"
+            f"signed data not representable with {item_bitwidth=}",
         )
 
     norm_items = items + is_signed * np.asarray(
