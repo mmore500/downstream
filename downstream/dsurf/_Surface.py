@@ -25,7 +25,7 @@ class Surface(typing.Generic[_DSurfDataItem]):
         algo: types.ModuleType,
         *,
         S: int,
-        storage_bitoffset: int = 32,
+        storage_bitoffset: typing.Optional[int] = None,
         storage_bitwidth: int,
         T_bitoffset: int = 0,
         T_bitwidth: int = 32,
@@ -47,13 +47,13 @@ class Surface(typing.Generic[_DSurfDataItem]):
             Hex string to be parsed, which can be uppercase or lowercase.
         algo: module
             Dstream algorithm to use to create the new Surface object.
-        storage_bitoffset: int
+        storage_bitoffset: int, default T_bitwidth
             Number of bits before the storage.
         storage_bitwidth: int
             Number of bits used for storage.
-        T_bitoffset: int
+        T_bitoffset: int, default 0
             Number of bits before dstream_T.
-        T_bitwidth: int
+        T_bitwidth: int, default 32
             Number of bits used to store dstream_T.
         S: int
             Number of buffer sites used to store data items.
@@ -65,6 +65,9 @@ class Surface(typing.Generic[_DSurfDataItem]):
         Surface.to_hex()
             Serialize a Surface object into a hex string.
         """
+        if storage_bitoffset is None:
+            storage_bitoffset = T_bitwidth
+
         for arg in (
             "storage_bitoffset",
             "storage_bitwidth",
