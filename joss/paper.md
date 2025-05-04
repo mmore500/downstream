@@ -72,9 +72,7 @@ This makes it well-suited for monitoring and alerting systems where recent trend
 | Stretched      | Biases recent data             | Evolutionary history         |
 | Steady         | Biases older data              | Real-time alert monitoring   |
 
-![Comparison of the three Downstream algorithms
-  \label{table:algos}
-]
+Table: Comparison of the three Downstream algorithms.
 
 # Implementation
 
