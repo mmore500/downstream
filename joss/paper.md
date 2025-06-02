@@ -1,19 +1,45 @@
 ---
-title: 'Downstream: efficient, constant-space implementations of stream curation algorithms.'
+title: 'Downstream: efficient, constant-space implementations of stream curation algorithms'
 tags:
   - Python
   - Rust
   - C++
+  - Zig
+  - CSL
 authors:
   - name: Connor Yang
     orcid: 0009-0004-1240-2362
-    affiliation: 1
+    affiliation: 1,5
+  - name: Joey Wagner
+    orcid: 0009-0000-6141-976X
+    affiliation: 6,9
+  - name: Emily Dolson
+    orcid: 0000-0001-8616-4898
+  - name: Luis Zaman
+    orcid: 0000-0001-6838-7385
+    affiliation: 2,3,4
   - name: Matthew Andres Moreno
     orcid: 0000-0003-4726-4479
-    affiliation: 1
+    affiliation: 2,3,4,5
 affiliations:
- - name: University of Michigan
-   index: 1
+  - name: Undergraduate Research Opportunities Program
+    index: 1
+  - name: Department of Ecology and Evolutionary Biology
+    index: 2
+  - name: Center for the Study of Complex Systems
+    index: 3
+  - name: Michigan Institute for Data and AI in Society
+    index: 4
+  - name: University of Michigan, Ann Arbor, United States
+    index: 5
+  - name: Professorial Assistantship Program
+    index: 6
+  - name: Department of Computer Science and Engineering
+    index: 7
+  - name: Program in Ecology, Evolution, and Behavior
+    index: 8
+  - name: Michigan State University, East Lansing, United States
+    index: 9
 date: 10 February 2025
 bibliography: paper.bib
 ---
