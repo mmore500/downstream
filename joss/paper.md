@@ -9,18 +9,19 @@ tags:
 authors:
   - name: Connor Yang
     orcid: 0009-0004-1240-2362
-    affiliation: 1,5
+    affiliation: "1, 5"
   - name: Joey Wagner
     orcid: 0009-0000-6141-976X
-    affiliation: 6,9
+    affiliation: "6, 9"
   - name: Emily Dolson
     orcid: 0000-0001-8616-4898
+    affiliation: "7, 8, 9"
   - name: Luis Zaman
     orcid: 0000-0001-6838-7385
-    affiliation: 2,3,4
+    affiliation: "2, 3, 4"
   - name: Matthew Andres Moreno
     orcid: 0000-0003-4726-4479
-    affiliation: 2,3,4,5
+    affiliation: "2, 3, 4, 5"
 affiliations:
   - name: Undergraduate Research Opportunities Program
     index: 1
