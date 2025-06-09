@@ -135,9 +135,9 @@ Preliminary benchmarking has shown that all Downstream algorithms exhibit consis
 
 Statistical analyses were conducted to confirm that the observed differences in execution time are not statistically significant ($\alpha=0.05$; Krukall-Wallis; $n=5$). These analyses are available in the following notebooks:
 
-- ([Buffer size benchmarks](https://github.com/mmore500/downstream-benchmark/blob/binder/binder/2025_04_13_assign_sites_batched_graphing_T_ranges.ipynb)
+- [Buffer size benchmarks](https://github.com/mmore500/downstream-benchmark/blob/binder/binder/2025_04_13_assign_sites_batched_graphing_T_ranges.ipynb)
 
-- [Surface size benchmarks](https://github.com/mmore500/downstream-benchmark/blob/binder/binder/2025_04_13_assign_sites_batched_graphing_S_ranges.ipynb))
+- [Surface size benchmarks](https://github.com/mmore500/downstream-benchmark/blob/binder/binder/2025_04_13_assign_sites_batched_graphing_S_ranges.ipynb)
 
 # Projects Using the Software
 
