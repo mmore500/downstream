@@ -141,7 +141,7 @@ Statistical analyses were conducted to confirm that the observed differences in 
 
 # Projects Using the Software
 
-\citet{@Moreno2024} has incorporated Downstream algorithms for maintaining historical records in distributed digital evolution simulations, tracking phylogenetic information across massively distributed, agent-based experiments conducted on the 850,000 core Cerebras Wafer-Scale Engine.
+Moreno et al. [@Moreno2024] has incorporated Downstream algorithms for maintaining historical records in distributed digital evolution simulations, tracking phylogenetic information across massively distributed, agent-based experiments conducted on the 850,000 core Cerebras Wafer-Scale Engine.
 
 # Related Software
 
