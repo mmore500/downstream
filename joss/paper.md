@@ -57,19 +57,21 @@ For seamless interoperation, the library incorporates distribution through multi
 
 # Statement of Need
 
-Efficient data stream processing is crucial modern computing systems, where workloads of continuous, high-volume data has become more prevalent [@Cordeiro2016].
-Applications of data stream processing include sensor networks [@Eiman2003], distributed big-data processing [@he2010comet], real-time network traffic analysis [@Johnson2005;@Muthukrishnan2005], systems log management [@Fischer2012], fraud monitoring [@RajeshwariU2016], trading in financial markets [@Agarwal2009], environmental monitoring [@Hill2009], and astronomy [@Graham2012], which all generate data at rates that exceed practical storage capacity while requiring analysis across varying time horizons.
+Efficient data stream processing is crucial modern computing systems, where workloads of continuous, high-volume data have become more prevalent [@Cordeiro2016].
+Applications of data stream processing include sensor networks [@Eiman2003], distributed big-data processing [@he2010comet], real-time network traffic analysis [@Johnson2005;@Muthukrishnan2005], systems log management [@Fischer2012], fraud monitoring [@RajeshwariU2016], trading in financial markets [@Agarwal2009], environmental monitoring [@Hill2009], and astronomical surveys [@Graham2012], which all generate data at rates that exceed practical storage capacity, while requiring analysis across varying time horizons.
 
-Downstream complements existing tools for data stream analysis by providing algorithms that compress stream history into fixed memory capacities while retaining representative data points following a specified temporal distribution.
+Within the context of the broader ecosystem of tools for data stream processing, Downstream targets, in specific, use cases requiring best-effort downsampling within fixed memory capacity.
+Within this domain, Downstream especially benefits scenarios involving:
+1. real-time operations, due to support for $\mathcal{O}(1)$ data processing;
+2. need for compact memory layout with minimal overhead, especially where individual data items are small (e.g., single bits or bytes) relative to bookkeeping metadata or where curated downsamples are frequently copied/transmitted; and/or
+would be particularly impactful; and/or
+3. support for SIMD acceleration (e.g., ARM SVE, x86 AVX, GPU, etc.), due to branchless structure of underlying algorithms.
 
-By exclusively operating with primitive operations and eliminating memory overhead, the framework targets use cases in severely resource-constrained environments including embedded systems, where available memory is often measured in kilobytes.
-This makes it especially valuable for applications where individual data items may be as small as single bits or bytes—scenarios, where conventional approaches would consume more memory for metadata than for the data itself.
-Large-scale hardware accelerators like the Cerebras WSE-2 share similar resource constraints-despite having 40 gigabytes of total on-chip memory, it must be divided between hundreds of thousands of cores, resulting in each individual core having access to under 50 kilobytes of memory [@Lie2023].
-Downstream implementations of efficient stream compression is particularly valuable for applications such as hereditary stratigraphy [@moreno2022hstrat] in large-scale evolutionary simulations, where memory-efficient evolutionary history tracking must be maintained across distributed computing environments.
-These methods are being used to collect time series data in a best effort fashion—that is, they prioritize storing representative and strategically selected items from the stream under fixed-capacity memory, but cannot guarantee retention of all significant points.
-<!-- This method has been used to collect / is being explored to collect time series data in a best effort fashion -->
-<!-- Downstream algorithms are currently being used to support such phylogenetic tracking in distributed digital evolution simulations [@] -->
-
+As such, Downstream is well-suited to emerging AI/ML hardware accelerator platforms, such as Cerebras Systems' Wafer-Scale Engine (WSE) \citep{Lie2023}, Graphcore's Intelligence Processing Unit \citep{gepner2024performance}, Tenstorrent's Tensix processors \citep{vasiljevic2021compute}, and Groq's GropChip \citep{abts2022groq}.
+Pursuing an aggressive scale-out paradigm, thes platforms bring hundreds, thousands, or --- in the case of the Wafer-Scale Engine --- hundreds of thousands of processing elements to bear on a single chip.
+As a design trade-off, however, on-device memory available per processor on these platforms is generally scarce.
+For instance, although the Cerebras WSE-2 supplies 40 gigabytes of on-chip memory in total, split between processor element this amounts to less than 50 kilobytes each [@Lie2023].
+Indeed, a key use case motivating the Downstream library has been in managing data for agent-based evolution experiments conducted on the WSE platform, a topic discussed further in "Projects Using This Software."
 
 # Approach
 
