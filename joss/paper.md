@@ -75,29 +75,43 @@ Indeed, a key use case motivating the Downstream library has been in managing da
 
 # Approach
 
-To simplify the process of stream curation, this approach makes some assumptions: first, the output buffer is of a fixed length; second, stored data remains static without subsequent editing or relocation.
-Operations on ingested items are therefore limited to discarding without storage, storing, or overwriting previously stored data.
-This reduces the problem of stream curation to one of site selection—determining the placement of each subsequent data item.
+Algorithms in Downstream consist of two components:
+1. *site selection*, which controls ongoing runtime downsample curation, and
+2. *site lookup*, which identifies stream arrival indices (i.e., timepoints) for stored data.
 
-In a typical use case, an application would integrate Downstream by: (1) initializing a fixed-size buffer with the desired capacity, (2) passing each new data point through the selected algorithm's site selection function to determine whether and where to store it, and (3) later accessing the preserved history through standard lookup operations.
-For instance, in the hereditary stratigraphy example, the buffer represents the genetic information of a specific genome, with each selected site representing a mutation within a particular generation.
-In [@Moreno2024], multiple such genomes are instantiated, and undergo many such generations to simulate evolution.
-Lookup procedures can then be used for post-hoc analysis to reconstruct a phylogenetic tree from the resulting data.
+Downstream's runtime data management applies a minimalistic strategy.
+First, a fixed-capacity working buffer is assumed, with user-defined size.
+Second, stored data remains fixed in place without subsequent editing or relocation.
+Operations on ingested items are therefore limited to storing, discarding (i.e., without storage), or overwriting previously stored data.
+Hence, downsample curation is wholly determined by "site selection" --- i.e., the placement of each ingested data item.
+This scheme, in essence, represents a generalized ring buffer, and --- as such --- provides compact, efficient processing and storage [@Gunther2014].
 
-![Schematic illustration of a Downstream site selection algorithm operating on a data stream with a fixed-capacity memory buffer ($S = 4$ sites). Each new item in the data stream (right) arrives over time ($T \in[0, 8]$), and is either stored in the memory buffer or discarded. Storage decisions are made independently at each timestep, with each item mapped to one of the $S$ memory sites ($k \in {0, 1, 2, 3}$). Previously stored items may be overwritten. This example illustrates which stream items are retained and which are discarded based on their mapped site and time ingested.
+Figure \autoref{fig:schematic} illustrates Downstream's single-operation "site selection" approach.
+At any point, but typically in a postprocessing step, a corresponding "site lookup" procedure can calculate stored items' arrival index, allowing this metadata to be omitted in storage.
+
+In practice, typical nuts-and-bolts steps for end-user code are thus: (1) initialize a fixed-size buffer with desired capacity ($S$), (2) maintain a count $T$ of elapsed stream depth, and (3) use $T$ and $S$ to call the site selection method of a chosen Downstream algorithm to place each arriving stream item in the buffer (or discard it).
+From this point forward, steps in using or analyzing stored data will vary by use case.
+Among a variety of supported possibilities, one simple workflow would be to (1) dump memory segments comprising counter $T$ and stored buffer content as hexidecimal strings in a tabular data file (e.g., Parquet, CSV, etc.) then (2) using Downstream CLI, explode as long format (i.e., one row per data item) with corresponding data item lookups (i.e., stream arrival index).
+
+![Schematic illustration of a Downstream site selection algorithm operating on a data stream with a fixed-capacity memory buffer ($S = 4$ sites). Each new item in the data stream (right) arrives over time ($T \in[0, 8]$), and is either stored in the memory buffer or discarded. Storage decisions are made independently at each timestep, with each item mapped to one of the $S$ memory sites ($k \in {0, 1, 2, 3}$). Previously stored items may be overwritten. This example illustrates curation of a steady-spaced downsample. Green box (top) depicts lookup operation to calculate stream indices of stored data at time $T=8$.
   \label{fig:schematic}
 ](assets/schematic_smaller.png)
 
-To support diverse use cases, the three Downstream algorithms address different temporal distributions.
+# Features
 
-The **steady algorithm** creates evenly distributed snapshots across stream history by preserving data points with the most historical significance while maintaining relatively uniform spacing between retained items.
-This approach is best suited for applications in which it is important to maintain data from all time periods, such as long-term monitoring systems that need to detect patterns across their entire operational history and trend analysis across extended timeframes.
+Downstream provides algorithms for curating stream downsample density according to three primary temporal distributions: steady, stretched, and tilted.
+
+The **steady algorithm** maintainains uniform spacing between retained items.
+This approach is best suited for applications in which it is important to maintain data from all time periods, such as for trend analysis in long-term monitoring systems.
+In addition to an approach proposed in [@moreno2024algorithms], Downstream includes Python implementation of the ``compressing ring buffer'' approach for steady curation developed by [@Gunther2014].
 
 The **stretched algorithm** prioritizes older data while maintaining recent context, focusing on preserving the origins of the stream.
-This approach particularly benefits applications where understanding initial conditions is critical for providing context for current behaviors, such as system diagnostics, evolutionary patterns [@moreno2024algorithms], and environmental monitoring systems.
+Specifically, the density of retained data is thinned proportionally to depth in the stream.
+This approach suits applications where detailed understanding initial conditions is critical.
 
 The **tilted algorithm** prioritizes recent information over older data.
-This makes it well-suited for monitoring and alerting systems where recent trends are most relevant, but historical context still provides valuable perspective such as in real-time monitoring systems [@tabassum2018sampling] where recent data carries more operational significance than older data [@aggarwal2006biased].
+Specifically, the density of retained data is thinned proportionally to age.
+This makes it well-suited for monitoring and alerting systems where recent trends are most relevant, but historical context still provides valuable perspective --- such as in real-time monitoring systems [@tabassum2018sampling], where recent data carries more operational significance than older data [@aggarwal2006biased].
 
 | **Algorithm Name** | **Distribution of Retained Data**  | **Example Use Case**             |
 | ------------------ | ---------------------------------- | -------------------------------- |
@@ -105,29 +119,22 @@ This makes it well-suited for monitoring and alerting systems where recent trend
 | Tilted          | Biases recent data                 | Ancestry markers in evolutionary simulations             |
 | Stretched             | Biases older data                  | Real-time alert monitoring       |
 
-Table: Comparison of the three core Downstream algorithms.
+Table: Comparison of core Downstream algorithms.
 
-The framework's distinct approach of requiring only single-operation "site selection" illustrated in \autoref{fig:schematic} allows it to store zero metadata, providing significant improvements in space efficiency compared to previous methods.
+To support diverse end-user integrations, Downstream has been implemented across five programming languages: C++, Rust, Python, Zig, and the Cerebras Software Language (CSL).
+We have organized each implementation as a standalone branch within the library's git repository.
 
-# Implementation
+For all implementations, we provide:
+1. Steady, stretched, and tilted site selection methods.
+2. API documentation, to demonstrate function signatures and semantics.
+3. Installation instructions.
+Where possible, installation is available through standard package managers (e.g., Python's PyPI, Cargo's Rust).
+C++ code is provided as a header-only library.
+4. Extensive validation tests, ensuring complete interchangeability and exact compatibility between platforms (e.g., separate data collection and analysis steps).
 
-Downstream has been implemented across five programming languages in order to support diverse computing environments, including C++, Rust, Python, Zig, and the Cerebras Software Language.
-This multi-language approach enables integration with various systems from embedded devices to high-performance computing environments, supporting both research prototypes and production deployments.
-Each of the implementations reside in a separate branch of the Downstream GitHub repository and contains site selection implementation for the three main Downstream algorithms.
-In addition, some branches include hybrid variants that combine multiple temporal distributions.
-Support for dataframe processing is available in Python
-To enhance usability and reliability, the framework incorporates features across all implementations:
-
-1. Each algorithm is run against cross-validation tests with the Python implementation to ensure consistent behavior. Consistent behavior is important so that data can be collected using one language implementation and analyzed in another language.
-
-2. Documentation is available for all languages, with function headings listed for at least one of the algorithms.
-All other algorithms should share the same heading.
-
-3. The library is available through standard package managers for each supported language, including pip for Python and Cargo for Rust.
-It is also available for C++ as a header-only library.
-
-4. Users can specify precise memory constraints, allowing the framework to adapt to varying resource environments without compromising functionality.
-
+On an as-needed basis, implementations are provided for additional hybrid algorithms, which split buffer space between multiple temporal distributions.
+Support for high-throughput bulk lookup operations is implemented in Python, with both CLI- and library-based interfaces available.
+A Python-based CLI is also provided for validation testing, facilitating development of additional implementations for new languages or platforms.
 
 # Results and Performance
 
