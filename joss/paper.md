@@ -136,19 +136,22 @@ On an as-needed basis, implementations are provided for additional hybrid algori
 Support for high-throughput bulk lookup operations is implemented in Python, with both CLI- and library-based interfaces available.
 A Python-based CLI is also provided for validation testing, facilitating development of additional implementations for new languages or platforms.
 
-# Results and Performance
+# Empirical Scaling Benchmark
 
-![Execution time performance of Downstream site selection algorithms across varying runtime environments. (Left) Per-site real execution time across different surface sizes ($S \in {64, 256, 1024}$), representing the size of the buffer. (Right) Real execution time across different time range capacities ($T \in [0, 2^{16})$ and $[0, 2^{32})$), representing the number of ingested timesteps. Results show consistent performance across scales, with all three algorithms exhibiting stable execution costs. Bars show the 95% confidence intervals for each test
+![Execution time of Downstream site selection algorithms across varying runtime environments. (Left) Per-site real execution time across different surface sizes ($S \in \{64, 256, 1024\}$), representing the size of the buff\er. (Right) Real execution time across different time ranges ($T \in [0, 2^{16})$ vs. $[0, 2^{32})$).
+Bars show bootstrap 95% confidence intervals.
   \label{fig:benchmark}
 ](assets/benchmark_combined_new.png)
 
-Preliminary benchmarking has shown that all Downstream algorithms exhibit consistent execution times for site seleciton operations, regardless of buffer size or surface size (i.e. the number of data points processed), as illustrated in \autoref{fig:benchmark}.
+A key goal of Downstream is efficient scaling to large buffer sizes and deep stream durations.
+To test the library's performance, we conducted empirical benchmarking trials of Python site selection methods.
+Shown in Figure \autoref{fig:benchmark}, we observed consistent execution time across both buffer size and stream depth (i.e., number of data points processed).
+Statistical analysis detects no significant differences in execution time between conditions ($\alpha=0.05$; Krukall-Wallis; $n=5$).
 
-Statistical analyses were conducted to confirm that the observed differences in execution time are not statistically significant ($\alpha=0.05$; Krukall-Wallis; $n=5$). These analyses are available in the following notebooks:
-
+<!--
 - [Buffer size benchmarks](https://github.com/mmore500/downstream-benchmark/blob/binder/binder/2025_04_13_assign_sites_batched_graphing_T_ranges.ipynb)
-
 - [Surface size benchmarks](https://github.com/mmore500/downstream-benchmark/blob/binder/binder/2025_04_13_assign_sites_batched_graphing_S_ranges.ipynb)
+-->
 
 # Projects Using the Software
 
