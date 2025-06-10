@@ -153,40 +153,51 @@ Statistical analysis detects no significant differences in execution time betwee
 - [Surface size benchmarks](https://github.com/mmore500/downstream-benchmark/blob/binder/binder/2025_04_13_assign_sites_batched_graphing_S_ranges.ipynb)
 -->
 
-# Projects Using the Software
+## Projects Using the Software
 
-Moreno et al. [@Moreno2024] has incorporated Downstream algorithms for maintaining historical records in distributed digital evolution simulations, tracking phylogenetic information across massively distributed, agent-based experiments conducted on the 850,000 core Cerebras Wafer-Scale Engine.
+A motivating use case for the Downstream library is in supporting work on *hereditary stratigraphy*, a decentralized, approximate phylogeny tracking method for large-scale, parallel and distributed agent-based evolution simulations.
+In this use case, phylogenetic history (i.e., a population's ancestry tree) is estimated from Downstream-curated data embedded in agent genomes.
+This data comprises a running downsample of randomly-generated checkpoint values, generated and appended for each generation elapsed.
+By comparing these checkpoint values, it is possible to estimate when the lineages of extant genomes diverged [@moreno2022hereditary].
+Notably, this use case can make use of both steady and tilted distributions [@moreno2025testing], and depends on post-hoc stream index lookup to identify the generational timing of inferred phylogenetic events.
+
+To this end, Downstream serves as a key dependency for the library implementing hereditary stratigraphy methodology, *hstrat* [@moreno2022hstrat].
+In recent work with *hstrat*, the CSL Downstream implementation has been applied to support phylogeny tracking in massively distributed, agent-based evolution simulations conducted on the 850,000 processor WSE platform [@Moreno2024].
+<!-- TODO: this approach has enabled phylogeny reconstructions scaling up to one billion tips -->
+In other forthcoming work employing WSE-based simulations of hypermutator evolution, Downstream has also been used to collect time series data leading up to in-simulation extinction events.
+
+In both examples, Downstream provides a mechanism for best-effort trade-offs between runtime efficiency and data quality, wherein a considered amount of precision (chosen based on experimental objectives) is exchanged for memory savings, dynamic flexibility, and --- ultimately --- increased scalability.
+We anticipate this pattern continuing as a recurring theme in further applications of the library.
 
 # Related Software
 
-Several existing frameworks address aspects of data stream processing with approaches distinct from Downstream.
+Several notable projects provide data stream processing functionality related to Downstream.
 
-The most similar piece of software to Downstream is Algorithm 938 [@Gunther2014] from the ACM Transactions on Mathematical Software collection which uses circular buffer-related methodology for data sequence compression, but implements different mechanisms for data point selection and historical representation.
-Gunther's software also supports additional aggregation algorithms like averaging, as opposed to just sampling in Downstream.
-Downstream includes a Python implementation of this algorithm for comparison, while extending beyond the original Java implementation to support various programming languages and focusing on broader summarization operations like the stretched and tilted strategies.
+The most similar piece of software to Downstream is Gunther's work on compressing circular buffers [@Gunther2014].
+This approach exploits modular arithmetic as the basis for a ring buffer generalization with steady-spaced coarsening behavior.
+Included software, written in Java, notably supports additional aggregation algorithms (e.g., averaging, summing, extrema, etc.) in addition to sampling, as is the focus in Downstream.
+Downstream extends beyond [@Gunther2014], however, in enabling support for stretched and tilted downsampling, as well as cross-language support and high-throughput lookup decoding.
 
-Apache Flink and Spark Streaming are general-purpose distributed computing frameworks for stream processing, but focus much more on scalability and distributed computation over massive data streams rather than historical data retention within fixed memory constraints [@carbone2015apache;@salloum2016big].
+Reservoir sampling approaches provide representative samples of data streams, but lack  deterministic temporal distribution guarantees and metadata-free stream arrival index attribution provided by Downstream [@aggarwal2006biased;@hentschel2018temporally].
 
-InfluxDB and TimescaleDB are time-series databases that offer storage solutions for continuous data for applications like IoT devices, but typically require expanding storage capacity or downsampling strategies fundamentally different from Downstream's algorithms [@naqvi2017time;@stefancova2018evaluation].
+Apache Flink and Spark Streaming are general-purpose distributed computing frameworks for stream processing, which focus on distributed computation over massive data streams rather than data downsampling [@carbone2015apache;@salloum2016big].
 
-The reservoir sampling algorithm maintains representative samples of data streams but lacks the temporal distribution guarantees provided by Downstream's specialized algorithms [@aggarwal2006biased;@hentschel2018temporally].
+InfluxDB and TimescaleDB are time-series databases that offer storage solutions for continuous data in applications like IoT devices, but typically require open-ended storage capacity or downsampling strategies fundamentally different from Downstream's algorithms [@naqvi2017time;@stefancova2018evaluation].
 
 # Future Work
 
-To validate these algorithms, further benchmarks can be conducted to compare memory efficiency and throughput across all five language implementations.
-These benchmarks can measure performance under various real-world constraints, simulating in embedded systems and high-throughput applications.
+As originally proposed [@Moreno2024], Downstream's stretched and tilted algorithms only support stream sizes up to $2^S-2$ items (where $S$ is the buffer size).
+Preliminary work, included in recent releases of Downstream, is underway to explore extensions beyond this point.
+Work is also underway on more comprehensive cross-platform benchmarks.
 
-To further improve accessibility, we plan to continue implementing Downstream in more languages, including Julia, as well as any other implementations requested by users.
-<!-- Additionally, we aim to enhance support for dataframe processing to simplify integration with data analysis workflows. -->
-Each new implementation will follow the existing structure mentioned previously.
+More generally, we plan to continue developing library features --- e.g., extending partially-supported functionality across language branches, supporting additional programming languages, etc. --- on an as-needed basis, and welcome user requests or contributions to this end.
 
-For stretched and tilted algorithms, which currently support up to $2^S-2$ ingestions (where $S$ is the buffer size), preliminary work addresses behavior beyond this threshold by switching curation behavior at values $2^S-1$ and onwards.
 
 # Acknowledgements
 
-
-Thank you to Vivaan Singhvi and Joey Wagner for providing supplemental material including benchmarks and additional implementations to the Downstream and hstrat libraries.
+Thank you to Vivaan Singhvi for contributing supplemental material, including benchmarks and additional implementations, to the Downstream and hstrat libraries.
 This research was supported by University of Michigan through the Undergraduate Research Opportunities Program, by Michigan State University through computational resources provided by the Institute for Cyber-Enabled Research, and by the Eric and Wendy Schmidt AI in Science Postdoctoral Fellowship, a Schmidt Sciences program.
+
 This material is based upon work supported by the U.S. Department of Energy, Office of Science, Office of Advanced Scientific Computing Research (ASCR), under Award Number DE-SC0025634.
 This report was prepared as an account of work sponsored by an agency of the United States Government.
 Neither the United States Government nor any agency thereof, nor any of their employees, makes any warranty, express or implied, or assumes any legal liability or responsibility for the accuracy, completeness, or usefulness of any information, apparatus, product, or process disclosed, or represents that its use would not infringe privately owned rights.
