@@ -47,11 +47,13 @@ bibliography: paper.bib
 
 # Summary
 
-Real-world data streams often require real-time operations on a continuous, indefinite basis [@Cordeiro2016].
-This often exceeds available memory capacities, requiring memory-efficient alternatives to storing entire streams directly.
-While traditional approaches like circular ring buffers address this limitation by retaining only the most recent data points, Downstream offers three fixed-capacity sampling algorithms, proposed in [@moreno2024algorithms], that maintain representative, approximate records of stream history: (1) "steady," which creates evenly spaced snapshots across the entire history; (2) "stretched," which preserves important older data points; and (3) "tilted," which prioritizes recent information.
-To ensure seamless integration into diverse computing environments, Downstream offers implementations in multiple programming languages including C++, Rust, Python, Zig, and the Cerebras Software Language.
-The library features extensive cross-implementation testing, automated documentation and deployment, and is available through standard package managers.
+Due to ongoing accrual over long durations, a defining characteristic of real-world data streams is the requirement for rolling, often real-time, mechanisms to coarsen or summarize stream history.
+One common data structure for this purpose is the ring buffer, which maintains a running downsample comprising most recent stream data.
+In some downsampling scenarios, however, it can instead be necessary to maintain data items spanning the entirety of elapsed stream history.
+Fortunatenly, approaches generalizing the ring buffer mechanism have been devised to support alternate downsample compositions, while maintaining the ring buffer's update efficiency and optimal use of memory capacity [@moreno2024algorithms,@Gunther2014].
+The Downstream library implements algorithms supporting three such downsampling generalizations: (1) "steady," which curates data evenly spaced across the stream history; (2) "stretched," which prioritizes older data; and (3) "tilted," which prioritizes recent data.
+To enable a broad spectrum of applications ranging from embedded devices to high-performance computing nodes and AI/ML hardware accelerators, Downstream supports multiple programming languages including C++, Rust, Python, Zig, and the Cerebras Software Language.
+For seamless interoperation, the library incorporates distribution through multiple packaging frameworks, extensive cross-implementation testing, and cross-implementation documentation.
 
 # Statement of Need
 
