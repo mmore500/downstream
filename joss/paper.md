@@ -50,7 +50,7 @@ bibliography: paper.bib
 Due to ongoing accrual over long durations, a defining characteristic of real-world data streams is the requirement for rolling, often real-time, mechanisms to coarsen or summarize stream history.
 One common data structure for this purpose is the ring buffer, which maintains a running downsample comprising most recent stream data.
 In some downsampling scenarios, however, it can instead be necessary to maintain data items spanning the entirety of elapsed stream history.
-Fortunately, approaches generalizing the ring buffer mechanism have been devised to support alternate downsample compositions, while maintaining the ring buffer's update efficiency and optimal use of memory capacity [@Moreno2024,@Gunther2014].
+Fortunately, approaches generalizing the ring buffer mechanism have been devised to support alternate downsample compositions, while maintaining the ring buffer's update efficiency and optimal use of memory capacity [@Moreno2024;@Gunther2014].
 The Downstream library implements algorithms supporting three such downsampling generalizations: (1) "steady," which curates data evenly spaced across the stream history; (2) "stretched," which prioritizes older data; and (3) "tilted," which prioritizes recent data.
 To enable a broad spectrum of applications ranging from embedded devices to high-performance computing nodes and AI/ML hardware accelerators, Downstream supports multiple programming languages, including C++, Rust, Python, Zig, and the Cerebras Software Language.
 For seamless interoperation, the library incorporates distribution through multiple packaging frameworks, extensive cross-implementation testing, and cross-implementation documentation.
@@ -86,7 +86,7 @@ Operations on ingested items are therefore limited to storing, discarding (i.e.,
 Hence, downsample curation is wholly determined by "site selection" --- i.e., the placement of each ingested data item.
 This scheme, in essence, represents a generalized ring buffer, and --- as such --- provides compact, efficient processing and storage [@Gunther2014].
 
-Figure \autoref{fig:schematic} illustrates Downstream's single-operation "site selection" approach.
+ \autoref{fig:schematic} illustrates Downstream's single-operation "site selection" approach.
 At any point, but typically in a postprocessing step, a corresponding "site lookup" procedure can calculate stored items' arrival index, allowing this metadata to be omitted in storage.
 
 In practice, typical nuts-and-bolts steps for end-user code are thus: (1) initialize a fixed-size buffer with desired capacity ($S$), (2) maintain a count $T$ of elapsed stream depth, and (3) use $T$ and $S$ to call the site selection method of a chosen Downstream algorithm to place each arriving stream item in the buffer (or discard it).
@@ -145,7 +145,7 @@ Bars show bootstrap 95% confidence intervals.
 
 A key goal of Downstream is efficient scaling to large buffer sizes and deep stream durations.
 To test the library's performance, we conducted empirical benchmarking trials of Python site selection methods.
-Shown in Figure \autoref{fig:benchmark}, we observed consistent execution time across both buffer size and stream depth (i.e., number of data points processed).
+Shown in \autoref{fig:benchmark}, we observed consistent execution time across both buffer size and stream depth (i.e., number of data points processed).
 Statistical analysis detects no significant differences in execution time between conditions ($\alpha=0.05$; Kruskal-Wallis; $n=5$).
 
 <!--
