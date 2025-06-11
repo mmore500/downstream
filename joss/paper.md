@@ -76,6 +76,7 @@ Indeed, a key use case motivating the Downstream library has been in managing da
 # Approach
 
 Algorithms in Downstream consist of two components:
+
 1. *site selection*, which controls ongoing runtime downsample curation, and
 2. *site lookup*, which identifies stream arrival indices (i.e., timepoints) for stored data.
 
@@ -125,6 +126,7 @@ To support diverse end-user integrations, Downstream has been implemented across
 We have organized each implementation as a standalone branch within the library's git repository.
 
 For all implementations, we provide:
+
 1. Steady, stretched, and tilted site selection methods.
 2. API documentation, to demonstrate function signatures and semantics.
 3. Installation instructions, through standard package managers where supported (e.g., Python's PyPI, Cargo's Rust).
