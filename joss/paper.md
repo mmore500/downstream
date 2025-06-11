@@ -1,5 +1,5 @@
 ---
-title: 'Downstream: efficient, constant-space cross-platform implementations of algorithms for stream curation.'
+title: 'Downstream: efficient cross-platform algorithms for fixed-capacity stream downsampling'
 tags:
   - Python
   - Rust
