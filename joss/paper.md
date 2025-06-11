@@ -116,8 +116,8 @@ This makes it well-suited for monitoring and alerting systems where recent trend
 | **Algorithm Name** | **Distribution of Retained Data**  | **Example Use Case**             |
 | ------------------ | ---------------------------------- | -------------------------------- |
 | Steady             | Evenly distributed                 | Long-term systems monitoring     |
-| Tilted          | Biases recent data                 | Ancestry markers in evolutionary simulations             |
-| Stretched             | Biases older data                  | Real-time alert monitoring       |
+| Tilted          | Favors recent data                 | Ancestry markers in evolutionary simulations             |
+| Stretched             | Favors older data                  | Real-time alert monitoring       |
 
 Table: Comparison of core Downstream algorithms.
 
