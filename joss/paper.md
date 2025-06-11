@@ -57,10 +57,10 @@ For seamless interoperation, the library incorporates distribution through multi
 
 # Statement of Need
 
-Efficient data stream processing is crucial modern computing systems, where workloads of continuous, high-volume data have become more prevalent [@Cordeiro2016].
+Efficient data stream processing is crucial in modern computing systems, where workloads of continuous, high-volume data have become more prevalent [@Cordeiro2016].
 Applications of data stream processing include sensor networks [@Eiman2003], distributed big-data processing [@he2010comet], real-time network traffic analysis [@Johnson2005;@Muthukrishnan2005], systems log management [@Fischer2012], fraud monitoring [@RajeshwariU2016], trading in financial markets [@Agarwal2009], environmental monitoring [@Hill2009], and astronomical surveys [@Graham2012], which all generate data at rates that exceed practical storage capacity, while requiring analysis across varying time horizons.
 
-Within the context of the broader ecosystem of tools for data stream processing, Downstream targets, in specific, use cases requiring best-effort downsampling within fixed memory capacity.
+Within the broader ecosystem of tools for data stream processing, Downstream targets, in specific, use cases that require best-effort downsampling within fixed memory capacity.
 Within this domain, Downstream especially benefits scenarios involving:
 1. real-time operations, due to support for $\mathcal{O}(1)$ data processing;
 2. need for compact memory layout with minimal overhead, especially where individual data items are small (e.g., single bits or bytes) relative to bookkeeping metadata or where curated downsamples are frequently copied/transmitted; and/or
@@ -68,9 +68,9 @@ would be particularly impactful; and/or
 3. support for SIMD acceleration (e.g., ARM SVE, x86 AVX, GPU, etc.), due to branchless structure of underlying algorithms.
 
 As such, Downstream is well-suited to emerging AI/ML hardware accelerator platforms, such as Cerebras Systems' Wafer-Scale Engine (WSE) \citep{Lie2023}, Graphcore's Intelligence Processing Unit \citep{gepner2024performance}, Tenstorrent's Tensix processors \citep{vasiljevic2021compute}, and Groq's GropChip \citep{abts2022groq}.
-Pursuing an aggressive scale-out paradigm, thes platforms bring hundreds, thousands, or --- in the case of the Wafer-Scale Engine --- hundreds of thousands of processing elements to bear on a single chip.
+Pursuing an aggressive scale-out paradigm, these platforms bring hundreds, thousands, or --- in the case of the Wafer-Scale Engine --- hundreds of thousands of processing elements to bear on a single chip.
 As a design trade-off, however, on-device memory available per processor on these platforms is generally scarce.
-For instance, although the Cerebras WSE-2 supplies 40 gigabytes of on-chip memory in total, split between processor element this amounts to less than 50 kilobytes each [@Lie2023].
+For instance, although the Cerebras WSE-2 supplies 40 gigabytes of on-chip memory in total, split between processor elements this amounts to less than 50 kilobytes each [@Lie2023].
 Indeed, a key use case motivating the Downstream library has been in managing data for agent-based evolution experiments conducted on the WSE platform, a topic discussed further in "Projects Using This Software."
 
 # Approach
@@ -101,13 +101,13 @@ Among a variety of supported possibilities, one simple workflow would be to (1) 
 
 Downstream provides algorithms for curating stream downsample density according to three primary temporal distributions: steady, stretched, and tilted.
 
-The **steady algorithm** maintainains uniform spacing between retained items.
+The **steady algorithm** maintains uniform spacing between retained items.
 This approach is best suited for applications in which it is important to maintain data from all time periods, such as for trend analysis in long-term monitoring systems.
 In addition to an approach proposed in [@moreno2024algorithms], Downstream includes Python implementation of the ``compressing ring buffer'' approach for steady curation developed by [@Gunther2014].
 
 The **stretched algorithm** prioritizes older data while maintaining recent context, focusing on preserving the origins of the stream.
 Specifically, the density of retained data is thinned proportionally to depth in the stream.
-This approach suits applications where detailed understanding initial conditions is critical.
+This approach suits applications where detailed understanding of initial conditions is critical.
 
 The **tilted algorithm** prioritizes recent information over older data.
 Specifically, the density of retained data is thinned proportionally to age.
@@ -134,11 +134,11 @@ C++ code is provided as a header-only library.
 
 On an as-needed basis, implementations are provided for additional hybrid algorithms, which split buffer space between multiple temporal distributions.
 Support for high-throughput bulk lookup operations is implemented in Python, with both CLI- and library-based interfaces available.
-A Python-based CLI is also provided for validation testing, facilitating development of additional implementations for new languages or platforms.
+A Python-based CLI is also provided for validation testing, facilitating the development of additional implementations for new languages or platforms.
 
 # Empirical Scaling Benchmark
 
-![Execution time of Downstream site selection algorithms across varying runtime environments. (Left) Per-site real execution time across different surface sizes ($S \in \{64, 256, 1024\}$), representing the size of the buff\er. (Right) Real execution time across different time ranges ($T \in [0, 2^{16})$ vs. $[0, 2^{32})$).
+![Execution time of Downstream site selection algorithms across varying runtime environments. (Left) Per-site real execution time across different surface sizes ($S \in \{64, 256, 1024\}$), representing the size of the buffer. (Right) Real execution time across different time ranges ($T \in [0, 2^{16})$ vs. $[0, 2^{32})$).
 Bars show bootstrap 95% confidence intervals.
   \label{fig:benchmark}
 ](assets/benchmark_combined_new.png)
@@ -146,7 +146,7 @@ Bars show bootstrap 95% confidence intervals.
 A key goal of Downstream is efficient scaling to large buffer sizes and deep stream durations.
 To test the library's performance, we conducted empirical benchmarking trials of Python site selection methods.
 Shown in Figure \autoref{fig:benchmark}, we observed consistent execution time across both buffer size and stream depth (i.e., number of data points processed).
-Statistical analysis detects no significant differences in execution time between conditions ($\alpha=0.05$; Krukall-Wallis; $n=5$).
+Statistical analysis detects no significant differences in execution time between conditions ($\alpha=0.05$; Kruskal-Wallis; $n=5$).
 
 <!--
 - [Buffer size benchmarks](https://github.com/mmore500/downstream-benchmark/blob/binder/binder/2025_04_13_assign_sites_batched_graphing_T_ranges.ipynb)
@@ -162,7 +162,7 @@ By comparing these checkpoint values, it is possible to estimate when the lineag
 Notably, this use case can make use of both steady and tilted distributions [@moreno2025testing], and depends on post-hoc stream index lookup to identify the generational timing of inferred phylogenetic events.
 
 To this end, Downstream serves as a key dependency for the library implementing hereditary stratigraphy methodology, *hstrat* [@moreno2022hstrat].
-In recent work with *hstrat*, the CSL Downstream implementation has been applied to support phylogeny tracking in massively distributed, agent-based evolution simulations conducted on the 850,000 processor WSE platform [@Moreno2024].
+In recent work with *hstrat*, the CSL Downstream implementation has been applied to support phylogeny tracking in massively distributed, agent-based evolution simulations conducted on the 850,000-processor WSE platform [@Moreno2024].
 <!-- TODO: this approach has enabled phylogeny reconstructions scaling up to one billion tips -->
 In other forthcoming work employing WSE-based simulations of hypermutator evolution, Downstream has also been used to collect time series data leading up to in-simulation extinction events.
 
@@ -196,7 +196,7 @@ More generally, we plan to continue developing library features --- e.g., extend
 # Acknowledgements
 
 Thank you to Vivaan Singhvi for contributing supplemental material, including benchmarks and additional implementations, to the Downstream and hstrat libraries.
-This research was supported by University of Michigan through the Undergraduate Research Opportunities Program, by Michigan State University through computational resources provided by the Institute for Cyber-Enabled Research, and by the Eric and Wendy Schmidt AI in Science Postdoctoral Fellowship, a Schmidt Sciences program.
+This research was supported by the University of Michigan through the Undergraduate Research Opportunities Program, by Michigan State University through computational resources provided by the Institute for Cyber-Enabled Research, and by the Eric and Wendy Schmidt AI in Science Postdoctoral Fellowship, a Schmidt Sciences program.
 
 This material is based upon work supported by the U.S. Department of Energy, Office of Science, Office of Advanced Scientific Computing Research (ASCR), under Award Number DE-SC0025634.
 This report was prepared as an account of work sponsored by an agency of the United States Government.
