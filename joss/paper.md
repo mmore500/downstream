@@ -67,7 +67,7 @@ Within this domain, Downstream especially benefits scenarios involving:
 would be particularly impactful; and/or
 3. support for SIMD acceleration (e.g., ARM SVE, x86 AVX, GPU, etc.), due to branchless structure of underlying algorithms.
 
-As such, Downstream is well-suited to emerging AI/ML hardware accelerator platforms, such as Cerebras Systems' Wafer-Scale Engine (WSE) \citep{Lie2023}, Graphcore's Intelligence Processing Unit \citep{gepner2024performance}, Tenstorrent's Tensix processors \citep{vasiljevic2021compute}, and Groq's GropChip \citep{abts2022groq}.
+As such, Downstream is well-suited to emerging AI/ML hardware accelerator platforms, such as Cerebras Systems' Wafer-Scale Engine (WSE) [@Lie2023], Graphcore's Intelligence Processing Unit [@gepner2024performance], Tenstorrent's Tensix processors [@vasiljevic2021compute], and Groq's GropChip [@abts2022groq].
 Pursuing an aggressive scale-out paradigm, these platforms bring hundreds, thousands, or --- in the case of the Wafer-Scale Engine --- hundreds of thousands of processing elements to bear on a single chip.
 As a design trade-off, however, on-device memory available per processor on these platforms is generally scarce.
 For instance, although the Cerebras WSE-2 supplies 40 gigabytes of on-chip memory in total, split between processor elements this amounts to less than 50 kilobytes each [@Lie2023].
