@@ -62,9 +62,9 @@ Applications of data stream processing include sensor networks [@Eiman2003], dis
 
 Within the broader ecosystem of tools for data stream processing, Downstream targets, in specific, use cases that require best-effort downsampling within fixed memory capacity.
 Within this domain, Downstream especially benefits scenarios involving:
+
 1. real-time operations, due to support for $\mathcal{O}(1)$ data processing;
 2. need for compact memory layout with minimal overhead, especially where individual data items are small (e.g., single bits or bytes) relative to bookkeeping metadata or where curated downsamples are frequently copied/transmitted; and/or
-would be particularly impactful; and/or
 3. support for SIMD acceleration (e.g., ARM SVE, x86 AVX, GPU, etc.), due to branchless structure of underlying algorithms.
 
 As such, Downstream is well-suited to emerging AI/ML hardware accelerator platforms, such as Cerebras Systems' Wafer-Scale Engine (WSE) [@Lie2023], Graphcore's Intelligence Processing Unit [@gepner2024performance], Tenstorrent's Tensix processors [@vasiljevic2021compute], and Groq's GropChip [@abts2022groq].
@@ -127,8 +127,7 @@ We have organized each implementation as a standalone branch within the library'
 For all implementations, we provide:
 1. Steady, stretched, and tilted site selection methods.
 2. API documentation, to demonstrate function signatures and semantics.
-3. Installation instructions.
-Where possible, installation is available through standard package managers (e.g., Python's PyPI, Cargo's Rust).
+3. Installation instructions, through standard package managers where supported (e.g., Python's PyPI, Cargo's Rust).
 C++ code is provided as a header-only library.
 4. Extensive validation tests, ensuring complete interchangeability and exact compatibility between platforms (e.g., separate data collection and analysis steps).
 
