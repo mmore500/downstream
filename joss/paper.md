@@ -142,13 +142,12 @@ A Python-based CLI is also provided for validation testing, facilitating the dev
 ![Execution time of Downstream site selection algorithms across varying runtime environments. (Left) Per-site real execution time across different surface sizes ($S \in \{64, 256, 1024\}$), representing the size of the buffer. (Right) Real execution time across different time ranges ($T \in [0, 2^{16})$ vs. $[0, 2^{32})$).
 Bars show bootstrap 95% confidence intervals.
   \label{fig:benchmark}
-](assets/benchmark_combined_new.png)
+](assets/benchmark_combined.png)
 
 A key goal of Downstream is efficient scaling to large buffer sizes and deep stream durations.
 To test the library's performance, we conducted empirical benchmarking trials of Python site selection methods.
 Shown in \autoref{fig:benchmark}, we observed consistent execution time across both buffer size and stream depth (i.e., number of data points processed).
-Statistical analysis detects no significant differences in execution time between conditions ($\alpha=0.05$; Kruskal-Wallis; $n=5$).
-
+Statistical analysis detected a significant effect ($\alpha = 0.05$; Kruskal–Wallis; $n = 30$), but larger surface sizes were associated with lower execution times. As shown in \autoref{fig:benchmark}, this may reflect efficiency gains from larger batch sizes.
 <!--
 - [Buffer size benchmarks](https://github.com/mmore500/downstream-benchmark/blob/binder/binder/2025_04_13_assign_sites_batched_graphing_T_ranges.ipynb)
 - [Surface size benchmarks](https://github.com/mmore500/downstream-benchmark/blob/binder/binder/2025_04_13_assign_sites_batched_graphing_S_ranges.ipynb)
