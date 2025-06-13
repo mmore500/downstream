@@ -96,7 +96,7 @@ Among a variety of supported possibilities, one simple workflow would be to (1) 
 
 ![Schematic illustration of a Downstream site selection algorithm operating on a data stream with a fixed-capacity memory buffer ($S = 4$ sites). Each new item in the data stream (right) arrives over time ($T \in[0, 8]$), and is either stored in the memory buffer or discarded. Storage decisions are made independently at each timestep, with each item mapped to one of the $S$ memory sites ($k \in {0, 1, 2, 3}$). Previously stored items may be overwritten. This example illustrates curation of a steady-spaced downsample. Green box (top) depicts lookup operation to calculate stream indices of stored data at time $T=8$.
   \label{fig:schematic}
-](assets/schematic_smaller.png)
+](assets/schematic.png)
 
 # Features
 
