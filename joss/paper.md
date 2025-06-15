@@ -104,7 +104,7 @@ Downstream provides algorithms for curating stream downsample density according 
 
 The **steady algorithm** maintains uniform spacing between retained items.
 This approach is best suited for applications in which it is important to maintain data from all time periods, such as for trend analysis in long-term monitoring systems.
-In addition to an approach proposed in [@Moreno2024], Downstream includes Python implementation of the ``compressing ring buffer'' approach for steady curation developed by [@Gunther2014].
+In addition to an approach proposed in [@Moreno2024], Downstream includes Python implementation of the "compressing ring buffer" approach for steady curation developed by [@Gunther2014].
 
 The **stretched algorithm** prioritizes older data while maintaining recent context, focusing on preserving the origins of the stream.
 Specifically, the density of retained data is thinned proportionally to depth in the stream.
@@ -131,9 +131,9 @@ For all implementations, we provide:
 2. API documentation, to demonstrate function signatures and semantics.
 3. Installation instructions, through standard package managers where supported (e.g., Python's PyPI, Cargo's Rust).
 C++ code is provided as a header-only library.
-4. Extensive validation tests, ensuring complete interchangeability and exact compatibility between platforms (e.g., separate data collection and analysis steps).
+4. Extensive validation tests, ensuring complete interchangeability and exact compatibility between platforms (e.g., for separate data collection and analysis steps).
 
-On an as-needed basis, implementations are provided for additional hybrid algorithms, which split buffer space between multiple temporal distributions.
+On an as-needed basis, implementations of additional ``hybrid'' algorithms are provided, which split buffer space between curation for multiple temporal distributions.
 Support for high-throughput bulk lookup operations is implemented in Python, with both CLI- and library-based interfaces available.
 A Python-based CLI is also provided for validation testing, facilitating the development of additional implementations for new languages or platforms.
 
@@ -148,7 +148,7 @@ A key goal of Downstream is efficient scaling to large buffer sizes and deep str
 To test the library's performance, we conducted empirical benchmarking trials of Python site selection methods.
 Shown in \autoref{fig:benchmark}, we observed consistent execution time across both buffer size and stream depth (i.e., number of data points processed).
 Statistical analysis detected a significant effect ($\alpha = 0.05$; Kruskal–Wallis; $n = 30$), but we did not observe evidence of worse performance with increasing surface size — in fact, larger surface sizes were associated with lower execution times.
-As shown in \autoref{fig:benchmark}, this could potentially reflect efficiency gains from larger batch sizes.
+As shown in \autoref{fig:benchmark}, this result potentially be due to efficiency gains from larger batch sizes.
 <!--
 - [Buffer size benchmarks](https://github.com/mmore500/downstream-benchmark/blob/binder/binder/2025_04_13_assign_sites_batched_graphing_T_ranges.ipynb)
 - [Surface size benchmarks](https://github.com/mmore500/downstream-benchmark/blob/binder/binder/2025_04_13_assign_sites_batched_graphing_S_ranges.ipynb)
@@ -167,7 +167,7 @@ In recent work with *hstrat*, the CSL Downstream implementation has been applied
 <!-- TODO: this approach has enabled phylogeny reconstructions scaling up to one billion tips -->
 In other forthcoming work employing WSE-based simulations of hypermutator evolution, Downstream has also been used to collect time series data leading up to in-simulation extinction events.
 
-In both examples, Downstream provides a mechanism for best-effort trade-offs between runtime efficiency and data quality, wherein a considered amount of precision (chosen based on experimental objectives) is exchanged for memory savings, dynamic flexibility, and --- ultimately --- increased scalability.
+In these use cases, Downstream provides a mechanism for best-effort trade-offs between runtime efficiency and data quality, wherein a considered amount of precision (chosen based on experimental objectives) is exchanged for memory savings, dynamic flexibility, and --- ultimately --- increased scalability.
 We anticipate this pattern continuing as a recurring theme in further applications of the library.
 
 # Related Software
@@ -176,7 +176,7 @@ Several notable projects provide data stream processing functionality related to
 
 The most similar piece of software to Downstream is Gunther's work on compressing circular buffers [@Gunther2014].
 This approach exploits modular arithmetic as the basis for a ring buffer generalization with steady-spaced coarsening behavior.
-Included software, written in Java, notably supports additional aggregation algorithms (e.g., averaging, summing, extrema, etc.) in addition to sampling, as is the focus in Downstream.
+Included software, written in Java, notably supports additional aggregation algorithms (e.g., averaging, summing, extrema, etc.) in addition to sampling, as is the sole focus in Downstream.
 Downstream extends beyond [@Gunther2014], however, in enabling support for stretched and tilted downsampling, as well as cross-language support and high-throughput lookup decoding.
 
 Reservoir sampling approaches provide representative samples of data streams, but lack  deterministic temporal distribution guarantees and metadata-free stream arrival index attribution provided by Downstream [@aggarwal2006biased;@hentschel2018temporally].
