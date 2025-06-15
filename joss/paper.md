@@ -147,7 +147,7 @@ Bars show bootstrap 95% confidence intervals.
 A key goal of Downstream is efficient scaling to large buffer sizes and deep stream durations.
 To test the library's performance, we conducted empirical benchmarking trials of Python site selection methods.
 Shown in \autoref{fig:benchmark}, we observed consistent execution time across both buffer size and stream depth (i.e., number of data points processed).
-Statistical analysis detected a significant effect ($\alpha = 0.05$; Kruskal–Wallis; $n = 30$), but larger surface sizes were associated with lower execution times. As shown in \autoref{fig:benchmark}, this may reflect efficiency gains from larger batch sizes.
+Statistical analysis detected a significant effect ($\alpha = 0.05$; Kruskal–Wallis; $n = 30$), but we did not observe evidence of worse performance with increasing surface size — in fact, larger surface sizes were associated with lower execution times. As shown in \autoref{fig:benchmark}, this could potentially reflect efficiency gains from larger batch sizes.
 <!--
 - [Buffer size benchmarks](https://github.com/mmore500/downstream-benchmark/blob/binder/binder/2025_04_13_assign_sites_batched_graphing_T_ranges.ipynb)
 - [Surface size benchmarks](https://github.com/mmore500/downstream-benchmark/blob/binder/binder/2025_04_13_assign_sites_batched_graphing_S_ranges.ipynb)
