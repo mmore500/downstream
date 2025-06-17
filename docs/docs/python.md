@@ -101,7 +101,7 @@ Surface = dstream.Surface
 
 ## `dsurf.Surface`
 
-::: downstream.dsurf.Surface
+::: dsurf.Surface
 
 # Dataframe API
 
