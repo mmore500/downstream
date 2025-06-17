@@ -18,7 +18,7 @@ Add downstream as a dependency in your `Cargo.toml`:
 
 ```toml
 [dependencies]
-downstream := >=0.0.0
+downstream >= 0.0.0
 ```
 
 ## API Reference
@@ -39,8 +39,9 @@ pub fn has_ingest_capacity<Uint: downstream::_auxlib::UnsignedTrait>(S: Uint, T:
 ```
 Determines if there is capacity to ingest a data item at logical time `T`.
 
-* `S`: Current site capacity
-* `T`: Logical time of data item
+* `Uint`: Integer type (e.g., `u32`)
+* `S`: Buffer size (must be a power of two)
+* `T`: Stream position of data item (zero-indexed)
 
 #### `assign_storage_site`
 ```rust
@@ -48,13 +49,15 @@ pub fn assign_storage_site<Uint: downstream::_auxlib::UnsignedTrait>(S: Uint, T:
 ```
 Site selection algorithm for steady curation. Returns selected site or `None` if data should be discarded.
 
-* `S`: Current site capacity
-* `T`: Logical time of data item
+* `Uint`: Integer type (e.g., `u32`)
+* `S`: Buffer size (must be a power of two)
+* `T`: Stream position of data item (zero-indexed)
 
 ### `_assign_storage_site` (low-level interface)
 ```rust
 pub fn _assign_storage_site<Uint: downstream::_auxlib::UnsignedTrait>(S: Uint, T: Uint) -> Uint
 ```
+Returns `S` if data should be discarded.
 
 ## Citing
 
