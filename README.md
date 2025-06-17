@@ -32,19 +32,21 @@ See [selecting a dstream algorithm](https://mmore500.github.io/downstream/algori
 ```csl
 fn has_ingest_capacity(S: u32, T: u32) bool
 ```
-Determines if there is capacity to ingest a data item at logical time T.
+Determines if there is capacity to ingest a data item at logical time `T`.
 
-* `S`: Current site capacity
+* `S`: Buffer size (must be a power of two)
+* `T`: Stream position of data item (zero-indexed)
 * `T`: Logical time of data item
 
 #### `assign_storage_site`
 ```csl
 fn assign_storage_site(S: u32, T: u32) u32
 ```
-Site selection algorithm for steady curation. Returns selected site or S if data should be discarded.
+Site selection algorithm for steady curation.
+Returns selected site or `S` if data should be discarded.
 
-* `S`: Current site capacity
-* `T`: Logical time of data item
+* `S`: Buffer size (must be a power of two)
+* `T`: Stream position of data item (zero-indexed)
 ## Citing
 
 If downstream contributes to a scientific publication, please cite it as
