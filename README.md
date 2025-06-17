@@ -11,26 +11,12 @@ downstream provides efficient, constant-space implementations of stream curation
 -   Free software: MIT license
 -   Documentation: <https://mmore500.github.io/downstream>
 
-## Installation
-
-Zig downstream is packaged as a source module and CLI. Clone this repository and
-build with `zig build`.  The resulting executable will be available at
-`./zig-out/bin/downstream`.
-
-To embed downstream into another project, add it as a module within your own
-`build.zig` script, e.g.
-
-```zig
-const downstream = b.addModule("downstream", .{ .root_source_file =
-    b.path("path/to/downstream/src/main.zig") });
-```
-
 ## API Reference
 
 See the [Python quickstart](https://mmore500.github.io/downstream/quickstart) for
 outline and intuition.
 
-Each algorithm variant is accessible through its own namespace:
+Each algorithm variant is accessible through its own module:
 
 * Steady: `downstream.dstream.steady_algo`
 * Stretched: `downstream.dstream.stretched_algo`
@@ -45,8 +31,9 @@ pub fn has_ingest_capacity(comptime u: type, S: u, T: u) bool
 ```
 Determines if there is capacity to ingest a data item at logical time `T`.
 
-* `S`: Current site capacity
-* `T`: Logical time of data item
+* `u`: Integer type (e.g., `u32`)
+* `S`: Buffer size (must be a power of two)
+* `T`: Stream position of data item (zero-indexed)
 
 #### `assign_storage_site`
 ```zig
@@ -55,8 +42,8 @@ pub fn assign_storage_site(comptime u: type, S: u, T: u) u
 Site selection algorithm for steady curation. Returns selected site or `S` if
 data should be discarded.
 
-* `S`: Current site capacity
-* `T`: Logical time of data item
+* `S`: Buffer size (must be a power of two)
+* `T`: Stream position of data item (zero-indexed)
 
 ## Citing
 
