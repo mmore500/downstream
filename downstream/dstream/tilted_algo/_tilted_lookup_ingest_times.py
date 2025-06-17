@@ -10,6 +10,8 @@ def tilted_lookup_ingest_times(
 ) -> typing.Iterable[typing.Optional[int]]:
     """Ingest time lookup algorithm for tilted curation.
 
+    Lazy implementation.
+
     Parameters
     ----------
     S : int

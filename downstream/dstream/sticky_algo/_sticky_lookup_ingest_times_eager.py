@@ -4,6 +4,8 @@ import typing
 def sticky_lookup_ingest_times_eager(S: int, T: int) -> typing.List[int]:
     """Ingest time lookup algorithm for sticky curation.
 
+    Eager implementation.
+
     Parameters
     ----------
     S : int

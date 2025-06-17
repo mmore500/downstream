@@ -6,6 +6,8 @@ from ._steady_lookup_ingest_times import steady_lookup_impl
 def steady_lookup_ingest_times_eager(S: int, T: int) -> typing.List[int]:
     """Ingest time lookup algorithm for steady curation.
 
+    Eager implementation.
+
     Parameters
     ----------
     S : int

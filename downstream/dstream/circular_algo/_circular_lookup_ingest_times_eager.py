@@ -5,6 +5,8 @@ import typing
 def circular_lookup_ingest_times_eager(S: int, T: int) -> typing.List[int]:
     """Ingest time lookup algorithm for circular curation.
 
+    Eager implementation.
+
     Parameters
     ----------
     S : int

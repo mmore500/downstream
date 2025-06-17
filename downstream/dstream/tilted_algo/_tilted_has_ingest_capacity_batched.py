@@ -10,6 +10,8 @@ def tilted_has_ingest_capacity_batched(
     """Does this algorithm have the capacity to ingest a data item at logical
     time T?
 
+    Vectorized implementation for bulk calculations.
+
     Parameters
     ----------
     S : int or np.ndarray

@@ -7,6 +7,8 @@ from ._compressing_assign_storage_site import compressing_assign_storage_site
 def compressing_lookup_ingest_times_eager(S: int, T: int) -> typing.List[int]:
     """Ingest time lookup algorithm for compressing curation.
 
+    Eager implementation.
+
     Parameters
     ----------
     S : int

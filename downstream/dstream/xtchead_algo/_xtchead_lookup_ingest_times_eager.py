@@ -8,6 +8,8 @@ from ..compressing_algo._compressing_lookup_ingest_times_eager import (
 def xtchead_lookup_ingest_times_eager(S: int, T: int) -> typing.List[int]:
     """Ingest time lookup algorithm for xtchead curation.
 
+    Eager implementaiton.
+
     Parameters
     ----------
     S : int

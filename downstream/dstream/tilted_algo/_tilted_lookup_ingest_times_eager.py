@@ -6,6 +6,8 @@ from ._tilted_lookup_ingest_times import tilted_lookup_impl
 def tilted_lookup_ingest_times_eager(S: int, T: int) -> typing.List[int]:
     """Ingest time lookup algorithm for tilted curation.
 
+    Eager implementation.
+
     Parameters
     ----------
     S : int

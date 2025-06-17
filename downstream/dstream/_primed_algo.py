@@ -92,7 +92,7 @@ class primed_algo:
     ) -> np.ndarray:
         """Site selection algorithm for primed curation.
 
-        Not yet implemented.
+        Vectorized implementation for bulk calculations. Not yet implemented.
 
         Parameters
         ----------
@@ -200,6 +200,8 @@ class primed_algo:
     ) -> typing.List[int]:
         """Ingest time lookup algorithm for primed curation.
 
+        Eager implementation.
+
         Parameters
         ----------
         S : int
@@ -225,6 +227,8 @@ class primed_algo:
         parallel: bool = True,
     ) -> np.ndarray:
         """Ingest time lookup algorithm for primed curation.
+
+        Vectorized implementation for bulk calculations.
 
         Parameters
         ----------

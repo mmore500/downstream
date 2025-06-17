@@ -10,6 +10,8 @@ from ..compressing_algo._compressing_lookup_ingest_times_eager import (
 def xtctail_lookup_ingest_times_eager(S: int, T: int) -> typing.List[int]:
     """Ingest time lookup algorithm for xtctail curation.
 
+    Eager implementation.
+
     Parameters
     ----------
     S : int

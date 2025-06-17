@@ -233,7 +233,7 @@ class hybrid_algo:
     ) -> np.ndarray:
         """Site selection algorithm for hybrid curation.
 
-        Not yet implemented.
+        Vectorized implementation for bulk calculations. Not yet implemented.
 
         Parameters
         ----------
@@ -363,6 +363,8 @@ class hybrid_algo:
     ) -> typing.List[int]:
         """Ingest time lookup algorithm for hybrid curation.
 
+        Eager implementation.
+
         Parameters
         ----------
         S : int
@@ -386,6 +388,8 @@ class hybrid_algo:
         parallel: bool = True,
     ) -> np.ndarray:
         """Ingest time lookup algorithm for hybrid curation.
+
+        Vectorized implementation for bulk calculations.
 
         Parameters
         ----------

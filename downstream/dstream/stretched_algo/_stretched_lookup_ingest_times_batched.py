@@ -22,6 +22,8 @@ def stretched_lookup_ingest_times_batched(
 ) -> np.ndarray:
     """Ingest time lookup algorithm for stretched curation.
 
+    Vectorized implementation for bulk calculations.
+
     Parameters
     ----------
     S : int

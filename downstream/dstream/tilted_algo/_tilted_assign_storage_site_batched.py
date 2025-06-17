@@ -14,6 +14,8 @@ def tilted_assign_storage_site_batched(
 ) -> np.ndarray:
     """Site selection algorithm for tilted curation.
 
+    Vectorized implementation for bulk calculations.
+
     Parameters
     ----------
     S : int or np.ndarray

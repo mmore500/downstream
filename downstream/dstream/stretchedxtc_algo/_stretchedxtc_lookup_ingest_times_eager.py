@@ -14,6 +14,8 @@ from ..xtchead_algo._xtchead_lookup_ingest_times_eager import (
 def stretchedxtc_lookup_ingest_times_eager(S: int, T: int) -> typing.List[int]:
     """Ingest time lookup algorithm for stretchedxtc curation.
 
+    Eager implementation.
+
     Parameters
     ----------
     S : int

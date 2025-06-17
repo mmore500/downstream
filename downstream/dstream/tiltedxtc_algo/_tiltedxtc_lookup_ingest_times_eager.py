@@ -14,6 +14,8 @@ from ..xtctail_algo._xtctail_lookup_ingest_times_eager import (
 def tiltedxtc_lookup_ingest_times_eager(S: int, T: int) -> typing.List[int]:
     """Ingest time lookup algorithm for tiltedxtc curation.
 
+    Eager implementation.
+
     Parameters
     ----------
     S : int

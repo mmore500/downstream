@@ -11,6 +11,8 @@ def xtchead_lookup_ingest_times(
 ) -> typing.Iterable[typing.Optional[int]]:
     """Ingest time lookup algorithm for xtchead curation.
 
+    Lazy implementation.
+
     Parameters
     ----------
     S : int

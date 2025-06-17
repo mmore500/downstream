@@ -6,6 +6,8 @@ from ._stretched_lookup_ingest_times import stretched_lookup_impl
 def stretched_lookup_ingest_times_eager(S: int, T: int) -> typing.List[int]:
     """Ingest time lookup algorithm for stretched curation.
 
+    Eager implementation.
+
     Parameters
     ----------
     S : int

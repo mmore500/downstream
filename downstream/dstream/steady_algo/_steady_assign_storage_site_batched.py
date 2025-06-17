@@ -12,6 +12,8 @@ def steady_assign_storage_site_batched(
 ) -> np.ndarray:
     """Site selection algorithm for steady curation.
 
+    Vectorized implementation for bulk calculations.
+
     Parameters
     ----------
     S : Union[np.ndarray, int]

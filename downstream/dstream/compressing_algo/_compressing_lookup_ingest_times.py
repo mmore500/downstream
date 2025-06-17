@@ -8,6 +8,8 @@ def compressing_lookup_ingest_times(
 ) -> typing.Iterable[typing.Optional[int]]:
     """Ingest time lookup algorithm for compressing curation.
 
+    Lazy implementation.
+
     Parameters
     ----------
     S : int

@@ -16,6 +16,8 @@ def stretchedxtc_lookup_ingest_times(
 ) -> typing.Iterable[typing.Optional[int]]:
     """Ingest time lookup algorithm for stretchedxtc curation.
 
+    Lazy implementation.
+
     Parameters
     ----------
     S : int
