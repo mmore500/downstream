@@ -56,6 +56,7 @@ Site selection algorithm for steady curation. Returns selected site or nullopt i
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
 UINT _assign_storage_site(const UINT S, const UINT T);
 ```
+Returns `S` if data should be discarded.
 
 ## Citing
 
