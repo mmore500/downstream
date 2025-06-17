@@ -105,15 +105,20 @@ Surface = dstream.Surface
 
 # Dataframe API
 
-## `downstream.dataframe.explode_lookup_packed`
+Import as
+```python3
+from downstream import dataframe
+```
+
+## `dataframe.explode_lookup_packed`
 
 ::: downstream.dataframe._explode_lookup_packed.explode_lookup_packed
 
-## `downstream.dataframe.explode_lookup_unpacked`
+## `dataframe.explode_lookup_unpacked`
 
 ::: downstream.dataframe._explode_lookup_unpacked.explode_lookup_unpacked
 
-## `downstream.dataframe.unpack_data_packed`
+## `dataframe.unpack_data_packed`
 
 ::: downstream.dataframe._unpack_data_packed.unpack_data_packed
 

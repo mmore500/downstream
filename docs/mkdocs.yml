@@ -27,6 +27,7 @@ plugins:
             - ../python/downstream/dataframe
             - ../python/downstream/dstream
             - ../python/downstream/dsurf
+            - ../python/downstream
           options:
             docstring_style: numpy
             show_root_heading: true
