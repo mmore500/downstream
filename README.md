@@ -20,7 +20,7 @@ It can be added to a system-wide include path, or incorporated as a git submodul
 
 See the [Python quickstart](https://mmore500.github.io/downstream/quickstart) for outline and intuition.
 
-Each algorithm variant is accessible through its own namespace:
+Each algorithm variant is accessible through its own module:
 
 * Steady: `dstream.steady_algo`
 * Stretched: `dstream.stretched_algo`
