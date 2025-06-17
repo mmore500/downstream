@@ -211,37 +211,40 @@ def unpack_data_packed(
         row per dstream buffer.
 
         Required schema:
-            - 'data_hex' : pl.String
-                - Raw binary data, with serialized dstream buffer and counter.
-                - Represented as a hexadecimal string.
-            - 'dstream_algo' : pl.Categorical
-                - Name of downstream curation algorithm used.
-                - e.g., 'dstream.steady_algo'
-            - 'dstream_storage_bitoffset' : pl.UInt64
-                - Position of dstream buffer field in 'data_hex'.
-            - 'dstream_storage_bitwidth' : pl.UInt64
-                - Size of dstream buffer field in 'data_hex'.
-            - 'dstream_T_bitoffset' : pl.UInt64
-                - Position of dstream counter field in 'data_hex'.
-            - 'dstream_T_bitwidth' : pl.UInt64
-                - Size of dstream counter field in 'data_hex'.
-            - 'dstream_S' : pl.UInt32
-                - Capacity of dstream buffer, in number of data items.
+
+        - 'data_hex' : pl.String
+            - Raw binary data, with serialized dstream buffer and counter.
+            - Represented as a hexadecimal string.
+        - 'dstream_algo' : pl.Categorical
+            - Name of downstream curation algorithm used.
+            - e.g., 'dstream.steady_algo'
+        - 'dstream_storage_bitoffset' : pl.UInt64
+            - Position of dstream buffer field in 'data_hex'.
+        - 'dstream_storage_bitwidth' : pl.UInt64
+            - Size of dstream buffer field in 'data_hex'.
+        - 'dstream_T_bitoffset' : pl.UInt64
+            - Position of dstream counter field in 'data_hex'.
+        - 'dstream_T_bitwidth' : pl.UInt64
+            - Size of dstream counter field in 'data_hex'.
+        - 'dstream_S' : pl.UInt32
+            - Capacity of dstream buffer, in number of data items.
 
         Optional schema:
-            - 'downstream_version' : pl.Categorical
-                - Version of downstream library used to curate data items.
-            - 'downstream_exclude_exploded' : pl.Boolean
-                - Should row be dropped after exploding unpacked data?
-            - 'downstream_exclude_unpacked' : pl.Boolean
-                - Should row be dropped after unpacking packed data?
-            - 'downstream_validate_exploded' : pl.String, polars expression
-                - Polars expression to validate exploded data.
-            - 'downstream_validate_unpacked' : pl.String, polars expression
-                - Polars expression to validate unpacked data.
+
+        - 'downstream_version' : pl.Categorical
+            - Version of downstream library used to curate data items.
+        - 'downstream_exclude_exploded' : pl.Boolean
+            - Should row be dropped after exploding unpacked data?
+        - 'downstream_exclude_unpacked' : pl.Boolean
+            - Should row be dropped after unpacking packed data?
+        - 'downstream_validate_exploded' : pl.String, polars expression
+            - Polars expression to validate exploded data.
+        - 'downstream_validate_unpacked' : pl.String, polars expression
+            - Polars expression to validate unpacked data.
 
     result_schema : Literal['coerce', 'relax', 'shrink'], default 'coerce'
         How should dtypes in the output DataFrame be handled?
+
         - 'coerce' : cast all columns to output schema.
         - 'relax' : keep all columns as-is.
         - 'shrink' : cast columns to smallest possible types.
