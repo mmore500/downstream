@@ -12,6 +12,50 @@ downstream provides efficient, constant-space implementations of stream curation
 -   Free software: MIT license
 -   Documentation: <https://mmore500.github.io/downstream>
 
+## Installation
+
+Add downstream as a dependency in your `Cargo.toml`:
+
+```toml
+[dependencies]
+downstream := >=0.0.0
+```
+
+## API Reference
+
+See the [Python quickstart](https://mmore500.github.io/downstream/quickstart) for outline and intuition.
+
+Each algorithm variant is accessible through the `downstream::dstream` module:
+
+* Steady: `downstream::dstream::SteadyAlgo`
+* Stretched: `downstream::dstream::StretchedAlgo`
+* Tilted: `downstream::dstream::TiltedAlgo`
+
+See [selecting a dstream algorithm](https://mmore500.github.io/downstream/algorithm) for more information.
+
+#### `has_ingest_capacity`
+```rust
+pub fn has_ingest_capacity<Uint: downstream::_auxlib::UnsignedTrait>(S: Uint, T: Uint) -> bool
+```
+Determines if there is capacity to ingest a data item at logical time `T`.
+
+* `S`: Current site capacity
+* `T`: Logical time of data item
+
+#### `assign_storage_site`
+```rust
+pub fn assign_storage_site<Uint: downstream::_auxlib::UnsignedTrait>(S: Uint, T: Uint) -> Option<Uint>
+```
+Site selection algorithm for steady curation. Returns selected site or `None` if data should be discarded.
+
+* `S`: Current site capacity
+* `T`: Logical time of data item
+
+### `_assign_storage_site` (low-level interface)
+```rust
+pub fn _assign_storage_site<Uint: downstream::_auxlib::UnsignedTrait>(S: Uint, T: Uint) -> Uint
+```
+
 ## Citing
 
 If downstream contributes to a scientific publication, please cite it as
