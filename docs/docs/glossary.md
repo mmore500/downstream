@@ -9,5 +9,5 @@
 - **T** – count of elapsed items in the stream.
 - **Tilted** – distribution that thins proportionally to age, emphasizing recent data.
 - **Surface** – data structure comprising dstream-structured data in fixed-capacity buffer, with counter for number of items ingested.
-- **Hybrid algorithm** – algorithm combining multiple distributions by partitioning the surface among them.
-- **dstream_version** – metadata version identifier stored alongside serialized data for compatibility checks.
+- **hybrid algorithm** – algorithm combining multiple distributions by partitioning the surface among them.
+- **primed algorithm** – algorithm filling surface left-to-right before delegating to another algorithm.

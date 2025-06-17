@@ -4,7 +4,7 @@ theme:
 nav:
   - Home: index.md
   - Quickstart: quickstart.md
-  - Selecting a downstream Algorithm: algorithm.md
+  - Algorithm Selection: algorithm.md
   - Python Reference: python.md
   - C++ Reference: cpp.md
   - Rust Reference: rust.md
