@@ -10,7 +10,43 @@ downstream provides efficient, constant-space implementations of stream curation
 
 -   Free software: MIT license
 -   Documentation: <https://mmore500.github.io/downstream>
-h
+
+## Installation
+
+CSL downstream is packaged as a header-only library.
+It can be added to a system-wide include path, or incorporated as a git submodule in another project.
+
+## API Reference
+
+See the [Python quickstart](https://mmore500.github.io/downstream/quickstart) for outline and intuition.
+
+Each algorithm variant is accessible through its own module:
+
+* Steady: `dstream.steady_algo`
+* Stretched: `dstream.stretched_algo`
+* Tilted: `dstream.tilted_algo`
+
+See [selecting a dstream algorithm](https://mmore500.github.io/downstream/algorithm) for more information.
+
+#### `has_ingest_capacity`
+```csl
+fn has_ingest_capacity(S: u32, T: u32) bool
+```
+Determines if there is capacity to ingest a data item at logical time `T`.
+
+* `S`: Buffer size (must be a power of two)
+* `T`: Stream position of data item (zero-indexed)
+* `T`: Logical time of data item
+
+#### `assign_storage_site`
+```csl
+fn assign_storage_site(S: u32, T: u32) u32
+```
+Site selection algorithm for steady curation.
+Returns selected site or `S` if data should be discarded.
+
+* `S`: Buffer size (must be a power of two)
+* `T`: Stream position of data item (zero-indexed)
 ## Citing
 
 If downstream contributes to a scientific publication, please cite it as
