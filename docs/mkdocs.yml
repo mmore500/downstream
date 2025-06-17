@@ -2,8 +2,9 @@ site_name: downstream
 theme:
   name: material
 nav:
+  - Home: index.md
   - Python Quickstart: quickstart.md
-  - Selecting a downtream Algorithm: algorithm.md
+  - Selecting a downstream Algorithm: algorithm.md
   - Python API Reference: python.md
   - C++ API Reference: cpp.md
   - Rust API Reference: rust.md
