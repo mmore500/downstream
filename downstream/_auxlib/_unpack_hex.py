@@ -41,8 +41,8 @@ def unpack_hex(hex_str: str, num_items: int) -> np.ndarray:
 
     if num_items == len(hex_str):
         # handle 4-bit values by processing ascii ordinals directly
-        ascii_codes = np.fromstring(hex_str.lower(), dtype="S1", sep="").view(
-            np.uint8,
+        ascii_codes = np.frombuffer(
+            hex_str.lower().encode("ascii"), dtype=np.uint8
         )
         digits = ascii_codes - ord("0")
         alphas = ascii_codes - (ord("a") - 10)
