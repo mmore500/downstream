@@ -14,10 +14,8 @@
 downstream provides efficient, constant-space implementations of stream curation algorithms.
 
 -   Free software: MIT license
+-   Documentation: <https://mmore500.github.io/downstream>
 
-<!---
--   Documentation: <https://downstream.readthedocs.io>.
--->
 
 ## CI Status
 
@@ -39,11 +37,9 @@ A containerized release of `downstream` is available via <https://ghcr.io>
 singularity exec docker://ghcr.io/mmore500/downstream python3 -m downstream --help
 ```
 
-## Documentation
+## Quickstart Guide
 
-Slide deck & graphics for this project are at <https://hopth.ru/ce>.
-
-See `https://github.com/mmore500/hstrat-surface-concept` for usage examples.
+<https://mmore500.com/downstream/quickstart/>
 
 ## Citing
 
