@@ -12,10 +12,7 @@
 downstream provides efficient, constant-space implementations of stream curation algorithms.
 
 -   Free software: MIT license
-
-<!---
--   Documentation: <https://downstream.readthedocs.io>.
--->
+-   Documentation: <https://mmore500.github.io/downstream>.
 
 ## Installation
 
@@ -24,7 +21,7 @@ It can be added to a system-wide include path, or incorporated as a git submodul
 
 ## API Reference
 
-See the [Python quickstart](quickstart.md) for outline and intuition.
+See the [Python quickstart](https://mmore500.github.io/downstream/quickstart) for outline and intuition.
 
 Each algorithm variant is accessible through its own namespace:
 
@@ -32,9 +29,9 @@ Each algorithm variant is accessible through its own namespace:
 * Stretched: `downstream::dstream_stretched`
 * Tilted: `downstream::dstream_tilted`
 
-See [selecting a dstream algorithm](algorithm.md) for more information.
+See [selecting a dstream algorithm](https://mmore500.github.io/downstream/algorithm) for more information.
 
-#### has_ingest_capacity
+#### `has_ingest_capacity`
 ```cpp
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
 bool has_ingest_capacity(const UINT S, const UINT T);
@@ -44,7 +41,7 @@ Determines if there is capacity to ingest a data item at logical time T.
 * `S`: Current site capacity
 * `T`: Logical time of data item
 
-#### assign_storage_site
+#### `assign_storage_site`
 ```cpp
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
 std::optional<UINT> assign_storage_site(const UINT S, const UINT T);
@@ -54,12 +51,11 @@ Site selection algorithm for steady curation. Returns selected site or nullopt i
 * `S`: Current site capacity
 * `T`: Logical time of data item
 
-### Internal Implementation
+#### `_assign_storage_site` (low-level interface)
 ```cpp
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
 UINT _assign_storage_site(const UINT S, const UINT T);
 ```
-
 ## Citing
 
 If downstream contributes to a scientific publication, please cite it as
