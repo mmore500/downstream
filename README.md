@@ -38,8 +38,8 @@ bool has_ingest_capacity(const UINT S, const UINT T);
 ```
 Determines if there is capacity to ingest a data item at logical time T.
 
-* `S`: Current site capacity
-* `T`: Logical time of data item
+* `S`: Buffer size (must be a power of two)
+* `T`: Stream position of data item (zero-indexed)
 
 #### `assign_storage_site`
 ```cpp
@@ -48,14 +48,15 @@ std::optional<UINT> assign_storage_site(const UINT S, const UINT T);
 ```
 Site selection algorithm for steady curation. Returns selected site or nullopt if data should be discarded.
 
-* `S`: Current site capacity
-* `T`: Logical time of data item
+* `S`: Buffer size (must be a power of two)
+* `T`: Stream position of data item (zero-indexed)
 
 #### `_assign_storage_site` (low-level interface)
 ```cpp
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
 UINT _assign_storage_site(const UINT S, const UINT T);
 ```
+
 ## Citing
 
 If downstream contributes to a scientific publication, please cite it as
