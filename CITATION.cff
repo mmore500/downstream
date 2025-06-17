@@ -1,13 +1,45 @@
-cff-version: 1.14.3
-message: "If you use this software, please cite it as below."
-title: 'downstream: a software package for stream curation algorithms'
-abstract: "downstream provides efficient, constant-space algorithms for stream curation."
+cff-version: 1.2.0
+title: "Downstream: efficient cross-platform algorithms for fixed-capacity stream downsampling"
+message: "If you use this software, please cite it using the metadata below."
+type: software
+date-released: 2025-02-10
+keywords:
+  - Python
+  - Rust
+  - C++
+  - Zig
+  - CSL
+abstract: |
+  Due to ongoing accrual over long durations, a defining characteristic of real-world data streams is the requirement for rolling, often real-time, mechanisms to coarsen or summarize stream history.
+  One common data structure for this purpose is the ring buffer, which maintains a running downsample comprising most recent stream data.
+  In some downsampling scenarios, however, it can instead be necessary to maintain data items spanning the entirety of elapsed stream history.
+  Fortunately, approaches generalizing the ring buffer mechanism have been devised to support alternate downsample compositions, while maintaining the ring buffer's update efficiency and optimal use of memory capacity.
+  The Downstream library implements algorithms supporting three such downsampling generalizations: (1) "steady," which curates data evenly spaced across the stream history; (2) "stretched," which prioritizes older data; and (3) "tilted," which prioritizes recent data.
+  To enable a broad spectrum of applications ranging from embedded devices to high-performance computing nodes and AI/ML hardware accelerators, Downstream supports multiple programming languages, including C++, Rust, Python, Zig, and the Cerebras Software Language.
+  For seamless interoperation, the library incorporates distribution through multiple packaging frameworks, extensive cross-implementation testing, and cross-implementation documentation.
 authors:
-- family-names: Moreno
-  given-names: Matthew Andres
-  orcid: 0000-0003-4726-4479
-date-released: 2024-03-04
-doi: https://zenodo.org/doi/10.5281/zenodo.10866541
-license: MIT
-repository-code: https://github.com/mmore500/downstream
-url: "https://github.com/mmore500/downstream"
+  - given-names: Connor
+    family-names: Yang
+    orcid: https://orcid.org/0009-0004-1240-2362
+    affiliation: "Undergraduate Research Opportunities Program; University of Michigan, Ann Arbor, United States"
+  - given-names: Joey
+    family-names: Wagner
+    orcid: https://orcid.org/0009-0000-6141-976X
+    affiliation: "Professorial Assistantship Program; Michigan State University, East Lansing, United States"
+  - given-names: Emily
+    family-names: Dolson
+    orcid: https://orcid.org/0000-0001-8616-4898
+    affiliation: "Department of Computer Science and Engineering; Program in Ecology, Evolution, and Behavior; Michigan State University, East Lansing, United States"
+  - given-names: Luis
+    family-names: Zaman
+    orcid: https://orcid.org/0000-0001-6838-7385
+    affiliation: "Department of Ecology and Evolutionary Biology; Center for the Study of Complex Systems; Michigan Institute for Data and AI in Society"
+  - given-names: Matthew Andres
+    family-names: Moreno
+    orcid: https://orcid.org/0000-0003-4726-4479
+    affiliation: "Department of Ecology and Evolutionary Biology; Center for the Study of Complex Systems; Michigan Institute for Data and AI in Society; University of Michigan, Ann Arbor, United States"
+identifiers:
+  - type: doi
+    value: 10.48550/arXiv.2506.12975
+  - type: url
+    value: https://arxiv.org/abs/2506.12975
