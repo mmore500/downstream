@@ -1,4 +1,4 @@
-cff-version: 1.15.1
+cff-version: 1.15.2
 title: "Downstream: efficient cross-platform algorithms for fixed-capacity stream downsampling"
 message: "If you use this software, please cite it using the metadata below."
 type: software
