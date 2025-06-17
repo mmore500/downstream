@@ -112,15 +112,15 @@ from downstream import dataframe
 
 ## `dataframe.explode_lookup_packed`
 
-::: downstream.dataframe._explode_lookup_packed.explode_lookup_packed
+::: dataframe._explode_lookup_packed.explode_lookup_packed
 
 ## `dataframe.explode_lookup_unpacked`
 
-::: downstream.dataframe._explode_lookup_unpacked.explode_lookup_unpacked
+::: dataframe._explode_lookup_unpacked.explode_lookup_unpacked
 
 ## `dataframe.unpack_data_packed`
 
-::: downstream.dataframe._unpack_data_packed.unpack_data_packed
+::: dataframe._unpack_data_packed.unpack_data_packed
 
 # Command Line Interface
 
