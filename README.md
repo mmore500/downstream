@@ -10,10 +10,7 @@
 downstream provides efficient, constant-space implementations of stream curation algorithms.
 
 -   Free software: MIT license
-
-<!---
--   Documentation: <https://downstream.readthedocs.io>.
--->
+-   Documentation: <https://mmore500.github.io/downstream>
 
 ## Citing
 
