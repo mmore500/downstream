@@ -3,13 +3,13 @@ theme:
   name: material
 nav:
   - Home: index.md
-  - Python Quickstart: quickstart.md
+  - Quickstart: quickstart.md
   - Selecting a downstream Algorithm: algorithm.md
-  - Python API Reference: python.md
-  - C++ API Reference: cpp.md
-  - Rust API Reference: rust.md
-  - CSL API Reference: csl.md
-  - Zig API Reference: zig.md
+  - Python Reference: python.md
+  - C++ Reference: cpp.md
+  - Rust Reference: rust.md
+  - CSL Reference: csl.md
+  - Zig Reference: zig.md
   - Publications and Presentations: publications.md
   - Projects Using downstream: projects.md
   - Citing: citing.md
@@ -23,11 +23,14 @@ plugins:
   - mkdocstrings:
       handlers:
         python:
-          paths: [../python/downstream/dstream]
+          paths:
+            - ../python/downstream/dataframe
+            - ../python/downstream/dstream
+            - ../python/downstream/dsurf
           options:
             docstring_style: numpy
             show_root_heading: true
-            heading_level: 1
+            heading_level: 3
 
 markdown_extensions:
   - pymdownx.highlight:
