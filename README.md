@@ -18,7 +18,7 @@ Add downstream as a dependency in your `Cargo.toml`:
 
 ```toml
 [dependencies]
-downstream >= 0.0.0
+downstream = ">=0.0.0"
 ```
 
 ## API Reference
