@@ -121,12 +121,13 @@ jobs:
       - run: sudo env PATH=$PATH sdk_debug_shell --help  >/dev/null 2>&1
       - run: echo "SINGULARITYENV_CSL_SUPPRESS_SIMFAB_TRACE ${SINGULARITYENV_CSL_SUPPRESS_SIMFAB_TRACE}"
 
-      - name: Compile test kernel
+      - name: Compile kernel
         run: |
           sudo env PATH=$PATH CSLC=$CSLC CSLC_ARCH_FLAG=$CSLC_ARCH_FLAG \
             ./test/compile.sh  >/dev/null 2>&1
 
-      - name: Execute test kernel
+      - name: Compile and test kernel
         run: |
-          sudo env PATH=$PATH CS_PYTHON=$CS_PYTHON \
+          sudo env PATH=$PATH CSLC=$CSLC CSLC_ARCH_FLAG=$CSLC_ARCH_FLAG \
+            CS_PYTHON=$CS_PYTHON \
             ./test/test.sh ${{ matrix.target }}
