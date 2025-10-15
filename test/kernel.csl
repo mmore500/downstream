@@ -86,4 +86,5 @@ comptime {
   @export_symbol(launch_steady_algo_assign_storage_site);
   @export_symbol(launch_stretched_algo_assign_storage_site);
   @export_symbol(launch_tilted_algo_assign_storage_site);
+  @rpc(@get_data_task_id(memcpy.LAUNCH));
 }
