@@ -47,6 +47,7 @@ jobs:
       CSLC: cslc
       CS_PYTHON: cs_python
       SINGULARITYENV_CSL_SUPPRESS_SIMFAB_TRACE: 1
+      CSLC_ARCH_FLAG: ${{ matrix.arch }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -122,8 +123,8 @@ jobs:
 
       - name: Compile test kernel
         run: |
-          sudo env PATH=$PATH CSLC=$CSLC CSLC_ARCH_FLAG=${{ matrix.arch }} \
-          ./test/compile.sh  >/dev/null 2>&1
+          sudo env PATH=$PATH CSLC=$CSLC CSLC_ARCH_FLAG=$CSLC_ARCH_FLAG \
+            ./test/compile.sh  >/dev/null 2>&1
 
       - name: Execute test kernel
         run: |
