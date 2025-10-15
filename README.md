@@ -16,7 +16,8 @@ downstream provides efficient, constant-space implementations of stream curation
 CSL downstream is packaged as a header-only library.
 It can be added to a system-wide include path, or incorporated as a git submodule in another project.
 
-CSL library code targets compatibility with Cerebras SDK v1.X releases.
+Requires [Cerebras SDK](https://www.cerebras.net/developers/sdk-request/), available through invitation.
+Library CSL code targets compatibility with Cerebras SDK v1.X releases.
 As of October 2025, library code is tested against Cerebras SDK v1.4.0.
 
 ## API Reference
