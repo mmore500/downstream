@@ -64,8 +64,13 @@ class hybrid_algo:
         ):
             raise ValueError("Fencepost values must be integers")
 
-        self.__name__ = "_".join(
-            str(x) if isinstance(x, int) else x.__name__ for x in layout
+        self.__name__ = (
+            ".".join(self.__class__.__name__.split(".")[:-1])
+            + "hybrid_"
+            + "_".join(
+                str(x) if isinstance(x, int) else x.__name__.split(".")[-1].removesuffix("_algo")
+                for x in layout
+            ) + "_algo"
         )
         self._chunk_algo_indices = [
             index

@@ -11,6 +11,7 @@ def test_singleton():
     assert algo._algos == [dstream.steady_algo]
     assert algo._fenceposts == [0, 1]
     assert algo._chunk_algo_indices == [0]
+    assert algo.__name__ == "hybrid_0_steady_1_algo"
 
 
 def test_simple():
@@ -24,6 +25,7 @@ def test_simple():
     assert algo._algos == [dstream.steady_algo, dstream.stretched_algo]
     assert algo._fenceposts == [0, 1, 2]
     assert algo._chunk_algo_indices == [0, 1]
+    assert algo.__name__ == "hybrid_0_steady_1_stretched_2_algo"
 
 
 def test_complex():
@@ -43,3 +45,4 @@ def test_complex():
     ]
     assert algo._fenceposts == [0, 2, 3, 4]
     assert algo._chunk_algo_indices == [0, 0, 1, 2]
+    assert algo.__name__ == "hybrid_0_steady_2_stretched_3_steady_4_algo"
