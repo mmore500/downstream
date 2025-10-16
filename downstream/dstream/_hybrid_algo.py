@@ -26,7 +26,7 @@ class hybrid_algo:
 
     def __init__(
         self: "hybrid_algo",
-        *layout: list,
+        *layout: typing.List,
     ) -> None:
         """
         Initialize the hybrid_algo with fencepost values and algorithms.
@@ -64,6 +64,9 @@ class hybrid_algo:
         ):
             raise ValueError("Fencepost values must be integers")
 
+        self.__name__ = "_".join(
+            str(x) if isinstance(x, int) else x.__name__ for x in layout
+        )
         self._chunk_algo_indices = [
             index
             for index, __ in enumerate(self._algos)
