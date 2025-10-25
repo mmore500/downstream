@@ -191,6 +191,15 @@ def _perform_validation(df_long: pl.DataFrame) -> pl.DataFrame:
 
     df_long = df_long.drop("downstream_validate_exploded")
     logging.info(f" - {num_validators} validation(s) passed!")
+
+    calc_num_oob = (pl.col("dstream_Tbar") >= pl.col("dstream_T")).sum()
+    num_oob = df_long.select(calc_num_oob).item()
+    if num_oob > 0:
+        raise ValueError(
+            "out of bounds lookup result: dstream_Tbar >= dstream_T "
+            f"({num_oob} / {len(df_long)} rows)",
+        )
+
     return df_long
 
 
