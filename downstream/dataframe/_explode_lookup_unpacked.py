@@ -172,6 +172,24 @@ def _lookup_ingest_times(
     return df_long.lazy().collect()
 
 
+def _check_lookup_bounds(df_long: pl.DataFrame) -> None:
+    calc_num_oob = (pl.col("dstream_Tbar") >= pl.col("dstream_T")).sum()
+    num_oob = df_long.select(calc_num_oob).item()
+    if num_oob > 0:
+        raise ValueError(
+            "out of bounds lookup result: dstream_Tbar >= dstream_T "
+            f"({num_oob} / {len(df_long)} rows)",
+        )
+
+    calc_num_oob = (pl.col("dstream_Tbar") < 0).sum()
+    num_oob = df_long.select(calc_num_oob).item()
+    if num_oob > 0:
+        raise ValueError(
+            "out of bounds lookup result: dstream_Tbar < 0 "
+            f"({num_oob} / {len(df_long)} rows)",
+        )
+
+
 def _perform_validation(df_long: pl.DataFrame) -> pl.DataFrame:
     validation_groups = df_long.with_columns(
         pl.col("downstream_validate_exploded").set_sorted(),
@@ -191,6 +209,7 @@ def _perform_validation(df_long: pl.DataFrame) -> pl.DataFrame:
 
     df_long = df_long.drop("downstream_validate_exploded")
     logging.info(f" - {num_validators} validation(s) passed!")
+
     return df_long
 
 
@@ -370,6 +389,10 @@ def explode_lookup_unpacked(
         lookup_op=dstream_algo.lookup_ingest_times_batched,
         dstream_S=dstream_S,
     )
+
+    if __debug__:
+        logging.info(" - checking lookup bounds...")
+        _check_lookup_bounds(df_long)
 
     if "downstream_validate_exploded" in df_long:
         logging.info(" - evaluating `downstream_validate_unpacked` exprs...")
