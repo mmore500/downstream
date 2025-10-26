@@ -76,7 +76,8 @@ def test_lookup_against_site_selection(algo: typing.Any, s: int):
     np.testing.assert_array_equal(expecteds, actual)
 
 
-def test_bounds_regression():
+# RE https://github.com/mmore500/downstream/pull/91
+def test_bounds_regression91():
     S = 128
     T = np.array(
         [

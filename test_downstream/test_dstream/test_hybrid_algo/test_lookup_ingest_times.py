@@ -113,6 +113,7 @@ def test_lookup_fuzz(algo: typing.Any, s: int, T: int):
     [*time_lookup(S, T)]
 
 
+# RE https://github.com/mmore500/downstream/pull/91
 @pytest.mark.parametrize(
     "algo",
     [algo_class(0, dstream.steady_algo, 1, dstream.tilted_algo, 2)],
@@ -1494,7 +1495,7 @@ def test_lookup_fuzz(algo: typing.Any, s: int, T: int):
         192936,
     ],
 )
-def test_bounds_regression(algo: typing.Any, T: int):
+def test_bounds_regression91(algo: typing.Any, T: int):
     S = 128
     res = algo.lookup_ingest_times(S, T)
     assert all(Tbar < T for Tbar in res)

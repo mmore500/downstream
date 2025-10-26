@@ -117,6 +117,7 @@ def test_cli_explode_lookup_unpacked_uint():
     )
 
 
+# RE https://github.com/mmore500/downstream/pull/91
 def test_cli_regression91():
     subprocess.run(
         [
