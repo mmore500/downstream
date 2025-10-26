@@ -134,7 +134,10 @@ class hybrid_algo:
         num_chunks = self._get_num_chunks()
 
         assert np.asarray(T + num_chunks - end_chunk >= 0).all()  # T_ref
-        num_whole_rounds = T // num_chunks
+        if num_chunks.bit_count() == 1:  # power of two optimization
+            num_whole_rounds = T >> (num_chunks.bit_length() - 1)
+        else:
+            num_whole_rounds = T // num_chunks
         partial_chunks = (
             np.clip(
                 T % num_chunks, begin_chunk, span_chunk_length + begin_chunk
