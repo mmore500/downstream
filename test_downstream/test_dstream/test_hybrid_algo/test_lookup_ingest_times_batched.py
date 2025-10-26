@@ -1,4 +1,5 @@
 import functools
+import itertools as it
 import typing
 
 import numpy as np
@@ -72,8 +73,16 @@ def test_lookup_against_site_selection(algo: typing.Any, s: int):
         if site is not None:
             expected[site] = T
 
-    actual = time_lookup(S, np.arange(S, T_max)).ravel()
-    np.testing.assert_array_equal(expecteds, actual)
+    for dtype1, dtype2 in it.product([int, np.int32, np.uint32], repeat=2):
+        T_max_ = min(T_max, 1024)
+        actual = time_lookup(
+            dtype1(S), np.arange(S, T_max_, dtype=dtype2)
+        ).ravel()
+        np.testing.assert_array_equal(expecteds[: len(actual)], actual)
+
+    for dtype in np.int32, np.uint32:
+        actual = time_lookup(S, np.arange(S, T_max, dtype=dtype)).ravel()
+        np.testing.assert_array_equal(expecteds, actual)
 
 
 # RE https://github.com/mmore500/downstream/pull/91
