@@ -58,3 +58,15 @@ def test_lookup_against_site_selection(algo: typing.Any, s: int):
         site = algo.assign_storage_site(S, T)
         if site is not None:
             expected[site] = T
+
+
+# RE https://github.com/mmore500/downstream/pull/91
+@pytest.mark.parametrize(
+    "algo",
+    [algo_class(0, dstream.steady_algo, 1, dstream.tilted_algo, 2)],
+)
+@pytest.mark.parametrize("T", [191998, 191230, 191722])
+def test_bounds_regression91(algo: typing.Any, T: int):
+    S = 128
+    res = algo.lookup_ingest_times_eager(S, T)
+    assert all(Tbar < T for Tbar in res)

@@ -74,3 +74,23 @@ def test_lookup_against_site_selection(algo: typing.Any, s: int):
 
     actual = time_lookup(S, np.arange(S, T_max)).ravel()
     np.testing.assert_array_equal(expecteds, actual)
+
+
+# RE https://github.com/mmore500/downstream/pull/91
+def test_bounds_regression91():
+    algo = algo_class(0, dstream.steady_algo, 1, dstream.tilted_algo, 2)
+    S = 128
+    T = np.array([191998, 191230, 191722], dtype=np.uint32)
+    T_ = np.array([191998, 191230, 191722], dtype=np.int64)
+    assert algo_class
+
+    for i in 0, 1:
+        np.testing.assert_array_equal(
+            algo._get_adj_T(T, i), algo._get_adj_T(T_, i), f"{i=}"
+        )
+
+    res = algo.lookup_ingest_times_batched(S, T)
+    res_ = algo.lookup_ingest_times_batched(S, T_)
+    np.testing.assert_array_equal(res, res_)
+
+    assert (res < T[:, None]).ravel().all()

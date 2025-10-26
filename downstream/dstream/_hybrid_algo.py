@@ -133,11 +133,16 @@ class hybrid_algo:
         span_chunk_length = end_chunk - begin_chunk
         num_chunks = self._get_num_chunks()
 
-        T_ref = T + num_chunks - end_chunk
-        assert np.asarray(T_ref >= 0).all()
-        num_whole_rounds = T // num_chunks
-        partial_chunks = np.clip(
-            T % num_chunks - begin_chunk, 0, span_chunk_length
+        assert np.asarray(T + num_chunks - end_chunk >= 0).all()  # T_ref
+        if num_chunks.bit_count() == 1:  # power of two optimization
+            num_whole_rounds = T >> (num_chunks.bit_length() - 1)
+        else:
+            num_whole_rounds = T // num_chunks
+        partial_chunks = (
+            np.clip(
+                T % num_chunks, begin_chunk, span_chunk_length + begin_chunk
+            )
+            - begin_chunk
         )
 
         return num_whole_rounds * span_chunk_length + partial_chunks
