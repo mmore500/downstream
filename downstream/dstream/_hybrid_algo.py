@@ -136,8 +136,11 @@ class hybrid_algo:
         T_ref = T + num_chunks - end_chunk
         assert np.asarray(T_ref >= 0).all()
         num_whole_rounds = T // num_chunks
-        partial_chunks = np.clip(
-            T % num_chunks - begin_chunk, 0, span_chunk_length
+        partial_chunks = (
+            np.clip(
+                T % num_chunks, begin_chunk, span_chunk_length + begin_chunk
+            )
+            - begin_chunk
         )
 
         return num_whole_rounds * span_chunk_length + partial_chunks
