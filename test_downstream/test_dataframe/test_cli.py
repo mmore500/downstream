@@ -124,6 +124,8 @@ def test_cli_regression91():
             "python3",
             "-m",
             "downstream.dataframe.explode_lookup_packed_uint",
+            "--output-filetype",
+            "csv",
             "/dev/null",
         ],
         check=True,
