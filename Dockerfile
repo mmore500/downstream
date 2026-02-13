@@ -28,7 +28,7 @@ RUN python3 --version
 COPY . /app
 
 # Upgrade pip and setuptools
-RUN python3 -m pip install --upgrade pip setuptools --break-system-packages
+RUN python3 -m pip install --force-reinstall pip setuptools --break-system-packages
 
 # Install python dependencies
 RUN python3 -m pip install uv --break-system-packages \
