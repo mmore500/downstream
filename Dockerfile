@@ -27,6 +27,9 @@ RUN python3 --version
 # Stage local files
 COPY . /app
 
+# Upgrade pip and setuptools
+RUN python3 -m pip install --upgrade pip setuptools --break-system-packages
+
 # Install python dependencies
 RUN python3 -m pip install uv --break-system-packages \
     && python3 -m uv pip install --system --break-system-packages \
