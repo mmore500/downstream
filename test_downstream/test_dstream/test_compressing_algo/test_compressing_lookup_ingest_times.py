@@ -56,7 +56,7 @@ def test_compressing_time_lookup_nonpow2(S: int):
 
 @pytest.mark.parametrize(
     "S",
-    [*[2**s for s in range(1, 13)], 3, 5, 6, 7, 9, 10, 11, 13, 17],
+    [*(2**s for s in range(1, 13)), 3, 5, 6, 7, 9, 10, 11, 13, 17],
 )
 @pytest.mark.parametrize(
     "T", [*range(10**2), *np.random.randint(2**63, size=10**2)]

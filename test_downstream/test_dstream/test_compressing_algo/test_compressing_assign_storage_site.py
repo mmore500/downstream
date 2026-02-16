@@ -103,7 +103,7 @@ def test_compressing_site_selection_fuzz():
 
 @pytest.mark.parametrize(
     "S",
-    [*[1 << s for s in range(1, 21)], 3, 5, 6, 7, 9, 10, 11, 13, 17, 100],
+    [*(1 << s for s in range(1, 21)), 3, 5, 6, 7, 9, 10, 11, 13, 17, 100],
 )
 def test_compressing_site_selection_epoch0(S: int):
     actual = {site_selection(S, T) for T in range(S)}

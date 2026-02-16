@@ -128,8 +128,8 @@ def test_compressing_site_selection_batched_fuzz(
     Smax = min(np.iinfo(dtype1).max, 2**52)
     testS = np.array(
         [
-            *[2**s for s in range(1, 64) if 2**s <= Smax],
-            *[s for s in range(1, 65) if s <= Smax],
+            *(2**s for s in range(1, 64) if 2**s <= Smax),
+            *(s for s in range(1, 65) if s <= Smax),
         ],
         dtype=dtype1,
     )
@@ -148,7 +148,7 @@ def test_compressing_site_selection_batched_fuzz(
 
 @pytest.mark.parametrize(
     "S",
-    [*[1 << s for s in range(1, 21)], 3, 5, 6, 7, 9, 10, 11, 13, 17, 100],
+    [*(1 << s for s in range(1, 21)), 3, 5, 6, 7, 9, 10, 11, 13, 17, 100],
 )
 def test_compressing_site_selection_epoch0(S: int):
     actual = set(site_selection(S, np.arange(S)))
