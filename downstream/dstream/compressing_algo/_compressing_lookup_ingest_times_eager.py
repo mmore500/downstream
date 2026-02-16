@@ -12,7 +12,7 @@ def compressing_lookup_ingest_times_eager(S: int, T: int) -> typing.List[int]:
     Parameters
     ----------
     S : int
-        Buffer size. Must be a power of two.
+        Buffer size. Must be a positive integer.
     T : int
         Current logical time.
 
@@ -30,16 +30,33 @@ def compressing_lookup_ingest_times_eager(S: int, T: int) -> typing.List[int]:
     if T < S:
         raise ValueError("T < S not supported for eager lookup")
 
-    si = ((T - 2) // (S - 1)).bit_length()  # Current sampling interval
-    si_ = 1 << si
-    assert si_
+    if S % 2 == 0:  # even S: site 0 special, M = S-1
+        si = ((T - 2) // (S - 1)).bit_length()
+        si_ = 1 << si
+        assert si_
+
+        candidates = it.chain(
+            (0,),
+            range(1, T, si_),
+            reversed(
+                range(
+                    1 + (si_ >> 1),
+                    (S - 1) * (si_ >> 1),
+                    si_,
+                )
+            ),
+        )
+    else:  # odd S: no special site, M = S
+        si = ((T - 1) // S).bit_length()
+        si_ = 1 << si
+        assert si_
+
+        candidates = it.chain(
+            range(0, T, si_),
+            reversed(range(si_ >> 1, S * (si_ >> 1), si_)),
+        )
 
     res = [None] * S
-    candidates = it.chain(
-        (0,),
-        range(1, T, si_),
-        reversed(range(1 + (si_ >> 1), (S - 1) * (si_ >> 1), si_)),
-    )
     for Tbar in it.islice(candidates, S):
         assert Tbar < T
         k = compressing_assign_storage_site(S, Tbar)

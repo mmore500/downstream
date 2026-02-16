@@ -1,6 +1,5 @@
 import typing
 
-from ..._auxlib._modpow2 import modpow2
 from ._circular_has_ingest_capacity import circular_has_ingest_capacity
 
 
@@ -10,7 +9,7 @@ def circular_assign_storage_site(S: int, T: int) -> typing.Optional[int]:
     Parameters
     ----------
     S : int
-        Buffer size. Must be a power of two.
+        Buffer size. Must be positive.
     T : int
         Current logical time.
 
@@ -29,7 +28,7 @@ def circular_assign_storage_site(S: int, T: int) -> typing.Optional[int]:
     if not circular_has_ingest_capacity(S, T):
         raise ValueError(f"Insufficient ingest capacity for {S=}, {T=}")
 
-    return modpow2(T, S)
+    return T % S
 
 
 assign_storage_site = circular_assign_storage_site  # lazy loader workaround

@@ -20,7 +20,7 @@ def compressing_lookup_ingest_times_batched(
     Parameters
     ----------
     S : int
-        Buffer size. Must be a power of two.
+        Buffer size. Must be a positive integer.
     T : np.ndarray
         One-dimensional array of current logical times.
     parallel : bool, default False
@@ -52,32 +52,52 @@ def compressing_lookup_ingest_times_batched(
     if (T < S).any():
         raise ValueError("T < S not supported for batched lookup")
 
-    si = bitlen32_batched((T - 2) // (S - 1))  # Current sampling interval
-    si_ = np.asarray(1, dtype=np.int64) << si
-    assert si_.all()
-
     T_indices = np.arange(T.size)
-
     res = np.empty((T.size, S), dtype=np.uint64)
-    for Tbar in (0,):
-        assert np.all(Tbar < T)
-        k = compressing_assign_storage_site_batched(S, Tbar)
-        assert np.all(k < S)
-        res[T_indices, k] = Tbar
 
-    Tbar = np.ones_like(si, dtype=np.int64)
-    step = si_.astype(np.int64, copy=True)
-    lb, ub = 1 + (si_ >> 1), (S - 1) * (si_ >> 1) - si_ + 1
-    for __ in range(S - 1):
-        assert np.all(Tbar < T)
-        k = compressing_assign_storage_site_batched(S, Tbar)
-        assert np.all(k < S)
-        res[T_indices, k] = Tbar
+    if S % 2 == 0:  # even S: site 0 special, M = S-1
+        si = bitlen32_batched((T - 2) // (S - 1))
+        si_ = np.asarray(1, dtype=np.int64) << si
+        assert si_.all()
 
-        Tbar += step
-        step[Tbar >= T] *= -1
-        Tbar[Tbar >= T] = ub[Tbar >= T]
-        Tbar[Tbar < lb] = lb[Tbar < lb]
+        for Tbar in (0,):
+            assert np.all(Tbar < T)
+            k = compressing_assign_storage_site_batched(S, Tbar)
+            assert np.all(k < S)
+            res[T_indices, k] = Tbar
+
+        Tbar = np.ones_like(si, dtype=np.int64)
+        step = si_.astype(np.int64, copy=True)
+        lb, ub = 1 + (si_ >> 1), (S - 1) * (si_ >> 1) - si_ + 1
+        for __ in range(S - 1):
+            assert np.all(Tbar < T)
+            k = compressing_assign_storage_site_batched(S, Tbar)
+            assert np.all(k < S)
+            res[T_indices, k] = Tbar
+
+            Tbar += step
+            step[Tbar >= T] *= -1
+            Tbar[Tbar >= T] = ub[Tbar >= T]
+            Tbar[Tbar < lb] = lb[Tbar < lb]
+    else:  # odd S: no special site, M = S
+        si = bitlen32_batched((T - 1) // S)
+        si_ = np.asarray(1, dtype=np.int64) << si
+        assert si_.all()
+
+        Tbar = np.zeros_like(si, dtype=np.int64)
+        step = si_.astype(np.int64, copy=True)
+        lb = si_ >> 1
+        ub = np.maximum(S * (si_ >> 1) - si_, 0)
+        for __ in range(S):
+            assert np.all(Tbar < T)
+            k = compressing_assign_storage_site_batched(S, Tbar)
+            assert np.all(k < S)
+            res[T_indices, k] = Tbar
+
+            Tbar += step
+            step[Tbar >= T] *= -1
+            Tbar[Tbar >= T] = ub[Tbar >= T]
+            Tbar[Tbar < lb] = lb[Tbar < lb]
 
     return res
 

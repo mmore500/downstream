@@ -68,9 +68,12 @@ class hybrid_algo:
             ".".join(self.__class__.__name__.split(".")[:-1])
             + "hybrid_"
             + "_".join(
-                str(x) if isinstance(x, int) else x.__name__.split(".")[-1].removesuffix("_algo")
+                str(x)
+                if isinstance(x, int)
+                else x.__name__.split(".")[-1].removesuffix("_algo")
                 for x in layout
-            ) + "_algo"
+            )
+            + "_algo"
         )
         self._chunk_algo_indices = [
             index

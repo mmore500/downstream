@@ -16,7 +16,7 @@ def compressing_assign_storage_site_batched(
     Parameters
     ----------
     S : Union[np.ndarray, int]
-        Buffer size. Must be a power of two, <= 2**52.
+        Buffer size. Must be a positive integer, <= 2**52.
     T : Union[np.ndarray, int]
         Current logical time. Must be <= 2**52.
 
@@ -26,17 +26,19 @@ def compressing_assign_storage_site_batched(
         Selected site, if any. Otherwise, S.
     """
     S, T = np.atleast_1d(S).astype(np.int64), np.atleast_1d(T).astype(np.int64)
-    assert np.logical_and(S > 1, np.bitwise_count(S) == 1).all()
+    assert (S > 0).all()
     # restriction <= 2 ** 52 might be overly conservative
     assert (np.maximum(S, T) <= 2**52).all()
 
-    T_ = T - (T > 0)
-    si = bitlen32(T_ // (S - 1))  # Current sampling interval
+    is_even = S % 2 == 0
+    M = np.where(is_even, S - 1, S)
+    T_ = np.where(is_even, T - (T > 0), T)
+    si = bitlen32(T_ // M)  # Current sampling interval
     h = ctz32(np.maximum(T_, 1))  # Current hanoi value
 
-    res = (T_) % (S - 1) + 1
+    res = T_ % M + is_even
     res[h < si] = np.broadcast_to(S, res.shape)[h < si]
-    res[T == 0] = 0  # special-case site 0 for T = 0, to fill entire buffer
+    res[is_even & (T == 0)] = 0  # special-case site 0 for is_even S, T = 0
     return res
 
 

@@ -13,7 +13,7 @@ def compressing_lookup_ingest_times(
     Parameters
     ----------
     S : int
-        Buffer size. Must be a power of two.
+        Buffer size. Must be a positive integer.
     T : int
         Current logical time.
 
@@ -32,26 +32,42 @@ def compressing_lookup_ingest_times(
 def compressing_lookup_impl(S: int, T: int) -> typing.Iterable[int]:
     """Implementation detail for `compressing_lookup_ingest_times`."""
     S, T = int(S), int(T)  # play nice with numpy types
-    assert S > 1 and S.bit_count() == 1
+    assert S > 0
     assert T >= S  # T < S handled by T = S via compressing_lookup_ingest_times
 
-    yield 0  # Ingest time of site 0 is always 0
-    yield 1  # Ingest time of site 1 is always 1
+    if S % 2 == 0:  # even S: site 0 special, M = S-1
+        yield 0  # Ingest time of site 0 is always 0
+        yield 1  # Ingest time of site 1 is always 1
 
-    si = ((T - 2) // (S - 1)).bit_length()  # Current sampling interval
-    for k in range(1, S - 1):
-        for delta_si in 0, 1:
-            si_ = (1 << si) >> delta_si
-            assert si_
+        si = ((T - 2) // (S - 1)).bit_length()
+        for k in range(1, S - 1):
+            for delta_si in 0, 1:
+                si_ = (1 << si) >> delta_si
+                assert si_
 
-            inverse = inverse_mod_n(si_, S - 1)
-            ansatz_idx = (k * inverse) % (S - 1)
-            ansatz_Tbar = si_ * ansatz_idx
-            if ansatz_Tbar < T - 1:
-                yield ansatz_Tbar + 1
-                break
-        else:
-            assert False
+                inverse = inverse_mod_n(si_, S - 1)
+                ansatz_idx = (k * inverse) % (S - 1)
+                ansatz_Tbar = si_ * ansatz_idx
+                if ansatz_Tbar < T - 1:
+                    yield ansatz_Tbar + 1
+                    break
+            else:
+                assert False
+    else:  # odd S: no special site, M = S
+        si = ((T - 1) // S).bit_length()
+        for k in range(S):
+            for delta_si in 0, 1:
+                si_ = (1 << si) >> delta_si
+                assert si_
+
+                inverse = inverse_mod_n(si_, S)
+                ansatz_idx = (k * inverse) % S
+                ansatz_Tbar = si_ * ansatz_idx
+                if ansatz_Tbar < T:
+                    yield ansatz_Tbar
+                    break
+            else:
+                assert False
 
 
 lookup_ingest_times = compressing_lookup_ingest_times  # lazy loader workaround

@@ -27,8 +27,8 @@ def validate_circular_time_lookup(fn: typing.Callable) -> typing.Callable:
 
     @functools.wraps(fn)
     def wrapper(S: int, T: np.ndarray, *args, **kwargs) -> np.ndarray:
-        assert np.array(np.bitwise_count(S) == 1).all()  # S is a power of two
-        assert np.asarray(S <= T).all()  # T is non-negative
+        assert np.asarray(S > 0).all()  # S is positive
+        assert np.asarray(S <= T).all()  # T >= S
         res = fn(S, T, *args, **kwargs)
         assert (np.clip(res, 0, T[:, None] - 1) == res).all()
         return res
@@ -40,6 +40,24 @@ def validate_circular_time_lookup(fn: typing.Callable) -> typing.Callable:
 def test_circular_time_lookup_batched_against_site_selection(s: int):
     S = 1 << s
     T_max = min(1 << 20 - s, 2**S - 1)
+    expected = [None] * S
+
+    expecteds = []
+    for T in range(T_max):
+        if T >= S:
+            expecteds.extend(expected)
+
+        site = algo.assign_storage_site(S, T)
+        if site is not None:
+            expected[site] = T
+
+    actual = algo.lookup_ingest_times_batched(S, np.arange(S, T_max)).ravel()
+    np.testing.assert_array_equal(expecteds, actual)
+
+
+@pytest.mark.parametrize("S", [3, 5, 6, 7, 9, 10, 11, 13, 17, 100])
+def test_circular_time_lookup_batched_nonpow2(S: int):
+    T_max = S * 100
     expected = [None] * S
 
     expecteds = []
@@ -71,7 +89,10 @@ def test_circular_time_lookup_batched_fuzz(
 ):
     Smax = min(np.iinfo(dtype1).max, [2**12, 2**8][bool(parallel)])
     testS = np.array(
-        [2**s for s in range(1, 64) if 2**s <= Smax],
+        [
+            *(2**s for s in range(1, 64, 3) if 2**s <= Smax),
+            *(S for S in range(1, 32, 3) if S <= Smax),
+        ],
         dtype=dtype1,
     )
     Tmax = min(np.iinfo(dtype2).max, 2**52)
@@ -97,7 +118,10 @@ def test_circular_time_lookup_batched_fuzz_parallel():
     dtype2 = np.int64
     Smax = min(np.iinfo(dtype1).max, 2**12)
     testS = np.array(
-        [2**s for s in range(1, 64) if 2**s <= Smax],
+        [
+            *(2**s for s in range(1, 64, 3) if 2**s <= Smax),
+            *(S for S in range(1, 32, 3) if S <= Smax),
+        ],
         dtype=dtype1,
     )
     Tmax = min(np.iinfo(dtype2).max, 2**52)
