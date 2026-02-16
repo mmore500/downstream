@@ -15,9 +15,22 @@ def generate_test_cases() -> typing.Iterable[typing.Tuple[int, int]]:
             yield S, rand.randint(0, capacity_bound - 1)
             yield S, rand.randint(0, 2**32 - 1)
 
+    # test extended domains (e.g., for circular, compressing, and sticky)
+    for S, T in it.product((6, 7), range(1024)):
+        capacity_bound = 1 << min(S, 32)
+        yield S, T
+        if T < 100:
+            yield S, rand.randint(0, capacity_bound - 1)
+            yield S, rand.randint(0, 2**32 - 1)
+
     # test at edges of unsigned integer representations
     for s, t in it.product(range(21), range(3, 21)):
         S = 1 << s
+        T = 1 << t
+        for T_ in range(T - 7, T + 8):
+            yield S, T_
+
+    for S, t in it.product((6, 7), range(3, 21)):
         T = 1 << t
         for T_ in range(T - 7, T + 8):
             yield S, T_
