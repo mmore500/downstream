@@ -27,7 +27,7 @@ def validate_compressing_site_selection(
 
     @functools.wraps(fn)
     def wrapper(S: int, T: int) -> typing.Optional[int]:
-        assert np.array(np.bitwise_count(S) == 1).all()  # S is a power of two
+        assert np.asarray(S > 0).all()  # S is positive
         assert np.asarray(0 <= T).all()  # T is non-negative
         res = fn(S, T)
         assert (np.clip(res, 0, S) == res).all()  # Assert valid output
@@ -127,7 +127,10 @@ def test_compressing_site_selection_batched_fuzz(
 ):
     Smax = min(np.iinfo(dtype1).max, 2**52)
     testS = np.array(
-        [2**s for s in range(1, 64) if 2**s <= Smax],
+        [
+            *[2**s for s in range(1, 64) if 2**s <= Smax],
+            *[s for s in range(1, 65) if s <= Smax],
+        ],
         dtype=dtype1,
     )
     Tmax = min(np.iinfo(dtype2).max, 2**52)
@@ -140,11 +143,13 @@ def test_compressing_site_selection_batched_fuzz(
     )
 
     batchS, batchT = map(np.array, zip(*it.product(testS, testT)))
-    assert (np.bitwise_count(batchS) == 1).all()
     site_selection(batchS, batchT)
 
 
-@pytest.mark.parametrize("S", [1 << s for s in range(1, 21)])
+@pytest.mark.parametrize(
+    "S",
+    [*[1 << s for s in range(1, 21)], 3, 5, 6, 7, 9, 10, 11, 13, 17, 100],
+)
 def test_compressing_site_selection_epoch0(S: int):
     actual = set(site_selection(S, np.arange(S)))
     expected = set(range(S))

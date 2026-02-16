@@ -12,7 +12,7 @@ def validate_compressing_time_lookup(fn: typing.Callable) -> typing.Callable:
 
     @functools.wraps(fn)
     def wrapper(S: int, T: int) -> typing.Iterable[typing.Optional[int]]:
-        assert S.bit_count() == 1  # Assert S is a power of two
+        assert S > 0  # Assert S is positive
         assert 0 <= T  # Assert T is non-negative
         res = fn(S, T)
         for v in res:
@@ -39,7 +39,25 @@ def test_compressing_time_lookup_against_site_selection(s: int):
             expected[site] = T
 
 
-@pytest.mark.parametrize("S", [2**s for s in range(1, 13)])
+@pytest.mark.parametrize("S", [3, 5, 6, 7, 9, 10, 11, 13, 17, 100])
+def test_compressing_time_lookup_nonpow2(S: int):
+    T_max = S * 100
+    expected = [None] * S
+    for T in range(T_max):
+        actual = [*algo.lookup_ingest_times(S, T)]
+        for v in actual:
+            assert v is None or 0 <= v < T
+        assert actual == expected
+
+        site = algo.assign_storage_site(S, T)
+        if site is not None:
+            expected[site] = T
+
+
+@pytest.mark.parametrize(
+    "S",
+    [*[2**s for s in range(1, 13)], 3, 5, 6, 7, 9, 10, 11, 13, 17],
+)
 @pytest.mark.parametrize(
     "T", [*range(10**2), *np.random.randint(2**63, size=10**2)]
 )

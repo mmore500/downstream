@@ -19,8 +19,8 @@ def _ehcf(a: int, b: int) -> int:
 def inverse_mod_n(e: int, n: int) -> int:
     if int(e).bit_count() != 1:
         raise ValueError("e must be a power of 2")
-    if int(n + 1).bit_count() != 1:
-        raise ValueError("n + 1 must be a power of 2")
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
     p, _q, _h = _ehcf(e, n)
 
     return p % n
