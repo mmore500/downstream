@@ -83,6 +83,11 @@ int dispatch_algo_op(const std::string_view target_name) {
         eval_assign_storage_site<steady_algo_>(S, T, 1);
     }
     else if (
+        is_algo_op<sticky_algo>("assign_storage_site", target_name)
+    ) while (std::cin >> S >> T) {
+        eval_assign_storage_site<sticky_algo_>(S, T, 1);
+    }
+    else if (
         is_algo_op<stretched_algo>("assign_storage_site", target_name)
     ) while (std::cin >> S >> T) {
         eval_assign_storage_site<stretched_algo_>(S, T, 2);

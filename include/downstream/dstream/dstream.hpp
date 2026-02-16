@@ -10,6 +10,7 @@
 #include "./hybrid_0_steady_1_stretched_2/algo.hpp"
 #include "./hybrid_0_steady_1_tilted_2/algo.hpp"
 #include "./steady/algo.hpp"
+#include "./sticky/algo.hpp"
 #include "./stretched/algo.hpp"
 #include "./tilted/algo.hpp"
 
@@ -49,6 +50,12 @@ template <std::unsigned_integral UINT>
 using steady_algo_ = dstream_steady::algo<UINT>;
 /** Convenience typedef of steady algo obj. */
 using steady_algo = steady_algo_<DOWNSTREAM_UINT>;
+
+/** Convenience typedef of sticky algo template. */
+template <std::unsigned_integral UINT>
+using sticky_algo_ = dstream_sticky::algo<UINT>;
+/** Convenience typedef of sticky algo obj. */
+using sticky_algo = sticky_algo_<DOWNSTREAM_UINT>;
 
 /** Convenience typedef of stretched algo template. */
 template <std::unsigned_integral UINT>
