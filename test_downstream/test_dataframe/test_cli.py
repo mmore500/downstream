@@ -1,6 +1,8 @@
 import os
 import subprocess
 
+import pytest
+
 assets = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 
 
@@ -115,6 +117,28 @@ def test_cli_explode_lookup_unpacked_uint():
         check=True,
         input=(f"{assets}/unpacked.csv\n" * 4096).encode(),
     )
+
+
+@pytest.mark.parametrize(
+    "target",
+    [
+        "dstream.compressing_algo.assign_storage_site",
+        "dstream.compressing_algo.has_ingest_capacity",
+        "dstream.compressing_algo.lookup_ingest_times",
+    ],
+)
+@pytest.mark.parametrize("S", [3, 5, 6, 7, 8, 9, 10, 16])
+def test_cli_compressing_nonpow2(target: str, S: int):
+    test_cases = "".join(f"{S} {T}\n" for T in range(S * 10))
+    result = subprocess.run(
+        ["python3", "-m", "downstream", target],
+        input=test_cases,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stderr
+    lines = result.stdout.strip().split("\n")
+    assert len(lines) == S * 10
 
 
 # RE https://github.com/mmore500/downstream/pull/91
