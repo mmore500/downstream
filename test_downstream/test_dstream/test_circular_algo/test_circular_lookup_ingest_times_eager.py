@@ -11,7 +11,7 @@ def validate_circular_time_lookup(fn: typing.Callable) -> typing.Callable:
 
     @functools.wraps(fn)
     def wrapper(S: int, T: int) -> typing.Iterable[int]:
-        assert S.bit_count() == 1  # Assert S is a power of two
+        assert S > 0  # Assert S is positive
         assert 0 <= T  # Assert T is non-negative
         res = fn(S, T)
         assert len(res) == S  # Assert output length matches buffer size
@@ -39,6 +39,23 @@ def test_circular_time_lookup_eager_against_site_selection(s: int):
         else:
             with pytest.raises(ValueError):
                 time_lookup(S, T)
+
+        site = algo.assign_storage_site(S, T)
+        if site is not None:
+            expected[site] = T
+
+
+@pytest.mark.parametrize("S", [3, 5, 6, 7, 9, 10, 11, 13, 17, 100])
+def test_circular_time_lookup_eager_nonpow2(S: int):
+    T_max = S * 100
+    expected = [None] * S
+    for T in range(T_max):
+        if T >= S:
+            actual = algo.lookup_ingest_times_eager(S, T)
+            assert len(actual) == S
+            for v in actual:
+                assert v is None or 0 <= v < T
+            assert expected == actual
 
         site = algo.assign_storage_site(S, T)
         if site is not None:

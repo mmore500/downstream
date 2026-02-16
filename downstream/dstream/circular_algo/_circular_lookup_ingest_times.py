@@ -11,7 +11,7 @@ def circular_lookup_ingest_times(
     Parameters
     ----------
     S : int
-        Buffer size. Must be a power of two.
+        Buffer size. Must be positive.
     T : int
         Current logical time.
 
@@ -30,7 +30,7 @@ def circular_lookup_ingest_times(
 def circular_lookup_impl(S: int, T: int) -> typing.Iterable[int]:
     """Implementation detail for `circular_lookup_ingest_times`."""
     S, T = int(S), int(T)  # play nice with numpy types
-    assert S > 1 and S.bit_count() == 1
+    assert S > 0
     assert T >= S  # T < S redirected to T = S by circular_lookup_ingest_times
 
     assert T
