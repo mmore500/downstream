@@ -30,15 +30,15 @@ def compressing_assign_storage_site_batched(
     # restriction <= 2 ** 52 might be overly conservative
     assert (np.maximum(S, T) <= 2**52).all()
 
-    even = S % 2 == 0
-    M = np.where(even, S - 1, S)
-    T_ = np.where(even, T - (T > 0), T)
+    is_even = S % 2 == 0
+    M = np.where(is_even, S - 1, S)
+    T_ = np.where(is_even, T - (T > 0), T)
     si = bitlen32(T_ // M)  # Current sampling interval
     h = ctz32(np.maximum(T_, 1))  # Current hanoi value
 
-    res = T_ % M + np.where(even, 1, 0)
+    res = T_ % M + is_even
     res[h < si] = np.broadcast_to(S, res.shape)[h < si]
-    res[even & (T == 0)] = 0  # special-case site 0 for even S, T = 0
+    res[is_even & (T == 0)] = 0  # special-case site 0 for is_even S, T = 0
     return res
 
 
