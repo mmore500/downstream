@@ -1,6 +1,6 @@
 #pragma once
-#ifndef DOWNSTREAM_DSTREAM_CIRCULAR__HAS_INGEST_CAPACITY_HPP
-#define DOWNSTREAM_DSTREAM_CIRCULAR__HAS_INGEST_CAPACITY_HPP
+#ifndef DOWNSTREAM_DSTREAM_STICKY__HAS_INGEST_CAPACITY_HPP
+#define DOWNSTREAM_DSTREAM_STICKY__HAS_INGEST_CAPACITY_HPP
 
 #include <cassert>
 #include <concepts>
@@ -8,7 +8,7 @@
 #include "../../_auxlib/DOWNSTREAM_UINT.hpp"
 
 namespace downstream {
-namespace dstream_circular {
+namespace dstream_sticky {
 
 /**
  * Does this algorithm have the capacity to ingest a data item at logical time
@@ -27,7 +27,7 @@ bool has_ingest_capacity(const UINT S, const UINT T) {
   return S > 0;
 }
 
-}  // namespace dstream_circular
+}  // namespace dstream_sticky
 }  // namespace downstream
 
-#endif  // DOWNSTREAM_DSTREAM_CIRCULAR__HAS_INGEST_CAPACITY_HPP
+#endif  // DOWNSTREAM_DSTREAM_STICKY__HAS_INGEST_CAPACITY_HPP
