@@ -75,7 +75,7 @@ if __name__ == "__main__":
         if algo.has_ingest_capacity(S, T):
             res = target(S, T)
             try:
-                print(*it.islice(res, 100))
+                print(*it.islice(res, args.max_words))
             except TypeError:
                 print(opyt.apply_if(res, int))
         else:
