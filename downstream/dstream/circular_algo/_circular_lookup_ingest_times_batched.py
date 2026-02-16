@@ -17,7 +17,7 @@ def circular_lookup_ingest_times_batched(
     Parameters
     ----------
     S : int
-        Buffer size. Must be a power of two.
+        Buffer size. Must be positive.
     T : np.ndarray
         One-dimensional array of current logical times.
     parallel : bool, default True

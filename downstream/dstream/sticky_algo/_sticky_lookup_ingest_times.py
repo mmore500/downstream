@@ -11,7 +11,7 @@ def sticky_lookup_ingest_times(
     Parameters
     ----------
     S : int
-        Buffer size. Must be a power of two.
+        Buffer size. Must be positive.
     T : int
         Current logical time.
 

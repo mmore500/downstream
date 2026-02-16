@@ -10,7 +10,7 @@ def circular_lookup_ingest_times_eager(S: int, T: int) -> typing.List[int]:
     Parameters
     ----------
     S : int
-        Buffer size. Must be a power of two.
+        Buffer size. Must be positive.
     T : int
         Current logical time.
 
