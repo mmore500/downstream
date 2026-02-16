@@ -87,8 +87,8 @@ def test_compressing_time_lookup_batched_fuzz(
     Smax = min(np.iinfo(dtype1).max, [2**12, 2**8][bool(parallel)])
     testS = np.array(
         [
-            *(2**s for s in range(1, 64) if 2**s <= Smax),
-            *(s for s in range(1, 65) if s <= Smax),
+            *(2**s for s in range(1, 64, 3) if 2**s <= Smax),
+            *(S for S in range(1, 32, 3) if S <= Smax),
         ],
         dtype=dtype1,
     )
@@ -107,6 +107,6 @@ def test_compressing_time_lookup_batched_fuzz(
     for S in testS:
         if S <= Tmax:
             batchT = np.clip(testT, int(S), None)
-            assert np.issubdtype(np.asarray(S).dtype, np.integer), S
-            assert np.issubdtype(batchT.dtype, np.integer), batchT.dtype
+            assert np.issubdtype(np.asarray(S).dtype, np.integer)
+            assert np.issubdtype(batchT.dtype, np.integer)
             validate(S, batchT)

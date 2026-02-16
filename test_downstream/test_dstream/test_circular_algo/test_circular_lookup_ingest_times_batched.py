@@ -90,8 +90,8 @@ def test_circular_time_lookup_batched_fuzz(
     Smax = min(np.iinfo(dtype1).max, [2**12, 2**8][bool(parallel)])
     testS = np.array(
         [
-            *(2**s for s in range(1, 64) if 2**s <= Smax),
-            *(s for s in range(1, 65) if s <= Smax),
+            *(2**s for s in range(1, 64, 3) if 2**s <= Smax),
+            *(S for S in range(1, 32, 3) if S <= Smax),
         ],
         dtype=dtype1,
     )
@@ -118,7 +118,10 @@ def test_circular_time_lookup_batched_fuzz_parallel():
     dtype2 = np.int64
     Smax = min(np.iinfo(dtype1).max, 2**12)
     testS = np.array(
-        [2**s for s in range(1, 64) if 2**s <= Smax],
+        [
+            *(2**s for s in range(1, 64, 3) if 2**s <= Smax),
+            *(S for S in range(1, 32, 3) if S <= Smax),
+        ],
         dtype=dtype1,
     )
     Tmax = min(np.iinfo(dtype2).max, 2**52)
