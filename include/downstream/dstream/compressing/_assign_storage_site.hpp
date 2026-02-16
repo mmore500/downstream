@@ -18,10 +18,71 @@ namespace downstream {
 namespace dstream_compressing {
 
 /**
+ * Site selection for compressing curation with even buffer size.
+ *
+ * Site 0 is special (always holds T=0). Remaining S-1 sites are managed
+ * with modulus M = S - 1.
+ *
+ * @param S Buffer size. Must be positive and even.
+ * @param T Current logical time.
+ * @returns The selected storage site, if any.
+ *     Returns S if no site should be selected (i.e., discard).
+ *
+ * @exceptsafe no-throw
+ */
+template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
+UINT _assign_storage_site_even_S(const UINT S, const UINT T) {
+  assert((S & 1) == 0);
+  constexpr UINT _1{1};
+  namespace aux = downstream::_auxlib;
+
+  if (T == 0) return 0;
+
+  const UINT M = S - _1;
+  const UINT T_ = T - _1;
+  const UINT si = std::bit_width(
+      static_cast<UINT>(T_ / M));  // Current sampling interval
+  const UINT h =
+      aux::countr_zero_casted<UINT>(std::max(T_, _1));  // Hanoi value
+  if (h < si) [[likely]]
+    return S;  // discard without storing
+  else
+    return T_ % M + _1;
+}
+
+/**
+ * Site selection for compressing curation with odd buffer size.
+ *
+ * No special site. All S sites participate uniformly with modulus M = S.
+ *
+ * @param S Buffer size. Must be positive and odd.
+ * @param T Current logical time.
+ * @returns The selected storage site, if any.
+ *     Returns S if no site should be selected (i.e., discard).
+ *
+ * @exceptsafe no-throw
+ */
+template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
+UINT _assign_storage_site_odd_S(const UINT S, const UINT T) {
+  assert((S & 1) == 1);
+  constexpr UINT _1{1};
+  namespace aux = downstream::_auxlib;
+
+  const UINT M = S;
+  const UINT si = std::bit_width(
+      static_cast<UINT>(T / M));  // Current sampling interval
+  const UINT h =
+      aux::countr_zero_casted<UINT>(std::max(T, _1));  // Hanoi value
+  if (h < si) [[likely]]
+    return S;  // discard without storing
+  else
+    return T % M;
+}
+
+/**
  * Internal implementation of site selection for compressing curation.
  *
- * @param S Buffer size.
- *      Must be a power of two greater than 1.
+ * @param S Buffer size. Must be positive.
  * @param T Current logical time.
  * @returns The selected storage site, if any.
  *     Returns S if no site should be selected (i.e., discard).
@@ -32,28 +93,15 @@ template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
 UINT _assign_storage_site(const UINT S, const UINT T) {
   assert(dstream_compressing::has_ingest_capacity<UINT>(S, T));
 
-  constexpr UINT _1{1};
-  namespace aux = downstream::_auxlib;
-
-  // special-case site 0 for T = 0, to fill entire buffer
-  if (T == 0) return 0;
-
-  const UINT T_ = T - _1;
-  const UINT si = std::bit_width(
-      static_cast<UINT>(T_ / (S - _1)));  // Current sampling interval
-  const UINT h =
-      aux::countr_zero_casted<UINT>(std::max(T_, _1));  // Current hanoi value
-  if (h < si) [[likely]]
-    return S;  // discard without storing
-  else
-    return T_ % (S - _1) + _1;
+  return (S & 1) == 0
+    ? dstream_compressing::_assign_storage_site_even_S<UINT>(S, T)
+    : dstream_compressing::_assign_storage_site_odd_S<UINT>(S, T);
 }
 
 /**
  * Site selection algorithm for compressing curation.
  *
- * @param S Buffer size.
- *      Must be a power of two greater than 1.
+ * @param S Buffer size. Must be positive.
  * @param T Current logical time.
  * @returns Selected site, if any.
  *     Returns nullopt if no site should be selected (i.e., discard).

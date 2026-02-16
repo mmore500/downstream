@@ -2,14 +2,11 @@
 #ifndef DOWNSTREAM_DSTREAM_CIRCULAR__ASSIGN_STORAGE_SITE_HPP
 #define DOWNSTREAM_DSTREAM_CIRCULAR__ASSIGN_STORAGE_SITE_HPP
 
-#include <algorithm>
-#include <bit>
 #include <cassert>
 #include <concepts>
 #include <optional>
 
 #include "../../_auxlib/DOWNSTREAM_UINT.hpp"
-#include "../../_auxlib/modpow2.hpp"
 #include "./_has_ingest_capacity.hpp"
 
 namespace downstream {
@@ -18,8 +15,7 @@ namespace dstream_circular {
 /**
  * Internal implementation of site selection for circular curation.
  *
- * @param S Buffer size.
- *      Must be a power of two greater than 1.
+ * @param S Buffer size. Must be positive.
  * @param T Current logical time.
  * @returns The selected storage site, if any.
  *     Returns S if no site should be selected (i.e., discard).
@@ -30,16 +26,13 @@ template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
 UINT _assign_storage_site(const UINT S, const UINT T) {
   assert(dstream_circular::has_ingest_capacity<UINT>(S, T));
 
-  namespace aux = downstream::_auxlib;
-
-  return aux::modpow2<UINT>(T, S);
+  return T % S;
 }
 
 /**
  * Site selection algorithm for circular curation.
  *
- * @param S Buffer size.
- *      Must be a power of two greater than 1.
+ * @param S Buffer size. Must be positive.
  * @param T Current logical time.
  * @returns Selected site, if any.
  *     Returns nullopt if no site should be selected (i.e., discard).
