@@ -3,7 +3,41 @@ import typing
 
 import numpy as np
 
+from .._auxlib._jit import jit
+from .._auxlib._jit_prange import jit_prange
+from .._auxlib._pick_batched_chunk_size import pick_batched_chunk_size
+
 _maybe_np_T = typing.Union[np.ndarray, int]
+
+
+@jit(cache=True, nogil=True, nopython=True, parallel=True)
+def _hybrid_remap_and_assign(
+    res: np.ndarray,
+    Tbar: np.ndarray,
+    num_chunks: int,
+    begin_chunk: int,
+    span_chunk_length: int,
+    span_offset: int,
+    chunk_size: int = pick_batched_chunk_size(),
+) -> None:
+    """JIT-compiled remap of sub-algo results into hybrid output array."""
+    num_rows = res.shape[0]
+    span_length = Tbar.shape[1]
+    num_chunks_ = np.int64(num_chunks)
+    begin_chunk_ = np.int64(begin_chunk)
+    span_chunk_length_ = np.int64(span_chunk_length)
+    num_row_chunks = (num_rows + chunk_size - 1) // chunk_size
+    for row_chunk in jit_prange(num_row_chunks):
+        row_begin = row_chunk * chunk_size
+        row_end = min(row_begin + chunk_size, num_rows)
+        for i in range(row_begin, row_end):
+            for j in range(span_length):
+                v = np.int64(Tbar[i, j])
+                res[i, span_offset + j] = np.uint64(
+                    begin_chunk_
+                    + (v // span_chunk_length_) * num_chunks_
+                    + v % span_chunk_length_
+                )
 
 
 class hybrid_algo:
@@ -437,15 +471,23 @@ class hybrid_algo:
             begin_chunk = self._fenceposts[index]
             end_chunk = self._fenceposts[index + 1]
             span_chunk_length = end_chunk - begin_chunk
-
-            subres = (
-                begin_chunk
-                + (Tbar // span_chunk_length) * num_chunks
-                + Tbar % span_chunk_length
-            )
-
             span_offset = self._get_span_offset(S, index)
-            span_length = self._get_span_length(S, index)
-            res[:, span_offset : span_offset + span_length] = subres
+
+            if parallel:
+                _hybrid_remap_and_assign(
+                    res,
+                    Tbar,
+                    num_chunks,
+                    begin_chunk,
+                    span_chunk_length,
+                    span_offset,
+                )
+            else:
+                subres = (
+                    begin_chunk
+                    + (Tbar // span_chunk_length) * num_chunks
+                    + Tbar % span_chunk_length
+                )
+                res[:, span_offset : span_offset + span_length] = subres
 
         return res
