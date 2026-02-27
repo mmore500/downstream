@@ -113,6 +113,8 @@ const launch_task_id : data_task_id = (
 comptime {
   @export_symbol(ptr_cases, "cases");
   @export_symbol(ptr_results, "results");
+  @export_symbol(launch_circular_algo_assign_storage_site);
+  @export_symbol(launch_hybrid_0_steady_1_circular_2_algo_assign_storage_site);
   @export_symbol(launch_hybrid_0_steady_1_stretched_2_algo_assign_storage_site);
   @export_symbol(launch_hybrid_0_steady_1_tilted_2_algo_assign_storage_site);
   @export_symbol(launch_steady_algo_assign_storage_site);
