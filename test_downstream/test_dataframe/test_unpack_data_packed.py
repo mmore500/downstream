@@ -51,6 +51,36 @@ def test_unpack_data_packed():
     assert len(res) == 2
 
 
+def test_unpack_data_packed_dilated():
+
+    df = pl.DataFrame(
+        {
+            "dstream_algo": ["dstream.steady_algo", "dstream.steady_algo"],
+            "downstream_version": [downstream.__version__] * 2,
+            "data_hex": ["aa11ccdd", "221188dd"],
+            "dstream_storage_bitoffset": [0, 0],
+            "dstream_storage_bitwidth": [16, 16],
+            "dstream_T_bitoffset": [16, 16],
+            "dstream_T_bitwidth": [4, 4],
+            "dstream_T_dilation": [1, 3],
+            "dstream_S": [16, 16],
+        },
+    )
+    res = unpack_data_packed(df)
+
+    for col in "dstream_algo", "dstream_S", "dstream_T", "dstream_storage_hex":
+        assert col in res.columns
+
+    assert len(res) == 2
+    dstream_T_raws = res.select("dstream_T_raw").to_series().to_list()
+    assert dstream_T_raws[0] == 0xC
+    assert dstream_T_raws[1] == 0x8
+
+    dstream_Ts = res.select("dstream_T").to_series().to_list()
+    assert dstream_Ts[0] == 0xC // 1
+    assert dstream_Ts[1] == 0x8 // 3
+
+
 def test_unpack_data_packed_invalid():
 
     df = pl.DataFrame(
@@ -96,6 +126,50 @@ def test_unpack_data_packed_single_row():
             "dstream_data_id": [0],
             "dstream_algo": ["dstream.steady_algo"],
             "dstream_T": [12320],
+            "dstream_T_dilation": [1],
+            "dstream_T_raw": [12320],
+            "dstream_S": [100],
+            "dstream_storage_hex": ["F0E0D0C0B0A0908070605040"],
+            "downstream_version": [downstream.__version__],
+            "downstream_validate_exploded": ["pl.lit(42)"],
+        }
+    )
+
+    pl_testing.assert_frame_equal(
+        result, expected_df, check_column_order=False, check_dtypes=False
+    )
+
+
+@pytest.mark.parametrize("dstream_T_dilation", [1, 2, 3, 4, 8])
+def test_unpack_data_packed_single_row_dilation(dstream_T_dilation: int):
+    df = pl.DataFrame(
+        {
+            "foo": ["bar"],
+            "data_hex": ["0F0E0D0C0B0A09080706050403020100"],
+            "dstream_algo": ["dstream.steady_algo"],
+            "dstream_storage_bitoffset": [4],
+            "dstream_storage_bitwidth": [96],
+            "dstream_T_bitoffset": [100],
+            "dstream_T_bitwidth": [16],
+            "dstream_T_dilation": [dstream_T_dilation],
+            "dstream_S": [100],
+            "downstream_version": [downstream.__version__],
+            "downstream_validate_unpacked": [""],
+            "downstream_validate_exploded": ["pl.lit(42)"],
+            "downstream_exclude_unpacked": [False],
+        }
+    )
+
+    result = unpack_data_packed(df)
+
+    expected_df = pl.DataFrame(
+        {
+            "foo": ["bar"],
+            "dstream_data_id": [0],
+            "dstream_algo": ["dstream.steady_algo"],
+            "dstream_T": [12320 // dstream_T_dilation],
+            "dstream_T_dilation": [dstream_T_dilation],
+            "dstream_T_raw": [12320],
             "dstream_S": [100],
             "dstream_storage_hex": ["F0E0D0C0B0A0908070605040"],
             "downstream_version": [downstream.__version__],

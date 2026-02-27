@@ -95,6 +95,8 @@ def _make_empty(value_dtype: pl.DataType) -> pl.DataFrame:
             pl.Series(name="dstream_S", values=[], dtype=pl.UInt32),
             pl.Series(name="dstream_Tbar", values=[], dtype=pl.UInt64),
             pl.Series(name="dstream_T", values=[], dtype=pl.UInt64),
+            pl.Series(name="dstream_T_dilation", values=[], dtype=pl.UInt64),
+            pl.Series(name="dstream_T_raw", values=[], dtype=pl.UInt64),
             pl.Series(name="dstream_value", values=[], dtype=value_dtype),
             pl.Series(
                 name="dstream_value_bitwidth", values=[], dtype=pl.UInt32
@@ -116,6 +118,8 @@ def _prep_data(
             "^dstream_data_id$"
             "|^dstream_storage_hex$"
             "|^dstream_T$"
+            "|^dstream_T_dilation$"
+            "|^dstream_T_raw$"
             "|^downstream_validate_exploded$"
             "|^downstream_exclude_exploded$",
         ),
@@ -235,11 +239,17 @@ def _finalize_result_schema(
         df_long = {
             "coerce": lambda df: df.cast(
                 {
-                    "dstream_data_id": pl.UInt64,
-                    "dstream_Tbar": pl.UInt64,
-                    "dstream_T": pl.UInt64,
-                    "dstream_value": value_dtype,
-                    "dstream_value_bitwidth": pl.UInt32,
+                    k: v
+                    for k, v in {
+                        "dstream_data_id": pl.UInt64,
+                        "dstream_Tbar": pl.UInt64,
+                        "dstream_T": pl.UInt64,
+                        "dstream_T_dilation": pl.UInt32,
+                        "dstream_T_raw": pl.UInt64,
+                        "dstream_value": value_dtype,
+                        "dstream_value_bitwidth": pl.UInt32,
+                    }.items()
+                    if k in df.columns  # compat input without T dilation/raw
                 },
             ),
             "relax": lambda df: df,
@@ -282,15 +292,19 @@ def explode_lookup_unpacked(
 
         Optional schema:
 
-        - 'downstream_version' : pl.Categorical
-            - Version of downstream library used to curate data items.
         - 'dstream_data_id' : pl.UInt64
             - Unique identifier for each data item.
             - If not provided, row number will be used as identifier.
         - 'downstream_exclude_exploded' : pl.Boolean
             - Should row be dropped after exploding unpacked data?
+        - 'dstream_T_dilation' : pl.UInt32
+            - Dilation factor applied to T counter, if any; supports scenario
+            where data items are ingested every `dstream_T_dilation`th counter
+            step (default 1).
         - 'downstream_validate_exploded' : pl.String, polars expression
             - Polars expression to validate exploded data.
+        - 'downstream_version' : pl.Categorical
+            - Version of downstream library used to curate data items.
 
         Additional user-defined columns will be forwarded to the output
         DataFrame.
@@ -326,6 +340,10 @@ def explode_lookup_unpacked(
               items).
         - 'dstream_T' : pl.UInt64
             - Logical time elapsed (number of elapsed data items in stream).
+        - 'dstream_T_dilation' : pl.UInt32
+            - Dilation factor applied to T counter; if none, then 1.
+        - 'dstream_T_raw' : pl.UInt64
+            - Raw packed time counter value, before un-dilation.
         - 'dstream_value' : pl.String or specified numeric type
             - Data item content, format depends on 'value_type' argument.
         - 'dstream_value_bitwidth' : pl.UInt32
