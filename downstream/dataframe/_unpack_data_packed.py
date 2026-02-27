@@ -233,6 +233,10 @@ def unpack_data_packed(
 
         - 'downstream_version' : pl.Categorical
             - Version of downstream library used to curate data items.
+        - 'dstream_T_dilation' : pl.UInt64
+            - Dilation factor applied to T counter, if any; supports scenario
+            where data items are ingested every `dstream_T_dilation`th counter
+            step (default 1).
         - 'downstream_exclude_exploded' : pl.Boolean
             - Should row be dropped after exploding unpacked data?
         - 'downstream_exclude_unpacked' : pl.Boolean
@@ -265,6 +269,8 @@ def unpack_data_packed(
                 - Capacity of dstream buffer, in number of data items.
             - 'dstream_T' : pl.UInt64
                 - Logical time elapsed (number of elapsed data items in stream).
+            - 'dstream_T_raw' : pl.UInt64
+                - Raw packed time counter value, before un-dilation.
             - 'dstream_storage_hex' : pl.String
                 - Raw dstream buffer binary data, containing packed data items.
                 - Represented as a hexadecimal string.
@@ -293,7 +299,17 @@ def unpack_data_packed(
     if df.lazy().limit(1).collect().is_empty():
         return _make_empty()
 
+    logging.info(" - casting data_hex and dstream_algo...")
     df = df.cast({"data_hex": pl.String, "dstream_algo": pl.Categorical})
+
+    logging.info(" - collecting schema names...")
+    schema_names = df.lazy().collect_schema().names()
+
+    if "dstream_T_dilation" in schema_names:
+        logging.info(" - found dstream_T_dilation...")
+    else:
+        logging.info(" - defaulting dstream_T_dilation...")
+        df = df.with_columns(dstream_T_dilation=pl.lit(1))
 
     logging.info(" - calculating offsets...")
     df = _calculate_offsets(df)
@@ -303,6 +319,11 @@ def unpack_data_packed(
 
     logging.info(" - extracting T and storage_hex from data_hex...")
     df = _extract_from_data_hex(df)
+
+    logging.info(" - un-dilating T...")
+    df = df.with_columns(dstream_T_raw=pl.col("dstream_T"),).with_columns(
+        dstream_T=pl.col("dstream_T") // pl.col("dstream_T_dilation"),
+    )
 
     if "downstream_validate_unpacked" in df:
         logging.info(" - evaluating `downstream_validate_unpacked` exprs...")

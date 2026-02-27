@@ -95,6 +95,8 @@ def _make_empty(value_dtype: pl.DataType) -> pl.DataFrame:
             pl.Series(name="dstream_S", values=[], dtype=pl.UInt32),
             pl.Series(name="dstream_Tbar", values=[], dtype=pl.UInt64),
             pl.Series(name="dstream_T", values=[], dtype=pl.UInt64),
+            pl.Series(name="dstream_T_dilation", values=[], dtype=pl.UInt64),
+            pl.Series(name="dstream_T_raw", values=[], dtype=pl.UInt64),
             pl.Series(name="dstream_value", values=[], dtype=value_dtype),
             pl.Series(
                 name="dstream_value_bitwidth", values=[], dtype=pl.UInt32
@@ -116,6 +118,8 @@ def _prep_data(
             "^dstream_data_id$"
             "|^dstream_storage_hex$"
             "|^dstream_T$"
+            "|^dstream_T_dilation$"
+            "|^dstream_T_raw$"
             "|^downstream_validate_exploded$"
             "|^downstream_exclude_exploded$",
         ),
@@ -238,6 +242,8 @@ def _finalize_result_schema(
                     "dstream_data_id": pl.UInt64,
                     "dstream_Tbar": pl.UInt64,
                     "dstream_T": pl.UInt64,
+                    "dstream_T_dilation": pl.UInt64,
+                    "dstream_T_raw": pl.UInt64,
                     "dstream_value": value_dtype,
                     "dstream_value_bitwidth": pl.UInt32,
                 },
