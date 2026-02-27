@@ -51,7 +51,7 @@ for bounds in tqdm([*mit.pairwise({*range(0, nCases, chunkSize), nCases})]):
     cases_chunk = np.pad(
         cases_chunk,
         ((0, chunkSize), (0, 0)),
-        mode='constant',
+        mode="constant",
         constant_values=0,
     )
     results_chunk = np.zeros(chunkSize, dtype=np.uint32)
