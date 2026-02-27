@@ -231,20 +231,20 @@ def unpack_data_packed(
 
         Optional schema:
 
-        - 'downstream_version' : pl.Categorical
-            - Version of downstream library used to curate data items.
-        - 'dstream_T_dilation' : pl.UInt64
-            - Dilation factor applied to T counter, if any; supports scenario
-            where data items are ingested every `dstream_T_dilation`th counter
-            step (default 1).
         - 'downstream_exclude_exploded' : pl.Boolean
             - Should row be dropped after exploding unpacked data?
         - 'downstream_exclude_unpacked' : pl.Boolean
             - Should row be dropped after unpacking packed data?
+        - 'dstream_T_dilation' : pl.UInt32
+            - Dilation factor applied to T counter, if any; supports scenario
+            where data items are ingested every `dstream_T_dilation`th counter
+            step (default 1).
         - 'downstream_validate_exploded' : pl.String, polars expression
             - Polars expression to validate exploded data.
         - 'downstream_validate_unpacked' : pl.String, polars expression
             - Polars expression to validate unpacked data.
+        - 'downstream_version' : pl.Categorical
+            - Version of downstream library used to curate data items.
 
     result_schema : Literal['coerce', 'relax', 'shrink'], default 'coerce'
         How should dtypes in the output DataFrame be handled?
@@ -269,6 +269,8 @@ def unpack_data_packed(
                 - Capacity of dstream buffer, in number of data items.
             - 'dstream_T' : pl.UInt64
                 - Logical time elapsed (number of elapsed data items in stream).
+            - 'dstream_T_dilation' : pl.UInt32
+                - Dilation factor applied to T counter; if none, then 1.
             - 'dstream_T_raw' : pl.UInt64
                 - Raw packed time counter value, before un-dilation.
             - 'dstream_storage_hex' : pl.String
@@ -309,7 +311,7 @@ def unpack_data_packed(
         logging.info(" - found dstream_T_dilation...")
     else:
         logging.info(" - defaulting dstream_T_dilation...")
-        df = df.with_columns(dstream_T_dilation=pl.lit(1))
+        df = df.with_columns(dstream_T_dilation=pl.lit(1).cast(pl.UInt32))
 
     logging.info(" - calculating offsets...")
     df = _calculate_offsets(df)
@@ -321,7 +323,9 @@ def unpack_data_packed(
     df = _extract_from_data_hex(df)
 
     logging.info(" - un-dilating T...")
-    df = df.with_columns(dstream_T_raw=pl.col("dstream_T"),).with_columns(
+    df = df.with_columns(
+        dstream_T_raw=pl.col("dstream_T"),
+    ).with_columns(
         dstream_T=pl.col("dstream_T") // pl.col("dstream_T_dilation"),
     )
 
