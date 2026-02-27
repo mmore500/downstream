@@ -1,0 +1,42 @@
+const circular_algo = @import_module("<downstream/dstream/circular_algo>");
+const tilted_algo = @import_module("<downstream/dstream/tilted_algo>");
+
+/// Does this algorithm have the capacity to ingest a data item at logical time
+/// T?
+///
+/// @param S The number of buffer sites available.
+/// @param T Queried logical time.
+/// @returns Whether there is capacity to ingest at time T.
+fn has_ingest_capacity(S: u32, T: u32) bool {
+    const half_S = S >> 1;
+    const has_capacity_1st = tilted_algo.has_ingest_capacity(
+        half_S,
+        T >> 1,
+    );
+    const has_capacity_2nd = ((T == 0) or circular_algo.has_ingest_capacity(
+        half_S,
+        (T - 1) >> 1,
+    ));
+    return has_capacity_1st and has_capacity_2nd;
+}
+
+/// Site selection for hybrid tilted/circular curation.
+///
+/// What buffer site should the T'th data item be stored to?
+///
+/// @param S Buffer size.
+///     Must be a power of two, greater than 2.
+/// @param T Current logical time.
+///    Must be less than 2^(S - 1) - 1.
+/// @returns The selected storage site, if any.
+///     Returns S if no site should be selected (i.e., discard).
+fn assign_storage_site(S: u32, T: u32) u32 {
+    const half_S = S >> 1;
+    const half_T = T >> 1;
+    if (T & 1 == 0) {
+        const site = tilted_algo.assign_storage_site(half_S, half_T);
+        return if (site == half_S) S else site;
+    } else {
+        return half_S + circular_algo.assign_storage_site(half_S, half_T);
+    }
+}
