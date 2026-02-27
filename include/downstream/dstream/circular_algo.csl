@@ -1,0 +1,25 @@
+const math = @import_module("<math>");
+
+const aux = @import_module("<downstream/_auxlib>");
+
+/// Does this algorithm have the capacity to ingest a data item at logical time
+/// T?
+///
+/// @param S The number of buffer sites available.
+/// @param T Queried logical time.
+/// @returns Whether there is capacity to ingest at time T.
+fn has_ingest_capacity(S: u32, T: u32) bool {
+    return S > 0;
+}
+
+/// Site selection for circular curation.
+///
+/// What buffer site should the T'th data item be stored to?
+///
+/// @param S Buffer size.
+///     Must be greater than 0.
+/// @param T Current logical time.
+/// @returns The selected storage site.
+fn assign_storage_site(S: u32, T: u32) u32 {
+    return T % S;
+}

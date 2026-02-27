@@ -31,6 +31,11 @@ layout {
 
   @export_name("cases", [*]u32, true);
   @export_name("results", [*]u32, true);
+  @export_name("launch_circular_algo_assign_storage_site", fn()void);
+  @export_name(
+    "launch_hybrid_0_steady_1_circular_2_algo_assign_storage_site",
+    fn()void,
+  );
   @export_name(
     "launch_hybrid_0_steady_1_stretched_2_algo_assign_storage_site",
     fn()void,
