@@ -109,6 +109,8 @@ jobs:
           "dstream.hybrid_0_steady_1_stretchedxtc_2_algo",
           "dstream.hybrid_0_steady_1_tilted_2_algo",
           "dstream.hybrid_0_steady_1_tiltedxtc_2_algo",
+          "dstream.hybrid_0_tilted_1_circular_2_algo",
+          "dstream.hybrid_0_tiltedxtc_1_circular_2_algo",
           "dstream.primed_0pad0_circular_algo",
           "dstream.primed_4pad0_sticky_algo",
           "dstream.steady_algo",
