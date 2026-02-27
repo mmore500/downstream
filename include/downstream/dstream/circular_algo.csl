@@ -1,7 +1,3 @@
-const math = @import_module("<math>");
-
-const aux = @import_module("<downstream/_auxlib>");
-
 /// Does this algorithm have the capacity to ingest a data item at logical time
 /// T?
 ///
