@@ -18,6 +18,8 @@ from ._hybrid_algo_prefab import (
     hybrid_0_steady_1_stretchedxtc_2_algo,
     hybrid_0_steady_1_tilted_2_algo,
     hybrid_0_steady_1_tiltedxtc_2_algo,
+    hybrid_0_tilted_1_circular_2_algo,
+    hybrid_0_tiltedxtc_1_circular_2_algo,
 )
 from ._primed_algo import primed_algo
 from ._primed_algo_prefab import (
@@ -141,6 +143,8 @@ __all__ = [
     "hybrid_0_steady_1_stretchedxtc_2_algo",
     "hybrid_0_steady_1_tilted_2_algo",
     "hybrid_0_steady_1_tiltedxtc_2_algo",
+    "hybrid_0_tilted_1_circular_2_algo",
+    "hybrid_0_tiltedxtc_1_circular_2_algo",
     "primed_algo",
     "primed_0pad0_circular_algo",
     "primed_0pad0_compressing_algo",
