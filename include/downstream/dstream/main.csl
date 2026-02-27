@@ -8,6 +8,9 @@ const hybrid_0_steady_1_stretched_2_algo = @import_module(
 const hybrid_0_steady_1_tilted_2_algo = @import_module(
     "<downstream/dstream/hybrid_0_steady_1_tilted_2_algo>",
 );
+const hybrid_0_tilted_1_circular_2_algo = @import_module(
+    "<downstream/dstream/hybrid_0_tilted_1_circular_2_algo>",
+);
 const steady_algo = @import_module("<downstream/dstream/steady_algo>");
 const stretched_algo = @import_module("<downstream/dstream/stretched_algo>");
 const tilted_algo = @import_module("<downstream/dstream/tilted_algo>");

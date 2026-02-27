@@ -1,5 +1,5 @@
 const circular_algo = @import_module("<downstream/dstream/circular_algo>");
-const steady_algo = @import_module("<downstream/dstream/steady_algo>");
+const tilted_algo = @import_module("<downstream/dstream/tilted_algo>");
 
 /// Does this algorithm have the capacity to ingest a data item at logical time
 /// T?
@@ -9,7 +9,7 @@ const steady_algo = @import_module("<downstream/dstream/steady_algo>");
 /// @returns Whether there is capacity to ingest at time T.
 fn has_ingest_capacity(S: u32, T: u32) bool {
     const half_S = S >> 1;
-    const has_capacity_1st = steady_algo.has_ingest_capacity(
+    const has_capacity_1st = tilted_algo.has_ingest_capacity(
         half_S,
         T >> 1,
     );
@@ -20,7 +20,7 @@ fn has_ingest_capacity(S: u32, T: u32) bool {
     return has_capacity_1st and has_capacity_2nd;
 }
 
-/// Site selection for hybrid steady/circular curation.
+/// Site selection for hybrid tilted/circular curation.
 ///
 /// What buffer site should the T'th data item be stored to?
 ///
@@ -34,7 +34,7 @@ fn assign_storage_site(S: u32, T: u32) u32 {
     const half_S = S >> 1;
     const half_T = T >> 1;
     if (T & 1 == 0) {
-        const site = steady_algo.assign_storage_site(half_S, half_T);
+        const site = tilted_algo.assign_storage_site(half_S, half_T);
         return if (site == half_S) S else site;
     } else {
         return half_S + circular_algo.assign_storage_site(half_S, half_T);
