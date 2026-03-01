@@ -1,4 +1,10 @@
 const circular_algo = @import_module("<downstream/dstream/circular_algo>");
+const hybrid_0_circular_2_steady_3_algo = @import_module(
+    "<downstream/dstream/hybrid_0_circular_2_steady_3_algo>",
+);
+const hybrid_0_circular_2_tilted_3_algo = @import_module(
+    "<downstream/dstream/hybrid_0_circular_2_tilted_3_algo>",
+);
 const hybrid_0_steady_1_circular_2_algo = @import_module(
     "<downstream/dstream/hybrid_0_steady_1_circular_2_algo>",
 );
@@ -8,8 +14,23 @@ const hybrid_0_steady_1_stretched_2_algo = @import_module(
 const hybrid_0_steady_1_tilted_2_algo = @import_module(
     "<downstream/dstream/hybrid_0_steady_1_tilted_2_algo>",
 );
+const hybrid_0_steady_1_tilted_2_circular_3_algo = @import_module(
+    "<downstream/dstream/hybrid_0_steady_1_tilted_2_circular_3_algo>",
+);
+const hybrid_0_steady_2_circular_3_algo = @import_module(
+    "<downstream/dstream/hybrid_0_steady_2_circular_3_algo>",
+);
+const hybrid_0_steady_2_tilted_3_algo = @import_module(
+    "<downstream/dstream/hybrid_0_steady_2_tilted_3_algo>",
+);
 const hybrid_0_tilted_1_circular_2_algo = @import_module(
     "<downstream/dstream/hybrid_0_tilted_1_circular_2_algo>",
+);
+const hybrid_0_tilted_2_circular_3_algo = @import_module(
+    "<downstream/dstream/hybrid_0_tilted_2_circular_3_algo>",
+);
+const hybrid_0_tilted_2_steady_3_algo = @import_module(
+    "<downstream/dstream/hybrid_0_tilted_2_steady_3_algo>",
 );
 const steady_algo = @import_module("<downstream/dstream/steady_algo>");
 const stretched_algo = @import_module("<downstream/dstream/stretched_algo>");

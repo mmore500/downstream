@@ -33,6 +33,14 @@ layout {
   @export_name("results", [*]u32, true);
   @export_name("launch_circular_algo_assign_storage_site", fn()void);
   @export_name(
+    "launch_hybrid_0_circular_2_steady_3_algo_assign_storage_site",
+    fn()void,
+  );
+  @export_name(
+    "launch_hybrid_0_circular_2_tilted_3_algo_assign_storage_site",
+    fn()void,
+  );
+  @export_name(
     "launch_hybrid_0_steady_1_circular_2_algo_assign_storage_site",
     fn()void,
   );
@@ -45,7 +53,27 @@ layout {
     fn()void,
   );
   @export_name(
+    "launch_hybrid_0_steady_1_tilted_2_circular_3_algo_assign_storage_site",
+    fn()void,
+  );
+  @export_name(
+    "launch_hybrid_0_steady_2_circular_3_algo_assign_storage_site",
+    fn()void,
+  );
+  @export_name(
+    "launch_hybrid_0_steady_2_tilted_3_algo_assign_storage_site",
+    fn()void,
+  );
+  @export_name(
     "launch_hybrid_0_tilted_1_circular_2_algo_assign_storage_site",
+    fn()void,
+  );
+  @export_name(
+    "launch_hybrid_0_tilted_2_circular_3_algo_assign_storage_site",
+    fn()void,
+  );
+  @export_name(
+    "launch_hybrid_0_tilted_2_steady_3_algo_assign_storage_site",
     fn()void,
   );
   @export_name("launch_steady_algo_assign_storage_site", fn()void);
