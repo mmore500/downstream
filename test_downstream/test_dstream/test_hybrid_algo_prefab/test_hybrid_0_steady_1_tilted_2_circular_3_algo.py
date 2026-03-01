@@ -1,4 +1,6 @@
-from downstream.dstream import hybrid_0_steady_1_tilted_2_circular_3_algo as algo
+from downstream.dstream import (
+    hybrid_0_steady_1_tilted_2_circular_3_algo as algo,
+)
 
 
 def test_smoke():
