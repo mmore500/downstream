@@ -1,0 +1,50 @@
+const steady_algo = @import_module("<downstream/dstream/steady_algo>");
+const tilted_algo = @import_module("<downstream/dstream/tilted_algo>");
+
+/// Does this algorithm have the capacity to ingest a data item at logical time
+/// T?
+///
+/// @param S The number of buffer sites available.
+/// @param T Queried logical time.
+/// @returns Whether there is capacity to ingest at time T.
+fn has_ingest_capacity(S: u32, T: u32) bool {
+    if (S < 3 or S % 3 != 0) {
+        return false;
+    }
+    const third_S = S / 3;
+    const two_thirds_S = 2 * third_S;
+    const T_div_3 = T / 3;
+    const has_capacity_1st = steady_algo.has_ingest_capacity(
+        two_thirds_S,
+        T_div_3 * 2 + @as(u32, T % 3 > 0),
+    );
+    const has_capacity_2nd = ((T < 2) or tilted_algo.has_ingest_capacity(
+        third_S,
+        (T - 2) / 3,
+    ));
+    return has_capacity_1st and has_capacity_2nd;
+}
+
+/// Site selection for hybrid steady/tilted curation.
+///
+/// What buffer site should the T'th data item be stored to?
+///
+/// @param S Buffer size.
+///     Must be divisible by 3, with S/3 being a power of two.
+/// @param T Current logical time.
+/// @returns The selected storage site, if any.
+///     Returns S if no site should be selected (i.e., discard).
+fn assign_storage_site(S: u32, T: u32) u32 {
+    const third_S = S / 3;
+    const two_thirds_S = 2 * third_S;
+    const remainder = T % 3;
+    if (remainder < 2) {
+        const adj_T = (T / 3) * 2 + remainder;
+        const site = steady_algo.assign_storage_site(two_thirds_S, adj_T);
+        return if (site == two_thirds_S) S else site;
+    } else {
+        const adj_T = T / 3;
+        const site = tilted_algo.assign_storage_site(third_S, adj_T);
+        return if (site == third_S) S else two_thirds_S + site;
+    }
+}

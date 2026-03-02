@@ -38,7 +38,7 @@ if test_cases.size == 0:
 nCases = test_cases.shape[0]
 nRow, nCol = 1, 1  # number of rows, columns, and genome words
 wavSize = 32  # number of bits in a wavelet
-chunkSize = 2048  # number of test cases to run in a single batch
+chunkSize = 1024  # number of test cases to run in a single batch
 
 runner = SdkRuntime("out", cmaddr=args.cmaddr, suppress_simfab_trace=True)
 
@@ -70,17 +70,26 @@ for bounds in tqdm([*mit.pairwise({*range(0, nCases, chunkSize), nCases})]):
         nonblock=False,
     )
 
-    launcher = {
-        "dstream.circular_algo.assign_storage_site": "launch_circular_algo_assign_storage_site",
-        "dstream.hybrid_0_steady_1_circular_2_algo.assign_storage_site": "launch_hybrid_0_steady_1_circular_2_algo_assign_storage_site",
-        "dstream.hybrid_0_steady_1_stretched_2_algo.assign_storage_site": "launch_hybrid_0_steady_1_stretched_2_algo_assign_storage_site",
-        "dstream.hybrid_0_steady_1_tilted_2_algo.assign_storage_site": "launch_hybrid_0_steady_1_tilted_2_algo_assign_storage_site",
-        "dstream.hybrid_0_tilted_1_circular_2_algo.assign_storage_site": "launch_hybrid_0_tilted_1_circular_2_algo_assign_storage_site",
-        "dstream.steady_algo.assign_storage_site": "launch_steady_algo_assign_storage_site",
-        "dstream.stretched_algo.assign_storage_site": "launch_stretched_algo_assign_storage_site",
-        "dstream.tilted_algo.assign_storage_site": "launch_tilted_algo_assign_storage_site",
-    }[args.algo]
-    runner.launch(launcher, nonblock=False)
+    algo_key = [
+        "dstream.circular_algo.assign_storage_site",
+        "dstream.steady_algo.assign_storage_site",
+        "dstream.stretched_algo.assign_storage_site",
+        "dstream.tilted_algo.assign_storage_site",
+        "dstream.hybrid_0_circular_2_steady_3_algo.assign_storage_site",
+        "dstream.hybrid_0_circular_2_tilted_3_algo.assign_storage_site",
+        "dstream.hybrid_0_steady_1_circular_2_algo.assign_storage_site",
+        "dstream.hybrid_0_steady_1_stretched_2_algo.assign_storage_site",
+        "dstream.hybrid_0_steady_1_tilted_2_algo.assign_storage_site",
+        "dstream.hybrid_0_steady_1_tilted_2_circular_3_algo.assign_storage_site",
+        "dstream.hybrid_0_steady_2_circular_3_algo.assign_storage_site",
+        "dstream.hybrid_0_steady_2_tilted_3_algo.assign_storage_site",
+        "dstream.hybrid_0_tilted_1_circular_2_algo.assign_storage_site",
+        "dstream.hybrid_0_tilted_2_circular_3_algo.assign_storage_site",
+        "dstream.hybrid_0_tilted_2_steady_3_algo.assign_storage_site",
+    ].index(args.algo)
+    runner.launch(
+        "launch_assign_storage_site", np.uint32(algo_key), nonblock=False
+    )
 
     runner.memcpy_d2h(
         results_chunk,

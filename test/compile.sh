@@ -6,7 +6,7 @@ cd "$(dirname "$0")/.."
 
 echo "CSLC ${CSLC}"
 
-CSLC_ARCH_FLAG="${CSLC_ARCH_FLAG:-wse2}"
+CSLC_ARCH_FLAG="${CSLC_ARCH_FLAG:-wse3}"
 echo "CSLC_ARCH_FLAG ${CSLC_ARCH_FLAG}"
 
 # target a 1x1 region of interest

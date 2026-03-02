@@ -1,6 +1,6 @@
 const nRow = 1;
 const nCol = 1;
-const chunkSize = 2048;
+const chunkSize = 1024;
 
 const LAUNCH: color = @get_color(9);
 
@@ -31,24 +31,5 @@ layout {
 
   @export_name("cases", [*]u32, true);
   @export_name("results", [*]u32, true);
-  @export_name("launch_circular_algo_assign_storage_site", fn()void);
-  @export_name(
-    "launch_hybrid_0_steady_1_circular_2_algo_assign_storage_site",
-    fn()void,
-  );
-  @export_name(
-    "launch_hybrid_0_steady_1_stretched_2_algo_assign_storage_site",
-    fn()void,
-  );
-  @export_name(
-    "launch_hybrid_0_steady_1_tilted_2_algo_assign_storage_site",
-    fn()void,
-  );
-  @export_name(
-    "launch_hybrid_0_tilted_1_circular_2_algo_assign_storage_site",
-    fn()void,
-  );
-  @export_name("launch_steady_algo_assign_storage_site", fn()void);
-  @export_name("launch_stretched_algo_assign_storage_site", fn()void);
-  @export_name("launch_tilted_algo_assign_storage_site", fn()void);
+  @export_name("launch_assign_storage_site", fn(u32)void);
 }

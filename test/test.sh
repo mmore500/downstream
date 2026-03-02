@@ -16,7 +16,7 @@ python3 -m pip install uv
 python3 -m uv pip install -r requirements.txt
 
 echo "compiling with ${CSLC} CSLC"
-export CSLC_ARCH_FLAG="${CSLC_ARCH_FLAG:-wse2}"
+export CSLC_ARCH_FLAG="${CSLC_ARCH_FLAG:-wse3}"
 echo "CSLC_ARCH_FLAG ${CSLC_ARCH_FLAG}"
 ./compile.sh > /dev/null 2>&1
 
