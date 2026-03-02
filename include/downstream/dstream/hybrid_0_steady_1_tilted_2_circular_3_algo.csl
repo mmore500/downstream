@@ -9,6 +9,9 @@ const tilted_algo = @import_module("<downstream/dstream/tilted_algo>");
 /// @param T Queried logical time.
 /// @returns Whether there is capacity to ingest at time T.
 fn has_ingest_capacity(S: u32, T: u32) bool {
+    if (S < 3 or S % 3 != 0) {
+        return false;
+    }
     const third_S = S / 3;
     const has_capacity_1st = steady_algo.has_ingest_capacity(
         third_S,
