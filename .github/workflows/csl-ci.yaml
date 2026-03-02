@@ -41,17 +41,20 @@ jobs:
           - "set01/dstream.steady_algo.assign_storage_site"
           - "set01/dstream.stretched_algo.assign_storage_site"
           - "set01/dstream.tilted_algo.assign_storage_site"
-          - "set01/dstream.hybrid_0_circular_2_steady_3_algo.assign_storage_site"
-          - "set01/dstream.hybrid_0_circular_2_tilted_3_algo.assign_storage_site"
-          - "set01/dstream.hybrid_0_steady_1_circular_2_algo.assign_storage_site"
-          - "set01/dstream.hybrid_0_steady_1_stretched_2_algo.assign_storage_site"
-          - "set01/dstream.hybrid_0_steady_1_tilted_2_algo.assign_storage_site"
-          - "set01/dstream.hybrid_0_steady_1_tilted_2_circular_3_algo.assign_storage_site"
-          - "set01/dstream.hybrid_0_steady_2_circular_3_algo.assign_storage_site"
-          - "set01/dstream.hybrid_0_steady_2_tilted_3_algo.assign_storage_site"
-          - "set01/dstream.hybrid_0_tilted_1_circular_2_algo.assign_storage_site"
-          - "set01/dstream.hybrid_0_tilted_2_circular_3_algo.assign_storage_site"
-          - "set01/dstream.hybrid_0_tilted_2_steady_3_algo.assign_storage_site"
+
+          - "set02/dstream.hybrid_0_steady_1_circular_2_algo.assign_storage_site"
+          - "set02/dstream.hybrid_0_steady_1_stretched_2_algo.assign_storage_site"
+          - "set02/dstream.hybrid_0_steady_1_tilted_2_algo.assign_storage_site"
+          - "set02/dstream.hybrid_0_tilted_1_circular_2_algo.assign_storage_site"
+
+          - "set03/dstream.hybrid_0_circular_2_steady_3_algo.assign_storage_site"
+          - "set03/dstream.hybrid_0_circular_2_tilted_3_algo.assign_storage_site"
+          - "set03/dstream.hybrid_0_steady_1_tilted_2_circular_3_algo.assign_storage_site"
+          - "set03/dstream.hybrid_0_steady_2_circular_3_algo.assign_storage_site"
+          - "set03/dstream.hybrid_0_steady_2_tilted_3_algo.assign_storage_site"
+          - "set03/dstream.hybrid_0_tilted_2_circular_3_algo.assign_storage_site"
+          - "set03/dstream.hybrid_0_tilted_2_steady_3_algo.assign_storage_site"
+
     env:
       CSLC: cslc
       CS_PYTHON: cs_python
