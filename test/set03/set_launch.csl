@@ -56,7 +56,7 @@ fn launch_assign_storage_site(algo: u32) void {
         if (has_capacity) dstream.hybrid_0_tilted_2_steady_3_algo.assign_storage_site(S, T)
         else S + 1
       );
-     else {
+    } else {
       @assert(false);
     }
   }
