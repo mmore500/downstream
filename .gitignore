@@ -3,6 +3,7 @@ simfab_traces/
 *.json
 *.log
 *.out
+!algo_keys.json
 
 .zig-cache/
 zig-out/

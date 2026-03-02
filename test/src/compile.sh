@@ -2,7 +2,9 @@
 
 set -e
 
-cd "$(dirname "$0")/.."
+set="$(basename "$(realpath "$(dirname "$0")")")"
+echo "testing ${set}"
+cd "$(dirname "$0")/../.."
 
 echo "CSLC ${CSLC}"
 
@@ -17,4 +19,4 @@ echo "CSLC_ARCH_FLAG ${CSLC_ARCH_FLAG}"
 # see https://sdk.cerebras.net/csl/tutorials/gemv-01-complete-program/
 # 8x3 because compiler says
 # RuntimeError: Fabric dimension must be at least 8-by-3
-"${CSLC}" --import-path ./include ./test/layout.csl --arch=${CSLC_ARCH_FLAG} --fabric-dims=8,3 --fabric-offsets=4,1 --channels=1 --memcpy -o out
+"${CSLC}" --import-path ./include "./test/${set}/layout.csl" --arch=${CSLC_ARCH_FLAG} --fabric-dims=8,3 --fabric-offsets=4,1 --channels=1 --memcpy -o out

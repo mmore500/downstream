@@ -1,0 +1,6 @@
+[
+    "dstream.circular_algo.assign_storage_site",
+    "dstream.steady_algo.assign_storage_site",
+    "dstream.stretched_algo.assign_storage_site",
+    "dstream.tilted_algo.assign_storage_site"
+]
