@@ -38,7 +38,7 @@ if test_cases.size == 0:
 nCases = test_cases.shape[0]
 nRow, nCol = 1, 1  # number of rows, columns, and genome words
 wavSize = 32  # number of bits in a wavelet
-chunkSize = 2048  # number of test cases to run in a single batch
+chunkSize = 1024  # number of test cases to run in a single batch
 
 runner = SdkRuntime("out", cmaddr=args.cmaddr, suppress_simfab_trace=True)
 
