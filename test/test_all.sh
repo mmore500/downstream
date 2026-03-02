@@ -4,7 +4,7 @@ set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
-for CSLC_ARCH_FLAG in "wse2" "wse3"; do
+for CSLC_ARCH_FLAG in "wse3"; do
     echo "CSLC_ARCH_FLAG ${CSLC_ARCH_FLAG}"
     export CSLC_ARCH_FLAG
 
