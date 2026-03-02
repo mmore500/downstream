@@ -1,4 +1,6 @@
 import argparse
+import json
+import pathlib
 import sys
 
 import more_itertools as mit
@@ -70,23 +72,11 @@ for bounds in tqdm([*mit.pairwise({*range(0, nCases, chunkSize), nCases})]):
         nonblock=False,
     )
 
-    algo_key = [
-        "dstream.circular_algo.assign_storage_site",
-        "dstream.steady_algo.assign_storage_site",
-        "dstream.stretched_algo.assign_storage_site",
-        "dstream.tilted_algo.assign_storage_site",
-        "dstream.hybrid_0_circular_2_steady_3_algo.assign_storage_site",
-        "dstream.hybrid_0_circular_2_tilted_3_algo.assign_storage_site",
-        "dstream.hybrid_0_steady_1_circular_2_algo.assign_storage_site",
-        "dstream.hybrid_0_steady_1_stretched_2_algo.assign_storage_site",
-        "dstream.hybrid_0_steady_1_tilted_2_algo.assign_storage_site",
-        "dstream.hybrid_0_steady_1_tilted_2_circular_3_algo.assign_storage_site",
-        "dstream.hybrid_0_steady_2_circular_3_algo.assign_storage_site",
-        "dstream.hybrid_0_steady_2_tilted_3_algo.assign_storage_site",
-        "dstream.hybrid_0_tilted_1_circular_2_algo.assign_storage_site",
-        "dstream.hybrid_0_tilted_2_circular_3_algo.assign_storage_site",
-        "dstream.hybrid_0_tilted_2_steady_3_algo.assign_storage_site",
-    ].index(args.algo)
+    algo_key = json.loads(
+        pathlib.Path(__file__).parent.joinpath("algo_keys.json").read_text(),
+    ).index(
+        args.algo,
+    )
     runner.launch(
         "launch_assign_storage_site", np.uint32(algo_key), nonblock=False
     )

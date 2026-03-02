@@ -1,9 +1,5 @@
-param memcpy_params: comptime_struct;
+param memcpy: imported_module;
 param chunkSize: i32;
-param peId: i16;
-
-const memcpy = @import_module("<memcpy/memcpy>", memcpy_params);
-const math = @import_module("<math>");
 
 const dstream = @import_module("<downstream/dstream/main>");
 
@@ -112,15 +108,4 @@ fn launch_assign_storage_site(algo: u32) void {
     }
   }
   memcpy.unblock_cmd_stream();
-}
-
-const in_q_lauch : input_queue = @get_input_queue(2);
-const launch_task_id : data_task_id = @get_data_task_id(in_q_lauch);
-
-comptime {
-  @export_symbol(ptr_cases, "cases");
-  @export_symbol(ptr_results, "results");
-  @export_symbol(launch_assign_storage_site);
-  @rpc(launch_task_id);
-  @initialize_queue(in_q_lauch, .{ .color = memcpy.LAUNCH });
 }

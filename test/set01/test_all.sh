@@ -1,0 +1,1 @@
+../src/test_all.sh
