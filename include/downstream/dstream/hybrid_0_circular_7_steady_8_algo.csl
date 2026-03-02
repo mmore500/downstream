@@ -1,0 +1,52 @@
+const circular_algo = @import_module("<downstream/dstream/circular_algo>");
+const steady_algo = @import_module("<downstream/dstream/steady_algo>");
+
+/// Does this algorithm have the capacity to ingest a data item at logical time
+/// T?
+///
+/// @param S The number of buffer sites available.
+/// @param T Queried logical time.
+/// @returns Whether there is capacity to ingest at time T.
+fn has_ingest_capacity(S: u32, T: u32) bool {
+    if (S < 8 or S % 8 != 0) {
+        return false;
+    }
+    const eighth_S = S / 8;
+    const seven_eighth_S = 7 * eighth_S;
+    const T_div_8 = T / 8;
+    const T_mod_8 = T % 8;
+    const adj_T_mod = if (T_mod_8 < 7) T_mod_8 else @as(u32, 6);
+    const has_capacity_1st = circular_algo.has_ingest_capacity(
+        seven_eighth_S,
+        T_div_8 * 7 + adj_T_mod,
+    );
+    const has_capacity_2nd = ((T < 7) or steady_algo.has_ingest_capacity(
+        eighth_S,
+        (T - 7) / 8,
+    ));
+    return has_capacity_1st and has_capacity_2nd;
+}
+
+/// Site selection for hybrid circular/steady curation.
+///
+/// What buffer site should the T'th data item be stored to?
+///
+/// @param S Buffer size.
+///     Must be divisible by 8, with S/8 being a power of two.
+/// @param T Current logical time.
+/// @returns The selected storage site, if any.
+///     Returns S if no site should be selected (i.e., discard).
+fn assign_storage_site(S: u32, T: u32) u32 {
+    const eighth_S = S / 8;
+    const seven_eighth_S = 7 * eighth_S;
+    const remainder = T % 8;
+    if (remainder < 7) {
+        const adj_T = (T / 8) * 7 + remainder;
+        const site = circular_algo.assign_storage_site(seven_eighth_S, adj_T);
+        return if (site == seven_eighth_S) S else site;
+    } else {
+        const adj_T = T / 8;
+        const site = steady_algo.assign_storage_site(eighth_S, adj_T);
+        return if (site == eighth_S) S else seven_eighth_S + site;
+    }
+}
