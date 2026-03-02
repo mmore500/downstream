@@ -35,6 +35,7 @@ jobs:
       fail-fast: false
       matrix:
         arch:
+          - "wse2"
           - "wse3"
         target:
           - "set01/dstream.circular_algo.assign_storage_site"
