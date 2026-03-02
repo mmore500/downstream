@@ -361,7 +361,7 @@ class hybrid_algo:
             support?
         """
         num_chunks = self._get_num_chunks()
-        if S < num_chunks:
+        if S < num_chunks or S % num_chunks != 0:
             return False
 
         for T_ in range(max(0, T - num_chunks + 1), T + 1):
