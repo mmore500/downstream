@@ -1,3 +1,4 @@
+import io
 import logging
 import pathlib
 import typing
@@ -93,7 +94,7 @@ def _calculate_offsets(df: pl.DataFrame) -> pl.DataFrame:
     return df
 
 
-def _compute_data_parity0(data_hex: str, h_matrix_str: str) -> str:
+def _compute_data_parity0(data_hex: str, h_matrix_str: str) -> int:
     """Compute parity check syndrome from H matrix and data_hex.
 
     Parameters
@@ -101,30 +102,38 @@ def _compute_data_parity0(data_hex: str, h_matrix_str: str) -> str:
     data_hex : str
         Hexadecimal string representing binary data.
     h_matrix_str : str
-        Space-separated binary strings, each representing a row of the
-        parity check (H) matrix.
+        Space-separated binary strings forming a parity check (H) matrix,
+        parseable by np.loadtxt.
 
     Returns
     -------
-    str
-        Binary string representing the syndrome vector (H @ data mod 2).
+    int
+        Number of parity violations (nonzero syndrome bits).
     """
     if not h_matrix_str:
-        return ""
-    h_rows = h_matrix_str.split()
-    data_bits = bin(int(data_hex, 16))[2:].zfill(len(data_hex) * 4)
-    syndrome_bits = []
-    for h_row in h_rows:
-        if len(h_row) != len(data_bits):
-            raise ValueError(
-                f"H matrix row length {len(h_row)} does not match "
-                f"data_hex bit length {len(data_bits)}",
-            )
-        dot = 0
-        for h_bit, d_bit in zip(h_row, data_bits):
-            dot ^= int(h_bit) & int(d_bit)
-        syndrome_bits.append(str(dot))
-    return "".join(syndrome_bits)
+        return 0
+    try:
+        rows = h_matrix_str.split()
+        csv_rows = "\n".join(",".join(row) for row in rows)
+        h_matrix = np.loadtxt(
+            io.StringIO(csv_rows), dtype=np.uint8, delimiter=","
+        )
+    except Exception:
+        logging.error(f"failed to parse H matrix: {h_matrix_str!r}")
+        raise
+    if h_matrix.ndim == 1:
+        h_matrix = h_matrix.reshape(1, -1)
+    data_bits = np.array(
+        [int(b) for b in bin(int(data_hex, 16))[2:].zfill(len(data_hex) * 4)],
+        dtype=np.uint8,
+    )
+    if h_matrix.shape[1] != len(data_bits):
+        raise ValueError(
+            f"H matrix column count {h_matrix.shape[1]} does not match "
+            f"data_hex bit length {len(data_bits)}",
+        )
+    syndrome = h_matrix @ data_bits % 2
+    return int(np.sum(syndrome != 0))
 
 
 def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
@@ -141,11 +150,11 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
         if h_matrix_str is None or (
             isinstance(h_matrix_str, str) and not h_matrix_str
         ):
-            results.append("")
+            results.append(0)
         else:
             results.append(_compute_data_parity0(data_hex, str(h_matrix_str)))
     df = df.with_columns(
-        downstream_data_parity0_result=pl.Series(results, dtype=pl.String),
+        downstream_data_parity0_result=pl.Series(results, dtype=pl.UInt32),
     ).drop("downstream_data_parity0_rule")
     return df
 
@@ -410,9 +419,9 @@ def unpack_data_packed(
 
         If 'downstream_data_parity0_rule' was provided:
 
-            - 'downstream_data_parity0_result' : pl.String
-                - Syndrome binary string from parity check (H @ data mod 2).
-                - All zeros indicates data passes the parity check.
+            - 'downstream_data_parity0_result' : pl.UInt32
+                - Number of parity violations (nonzero syndrome bits).
+                - Zero indicates data passes the parity check.
 
         User-defined columns and 'downstream_version' will be forwarded from
         the input DataFrame.
@@ -464,7 +473,7 @@ def unpack_data_packed(
     if "dstream_data_id" not in df.lazy().collect_schema().names():
         df = df.with_row_index("dstream_data_id")
 
-    if "downstream_data_parity0_rule" in df:
+    if "downstream_data_parity0_rule" in schema_names:
         logging.info(" - computing data parity0...")
         df = _apply_data_parity0(df)
 
