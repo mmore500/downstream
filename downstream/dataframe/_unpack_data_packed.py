@@ -114,19 +114,19 @@ def _compute_data_parity0(data_hex: str, h_matrix_str: str) -> int:
     try:
         h_matrix = np.loadtxt(
             io.StringIO(
-                "\n".join(",".join(r) for r in h_matrix_str.split()),
+                "\n".join(" ".join(r) for r in h_matrix_str.split()),
             ),
             dtype=np.uint8,
-            delimiter=",",
             ndmin=2,
         )
     except Exception:
         logging.error(f"failed to parse H matrix: {h_matrix_str!r}")
         raise
-    data_bits = np.array(
-        [int(b) for b in bin(int(data_hex, 16))[2:].zfill(len(data_hex) * 4)],
-        dtype=np.uint8,
+    padded_hex = data_hex if len(data_hex) % 2 == 0 else "0" + data_hex
+    data_bits = np.unpackbits(
+        np.frombuffer(bytes.fromhex(padded_hex), dtype=np.uint8),
     )
+    data_bits = data_bits[len(padded_hex) * 4 - len(data_hex) * 4 :]
     if h_matrix.shape[1] != len(data_bits):
         raise ValueError(
             f"H matrix column count {h_matrix.shape[1]} does not match "
