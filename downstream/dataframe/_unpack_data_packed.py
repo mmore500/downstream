@@ -1,4 +1,5 @@
 import logging
+import tempfile
 import typing
 import warnings
 
@@ -124,7 +125,8 @@ def _extract_from_data_hex(df: pl.DataFrame) -> pl.DataFrame:
 
 
 def _perform_validations(
-    df: pl.DataFrame, col_name: str,
+    df: pl.DataFrame,
+    col_name: str,
 ) -> pl.DataFrame:
     validation_groups = df.with_columns(
         pl.col(col_name).set_sorted(),
@@ -137,8 +139,17 @@ def _perform_validations(
         if not validation_result.all():
             err_msg = f"{col_name} `{validator}` failed"
             logging.error(err_msg)
+            failed_rows = group.filter(~validation_result)
+            logging.error(failed_rows.glimpse(return_as_string=True))
+            tmp = tempfile.NamedTemporaryFile(
+                prefix="downstream_validation_fail_",
+                suffix=".csv",
+                delete=False,
+            )
+            tmp.close()
+            failed_rows.write_csv(tmp.name)
             logging.error(
-                group.filter(~validation_result).glimpse(return_as_string=True)
+                f"failing rows dumped to {tmp.name}",
             )
             raise ValueError(err_msg)
 
@@ -149,7 +160,8 @@ def _perform_validations(
 
 
 def _perform_filters(
-    df: pl.DataFrame, col_name: str,
+    df: pl.DataFrame,
+    col_name: str,
 ) -> pl.DataFrame:
     filter_groups = df.with_columns(
         pl.col(col_name).set_sorted(),

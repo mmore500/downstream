@@ -1,4 +1,5 @@
 import logging
+import tempfile
 import typing
 
 import numpy as np
@@ -196,7 +197,8 @@ def _check_lookup_bounds(df_long: pl.DataFrame) -> None:
 
 
 def _perform_validation(
-    df_long: pl.DataFrame, col_name: str,
+    df_long: pl.DataFrame,
+    col_name: str,
 ) -> pl.DataFrame:
     validation_groups = df_long.with_columns(
         pl.col(col_name).set_sorted(),
@@ -209,8 +211,17 @@ def _perform_validation(
         if not validation_result.all():
             err_msg = f"{col_name} `{validator}` failed"
             logging.error(err_msg)
+            failed_rows = group.filter(~validation_result)
+            logging.error(failed_rows.glimpse(return_as_string=True))
+            tmp = tempfile.NamedTemporaryFile(
+                prefix="downstream_validation_fail_",
+                suffix=".csv",
+                delete=False,
+            )
+            tmp.close()
+            failed_rows.write_csv(tmp.name)
             logging.error(
-                group.filter(~validation_result).glimpse(return_as_string=True)
+                f"failing rows dumped to {tmp.name}",
             )
             raise ValueError(err_msg)
 
@@ -221,7 +232,8 @@ def _perform_validation(
 
 
 def _perform_filters(
-    df_long: pl.DataFrame, col_name: str,
+    df_long: pl.DataFrame,
+    col_name: str,
 ) -> pl.DataFrame:
     filter_groups = df_long.with_columns(
         pl.col(col_name).set_sorted(),
