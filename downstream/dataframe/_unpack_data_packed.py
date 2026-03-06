@@ -93,6 +93,63 @@ def _calculate_offsets(df: pl.DataFrame) -> pl.DataFrame:
     return df
 
 
+def _compute_data_parity0(data_hex: str, h_matrix_str: str) -> str:
+    """Compute parity check syndrome from H matrix and data_hex.
+
+    Parameters
+    ----------
+    data_hex : str
+        Hexadecimal string representing binary data.
+    h_matrix_str : str
+        Space-separated binary strings, each representing a row of the
+        parity check (H) matrix.
+
+    Returns
+    -------
+    str
+        Binary string representing the syndrome vector (H @ data mod 2).
+    """
+    if not h_matrix_str:
+        return ""
+    h_rows = h_matrix_str.split()
+    data_bits = bin(int(data_hex, 16))[2:].zfill(len(data_hex) * 4)
+    syndrome_bits = []
+    for h_row in h_rows:
+        if len(h_row) != len(data_bits):
+            raise ValueError(
+                f"H matrix row length {len(h_row)} does not match "
+                f"data_hex bit length {len(data_bits)}",
+            )
+        dot = 0
+        for h_bit, d_bit in zip(h_row, data_bits):
+            dot ^= int(h_bit) & int(d_bit)
+        syndrome_bits.append(str(dot))
+    return "".join(syndrome_bits)
+
+
+def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
+    """Apply downstream_data_parity0_rule to compute parity syndrome.
+
+    If 'downstream_data_parity0_rule' column is present, computes the
+    parity check result for each row's data_hex against its H matrix
+    and stores the result in 'downstream_data_parity0_result'.
+    """
+    results = []
+    data_hex_col = df["data_hex"].to_list()
+    rule_col = df["downstream_data_parity0_rule"].to_list()
+    for data_hex, h_matrix_str in zip(data_hex_col, rule_col):
+        if h_matrix_str is None or (
+            isinstance(h_matrix_str, str) and not h_matrix_str
+        ):
+            results.append("")
+        else:
+            results.append(_compute_data_parity0(data_hex, str(h_matrix_str)))
+    df = df.with_columns(
+        downstream_data_parity0_result=pl.Series(results, dtype=pl.String),
+    ).drop("downstream_data_parity0_rule")
+    return df
+
+
 def _extract_from_data_hex(df: pl.DataFrame) -> pl.DataFrame:
     return (
         df.lazy()
@@ -287,6 +344,13 @@ def unpack_data_packed(
 
         Optional schema:
 
+        - 'downstream_data_parity0_rule' : pl.String or pl.Categorical
+            - Space-separated binary strings forming a parity check (H)
+              matrix for the binary representation of 'data_hex'.
+            - Each token is one row of the H matrix, with length equal
+              to the number of bits in 'data_hex'.
+            - If present, 'downstream_data_parity0_result' will be
+              computed as the syndrome H @ data (mod 2).
         - 'downstream_exclude_exploded' : pl.Boolean
             - Should row be dropped after exploding unpacked data?
         - 'downstream_exclude_unpacked' : pl.Boolean
@@ -344,6 +408,12 @@ def unpack_data_packed(
                 - Raw dstream buffer binary data, containing packed data items.
                 - Represented as a hexadecimal string.
 
+        If 'downstream_data_parity0_rule' was provided:
+
+            - 'downstream_data_parity0_result' : pl.String
+                - Syndrome binary string from parity check (H @ data mod 2).
+                - All zeros indicates data passes the parity check.
+
         User-defined columns and 'downstream_version' will be forwarded from
         the input DataFrame.
 
@@ -393,6 +463,10 @@ def unpack_data_packed(
 
     if "dstream_data_id" not in df.lazy().collect_schema().names():
         df = df.with_row_index("dstream_data_id")
+
+    if "downstream_data_parity0_rule" in df:
+        logging.info(" - computing data parity0...")
+        df = _apply_data_parity0(df)
 
     logging.info(" - extracting T and storage_hex from data_hex...")
     df = _extract_from_data_hex(df)
