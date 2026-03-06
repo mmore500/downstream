@@ -392,7 +392,9 @@ def test_unpack_data_packed_filter_exploded_forwarded():
     result = unpack_data_packed(df)
 
     assert "downstream_filter_exploded" in result.columns
-    assert result["downstream_filter_exploded"][0] == "pl.col('dstream_Tbar') > 0"
+    assert (
+        result["downstream_filter_exploded"][0] == "pl.col('dstream_Tbar') > 0"
+    )
 
 
 def test_unpack_data_packed_bounds():
