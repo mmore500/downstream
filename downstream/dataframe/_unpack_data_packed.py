@@ -123,45 +123,78 @@ def _extract_from_data_hex(df: pl.DataFrame) -> pl.DataFrame:
     )
 
 
-def _perform_validations(df: pl.DataFrame) -> pl.DataFrame:
+def _perform_validations(
+    df: pl.DataFrame, col_name: str,
+) -> pl.DataFrame:
     validation_groups = df.with_columns(
-        pl.col("downstream_validate_unpacked").set_sorted(),
-    ).group_by("downstream_validate_unpacked")
+        pl.col(col_name).set_sorted(),
+    ).group_by(col_name)
     num_validators = 0
     for (validator,), group in validation_groups:
         num_validators += bool(validator)
         validation_expr = eval(validator or "pl.lit(True)", {"pl": pl})
         validation_result = group.select(validation_expr).to_series()
         if not validation_result.all():
-            err_msg = f"downstream_validate_exploded `{validator}` failed"
+            err_msg = f"{col_name} `{validator}` failed"
             logging.error(err_msg)
             logging.error(
                 group.filter(~validation_result).glimpse(return_as_string=True)
             )
             raise ValueError(err_msg)
 
-    df = df.drop("downstream_validate_unpacked")
+    df = df.drop(col_name)
     logging.info(f" - {num_validators} validation(s) passed!")
 
     return df
 
 
-def _drop_excluded_rows(df: pl.DataFrame) -> pl.DataFrame:
-    has_dropped_validations = (
-        "downstream_validate_exploded" in df
-        and df.select(
-            (pl.col("downstream_validate_exploded").str.len_bytes() > 0)
-            & pl.col("downstream_exclude_unpacked")
-        )
-        .to_series()
-        .any()
+def _perform_filters(
+    df: pl.DataFrame, col_name: str,
+) -> pl.DataFrame:
+    filter_groups = df.with_columns(
+        pl.col(col_name).set_sorted(),
+    ).group_by(col_name)
+    num_before = len(df)
+    num_filters = 0
+    result_dfs = []
+    for (filter_expr_str,), group in filter_groups:
+        num_filters += bool(filter_expr_str)
+        filter_expr = eval(filter_expr_str or "pl.lit(True)", {"pl": pl})
+        filter_result = group.select(filter_expr).to_series()
+        result_dfs.append(group.filter(filter_result))
+
+    df = pl.concat(result_dfs).drop(col_name)
+    num_after = len(df)
+    num_filtered = num_before - num_after
+    logging.info(
+        f" - {num_filters} filter(s) applied, "
+        f"{num_filtered} dropped and {num_after} kept "
+        f"from {num_before} rows!",
     )
-    if has_dropped_validations:
-        warnings.warn(
-            "row(s) with both `downstream_validate_exploded` "
-            "and `downstream_exclude_unpacked` detected,"
-            "but these rows will be dropped before validation",
+
+    return df
+
+
+def _drop_excluded_rows(df: pl.DataFrame) -> pl.DataFrame:
+    for col_name in (
+        "downstream_filter_exploded",
+        "downstream_validate_exploded",
+    ):
+        has_dropped = (
+            col_name in df
+            and df.select(
+                (pl.col(col_name).str.len_bytes() > 0)
+                & pl.col("downstream_exclude_unpacked")
+            )
+            .to_series()
+            .any()
         )
+        if has_dropped:
+            warnings.warn(
+                f"row(s) with both `{col_name}` "
+                "and `downstream_exclude_unpacked` detected,"
+                "but these rows will be dropped before validation",
+            )
 
     kept = pl.col("downstream_exclude_unpacked").not_().fill_null(True)
     num_before = len(df)
@@ -235,12 +268,23 @@ def unpack_data_packed(
             - Should row be dropped after exploding unpacked data?
         - 'downstream_exclude_unpacked' : pl.Boolean
             - Should row be dropped after unpacking packed data?
+        - 'downstream_filter_exploded' : pl.String, polars expression
+            - Polars expression to filter exploded data; non-matching rows
+            are dropped.
+        - 'downstream_filter_packed' : pl.String, polars expression
+            - Polars expression to filter packed data; non-matching rows
+            are dropped.
+        - 'downstream_filter_unpacked' : pl.String, polars expression
+            - Polars expression to filter unpacked data; non-matching rows
+            are dropped.
         - 'dstream_T_dilation' : pl.UInt32
             - Dilation factor applied to T counter, if any; supports scenario
             where data items are ingested every `dstream_T_dilation`th counter
             step (default 1).
         - 'downstream_validate_exploded' : pl.String, polars expression
             - Polars expression to validate exploded data.
+        - 'downstream_validate_packed' : pl.String, polars expression
+            - Polars expression to validate packed data.
         - 'downstream_validate_unpacked' : pl.String, polars expression
             - Polars expression to validate unpacked data.
         - 'downstream_version' : pl.Categorical
@@ -313,6 +357,14 @@ def unpack_data_packed(
         logging.info(" - defaulting dstream_T_dilation...")
         df = df.with_columns(dstream_T_dilation=pl.lit(1).cast(pl.UInt32))
 
+    if "downstream_validate_packed" in df:
+        logging.info(" - evaluating `downstream_validate_packed` exprs...")
+        df = _perform_validations(df, "downstream_validate_packed")
+
+    if "downstream_filter_packed" in df:
+        logging.info(" - applying `downstream_filter_packed` exprs...")
+        df = _perform_filters(df, "downstream_filter_packed")
+
     logging.info(" - calculating offsets...")
     df = _calculate_offsets(df)
 
@@ -331,7 +383,11 @@ def unpack_data_packed(
 
     if "downstream_validate_unpacked" in df:
         logging.info(" - evaluating `downstream_validate_unpacked` exprs...")
-        df = _perform_validations(df)
+        df = _perform_validations(df, "downstream_validate_unpacked")
+
+    if "downstream_filter_unpacked" in df:
+        logging.info(" - applying `downstream_filter_unpacked` exprs...")
+        df = _perform_filters(df, "downstream_filter_unpacked")
 
     if "downstream_exclude_unpacked" in df:
         logging.info(" - dropping excluded rows...")

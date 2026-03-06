@@ -157,6 +157,103 @@ def test_explode_lookup_packed_64(dstream_T_dilation: typing.Optional[int]):
     assert (res["dstream_T_raw"] >= res["dstream_Tbar"]).all()
 
 
+def test_explode_lookup_packed_validate_packed():
+
+    df = pl.DataFrame(
+        {
+            "dstream_algo": ["dstream.steady_algo", "dstream.steady_algo"],
+            "downstream_version": [downstream.__version__] * 2,
+            "data_hex": ["aa11ccdd", "221188dd"],
+            "dstream_storage_bitoffset": [0, 0],
+            "dstream_storage_bitwidth": [16, 16],
+            "dstream_T_bitoffset": [16, 16],
+            "dstream_T_bitwidth": [16, 16],
+            "dstream_S": [2, 2],
+            "downstream_validate_packed": ["pl.col('dstream_S') == 2"] * 2,
+            "downstream_validate_exploded": ["pl.col('dstream_T') != 0"] * 2,
+            "downstream_validate_unpacked": ["pl.col('dstream_T') != 0"] * 2,
+        },
+    )
+    res = explode_lookup_packed(df, value_type="uint8")
+
+    assert len(res) == df["dstream_S"].sum()
+
+
+def test_explode_lookup_packed_filter_packed():
+
+    df = pl.DataFrame(
+        {
+            "dstream_algo": ["dstream.steady_algo", "dstream.steady_algo"],
+            "downstream_version": [downstream.__version__] * 2,
+            "data_hex": ["aa11ccdd", "221188dd"],
+            "dstream_storage_bitoffset": [0, 0],
+            "dstream_storage_bitwidth": [16, 16],
+            "dstream_T_bitoffset": [16, 16],
+            "dstream_T_bitwidth": [16, 16],
+            "dstream_S": [2, 2],
+            "downstream_filter_packed": [
+                "pl.col('data_hex') == 'aa11ccdd'",
+                "pl.col('data_hex') == 'aa11ccdd'",
+            ],
+        },
+    )
+    res = explode_lookup_packed(df, value_type="uint8")
+
+    # Only first row passes the filter, so only 2 items from 1 buffer
+    assert len(res) == 2
+
+
+def test_explode_lookup_packed_filter_unpacked():
+
+    df = pl.DataFrame(
+        {
+            "dstream_algo": ["dstream.steady_algo", "dstream.steady_algo"],
+            "downstream_version": [downstream.__version__] * 2,
+            "data_hex": ["aa11ccdd", "221188dd"],
+            "dstream_storage_bitoffset": [0, 0],
+            "dstream_storage_bitwidth": [16, 16],
+            "dstream_T_bitoffset": [16, 16],
+            "dstream_T_bitwidth": [16, 16],
+            "dstream_S": [2, 2],
+            "downstream_filter_unpacked": [
+                "pl.col('dstream_T') == 0xCCDD",
+                "pl.col('dstream_T') == 0xCCDD",
+            ],
+        },
+    )
+    res = explode_lookup_packed(df, value_type="uint8")
+
+    # Only first row has dstream_T == 0xCCDD, so only 2 items
+    assert len(res) == 2
+
+
+def test_explode_lookup_packed_filter_exploded():
+
+    df = pl.DataFrame(
+        {
+            "dstream_algo": ["dstream.steady_algo", "dstream.steady_algo"],
+            "downstream_version": [downstream.__version__] * 2,
+            "data_hex": [
+                "aa11ccddaa11ccddaa11ccddaa11ccddaa11ccddaa11ccddaa11ccddaa11ccdd",
+                "221188dd221188dd221188dd221188dd221188dd221188dd221188dd221188dd",
+            ],
+            "dstream_storage_bitoffset": [16, 16],
+            "dstream_storage_bitwidth": [128, 128],
+            "dstream_T_bitoffset": [0, 0],
+            "dstream_T_bitwidth": [16, 16],
+            "dstream_S": [2, 2],
+            "downstream_filter_exploded": [
+                "pl.col('dstream_Tbar') > 0",
+                "pl.col('dstream_Tbar') > 0",
+            ],
+        },
+    )
+    res = explode_lookup_packed(df, value_type="uint64")
+
+    # Filter should drop rows where dstream_Tbar == 0
+    assert (res["dstream_Tbar"] > 0).all()
+
+
 def test_explode_lookup_packed_pup():
 
     surface1 = dsurf.Surface(dstream.steady_algo, 8)

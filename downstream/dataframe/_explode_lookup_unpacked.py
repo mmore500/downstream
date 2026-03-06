@@ -120,8 +120,9 @@ def _prep_data(
             "|^dstream_T$"
             "|^dstream_T_dilation$"
             "|^dstream_T_raw$"
-            "|^downstream_validate_exploded$"
-            "|^downstream_exclude_exploded$",
+            "|^downstream_exclude_exploded$"
+            "|^downstream_filter_exploded$"
+            "|^downstream_validate_exploded$",
         ),
     )
 
@@ -194,25 +195,54 @@ def _check_lookup_bounds(df_long: pl.DataFrame) -> None:
         )
 
 
-def _perform_validation(df_long: pl.DataFrame) -> pl.DataFrame:
+def _perform_validation(
+    df_long: pl.DataFrame, col_name: str,
+) -> pl.DataFrame:
     validation_groups = df_long.with_columns(
-        pl.col("downstream_validate_exploded").set_sorted(),
-    ).group_by("downstream_validate_exploded")
+        pl.col(col_name).set_sorted(),
+    ).group_by(col_name)
     num_validators = 0
     for (validator,), group in validation_groups:
         num_validators += bool(validator)
         validation_expr = eval(validator or "pl.lit(True)", {"pl": pl})
         validation_result = group.select(validation_expr).to_series()
         if not validation_result.all():
-            err_msg = f"downstream_validate_exploded `{validator}` failed"
+            err_msg = f"{col_name} `{validator}` failed"
             logging.error(err_msg)
             logging.error(
                 group.filter(~validation_result).glimpse(return_as_string=True)
             )
             raise ValueError(err_msg)
 
-    df_long = df_long.drop("downstream_validate_exploded")
+    df_long = df_long.drop(col_name)
     logging.info(f" - {num_validators} validation(s) passed!")
+
+    return df_long
+
+
+def _perform_filters(
+    df_long: pl.DataFrame, col_name: str,
+) -> pl.DataFrame:
+    filter_groups = df_long.with_columns(
+        pl.col(col_name).set_sorted(),
+    ).group_by(col_name)
+    num_before = len(df_long)
+    num_filters = 0
+    result_dfs = []
+    for (filter_expr_str,), group in filter_groups:
+        num_filters += bool(filter_expr_str)
+        filter_expr = eval(filter_expr_str or "pl.lit(True)", {"pl": pl})
+        filter_result = group.select(filter_expr).to_series()
+        result_dfs.append(group.filter(filter_result))
+
+    df_long = pl.concat(result_dfs).drop(col_name)
+    num_after = len(df_long)
+    num_filtered = num_before - num_after
+    logging.info(
+        f" - {num_filters} filter(s) applied, "
+        f"{num_filtered} dropped and {num_after} kept "
+        f"from {num_before} rows!",
+    )
 
     return df_long
 
@@ -297,6 +327,9 @@ def explode_lookup_unpacked(
             - If not provided, row number will be used as identifier.
         - 'downstream_exclude_exploded' : pl.Boolean
             - Should row be dropped after exploding unpacked data?
+        - 'downstream_filter_exploded' : pl.String, polars expression
+            - Polars expression to filter exploded data; non-matching rows
+            are dropped.
         - 'dstream_T_dilation' : pl.UInt32
             - Dilation factor applied to T counter, if any; supports scenario
             where data items are ingested every `dstream_T_dilation`th counter
@@ -413,8 +446,12 @@ def explode_lookup_unpacked(
         _check_lookup_bounds(df_long)
 
     if "downstream_validate_exploded" in df_long:
-        logging.info(" - evaluating `downstream_validate_unpacked` exprs...")
-        df_long = _perform_validation(df_long)
+        logging.info(" - evaluating `downstream_validate_exploded` exprs...")
+        df_long = _perform_validation(df_long, "downstream_validate_exploded")
+
+    if "downstream_filter_exploded" in df_long:
+        logging.info(" - applying `downstream_filter_exploded` exprs...")
+        df_long = _perform_filters(df_long, "downstream_filter_exploded")
 
     if "downstream_exclude_exploded" in df_long:
         logging.info(" - dropping excluded rows...")
