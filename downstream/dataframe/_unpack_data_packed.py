@@ -102,8 +102,7 @@ def _compute_data_parity0(data_hex: str, h_matrix_str: str) -> int:
     data_hex : str
         Hexadecimal string representing binary data.
     h_matrix_str : str
-        Space-separated binary strings forming a parity check (H) matrix,
-        parseable by np.loadtxt.
+        Space-separated binary strings forming a parity check (H) matrix.
 
     Returns
     -------
@@ -113,16 +112,17 @@ def _compute_data_parity0(data_hex: str, h_matrix_str: str) -> int:
     if not h_matrix_str:
         return 0
     try:
-        rows = h_matrix_str.split()
-        csv_rows = "\n".join(",".join(row) for row in rows)
         h_matrix = np.loadtxt(
-            io.StringIO(csv_rows), dtype=np.uint8, delimiter=","
+            io.StringIO(
+                "\n".join(",".join(r) for r in h_matrix_str.split()),
+            ),
+            dtype=np.uint8,
+            delimiter=",",
+            ndmin=2,
         )
     except Exception:
         logging.error(f"failed to parse H matrix: {h_matrix_str!r}")
         raise
-    if h_matrix.ndim == 1:
-        h_matrix = h_matrix.reshape(1, -1)
     data_bits = np.array(
         [int(b) for b in bin(int(data_hex, 16))[2:].zfill(len(data_hex) * 4)],
         dtype=np.uint8,
