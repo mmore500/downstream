@@ -163,7 +163,7 @@ def _perform_validations(
     return df
 
 
-def _perform_filters(
+def _apply_filters(
     df: pl.DataFrame,
     col_name: str,
 ) -> pl.DataFrame:
@@ -379,7 +379,7 @@ def unpack_data_packed(
 
     if "downstream_filter_packed" in df:
         logging.info(" - applying `downstream_filter_packed` exprs...")
-        df = _perform_filters(df, "downstream_filter_packed")
+        df = _apply_filters(df, "downstream_filter_packed")
 
     logging.info(" - calculating offsets...")
     df = _calculate_offsets(df)
@@ -403,7 +403,7 @@ def unpack_data_packed(
 
     if "downstream_filter_unpacked" in df:
         logging.info(" - applying `downstream_filter_unpacked` exprs...")
-        df = _perform_filters(df, "downstream_filter_unpacked")
+        df = _apply_filters(df, "downstream_filter_unpacked")
 
     if "downstream_exclude_unpacked" in df:
         logging.info(" - dropping excluded rows...")

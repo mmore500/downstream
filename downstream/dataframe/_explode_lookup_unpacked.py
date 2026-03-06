@@ -235,7 +235,7 @@ def _perform_validations(
     return df_long
 
 
-def _perform_filters(
+def _apply_filters(
     df_long: pl.DataFrame,
     col_name: str,
 ) -> pl.DataFrame:
@@ -467,7 +467,7 @@ def explode_lookup_unpacked(
 
     if "downstream_filter_exploded" in df_long:
         logging.info(" - applying `downstream_filter_exploded` exprs...")
-        df_long = _perform_filters(df_long, "downstream_filter_exploded")
+        df_long = _apply_filters(df_long, "downstream_filter_exploded")
 
     if "downstream_exclude_exploded" in df_long:
         logging.info(" - dropping excluded rows...")
