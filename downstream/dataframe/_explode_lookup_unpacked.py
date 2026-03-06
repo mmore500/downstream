@@ -1,6 +1,7 @@
 import logging
-import tempfile
+import pathlib
 import typing
+import uuid
 
 import numpy as np
 import polars as pl
@@ -196,7 +197,7 @@ def _check_lookup_bounds(df_long: pl.DataFrame) -> None:
         )
 
 
-def _perform_validation(
+def _perform_validations(
     df_long: pl.DataFrame,
     col_name: str,
 ) -> pl.DataFrame:
@@ -213,16 +214,19 @@ def _perform_validation(
             logging.error(err_msg)
             failed_rows = group.filter(~validation_result)
             logging.error(failed_rows.glimpse(return_as_string=True))
-            tmp = tempfile.NamedTemporaryFile(
-                prefix="downstream_validation_fail_",
-                suffix=".csv",
-                delete=False,
-            )
-            tmp.close()
-            failed_rows.write_csv(tmp.name)
-            logging.error(
-                f"failing rows dumped to {tmp.name}",
-            )
+            for dump_path in (
+                pathlib.Path.home()
+                / f"downstream_validation_fail_{uuid.uuid4()}.pqt",
+                f"/tmp/downstream_validation_fail_{uuid.uuid4()}.pqt",  # nosec B108
+            ):
+                try:
+                    failed_rows.write_parquet(dump_path)
+                    logging.error(f"failing rows dumped to {dump_path}")
+                    break
+                except Exception as e:
+                    logging.error(
+                        f"failed to dump rows to {dump_path}: {e}",
+                    )
             raise ValueError(err_msg)
 
     df_long = df_long.drop(col_name)
@@ -459,7 +463,7 @@ def explode_lookup_unpacked(
 
     if "downstream_validate_exploded" in df_long:
         logging.info(" - evaluating `downstream_validate_exploded` exprs...")
-        df_long = _perform_validation(df_long, "downstream_validate_exploded")
+        df_long = _perform_validations(df_long, "downstream_validate_exploded")
 
     if "downstream_filter_exploded" in df_long:
         logging.info(" - applying `downstream_filter_exploded` exprs...")
