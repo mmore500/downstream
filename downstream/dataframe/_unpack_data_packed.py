@@ -94,7 +94,22 @@ def _calculate_offsets(df: pl.DataFrame) -> pl.DataFrame:
     return df
 
 
-def _compute_data_parity0(data_hex: str, h_matrix_str: str) -> int:
+def _deserialize_h_matrix(h_matrix_str: str) -> np.ndarray:
+    """Deserialize space-separated H matrix string to numpy array."""
+    try:
+        return np.loadtxt(
+            io.StringIO(
+                "\n".join(" ".join(r) for r in h_matrix_str.split()),
+            ),
+            dtype=np.uint8,
+            ndmin=2,
+        )
+    except Exception:
+        logging.error(f"failed to parse H matrix: {h_matrix_str!r}")
+        raise
+
+
+def _calculate_data_parity0(data_hex: str, h_matrix_str: str) -> int:
     """Compute parity check syndrome from H matrix and data_hex.
 
     Parameters
@@ -112,7 +127,7 @@ def _compute_data_parity0(data_hex: str, h_matrix_str: str) -> int:
     if not h_matrix_str:
         return 0
     h_matrix = _deserialize_h_matrix(h_matrix_str)
-    padded_hex = data_hex if len(data_hex) % 2 == 0 else "0" + data_hex
+    padded_hex = data_hex.zfill(len(data_hex) + len(data_hex) % 2)
     data_bits = np.unpackbits(
         np.frombuffer(bytes.fromhex(padded_hex), dtype=np.uint8),
     )
@@ -126,21 +141,6 @@ def _compute_data_parity0(data_hex: str, h_matrix_str: str) -> int:
     return int(np.sum(syndrome))
 
 
-def _deserialize_h_matrix(h_matrix_str: str) -> np.ndarray:
-    """Deserialize space-separated H matrix string to numpy array."""
-    try:
-        return np.loadtxt(
-            io.StringIO(
-                "\n".join(" ".join(r) for r in h_matrix_str.split()),
-            ),
-            dtype=np.uint8,
-            ndmin=2,
-        )
-    except Exception:
-        logging.error(f"failed to parse H matrix: {h_matrix_str!r}")
-        raise
-
-
 def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
     """Apply downstream_data_parity0_rule to compute parity syndrome.
 
@@ -152,13 +152,12 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
     then performs vectorized bulk computation across all rows sharing
     the same H matrix.
     """
-    results = np.zeros(len(df), dtype=np.uint32)
-    rule_col = df["downstream_data_parity0_rule"].cast(pl.String)
+    parity_result = np.zeros(len(df), dtype=int)
 
     for (h_matrix_str,), group in df.with_row_index(
-        "__parity_idx",
+        "_downstream_parity_idx",
     ).group_by("downstream_data_parity0_rule"):
-        indices = group["__parity_idx"].to_numpy()
+        indices = group["_downstream_parity_idx"].to_numpy()
         if not h_matrix_str:
             continue
 
@@ -176,8 +175,9 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
             .collect()
             .item()
         )
-        padded_concat = concat_hex if len(concat_hex) % 2 == 0 \
-            else "0" + concat_hex
+        padded_concat = concat_hex.zfill(
+            len(concat_hex) + len(concat_hex) % 2,
+        )
         all_bits = np.unpackbits(
             np.frombuffer(bytes.fromhex(padded_concat), dtype=np.uint8),
         )
@@ -197,13 +197,19 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
             )
 
         syndromes = (data_matrix @ h_matrix.T) % 2
-        violations = np.sum(syndromes, axis=1).astype(np.uint32)
-        results[indices] = violations
+        violations = np.sum(syndromes, axis=1)
+        if np.any(violations):
+            logging.info(
+                f" - data parity0: {int(np.sum(violations))} violation(s) "
+                f"across {int(np.count_nonzero(violations))} row(s)",
+            )
+        parity_result[indices] = violations
 
-    df = df.with_columns(
-        downstream_data_parity0_result=pl.Series(results, dtype=pl.UInt32),
+    return df.with_columns(
+        downstream_data_parity0_result=pl.Series(
+            parity_result, dtype=pl.UInt32,
+        ),
     ).drop("downstream_data_parity0_rule")
-    return df
 
 
 def _extract_from_data_hex(df: pl.DataFrame) -> pl.DataFrame:

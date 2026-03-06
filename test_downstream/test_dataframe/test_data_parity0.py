@@ -3,70 +3,70 @@ import pytest
 
 import downstream
 from downstream.dataframe import unpack_data_packed
-from downstream.dataframe._unpack_data_packed import _compute_data_parity0
+from downstream.dataframe._unpack_data_packed import _calculate_data_parity0
 
 
 class TestComputeDataParity0:
-    """Unit tests for _compute_data_parity0."""
+    """Unit tests for _calculate_data_parity0."""
 
     def test_empty_h_matrix(self):
-        assert _compute_data_parity0("ff", "") == 0
+        assert _calculate_data_parity0("ff", "") == 0
 
     def test_single_row_all_ones(self):
         # data_hex="f" -> bits="1111", H row="1111" -> 1^1^1^1 = 0
-        assert _compute_data_parity0("f", "1111") == 0
+        assert _calculate_data_parity0("f", "1111") == 0
 
     def test_single_row_parity_one(self):
         # data_hex="7" -> bits="0111", H row="1111" -> 0^1^1^1 = 1
-        assert _compute_data_parity0("7", "1111") == 1
+        assert _calculate_data_parity0("7", "1111") == 1
 
     def test_single_row_selective(self):
         # data_hex="a" -> bits="1010", H row="1010" -> 1&1 ^ 0&0 ^ 1&1 ^ 0&0 = 0
-        assert _compute_data_parity0("a", "1010") == 0
+        assert _calculate_data_parity0("a", "1010") == 0
 
     def test_multi_row(self):
         # data_hex="a" -> bits="1010"
         # H row 0: "1000" -> 1 (violation)
         # H row 1: "0100" -> 0
-        assert _compute_data_parity0("a", "1000 0100") == 1
+        assert _calculate_data_parity0("a", "1000 0100") == 1
 
     def test_two_hex_chars(self):
         # data_hex="ff" -> bits="11111111"
         # H row: "10101010" -> 1^1^1^1 = 0
-        assert _compute_data_parity0("ff", "10101010") == 0
+        assert _calculate_data_parity0("ff", "10101010") == 0
 
     def test_identity_rows(self):
         # data_hex="a" -> bits="1010"
         # H = identity matrix, syndrome = data bits = "1010", 2 nonzero
-        result = _compute_data_parity0("a", "1000 0100 0010 0001")
+        result = _calculate_data_parity0("a", "1000 0100 0010 0001")
         assert result == 2
 
     def test_mismatched_length_raises(self):
         with pytest.raises(ValueError, match="does not match"):
-            _compute_data_parity0("ff", "101")
+            _calculate_data_parity0("ff", "101")
 
     def test_zero_data(self):
         # data_hex="0" -> bits="0000", any H row -> syndrome 0
-        assert _compute_data_parity0("0", "1111") == 0
-        assert _compute_data_parity0("0", "1111 1010") == 0
+        assert _calculate_data_parity0("0", "1111") == 0
+        assert _calculate_data_parity0("0", "1111 1010") == 0
 
     def test_longer_hex(self):
         # data_hex="0f" -> bits="00001111"
         # H row: "00001111" -> 0^0^0^0^1^1^1^1 = 0
-        assert _compute_data_parity0("0f", "00001111") == 0
+        assert _calculate_data_parity0("0f", "00001111") == 0
         # H row: "00001110" -> 1^1^1 = 1
-        assert _compute_data_parity0("0f", "00001110") == 1
+        assert _calculate_data_parity0("0f", "00001110") == 1
 
     def test_all_violations(self):
         # data_hex="f" -> bits="1111"
         # H = identity, syndrome = "1111", all 4 are violations
-        result = _compute_data_parity0("f", "1000 0100 0010 0001")
+        result = _calculate_data_parity0("f", "1000 0100 0010 0001")
         assert result == 4
 
     def test_no_violations(self):
         # data_hex="0" -> bits="0000"
         # H = identity, syndrome = "0000", 0 violations
-        result = _compute_data_parity0("0", "1000 0100 0010 0001")
+        result = _calculate_data_parity0("0", "1000 0100 0010 0001")
         assert result == 0
 
 
