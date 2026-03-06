@@ -111,17 +111,7 @@ def _compute_data_parity0(data_hex: str, h_matrix_str: str) -> int:
     """
     if not h_matrix_str:
         return 0
-    try:
-        h_matrix = np.loadtxt(
-            io.StringIO(
-                "\n".join(" ".join(r) for r in h_matrix_str.split()),
-            ),
-            dtype=np.uint8,
-            ndmin=2,
-        )
-    except Exception:
-        logging.error(f"failed to parse H matrix: {h_matrix_str!r}")
-        raise
+    h_matrix = _deserialize_h_matrix(h_matrix_str)
     padded_hex = data_hex if len(data_hex) % 2 == 0 else "0" + data_hex
     data_bits = np.unpackbits(
         np.frombuffer(bytes.fromhex(padded_hex), dtype=np.uint8),
@@ -132,8 +122,23 @@ def _compute_data_parity0(data_hex: str, h_matrix_str: str) -> int:
             f"H matrix column count {h_matrix.shape[1]} does not match "
             f"data_hex bit length {len(data_bits)}",
         )
-    syndrome = h_matrix @ data_bits % 2
-    return int(np.sum(syndrome != 0))
+    syndrome = (h_matrix @ data_bits) % 2
+    return int(np.sum(syndrome))
+
+
+def _deserialize_h_matrix(h_matrix_str: str) -> np.ndarray:
+    """Deserialize space-separated H matrix string to numpy array."""
+    try:
+        return np.loadtxt(
+            io.StringIO(
+                "\n".join(" ".join(r) for r in h_matrix_str.split()),
+            ),
+            dtype=np.uint8,
+            ndmin=2,
+        )
+    except Exception:
+        logging.error(f"failed to parse H matrix: {h_matrix_str!r}")
+        raise
 
 
 def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
@@ -142,17 +147,59 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
     If 'downstream_data_parity0_rule' column is present, computes the
     parity check result for each row's data_hex against its H matrix
     and stores the result in 'downstream_data_parity0_result'.
+
+    Groups by unique H matrix strings to deserialize each only once,
+    then performs vectorized bulk computation across all rows sharing
+    the same H matrix.
     """
-    results = []
-    data_hex_col = df["data_hex"].to_list()
-    rule_col = df["downstream_data_parity0_rule"].to_list()
-    for data_hex, h_matrix_str in zip(data_hex_col, rule_col):
-        if h_matrix_str is None or (
-            isinstance(h_matrix_str, str) and not h_matrix_str
-        ):
-            results.append(0)
-        else:
-            results.append(_compute_data_parity0(data_hex, str(h_matrix_str)))
+    results = np.zeros(len(df), dtype=np.uint32)
+    rule_col = df["downstream_data_parity0_rule"].cast(pl.String)
+
+    for (h_matrix_str,), group in df.with_row_index(
+        "__parity_idx",
+    ).group_by("downstream_data_parity0_rule"):
+        indices = group["__parity_idx"].to_numpy()
+        if not h_matrix_str:
+            continue
+
+        h_matrix = _deserialize_h_matrix(str(h_matrix_str))
+
+        concat_hex = (
+            group.lazy()
+            .select(pl.col("data_hex").str.join(""))
+            .collect()
+            .item()
+        )
+        hex_len = (
+            group.lazy()
+            .select(pl.col("data_hex").str.len_bytes().first())
+            .collect()
+            .item()
+        )
+        padded_concat = concat_hex if len(concat_hex) % 2 == 0 \
+            else "0" + concat_hex
+        all_bits = np.unpackbits(
+            np.frombuffer(bytes.fromhex(padded_concat), dtype=np.uint8),
+        )
+        if len(concat_hex) != len(padded_concat):
+            all_bits = all_bits[4:]
+
+        num_rows = len(group)
+        bits_per_row = hex_len * 4
+        data_matrix = all_bits[: num_rows * bits_per_row].reshape(
+            num_rows, bits_per_row,
+        )
+
+        if h_matrix.shape[1] != bits_per_row:
+            raise ValueError(
+                f"H matrix column count {h_matrix.shape[1]} does not "
+                f"match data_hex bit length {bits_per_row}",
+            )
+
+        syndromes = (data_matrix @ h_matrix.T) % 2
+        violations = np.sum(syndromes, axis=1).astype(np.uint32)
+        results[indices] = violations
+
     df = df.with_columns(
         downstream_data_parity0_result=pl.Series(results, dtype=pl.UInt32),
     ).drop("downstream_data_parity0_rule")
