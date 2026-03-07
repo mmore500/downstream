@@ -179,9 +179,10 @@ def _apply_filters(
         .to_series()
         .unique()
         .drop_nulls()
+        .replace("", None)
+        .drop_nulls()
         .to_list()
     )
-    filter_strs = [s for s in filter_strs if s]
     num_filters = len(filter_strs)
 
     combined_expr = pl.lit(True)
