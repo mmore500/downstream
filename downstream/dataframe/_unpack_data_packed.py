@@ -95,7 +95,13 @@ def _calculate_offsets(df: pl.DataFrame) -> pl.DataFrame:
 
 
 def _deserialize_h_matrix(h_matrix_str: str) -> np.ndarray:
-    """Deserialize space-separated H matrix string to numpy array."""
+    """Deserialize a parity-check (H) matrix string to a numpy array.
+
+    The H matrix is a boolean matrix where rows are parity constraints
+    and columns correspond to bit positions in the data. Deserialized
+    via ``np.loadtxt`` from space-separated binary digit strings into a
+    uint8 array of 0s and 1s.
+    """
     try:
         return np.loadtxt(
             io.StringIO(
@@ -127,11 +133,14 @@ def _calculate_data_parity0(data_hex: str, h_matrix_str: str) -> int:
     if not h_matrix_str:
         return 0
     h_matrix = _deserialize_h_matrix(h_matrix_str)
-    padded_hex = data_hex.zfill(len(data_hex) + len(data_hex) % 2)
+    needs_pad = len(data_hex) % 2 != 0
+    padded_hex = data_hex.zfill(len(data_hex) + 1) if needs_pad \
+        else data_hex
     data_bits = np.unpackbits(
         np.frombuffer(bytes.fromhex(padded_hex), dtype=np.uint8),
     )
-    data_bits = data_bits[len(padded_hex) * 4 - len(data_hex) * 4 :]
+    if needs_pad:
+        data_bits = data_bits[4:]
     if h_matrix.shape[1] != len(data_bits):
         raise ValueError(
             f"H matrix column count {h_matrix.shape[1]} does not match "
@@ -175,13 +184,13 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
             .collect()
             .item()
         )
-        padded_concat = concat_hex.zfill(
-            len(concat_hex) + len(concat_hex) % 2,
-        )
+        needs_pad = len(concat_hex) % 2 != 0
+        padded_concat = concat_hex.zfill(len(concat_hex) + 1) \
+            if needs_pad else concat_hex
         all_bits = np.unpackbits(
             np.frombuffer(bytes.fromhex(padded_concat), dtype=np.uint8),
         )
-        if len(concat_hex) != len(padded_concat):
+        if needs_pad:
             all_bits = all_bits[4:]
 
         num_rows = len(group)
@@ -407,10 +416,16 @@ def unpack_data_packed(
         Optional schema:
 
         - 'downstream_data_parity0_rule' : pl.String or pl.Categorical
-            - Space-separated binary strings forming a parity check (H)
-              matrix for the binary representation of 'data_hex'.
-            - Each token is one row of the H matrix, with length equal
-              to the number of bits in 'data_hex'.
+            - Boolean parity-check matrix (H) for validating the binary
+              representation of 'data_hex', serialized as a string.
+            - Rows of H correspond to independent parity constraints;
+              columns correspond to bit positions in 'data_hex'.
+            - The string is space-separated binary digits, deserialized
+              via ``np.loadtxt`` into a uint8 matrix with values 0 or 1.
+              Each contiguous group of digits (equal in length to the
+              number of bits in 'data_hex') forms one row of H.
+            - Example: for 4-bit data_hex, ``"1111 1010"`` defines a
+              2x4 H matrix ``[[1,1,1,1],[1,0,1,0]]``.
             - If present, 'downstream_data_parity0_result' will be
               computed as the syndrome H @ data (mod 2).
         - 'downstream_exclude_exploded' : pl.Boolean
