@@ -108,6 +108,58 @@ def test_explode_lookup_unpacked_64():
     assert len(res) == df["dstream_S"].sum()
 
 
+def test_explode_lookup_unpacked_filter_exploded():
+
+    df = pl.DataFrame(
+        {
+            "dstream_algo": ["dstream.steady_algo", "dstream.steady_algo"],
+            "downstream_version": [downstream.__version__] * 2,
+            "data_hex": [
+                "aa11ccddaa11ccddaa11ccddaa11ccddaa11ccddaa11ccddaa11ccddaa11ccdd",
+                "221188dd221188dd221188dd221188dd221188dd221188dd221188dd221188dd",
+            ],
+            "dstream_storage_bitoffset": [16, 16],
+            "dstream_storage_bitwidth": [128, 128],
+            "dstream_T_bitoffset": [0, 0],
+            "dstream_T_bitwidth": [16, 16],
+            "dstream_S": [2, 2],
+            "downstream_filter_exploded": [
+                "pl.col('dstream_Tbar') > 0",
+                "pl.col('dstream_Tbar') > 0",
+            ],
+        },
+    )
+    df = unpack_data_packed(df)
+    res = explode_lookup_unpacked(df, value_type="uint64")
+
+    # Filter should drop rows where dstream_Tbar == 0
+    assert (res["dstream_Tbar"] > 0).all()
+
+
+def test_explode_lookup_unpacked_filter_exploded_noop():
+
+    df = pl.DataFrame(
+        {
+            "dstream_algo": ["dstream.steady_algo", "dstream.steady_algo"],
+            "downstream_version": [downstream.__version__] * 2,
+            "data_hex": [
+                "aa11ccddaa11ccddaa11ccddaa11ccddaa11ccddaa11ccddaa11ccddaa11ccdd",
+                "221188dd221188dd221188dd221188dd221188dd221188dd221188dd221188dd",
+            ],
+            "dstream_storage_bitoffset": [16, 16],
+            "dstream_storage_bitwidth": [128, 128],
+            "dstream_T_bitoffset": [0, 0],
+            "dstream_T_bitwidth": [16, 16],
+            "dstream_S": [2, 2],
+            "downstream_filter_exploded": ["", ""],
+        },
+    )
+    df = unpack_data_packed(df)
+    res = explode_lookup_unpacked(df, value_type="uint64")
+
+    assert len(res) == 4
+
+
 def test_explode_lookup_unpacked_invalid():
 
     df = pl.DataFrame(

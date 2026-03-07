@@ -246,6 +246,157 @@ def test_unpack_data_packed_pup_validated():
     assert len(res) == 1
 
 
+def test_unpack_data_packed_validate_packed():
+
+    df = pl.DataFrame(
+        {
+            "dstream_algo": ["dstream.steady_algo", "dstream.steady_algo"],
+            "downstream_version": [downstream.__version__] * 2,
+            "data_hex": ["aa11ccdd", "221188dd"],
+            "dstream_storage_bitoffset": [0, 0],
+            "dstream_storage_bitwidth": [16, 16],
+            "dstream_T_bitoffset": [16, 16],
+            "dstream_T_bitwidth": [4, 4],
+            "dstream_S": [16, 16],
+            "downstream_validate_packed": ["pl.col('dstream_S') == 16", ""],
+        },
+    )
+    res = unpack_data_packed(df)
+
+    assert len(res) == 2
+
+
+def test_unpack_data_packed_validate_packed_invalid():
+
+    df = pl.DataFrame(
+        {
+            "dstream_algo": ["dstream.steady_algo", "dstream.steady_algo"],
+            "downstream_version": [downstream.__version__] * 2,
+            "data_hex": ["aa11ccdd", "221188dd"],
+            "dstream_storage_bitoffset": [0, 0],
+            "dstream_storage_bitwidth": [16, 16],
+            "dstream_T_bitoffset": [16, 16],
+            "dstream_T_bitwidth": [4, 4],
+            "dstream_S": [16, 16],
+            "downstream_validate_packed": ["pl.col('dstream_S') == 42", ""],
+        },
+    )
+    with pytest.raises(ValueError):
+        unpack_data_packed(df)
+
+
+def test_unpack_data_packed_filter_packed():
+
+    df = pl.DataFrame(
+        {
+            "dstream_algo": ["dstream.steady_algo", "dstream.steady_algo"],
+            "downstream_version": [downstream.__version__] * 2,
+            "data_hex": ["aa11ccdd", "221188dd"],
+            "dstream_storage_bitoffset": [0, 0],
+            "dstream_storage_bitwidth": [16, 16],
+            "dstream_T_bitoffset": [16, 16],
+            "dstream_T_bitwidth": [4, 4],
+            "dstream_S": [16, 16],
+            "downstream_filter_packed": [
+                "pl.col('data_hex') == 'aa11ccdd'",
+                "pl.col('data_hex') == 'aa11ccdd'",
+            ],
+        },
+    )
+    res = unpack_data_packed(df)
+
+    assert len(res) == 1
+
+
+def test_unpack_data_packed_filter_packed_noop():
+
+    df = pl.DataFrame(
+        {
+            "dstream_algo": ["dstream.steady_algo", "dstream.steady_algo"],
+            "downstream_version": [downstream.__version__] * 2,
+            "data_hex": ["aa11ccdd", "221188dd"],
+            "dstream_storage_bitoffset": [0, 0],
+            "dstream_storage_bitwidth": [16, 16],
+            "dstream_T_bitoffset": [16, 16],
+            "dstream_T_bitwidth": [4, 4],
+            "dstream_S": [16, 16],
+            "downstream_filter_packed": ["", ""],
+        },
+    )
+    res = unpack_data_packed(df)
+
+    assert len(res) == 2
+
+
+def test_unpack_data_packed_filter_unpacked():
+
+    df = pl.DataFrame(
+        {
+            "dstream_algo": ["dstream.steady_algo", "dstream.steady_algo"],
+            "downstream_version": [downstream.__version__] * 2,
+            "data_hex": ["aa11ccdd", "221188dd"],
+            "dstream_storage_bitoffset": [0, 0],
+            "dstream_storage_bitwidth": [16, 16],
+            "dstream_T_bitoffset": [16, 16],
+            "dstream_T_bitwidth": [4, 4],
+            "dstream_S": [16, 16],
+            "downstream_filter_unpacked": [
+                "pl.col('dstream_T') == 12",
+                "pl.col('dstream_T') == 12",
+            ],
+        },
+    )
+    res = unpack_data_packed(df)
+
+    # 0xC = 12, 0x8 = 8, so only first row matches
+    assert len(res) == 1
+
+
+def test_unpack_data_packed_filter_unpacked_noop():
+
+    df = pl.DataFrame(
+        {
+            "dstream_algo": ["dstream.steady_algo", "dstream.steady_algo"],
+            "downstream_version": [downstream.__version__] * 2,
+            "data_hex": ["aa11ccdd", "221188dd"],
+            "dstream_storage_bitoffset": [0, 0],
+            "dstream_storage_bitwidth": [16, 16],
+            "dstream_T_bitoffset": [16, 16],
+            "dstream_T_bitwidth": [4, 4],
+            "dstream_S": [16, 16],
+            "downstream_filter_unpacked": ["", ""],
+        },
+    )
+    res = unpack_data_packed(df)
+
+    assert len(res) == 2
+
+
+def test_unpack_data_packed_filter_exploded_forwarded():
+
+    df = pl.DataFrame(
+        {
+            "foo": ["bar"],
+            "data_hex": ["0F0E0D0C0B0A09080706050403020100"],
+            "dstream_algo": ["dstream.steady_algo"],
+            "dstream_storage_bitoffset": [4],
+            "dstream_storage_bitwidth": [96],
+            "dstream_T_bitoffset": [100],
+            "dstream_T_bitwidth": [16],
+            "dstream_S": [100],
+            "downstream_version": [downstream.__version__],
+            "downstream_filter_exploded": ["pl.col('dstream_Tbar') > 0"],
+        }
+    )
+
+    result = unpack_data_packed(df)
+
+    assert "downstream_filter_exploded" in result.columns
+    assert (
+        result["downstream_filter_exploded"][0] == "pl.col('dstream_Tbar') > 0"
+    )
+
+
 def test_unpack_data_packed_bounds():
     df = pl.DataFrame(
         {
