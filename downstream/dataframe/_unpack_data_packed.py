@@ -98,15 +98,13 @@ def _deserialize_h_matrix(h_matrix_str: str) -> np.ndarray:
     """Deserialize a parity-check (H) matrix string to a numpy array.
 
     The H matrix is a boolean matrix where rows are parity constraints
-    and columns correspond to bit positions in the data. Deserialized
-    via ``np.loadtxt`` from space-separated binary digit strings into a
-    uint8 array of 0s and 1s.
+    and columns correspond to bit positions in the data. The input
+    string should have space-separated 0/1 digits with rows delimited
+    by newlines, suitable for direct parsing by ``np.loadtxt``.
     """
     try:
         return np.loadtxt(
-            io.StringIO(
-                "\n".join(" ".join(r) for r in h_matrix_str.split()),
-            ),
+            io.StringIO(h_matrix_str),
             dtype=np.uint8,
             ndmin=2,
         )
@@ -123,36 +121,9 @@ def _hex_to_bits(hex_str: str) -> np.ndarray:
         np.frombuffer(bytes.fromhex(padded_hex), dtype=np.uint8),
     )
     if needs_pad:
+        # zfill added one hex char (4 bits) of leading zeros; strip them
         bits = bits[4:]
     return bits
-
-
-def _calculate_data_parity0(data_hex: str, h_matrix_str: str) -> int:
-    """Compute parity check syndrome from H matrix and data_hex.
-
-    Parameters
-    ----------
-    data_hex : str
-        Hexadecimal string representing binary data.
-    h_matrix_str : str
-        Space-separated binary strings forming a parity check (H) matrix.
-
-    Returns
-    -------
-    int
-        Number of parity violations (nonzero syndrome bits).
-    """
-    if not h_matrix_str:
-        return 0
-    h_matrix = _deserialize_h_matrix(h_matrix_str)
-    data_bits = _hex_to_bits(data_hex)
-    if h_matrix.shape[1] != len(data_bits):
-        raise ValueError(
-            f"H matrix column count {h_matrix.shape[1]} does not match "
-            f"data_hex bit length {len(data_bits)}",
-        )
-    syndrome = (h_matrix @ data_bits) % 2
-    return int(np.sum(syndrome))
 
 
 def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
@@ -418,12 +389,11 @@ def unpack_data_packed(
               representation of 'data_hex', serialized as a string.
             - Rows of H correspond to independent parity constraints;
               columns correspond to bit positions in 'data_hex'.
-            - The string is space-separated binary digits, deserialized
-              via ``np.loadtxt`` into a uint8 matrix with values 0 or 1.
-              Each contiguous group of digits (equal in length to the
-              number of bits in 'data_hex') forms one row of H.
-            - Example: for 4-bit data_hex, ``"1111 0000"`` defines a
-              2x4 H matrix ``[[1,1,1,1],[0,0,0,0]]``.
+            - The string uses space-separated 0/1 digits with rows
+              delimited by newlines, parsed directly by ``np.loadtxt``
+              into a uint8 matrix.
+            - Example: for 4-bit data_hex, ``"1 1 1 1\n1 0 1 0"``
+              defines a 2x4 H matrix ``[[1,1,1,1],[1,0,1,0]]``.
             - If present, 'downstream_data_parity0_result' will be
               computed as the syndrome H @ data (mod 2).
         - 'downstream_exclude_exploded' : pl.Boolean
