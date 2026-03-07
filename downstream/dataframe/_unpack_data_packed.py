@@ -168,7 +168,7 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
             .collect()
             .item()
         )
-        logging.info(f" - converting hex to bits...")
+        logging.info(" - converting hex to bits...")
         all_bits = unpack_hex_bits(concat_hex)
 
         num_rows = len(group)
