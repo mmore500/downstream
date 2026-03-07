@@ -177,6 +177,14 @@ def _apply_filters(
         num_filters += bool(filter_expr_str)
         filter_expr = eval(filter_expr_str or "pl.lit(True)", {"pl": pl})
         filter_result = group.select(filter_expr).to_series()
+        num_kept = filter_result.sum()
+        num_dropped = len(group) - num_kept
+        if filter_expr_str:
+            logging.info(
+                f"   - filter `{filter_expr_str}`: "
+                f"{num_dropped} dropped, {num_kept} kept "
+                f"from {len(group)} rows",
+            )
         result_dfs.append(group.filter(filter_result))
 
     df = pl.concat(result_dfs).drop(col_name)

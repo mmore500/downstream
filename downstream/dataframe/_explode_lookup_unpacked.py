@@ -1,7 +1,5 @@
 import logging
-import pathlib
 import typing
-import uuid
 
 import numpy as np
 import polars as pl
@@ -10,6 +8,7 @@ from .. import dstream
 from .._auxlib._unpack_hex import unpack_hex
 from ._impl._check_downstream_version import check_downstream_version
 from ._impl._check_expected_columns import check_expected_columns
+from ._unpack_data_packed import _apply_filters, _perform_validations
 
 
 def _check_df(df: pl.DataFrame) -> None:
@@ -196,71 +195,6 @@ def _check_lookup_bounds(df_long: pl.DataFrame) -> None:
             f"({num_oob} / {len(df_long)} rows)",
         )
 
-
-def _perform_validations(
-    df_long: pl.DataFrame,
-    col_name: str,
-) -> pl.DataFrame:
-    validation_groups = df_long.with_columns(
-        pl.col(col_name).set_sorted(),
-    ).group_by(col_name)
-    num_validators = 0
-    for (validator,), group in validation_groups:
-        num_validators += bool(validator)
-        validation_expr = eval(validator or "pl.lit(True)", {"pl": pl})
-        validation_result = group.select(validation_expr).to_series()
-        if not validation_result.all():
-            err_msg = f"{col_name} `{validator}` failed"
-            logging.error(err_msg)
-            failed_rows = group.filter(~validation_result)
-            logging.error(failed_rows.glimpse(return_as_string=True))
-            for dump_path in (
-                pathlib.Path.home()
-                / f"downstream_validation_fail_{uuid.uuid4()}.pqt",
-                f"/tmp/downstream_validation_fail_{uuid.uuid4()}.pqt",  # nosec B108
-            ):
-                try:
-                    failed_rows.write_parquet(dump_path)
-                    logging.error(f"failing rows dumped to {dump_path}")
-                    break
-                except Exception as e:
-                    logging.error(
-                        f"failed to dump rows to {dump_path}: {e}",
-                    )
-            raise ValueError(err_msg)
-
-    df_long = df_long.drop(col_name)
-    logging.info(f" - {num_validators} validation(s) passed!")
-
-    return df_long
-
-
-def _apply_filters(
-    df_long: pl.DataFrame,
-    col_name: str,
-) -> pl.DataFrame:
-    filter_groups = df_long.with_columns(
-        pl.col(col_name).set_sorted(),
-    ).group_by(col_name)
-    num_before = len(df_long)
-    num_filters = 0
-    result_dfs = []
-    for (filter_expr_str,), group in filter_groups:
-        num_filters += bool(filter_expr_str)
-        filter_expr = eval(filter_expr_str or "pl.lit(True)", {"pl": pl})
-        filter_result = group.select(filter_expr).to_series()
-        result_dfs.append(group.filter(filter_result))
-
-    df_long = pl.concat(result_dfs).drop(col_name)
-    num_after = len(df_long)
-    num_filtered = num_before - num_after
-    logging.info(
-        f" - {num_filters} filter(s) applied, "
-        f"{num_filtered} dropped and {num_after} kept "
-        f"from {num_before} rows!",
-    )
-
-    return df_long
 
 
 def _drop_excluded_rows(df_long: pl.DataFrame) -> pl.DataFrame:
