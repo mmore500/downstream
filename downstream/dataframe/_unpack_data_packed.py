@@ -456,8 +456,7 @@ def unpack_data_packed(
         If 'downstream_data_parity0_rule' was provided:
 
             - 'downstream_data_parity0_result' : pl.UInt32
-                - Sum of syndrome bits (parity violations) from the
-                  parity check matrix.
+                - Number of parity rule rows violated.
                 - Zero indicates data passes the parity check.
 
         User-defined columns and 'downstream_version' will be forwarded from
