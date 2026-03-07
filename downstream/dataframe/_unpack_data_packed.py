@@ -8,6 +8,7 @@ import warnings
 import numpy as np
 import polars as pl
 
+from .._auxlib._unpack_hex_bits import unpack_hex_bits
 from ._impl._check_expected_columns import check_expected_columns
 
 
@@ -121,18 +122,6 @@ def _deserialize_h_matrix(h_matrix_str: str) -> np.ndarray:
     return h_matrix
 
 
-def _hex_to_bits(hex_str: str) -> np.ndarray:
-    """Convert a hex string to a numpy array of bit values (0/1)."""
-    needs_pad = len(hex_str) % 2 != 0
-    padded_hex = hex_str.zfill(len(hex_str) + needs_pad)
-    bits = np.unpackbits(
-        np.frombuffer(bytes.fromhex(padded_hex), dtype=np.uint8),
-    )
-    if needs_pad:
-        # zfill added one hex char (4 bits) of leading zeros; strip them
-        bits = bits[4:]
-    return bits
-
 
 def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
     """Apply downstream_data_parity0_rule to compute parity syndrome.
@@ -152,7 +141,7 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
         "_downstream_parity_idx",
     ).filter(
         pl.col("downstream_data_parity0_rule").is_not_null()
-        & (pl.col("downstream_data_parity0_rule").cast(pl.String) != ""),
+        & (pl.col("downstream_data_parity0_rule").cast(pl.String).str.len_bytes() > 0),
     )
     logging.info(
         f" - {len(indexed)} of {len(df)} row(s) have parity rules...",
@@ -166,6 +155,7 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
         h_matrix = _deserialize_h_matrix(str(h_matrix_str))
         logging.info(f" - H matrix has {h_matrix.shape[0]} parity rule(s)...")
 
+        logging.info(f" - concatenating data_hex for {len(group)} row(s)...")
         concat_hex = (
             group.lazy()
             .select(pl.col("data_hex").str.join(""))
@@ -178,7 +168,8 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
             .collect()
             .item()
         )
-        all_bits = _hex_to_bits(concat_hex)
+        logging.info(f" - converting hex to bits...")
+        all_bits = unpack_hex_bits(concat_hex)
 
         num_rows = len(group)
         bits_per_row = hex_len * 4
@@ -195,11 +186,10 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
 
         logging.info(f" - computing syndromes for {num_rows} row(s)...")
         syndromes = (data_matrix @ h_matrix.T) % 2
-        num_violations = int(np.sum(syndromes))
-        num_rules = h_matrix.shape[0]
+        total_violations = int(np.sum(syndromes))
         logging.info(
-            f" - data parity0: {num_violations} rule violation(s) "
-            f"across {num_rules} rule(s) and "
+            f" - data parity0: {total_violations} rule violation(s) "
+            f"across {h_matrix.shape[0]} rule(s) occurring in "
             f"{int(np.count_nonzero(np.any(syndromes, axis=1)))} "
             f"row(s)",
         )
@@ -418,6 +408,11 @@ def unpack_data_packed(
               defines a 2x4 H matrix ``[[1,1,1,1],[1,0,1,0]]``.
             - If present, 'downstream_data_parity0_result' will be
               computed as the syndrome H @ data (mod 2).
+            - Parity is computed before packed filters and validations,
+              so ``"pl.col('downstream_data_parity0_result') == 0"``
+              can be used as a 'downstream_filter_packed' to drop rows
+              failing the parity check, or as a
+              'downstream_validate_packed' to assert all rows pass.
         - 'downstream_exclude_exploded' : pl.Boolean
             - Should row be dropped after exploding unpacked data?
         - 'downstream_exclude_unpacked' : pl.Boolean
@@ -428,9 +423,6 @@ def unpack_data_packed(
         - 'downstream_filter_packed' : pl.String, polars expression
             - Polars expression to filter packed data; non-matching rows
             are dropped. Applied after validation.
-            - Parity is computed before packed filters, so
-              ``"pl.col('downstream_data_parity0_result') == 0"``
-              can be used to drop rows that fail the parity check.
         - 'downstream_filter_unpacked' : pl.String, polars expression
             - Polars expression to filter unpacked data; non-matching rows
             are dropped. Applied after validation.
@@ -442,9 +434,6 @@ def unpack_data_packed(
             - Polars expression to validate exploded data.
         - 'downstream_validate_packed' : pl.String, polars expression
             - Polars expression to validate packed data.
-            - Parity is computed before packed validations, so
-              ``"pl.col('downstream_data_parity0_result') == 0"``
-              can be used to assert all rows pass the parity check.
         - 'downstream_validate_unpacked' : pl.String, polars expression
             - Polars expression to validate unpacked data.
         - 'downstream_version' : pl.Categorical

@@ -6,18 +6,8 @@ import downstream
 from downstream.dataframe import unpack_data_packed
 from downstream.dataframe._unpack_data_packed import (
     _deserialize_h_matrix,
-    _hex_to_bits,
 )
 
-
-def _spaced(row_str):
-    """Convert '1010' to '1 0 1 0' for H matrix format."""
-    return " ".join(row_str)
-
-
-def _h_matrix(*rows):
-    """Build newline-delimited, space-separated H matrix string."""
-    return "\n".join(_spaced(r) for r in rows)
 
 
 def _make_base_df(**extra_cols):
@@ -33,44 +23,6 @@ def _make_base_df(**extra_cols):
     }
     base.update(extra_cols)
     return pl.DataFrame(base)
-
-
-# --- _hex_to_bits tests ---
-
-
-def test_hex_to_bits_single_hex_char():
-    result = _hex_to_bits("f")
-    np.testing.assert_array_equal(result, [1, 1, 1, 1])
-
-
-def test_hex_to_bits_zero():
-    result = _hex_to_bits("0")
-    np.testing.assert_array_equal(result, [0, 0, 0, 0])
-
-
-def test_hex_to_bits_two_chars():
-    result = _hex_to_bits("0f")
-    np.testing.assert_array_equal(
-        result, [0, 0, 0, 0, 1, 1, 1, 1],
-    )
-
-
-def test_hex_to_bits_odd_length():
-    # odd-length hex: "a" -> 1010
-    result = _hex_to_bits("a")
-    np.testing.assert_array_equal(result, [1, 0, 1, 0])
-
-
-def test_hex_to_bits_even_length():
-    result = _hex_to_bits("ff")
-    np.testing.assert_array_equal(result, [1] * 8)
-
-
-def test_hex_to_bits_longer():
-    result = _hex_to_bits("00ff")
-    assert len(result) == 16
-    np.testing.assert_array_equal(result[:8], [0] * 8)
-    np.testing.assert_array_equal(result[8:], [1] * 8)
 
 
 # --- _deserialize_h_matrix tests ---
@@ -114,7 +66,7 @@ def test_parity_no_rule_column():
 
 
 def test_parity_rule_produces_result():
-    h_row_32 = _spaced("1" * 32)
+    h_row_32 = " ".join("1" * 32)
     df = _make_base_df(
         downstream_data_parity0_rule=[h_row_32, h_row_32],
     )
@@ -130,7 +82,7 @@ def test_parity_rule_identity_matrix():
         row = ["0"] * 32
         row[i] = "1"
         h_rows.append("".join(row))
-    h_matrix = _h_matrix(*h_rows)
+    h_matrix = "\n".join(" ".join(r) for r in h_rows)
 
     df = _make_base_df(
         downstream_data_parity0_rule=[h_matrix, h_matrix],
@@ -161,7 +113,7 @@ def test_parity_rule_mismatched_length_raises():
 
 
 def test_parity_rule_all_zeros():
-    h_row = _spaced("0" * 32)
+    h_row = " ".join("0" * 32)
     df = pl.DataFrame(
         {
             "dstream_algo": ["dstream.steady_algo"],
@@ -180,7 +132,7 @@ def test_parity_rule_all_zeros():
 
 
 def test_parity_rule_with_categorical_type():
-    h_row_32 = _spaced("1" * 32)
+    h_row_32 = " ".join("1" * 32)
     df = _make_base_df(
         downstream_data_parity0_rule=[h_row_32, h_row_32],
     ).cast({"downstream_data_parity0_rule": pl.Categorical})
@@ -189,7 +141,7 @@ def test_parity_rule_with_categorical_type():
 
 
 def test_parity_rule_multiple_h_rows():
-    h_matrix = _h_matrix("1" * 32, "0" * 32)
+    h_matrix = "\n".join(" ".join(r) for r in ("1" * 32, "0" * 32))
     df = _make_base_df(
         downstream_data_parity0_rule=[h_matrix, h_matrix],
     )
@@ -200,7 +152,7 @@ def test_parity_rule_multiple_h_rows():
 
 
 def test_parity_rule_forwarded_alongside_other_columns():
-    h_row_32 = _spaced("1" * 32)
+    h_row_32 = " ".join("1" * 32)
     df = _make_base_df(
         downstream_data_parity0_rule=[h_row_32, h_row_32],
         downstream_validate_unpacked=["", ""],
@@ -212,7 +164,7 @@ def test_parity_rule_forwarded_alongside_other_columns():
 
 
 def test_parity_result_zero_means_pass():
-    h_row = _spaced("1" * 32)
+    h_row = " ".join("1" * 32)
     df = pl.DataFrame(
         {
             "dstream_algo": ["dstream.steady_algo"],
@@ -234,7 +186,7 @@ def test_parity_result_zero_means_pass():
 def test_parity_result_as_packed_validation_filter_pass():
     """Parity result can be used as a downstream_filter_packed expression
     to drop rows failing the parity check."""
-    h_row = _spaced("1" * 32)
+    h_row = " ".join("1" * 32)
     # "ff00ff00" has 16 set bits (even parity -> 0, passes)
     # "ff00ff07" has 19 set bits (odd parity -> 1, fails)
     df = pl.DataFrame(
@@ -263,7 +215,7 @@ def test_parity_result_as_packed_validation_filter_pass():
 def test_parity_result_as_packed_validation_rule_pass():
     """Parity result can be used as a downstream_validate_packed expression
     to assert all rows pass the parity check."""
-    h_row = _spaced("1" * 32)
+    h_row = " ".join("1" * 32)
     # Both rows have even parity -> result 0
     df = pl.DataFrame(
         {
@@ -289,7 +241,7 @@ def test_parity_result_as_packed_validation_rule_pass():
 
 def test_parity_result_as_packed_validation_rule_fail():
     """Packed validation using parity result raises when a row fails."""
-    h_row = _spaced("1" * 32)
+    h_row = " ".join("1" * 32)
     # "ff00ff07" has odd parity -> result 1 -> validation fails
     df = pl.DataFrame(
         {
@@ -312,7 +264,7 @@ def test_parity_result_as_packed_validation_rule_fail():
 
 
 def test_parity_result_nonzero_means_fail():
-    h_row = _spaced("1" * 32)
+    h_row = " ".join("1" * 32)
     df = pl.DataFrame(
         {
             "dstream_algo": ["dstream.steady_algo"],
