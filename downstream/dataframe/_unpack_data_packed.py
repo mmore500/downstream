@@ -218,7 +218,7 @@ def _apply_filters(
 
 
 def _drop_excluded_rows(df: pl.DataFrame) -> pl.DataFrame:
-    has_dropped = (
+    has_dropped_validations = (
         "downstream_validate_exploded" in df
         and df.select(
             (pl.col("downstream_validate_exploded").str.len_bytes() > 0)
@@ -227,7 +227,7 @@ def _drop_excluded_rows(df: pl.DataFrame) -> pl.DataFrame:
         .to_series()
         .any()
     )
-    if has_dropped:
+    if has_dropped_validations:
         warnings.warn(
             "row(s) with both `downstream_validate_exploded` "
             "and `downstream_exclude_unpacked` detected,"
