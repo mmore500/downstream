@@ -156,6 +156,7 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
 
         logging.info(f" - deserializing H matrix for {len(group)} row(s)...")
         h_matrix = _deserialize_h_matrix(str(h_matrix_str))
+        logging.info(f" - H matrix has {h_matrix.shape[0]} parity rule(s)...")
 
         concat_hex = (
             group.lazy()
