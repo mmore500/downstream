@@ -186,11 +186,9 @@ def _apply_filters(
 
     combined_expr = pl.lit(True)
     for filter_expr_str in filter_strs:
-        filter_expr = eval(filter_expr_str, {"pl": pl})
-        match_rows = pl.col(col_name) == filter_expr_str
         combined_expr = (
-            pl.when(match_rows)
-            .then(filter_expr)
+            pl.when(pl.col(col_name) == filter_expr_str)
+            .then(eval(filter_expr_str, {"pl": pl}))
             .otherwise(combined_expr)
         )
 
