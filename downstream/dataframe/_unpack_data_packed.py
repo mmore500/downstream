@@ -514,7 +514,7 @@ def unpack_data_packed(
         df = df.with_columns(dstream_T_dilation=pl.lit(1).cast(pl.UInt32))
 
     if "downstream_data_parity0_rule" in schema_names:
-        logging.info(" - computing data parity0...")
+        logging.info(" - computing downstream_data_parity0_result...")
         df = _apply_data_parity0(df)
 
     if "downstream_validate_packed" in df:
