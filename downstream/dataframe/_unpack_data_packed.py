@@ -219,7 +219,6 @@ def _apply_filters(
 
 def _drop_excluded_rows(df: pl.DataFrame) -> pl.DataFrame:
     for col_name in (
-        "downstream_filter_exploded",
         "downstream_validate_exploded",
     ):
         has_dropped = (
@@ -312,13 +311,13 @@ def unpack_data_packed(
             - Should row be dropped after unpacking packed data?
         - 'downstream_filter_exploded' : pl.String, polars expression
             - Polars expression to filter exploded data; non-matching rows
-            are dropped.
+            are dropped. Applied after validation.
         - 'downstream_filter_packed' : pl.String, polars expression
             - Polars expression to filter packed data; non-matching rows
-            are dropped.
+            are dropped. Applied after validation.
         - 'downstream_filter_unpacked' : pl.String, polars expression
             - Polars expression to filter unpacked data; non-matching rows
-            are dropped.
+            are dropped. Applied after validation.
         - 'dstream_T_dilation' : pl.UInt32
             - Dilation factor applied to T counter, if any; supports scenario
             where data items are ingested every `dstream_T_dilation`th counter

@@ -279,7 +279,7 @@ def explode_lookup_unpacked(
             - Should row be dropped after exploding unpacked data?
         - 'downstream_filter_exploded' : pl.String, polars expression
             - Polars expression to filter exploded data; non-matching rows
-            are dropped.
+            are dropped. Applied after validation.
         - 'dstream_T_dilation' : pl.UInt32
             - Dilation factor applied to T counter, if any; supports scenario
             where data items are ingested every `dstream_T_dilation`th counter
