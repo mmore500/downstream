@@ -115,6 +115,18 @@ def _deserialize_h_matrix(h_matrix_str: str) -> np.ndarray:
         raise
 
 
+def _hex_to_bits(hex_str: str) -> np.ndarray:
+    """Convert a hex string to a numpy array of bit values (0/1)."""
+    needs_pad = len(hex_str) % 2 != 0
+    padded_hex = hex_str.zfill(len(hex_str) + needs_pad)
+    bits = np.unpackbits(
+        np.frombuffer(bytes.fromhex(padded_hex), dtype=np.uint8),
+    )
+    if needs_pad:
+        bits = bits[4:]
+    return bits
+
+
 def _calculate_data_parity0(data_hex: str, h_matrix_str: str) -> int:
     """Compute parity check syndrome from H matrix and data_hex.
 
@@ -133,13 +145,7 @@ def _calculate_data_parity0(data_hex: str, h_matrix_str: str) -> int:
     if not h_matrix_str:
         return 0
     h_matrix = _deserialize_h_matrix(h_matrix_str)
-    needs_pad = len(data_hex) % 2 != 0
-    padded_hex = data_hex.zfill(len(data_hex) + needs_pad)
-    data_bits = np.unpackbits(
-        np.frombuffer(bytes.fromhex(padded_hex), dtype=np.uint8),
-    )
-    if needs_pad:
-        data_bits = data_bits[4:]
+    data_bits = _hex_to_bits(data_hex)
     if h_matrix.shape[1] != len(data_bits):
         raise ValueError(
             f"H matrix column count {h_matrix.shape[1]} does not match "
@@ -183,13 +189,7 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
             .collect()
             .item()
         )
-        needs_pad = len(concat_hex) % 2 != 0
-        padded_concat = concat_hex.zfill(len(concat_hex) + needs_pad)
-        all_bits = np.unpackbits(
-            np.frombuffer(bytes.fromhex(padded_concat), dtype=np.uint8),
-        )
-        if needs_pad:
-            all_bits = all_bits[4:]
+        all_bits = _hex_to_bits(concat_hex)
 
         num_rows = len(group)
         bits_per_row = hex_len * 4
