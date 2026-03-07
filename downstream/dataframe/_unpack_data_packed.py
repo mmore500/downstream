@@ -496,6 +496,8 @@ def unpack_data_packed(
     logging.info(" - prepping data...")
 
     _check_df(df)
+    if isinstance(df, pl.LazyFrame):
+        df = df.collect()
     if df.lazy().limit(1).collect().is_empty():
         return _make_empty()
 
