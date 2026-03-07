@@ -138,8 +138,6 @@ def _perform_validations(
         .drop_nulls()
         .to_list()
     )
-    num_validators = len(validator_strs)
-
     for validator in validator_strs:
         validation_expr = eval(validator, {"pl": pl})
         group = df.filter(pl.col(col_name) == validator)
@@ -165,7 +163,7 @@ def _perform_validations(
             raise ValueError(err_msg)
 
     df = df.drop(col_name)
-    logging.info(f" - {num_validators} validation(s) passed!")
+    logging.info(f" - {len(validator_strs)} validation(s) passed!")
 
     return df
 
@@ -184,8 +182,6 @@ def _apply_filters(
         .drop_nulls()
         .to_list()
     )
-    num_filters = len(filter_strs)
-
     combined_expr = pl.lit(True)
     for filter_expr_str in filter_strs:
         combined_expr = (
@@ -198,7 +194,7 @@ def _apply_filters(
     num_after = len(df)
     num_filtered = num_before - num_after
     logging.info(
-        f" - {num_filters} filter(s) applied, "
+        f" - {len(filter_strs)} filter(s) applied, "
         f"{num_filtered} dropped and {num_after} kept "
         f"from {num_before} rows",
     )
