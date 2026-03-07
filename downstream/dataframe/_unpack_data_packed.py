@@ -146,7 +146,7 @@ def _perform_validations(
             err_msg = f"{col_name} `{validator}` failed"
             logging.error(err_msg)
             failed_rows = group.filter(~validation_result)
-            logging.error(failed_rows.glimpse(return_as_string=True))
+            logging.error(failed_rows.glimpse(return_type="str"))
             for dump_path in (
                 pathlib.Path.home()
                 / f"downstream_validation_fail_{uuid.uuid4()}.pqt",
