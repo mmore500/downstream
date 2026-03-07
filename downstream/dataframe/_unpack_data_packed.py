@@ -103,7 +103,7 @@ def _deserialize_h_matrix(h_matrix_str: str) -> np.ndarray:
     by newlines, suitable for direct parsing by ``np.loadtxt``.
     """
     try:
-        return np.loadtxt(
+        h_matrix = np.loadtxt(
             io.StringIO(h_matrix_str),
             dtype=np.uint8,
             ndmin=2,
@@ -111,6 +111,14 @@ def _deserialize_h_matrix(h_matrix_str: str) -> np.ndarray:
     except Exception:
         logging.error(f"failed to parse H matrix: {h_matrix_str!r}")
         raise
+
+    if (h_matrix > 1).any():
+        raise ValueError(
+            f"H matrix contains values other than 0 and 1: "
+            f"{np.unique(h_matrix).tolist()}",
+        )
+
+    return h_matrix
 
 
 def _hex_to_bits(hex_str: str) -> np.ndarray:
