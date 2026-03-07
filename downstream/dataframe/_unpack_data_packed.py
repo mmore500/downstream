@@ -129,13 +129,19 @@ def _perform_validations(
     df: pl.DataFrame,
     col_name: str,
 ) -> pl.DataFrame:
-    validation_groups = df.with_columns(
-        pl.col(col_name).set_sorted(),
-    ).group_by(col_name)
-    num_validators = 0
-    for (validator,), group in validation_groups:
-        num_validators += bool(validator)
-        validation_expr = eval(validator or "pl.lit(True)", {"pl": pl})
+    validator_strs = (
+        df.select(pl.col(col_name))
+        .to_series()
+        .unique()
+        .drop_nulls()
+        .to_list()
+    )
+    validator_strs = [s for s in validator_strs if s]
+    num_validators = len(validator_strs)
+
+    for validator in validator_strs:
+        validation_expr = eval(validator, {"pl": pl})
+        group = df.filter(pl.col(col_name) == validator)
         validation_result = group.select(validation_expr).to_series()
         if not validation_result.all():
             err_msg = f"{col_name} `{validator}` failed"
@@ -167,28 +173,43 @@ def _apply_filters(
     df: pl.DataFrame,
     col_name: str,
 ) -> pl.DataFrame:
-    filter_groups = df.with_columns(
-        pl.col(col_name).set_sorted(),
-    ).group_by(col_name)
     num_before = len(df)
-    num_filters = 0
-    result_dfs = []
-    for (filter_expr_str,), group in filter_groups:
-        num_filters += bool(filter_expr_str)
-        filter_expr = eval(filter_expr_str or "pl.lit(True)", {"pl": pl})
+    filter_strs = (
+        df.select(pl.col(col_name))
+        .to_series()
+        .unique()
+        .drop_nulls()
+        .to_list()
+    )
+    filter_strs = [s for s in filter_strs if s]
+    num_filters = len(filter_strs)
+
+    combined_expr = pl.lit(True)
+    for filter_expr_str in filter_strs:
+        filter_expr = eval(filter_expr_str, {"pl": pl})
+        match_rows = pl.col(col_name) == filter_expr_str
+        # for rows matching this filter group, apply the filter;
+        # for other rows, pass through
+        combined_expr = combined_expr & pl.when(match_rows).then(
+            filter_expr,
+        ).otherwise(True)
+
+    df_out = df.lazy().filter(combined_expr).collect().drop(col_name)
+
+    # per-group logging
+    for filter_expr_str in filter_strs:
+        filter_expr = eval(filter_expr_str, {"pl": pl})
+        group = df.filter(pl.col(col_name) == filter_expr_str)
         filter_result = group.select(filter_expr).to_series()
         num_kept = filter_result.sum()
         num_dropped = len(group) - num_kept
-        if filter_expr_str:
-            logging.info(
-                f"   - filter `{filter_expr_str}`: "
-                f"{num_dropped} dropped, {num_kept} kept "
-                f"from {len(group)} rows",
-            )
-        result_dfs.append(group.filter(filter_result))
+        logging.info(
+            f"   - filter `{filter_expr_str}`: "
+            f"{num_dropped} dropped, {num_kept} kept "
+            f"from {len(group)} rows",
+        )
 
-    df = pl.concat(result_dfs).drop(col_name)
-    num_after = len(df)
+    num_after = len(df_out)
     num_filtered = num_before - num_after
     logging.info(
         f" - {num_filters} filter(s) applied, "
@@ -196,7 +217,7 @@ def _apply_filters(
         f"from {num_before} rows!",
     )
 
-    return df
+    return df_out
 
 
 def _drop_excluded_rows(df: pl.DataFrame) -> pl.DataFrame:
