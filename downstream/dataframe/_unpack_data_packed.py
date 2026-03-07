@@ -198,7 +198,7 @@ def _apply_filters(
     logging.info(
         f" - {num_filters} filter(s) applied, "
         f"{num_filtered} dropped and {num_after} kept "
-        f"from {num_before} rows!",
+        f"from {num_before} rows",
     )
 
     return df
