@@ -134,9 +134,10 @@ def _perform_validations(
         .to_series()
         .unique()
         .drop_nulls()
+        .replace("", None)
+        .drop_nulls()
         .to_list()
     )
-    validator_strs = [s for s in validator_strs if s]
     num_validators = len(validator_strs)
 
     for validator in validator_strs:
