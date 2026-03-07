@@ -218,24 +218,21 @@ def _apply_filters(
 
 
 def _drop_excluded_rows(df: pl.DataFrame) -> pl.DataFrame:
-    for col_name in (
-        "downstream_validate_exploded",
-    ):
-        has_dropped = (
-            col_name in df
-            and df.select(
-                (pl.col(col_name).str.len_bytes() > 0)
-                & pl.col("downstream_exclude_unpacked")
-            )
-            .to_series()
-            .any()
+    has_dropped = (
+        "downstream_validate_exploded" in df
+        and df.select(
+            (pl.col("downstream_validate_exploded").str.len_bytes() > 0)
+            & pl.col("downstream_exclude_unpacked")
         )
-        if has_dropped:
-            warnings.warn(
-                f"row(s) with both `{col_name}` "
-                "and `downstream_exclude_unpacked` detected,"
-                "but these rows will be dropped before validation",
-            )
+        .to_series()
+        .any()
+    )
+    if has_dropped:
+        warnings.warn(
+            "row(s) with both `downstream_validate_exploded` "
+            "and `downstream_exclude_unpacked` detected,"
+            "but these rows will be dropped before validation",
+        )
 
     kept = pl.col("downstream_exclude_unpacked").not_().fill_null(True)
     num_before = len(df)
