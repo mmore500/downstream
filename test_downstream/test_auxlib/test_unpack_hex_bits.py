@@ -3,6 +3,12 @@ import numpy as np
 from downstream._auxlib._unpack_hex_bits import unpack_hex_bits
 
 
+def test_unpack_hex_bits_empty_string():
+    result = unpack_hex_bits("")
+    assert result.dtype == np.uint8
+    assert len(result) == 0
+
+
 def test_unpack_hex_bits_single_hex_char():
     result = unpack_hex_bits("f")
     np.testing.assert_array_equal(result, [1, 1, 1, 1])
