@@ -173,9 +173,7 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
 
         num_rows = len(group)
         bits_per_row = hex_len * 4
-        data_matrix = all_bits[: num_rows * bits_per_row].reshape(
-            num_rows, bits_per_row,
-        )
+        data_matrix = all_bits.reshape(num_rows, bits_per_row)
 
         if h_matrix.shape[1] != bits_per_row:
             raise ValueError(
