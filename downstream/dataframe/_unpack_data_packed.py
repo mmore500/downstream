@@ -188,28 +188,23 @@ def _apply_filters(
     for filter_expr_str in filter_strs:
         filter_expr = eval(filter_expr_str, {"pl": pl})
         match_rows = pl.col(col_name) == filter_expr_str
-        # for rows matching this filter group, apply the filter;
-        # for other rows, pass through
         combined_expr = combined_expr & pl.when(match_rows).then(
             filter_expr,
         ).otherwise(True)
-
-    df_out = df.lazy().filter(combined_expr).collect().drop(col_name)
-
-    # per-group logging
-    for filter_expr_str in filter_strs:
-        filter_expr = eval(filter_expr_str, {"pl": pl})
-        group = df.filter(pl.col(col_name) == filter_expr_str)
-        filter_result = group.select(filter_expr).to_series()
-        num_kept = filter_result.sum()
-        num_dropped = len(group) - num_kept
+        num_group = df.lazy().filter(match_rows).select(
+            pl.len(),
+        ).collect().item()
+        num_kept = df.lazy().filter(
+            match_rows & filter_expr,
+        ).select(pl.len()).collect().item()
         logging.info(
             f"   - filter `{filter_expr_str}`: "
-            f"{num_dropped} dropped, {num_kept} kept "
-            f"from {len(group)} rows",
+            f"{num_group - num_kept} dropped, {num_kept} kept "
+            f"from {num_group} rows",
         )
 
-    num_after = len(df_out)
+    df = df.lazy().filter(combined_expr).collect().drop(col_name)
+    num_after = len(df)
     num_filtered = num_before - num_after
     logging.info(
         f" - {num_filters} filter(s) applied, "
@@ -217,7 +212,7 @@ def _apply_filters(
         f"from {num_before} rows!",
     )
 
-    return df_out
+    return df
 
 
 def _drop_excluded_rows(df: pl.DataFrame) -> pl.DataFrame:
