@@ -134,8 +134,7 @@ def _calculate_data_parity0(data_hex: str, h_matrix_str: str) -> int:
         return 0
     h_matrix = _deserialize_h_matrix(h_matrix_str)
     needs_pad = len(data_hex) % 2 != 0
-    padded_hex = data_hex.zfill(len(data_hex) + 1) if needs_pad \
-        else data_hex
+    padded_hex = data_hex.zfill(len(data_hex) + needs_pad)
     data_bits = np.unpackbits(
         np.frombuffer(bytes.fromhex(padded_hex), dtype=np.uint8),
     )
@@ -185,8 +184,7 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
             .item()
         )
         needs_pad = len(concat_hex) % 2 != 0
-        padded_concat = concat_hex.zfill(len(concat_hex) + 1) \
-            if needs_pad else concat_hex
+        padded_concat = concat_hex.zfill(len(concat_hex) + needs_pad)
         all_bits = np.unpackbits(
             np.frombuffer(bytes.fromhex(padded_concat), dtype=np.uint8),
         )
@@ -424,8 +422,8 @@ def unpack_data_packed(
               via ``np.loadtxt`` into a uint8 matrix with values 0 or 1.
               Each contiguous group of digits (equal in length to the
               number of bits in 'data_hex') forms one row of H.
-            - Example: for 4-bit data_hex, ``"1111 1010"`` defines a
-              2x4 H matrix ``[[1,1,1,1],[1,0,1,0]]``.
+            - Example: for 4-bit data_hex, ``"1111 0000"`` defines a
+              2x4 H matrix ``[[1,1,1,1],[0,0,0,0]]``.
             - If present, 'downstream_data_parity0_result' will be
               computed as the syndrome H @ data (mod 2).
         - 'downstream_exclude_exploded' : pl.Boolean
