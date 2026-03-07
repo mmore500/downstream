@@ -139,12 +139,16 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
     """
     parity_result = np.zeros(len(df), dtype=int)
 
-    for (h_matrix_str,), group in df.with_row_index(
+    indexed = df.with_row_index(
         "_downstream_parity_idx",
-    ).group_by("downstream_data_parity0_rule"):
+    ).filter(
+        pl.col("downstream_data_parity0_rule").is_not_null()
+        & (pl.col("downstream_data_parity0_rule").cast(pl.String) != ""),
+    )
+    for (h_matrix_str,), group in indexed.group_by(
+        "downstream_data_parity0_rule",
+    ):
         indices = group["_downstream_parity_idx"].to_numpy()
-        if not h_matrix_str:
-            continue
 
         h_matrix = _deserialize_h_matrix(str(h_matrix_str))
 
@@ -171,17 +175,21 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
         if h_matrix.shape[1] != bits_per_row:
             raise ValueError(
                 f"H matrix column count {h_matrix.shape[1]} does not "
-                f"match data_hex bit length {bits_per_row}",
+                f"match data_hex bit length {bits_per_row}, "
+                f"H matrix: {h_matrix_str!r}",
             )
 
         syndromes = (data_matrix @ h_matrix.T) % 2
-        violations = np.sum(syndromes, axis=1)
-        if np.any(violations):
+        num_violations = int(np.sum(syndromes))
+        if num_violations:
+            num_rules = h_matrix.shape[0]
             logging.info(
-                f" - data parity0: {int(np.sum(violations))} violation(s) "
-                f"across {int(np.count_nonzero(violations))} row(s)",
+                f" - data parity0: {num_violations} rule violation(s) "
+                f"across {num_rules} rule(s) and "
+                f"{int(np.count_nonzero(np.any(syndromes, axis=1)))} "
+                f"row(s)",
             )
-        parity_result[indices] = violations
+        parity_result[indices] = np.sum(syndromes, axis=1)
 
     return df.with_columns(
         downstream_data_parity0_result=pl.Series(
