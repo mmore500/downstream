@@ -193,17 +193,6 @@ def _apply_filters(
             .then(filter_expr)
             .otherwise(combined_expr)
         )
-        num_group = df.lazy().filter(match_rows).select(
-            pl.len(),
-        ).collect().item()
-        num_kept = df.lazy().filter(
-            match_rows & filter_expr,
-        ).select(pl.len()).collect().item()
-        logging.info(
-            f"   - filter `{filter_expr_str}`: "
-            f"{num_group - num_kept} dropped, {num_kept} kept "
-            f"from {num_group} rows",
-        )
 
     df = df.lazy().filter(combined_expr).collect().drop(col_name)
     num_after = len(df)
