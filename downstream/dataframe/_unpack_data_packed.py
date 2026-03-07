@@ -139,17 +139,22 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
     """
     parity_result = np.zeros(len(df), dtype=int)
 
+    logging.info(" - filtering non-empty parity rules...")
     indexed = df.with_row_index(
         "_downstream_parity_idx",
     ).filter(
         pl.col("downstream_data_parity0_rule").is_not_null()
         & (pl.col("downstream_data_parity0_rule").cast(pl.String) != ""),
     )
+    logging.info(
+        f" - {len(indexed)} of {len(df)} row(s) have parity rules...",
+    )
     for (h_matrix_str,), group in indexed.group_by(
         "downstream_data_parity0_rule",
     ):
         indices = group["_downstream_parity_idx"].to_numpy()
 
+        logging.info(f" - deserializing H matrix for {len(group)} row(s)...")
         h_matrix = _deserialize_h_matrix(str(h_matrix_str))
 
         concat_hex = (
@@ -179,6 +184,7 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
                 f"H matrix: {h_matrix_str!r}",
             )
 
+        logging.info(f" - computing syndromes for {num_rows} row(s)...")
         syndromes = (data_matrix @ h_matrix.T) % 2
         num_violations = int(np.sum(syndromes))
         if num_violations:
