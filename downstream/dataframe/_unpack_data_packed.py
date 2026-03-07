@@ -134,17 +134,21 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
     then performs vectorized bulk computation across all rows sharing
     the same H matrix.
     """
-    parity_result = np.zeros(len(df), dtype=int)
+    df_len = df.lazy().select(pl.len()).collect().item()
+    parity_result = np.zeros(df_len, dtype=int)
 
     logging.info(" - filtering non-empty parity rules...")
-    indexed = df.with_row_index(
-        "_downstream_parity_idx",
-    ).filter(
-        pl.col("downstream_data_parity0_rule").is_not_null()
-        & (pl.col("downstream_data_parity0_rule").cast(pl.String).str.len_bytes() > 0),
+    indexed = (
+        df.lazy()
+        .with_row_index("_downstream_parity_idx")
+        .filter(
+            pl.col("downstream_data_parity0_rule").is_not_null()
+            & (pl.col("downstream_data_parity0_rule").cast(pl.String).str.len_bytes() > 0),
+        )
+        .collect()
     )
     logging.info(
-        f" - {len(indexed)} of {len(df)} row(s) have parity rules...",
+        f" - {len(indexed)} of {df_len} row(s) have parity rules...",
     )
     for (h_matrix_str,), group in indexed.group_by(
         "downstream_data_parity0_rule",
@@ -194,11 +198,20 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
         )
         parity_result[indices] = row_violations
 
-    return df.with_columns(
-        downstream_data_parity0_result=pl.Series(
-            parity_result, dtype=pl.UInt32,
-        ),
-    ).drop("downstream_data_parity0_rule")
+    parity_lf = pl.LazyFrame(
+        {
+            "_downstream_parity_idx": np.arange(df_len, dtype=np.uint32),
+            "downstream_data_parity0_result": pl.Series(
+                parity_result, dtype=pl.UInt32,
+            ),
+        },
+    )
+    return (
+        df.lazy()
+        .with_row_index("_downstream_parity_idx")
+        .join(parity_lf, on="_downstream_parity_idx", how="left")
+        .drop("_downstream_parity_idx", "downstream_data_parity0_rule")
+    )
 
 
 def _extract_from_data_hex(df: pl.DataFrame) -> pl.DataFrame:
@@ -238,7 +251,9 @@ def _perform_validations(
     col_name: str,
 ) -> pl.DataFrame:
     validator_strs = (
-        df.select(pl.col(col_name))
+        df.lazy()
+        .select(pl.col(col_name))
+        .collect()
         .to_series()
         .unique()
         .drop_nulls()
@@ -248,7 +263,7 @@ def _perform_validations(
     )
     for validator in validator_strs:
         validation_expr = eval(validator, {"pl": pl})
-        group = df.filter(pl.col(col_name) == validator)
+        group = df.lazy().filter(pl.col(col_name) == validator).collect()
         validation_result = group.select(validation_expr).to_series()
         if not validation_result.all():
             err_msg = f"{col_name} `{validator}` failed"
@@ -280,9 +295,11 @@ def _apply_filters(
     df: pl.DataFrame,
     col_name: str,
 ) -> pl.DataFrame:
-    num_before = len(df)
+    num_before = df.lazy().select(pl.len()).collect().item()
     filter_strs = (
-        df.select(pl.col(col_name))
+        df.lazy()
+        .select(pl.col(col_name))
+        .collect()
         .to_series()
         .unique()
         .drop_nulls()
@@ -312,11 +329,14 @@ def _apply_filters(
 
 def _drop_excluded_rows(df: pl.DataFrame) -> pl.DataFrame:
     has_dropped_validations = (
-        "downstream_validate_exploded" in df
-        and df.select(
+        "downstream_validate_exploded"
+        in df.lazy().collect_schema().names()
+        and df.lazy()
+        .select(
             (pl.col("downstream_validate_exploded").str.len_bytes() > 0)
             & pl.col("downstream_exclude_unpacked")
         )
+        .collect()
         .to_series()
         .any()
     )
@@ -328,8 +348,8 @@ def _drop_excluded_rows(df: pl.DataFrame) -> pl.DataFrame:
         )
 
     kept = pl.col("downstream_exclude_unpacked").not_().fill_null(True)
-    num_before = len(df)
-    df = df.filter(kept).drop("downstream_exclude_unpacked")
+    num_before = df.lazy().select(pl.len()).collect().item()
+    df = df.lazy().filter(kept).drop("downstream_exclude_unpacked").collect()
     num_after = len(df)
     num_dropped = num_before - num_after
     logging.info(
@@ -496,8 +516,6 @@ def unpack_data_packed(
     logging.info(" - prepping data...")
 
     _check_df(df)
-    if isinstance(df, pl.LazyFrame):
-        df = df.collect()
     if df.lazy().limit(1).collect().is_empty():
         return _make_empty()
 
