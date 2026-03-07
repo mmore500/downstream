@@ -187,14 +187,13 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
         logging.info(f" - computing syndromes for {num_rows} row(s)...")
         syndromes = (data_matrix @ h_matrix.T) % 2
         num_violations = int(np.sum(syndromes))
-        if num_violations:
-            num_rules = h_matrix.shape[0]
-            logging.info(
-                f" - data parity0: {num_violations} rule violation(s) "
-                f"across {num_rules} rule(s) and "
-                f"{int(np.count_nonzero(np.any(syndromes, axis=1)))} "
-                f"row(s)",
-            )
+        num_rules = h_matrix.shape[0]
+        logging.info(
+            f" - data parity0: {num_violations} rule violation(s) "
+            f"across {num_rules} rule(s) and "
+            f"{int(np.count_nonzero(np.any(syndromes, axis=1)))} "
+            f"row(s)",
+        )
         parity_result[indices] = np.sum(syndromes, axis=1)
 
     return df.with_columns(
