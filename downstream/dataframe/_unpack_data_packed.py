@@ -406,6 +406,9 @@ def unpack_data_packed(
         - 'downstream_filter_packed' : pl.String, polars expression
             - Polars expression to filter packed data; non-matching rows
             are dropped. Applied after validation.
+            - Parity is computed before packed filters, so
+              ``"pl.col('downstream_data_parity0_result') == 0"``
+              can be used to drop rows that fail the parity check.
         - 'downstream_filter_unpacked' : pl.String, polars expression
             - Polars expression to filter unpacked data; non-matching rows
             are dropped. Applied after validation.
@@ -417,6 +420,9 @@ def unpack_data_packed(
             - Polars expression to validate exploded data.
         - 'downstream_validate_packed' : pl.String, polars expression
             - Polars expression to validate packed data.
+            - Parity is computed before packed validations, so
+              ``"pl.col('downstream_data_parity0_result') == 0"``
+              can be used to assert all rows pass the parity check.
         - 'downstream_validate_unpacked' : pl.String, polars expression
             - Polars expression to validate unpacked data.
         - 'downstream_version' : pl.Categorical
@@ -495,6 +501,10 @@ def unpack_data_packed(
         logging.info(" - defaulting dstream_T_dilation...")
         df = df.with_columns(dstream_T_dilation=pl.lit(1).cast(pl.UInt32))
 
+    if "downstream_data_parity0_rule" in schema_names:
+        logging.info(" - computing data parity0...")
+        df = _apply_data_parity0(df)
+
     if "downstream_validate_packed" in df:
         logging.info(" - evaluating `downstream_validate_packed` exprs...")
         df = _perform_validations(df, "downstream_validate_packed")
@@ -508,10 +518,6 @@ def unpack_data_packed(
 
     if "dstream_data_id" not in df.lazy().collect_schema().names():
         df = df.with_row_index("dstream_data_id")
-
-    if "downstream_data_parity0_rule" in schema_names:
-        logging.info(" - computing data parity0...")
-        df = _apply_data_parity0(df)
 
     logging.info(" - extracting T and storage_hex from data_hex...")
     df = _extract_from_data_hex(df)
