@@ -122,7 +122,6 @@ def _deserialize_h_matrix(h_matrix_str: str) -> np.ndarray:
     return h_matrix
 
 
-
 def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
     """Apply downstream_data_parity0_rule to compute parity syndrome.
 
@@ -143,7 +142,12 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
         .with_row_index("_downstream_parity_idx")
         .filter(
             pl.col("downstream_data_parity0_rule").is_not_null()
-            & (pl.col("downstream_data_parity0_rule").cast(pl.String).str.len_bytes() > 0),
+            & (
+                pl.col("downstream_data_parity0_rule")
+                .cast(pl.String)
+                .str.len_bytes()
+                > 0
+            ),
         )
     )
     indexed_len = indexed.select(pl.len()).collect().item()
@@ -172,9 +176,7 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
 
         logging.info(f" - concatenating data_hex for {num_rows} row(s)...")
         concat_hex = (
-            group.select(pl.col("data_hex").str.join(""))
-            .collect()
-            .item()
+            group.select(pl.col("data_hex").str.join("")).collect().item()
         )
         hex_len = (
             group.select(pl.col("data_hex").str.len_bytes().first())
@@ -208,7 +210,8 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
 
     return df.with_columns(
         downstream_data_parity0_result=pl.Series(
-            parity_result, dtype=pl.UInt32,
+            parity_result,
+            dtype=pl.UInt32,
         ),
     ).drop("downstream_data_parity0_rule")
 
@@ -327,8 +330,7 @@ def _apply_filters(
 
 def _drop_excluded_rows(df: pl.DataFrame) -> pl.DataFrame:
     has_dropped_validations = (
-        "downstream_validate_exploded"
-        in df.lazy().collect_schema().names()
+        "downstream_validate_exploded" in df.lazy().collect_schema().names()
         and df.lazy()
         .select(
             (
