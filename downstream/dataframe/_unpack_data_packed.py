@@ -533,6 +533,8 @@ def unpack_data_packed(
     if "downstream_data_parity0_rule" in schema_names:
         logging.info(" - computing downstream_data_parity0_result...")
         df = _apply_data_parity0(df)
+    else:
+        logging.info(" - downstream_data_parity0_rule not found in df")
 
     if "downstream_validate_packed" in df:
         logging.info(" - evaluating `downstream_validate_packed` exprs...")
