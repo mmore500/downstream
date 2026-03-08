@@ -150,37 +150,28 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
     logging.info(
         f" - {indexed_len} of {df_len} row(s) have parity rules...",
     )
-    unique_rules = (
-        indexed.select("downstream_data_parity0_rule")
-        .unique()
+    grouped = (
+        indexed.group_by("downstream_data_parity0_rule")
+        .agg(
+            pl.col("_downstream_parity_idx"),
+            pl.col("data_hex").str.join("").alias("_concat_hex"),
+            pl.col("data_hex").str.len_bytes().first().alias("_hex_len"),
+            pl.len().alias("_num_rows"),
+        )
         .collect()
-        .to_series()
-        .to_list()
     )
-    for h_matrix_str in unique_rules:
-        group = indexed.filter(
-            pl.col("downstream_data_parity0_rule") == h_matrix_str,
-        )
-        num_rows = group.select(pl.len()).collect().item()
-        indices = (
-            group.select("_downstream_parity_idx").collect().to_numpy().ravel()
-        )
+    for row in grouped.iter_rows(named=True):
+        h_matrix_str = row["downstream_data_parity0_rule"]
+        indices = np.array(row["_downstream_parity_idx"], dtype=np.uint32)
+        concat_hex = row["_concat_hex"]
+        hex_len = row["_hex_len"]
+        num_rows = row["_num_rows"]
 
         logging.info(f" - deserializing H matrix for {num_rows} row(s)...")
         h_matrix = _deserialize_h_matrix(str(h_matrix_str))
         logging.info(f" - H matrix has {h_matrix.shape[0]} parity rule(s)...")
 
         logging.info(f" - concatenating data_hex for {num_rows} row(s)...")
-        concat_hex = (
-            group.select(pl.col("data_hex").str.join(""))
-            .collect()
-            .item()
-        )
-        hex_len = (
-            group.select(pl.col("data_hex").str.len_bytes().first())
-            .collect()
-            .item()
-        )
         logging.info(" - converting hex to bits...")
         all_bits = unpack_hex_bits(concat_hex)
 
@@ -262,12 +253,12 @@ def _perform_validations(
     )
     for validator in validator_strs:
         validation_expr = eval(validator, {"pl": pl})
-        group = df.lazy().filter(pl.col(col_name) == validator).collect()
-        validation_result = group.select(validation_expr).to_series()
+        group = df.lazy().filter(pl.col(col_name) == validator)
+        validation_result = group.select(validation_expr).collect().to_series()
         if not validation_result.all():
             err_msg = f"{col_name} `{validator}` failed"
             logging.error(err_msg)
-            failed_rows = group.filter(~validation_result)
+            failed_rows = group.collect().filter(~validation_result)
             logging.error(failed_rows.glimpse(return_type="str"))
             for dump_path in (
                 pathlib.Path.home()
