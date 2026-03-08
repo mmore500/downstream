@@ -145,12 +145,12 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
             pl.col("downstream_data_parity0_rule").is_not_null()
             & (pl.col("downstream_data_parity0_rule").cast(pl.String).str.len_bytes() > 0),
         )
-        .collect()
     )
+    indexed_len = indexed.select(pl.len()).collect().item()
     logging.info(
-        f" - {len(indexed)} of {df_len} row(s) have parity rules...",
+        f" - {indexed_len} of {df_len} row(s) have parity rules...",
     )
-    for (h_matrix_str,), group in indexed.group_by(
+    for (h_matrix_str,), group in indexed.collect().group_by(
         "downstream_data_parity0_rule",
     ):
         indices = group["_downstream_parity_idx"].to_numpy()
@@ -198,7 +198,7 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
         )
         parity_result[indices] = row_violations
 
-    return df.lazy().with_columns(
+    return df.with_columns(
         downstream_data_parity0_result=pl.Series(
             parity_result, dtype=pl.UInt32,
         ),
