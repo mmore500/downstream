@@ -198,20 +198,11 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
         )
         parity_result[indices] = row_violations
 
-    parity_lf = pl.LazyFrame(
-        {
-            "_downstream_parity_idx": np.arange(df_len, dtype=np.uint32),
-            "downstream_data_parity0_result": pl.Series(
-                parity_result, dtype=pl.UInt32,
-            ),
-        },
-    )
-    return (
-        df.lazy()
-        .with_row_index("_downstream_parity_idx")
-        .join(parity_lf, on="_downstream_parity_idx", how="left")
-        .drop("_downstream_parity_idx", "downstream_data_parity0_rule")
-    )
+    return df.lazy().with_columns(
+        downstream_data_parity0_result=pl.Series(
+            parity_result, dtype=pl.UInt32,
+        ),
+    ).drop("downstream_data_parity0_rule")
 
 
 def _extract_from_data_hex(df: pl.DataFrame) -> pl.DataFrame:
@@ -253,9 +244,9 @@ def _perform_validations(
     validator_strs = (
         df.lazy()
         .select(pl.col(col_name))
+        .unique()
         .collect()
         .to_series()
-        .unique()
         .drop_nulls()
         .replace("", None)
         .drop_nulls()
@@ -299,9 +290,9 @@ def _apply_filters(
     filter_strs = (
         df.lazy()
         .select(pl.col(col_name))
+        .unique()
         .collect()
         .to_series()
-        .unique()
         .drop_nulls()
         .replace("", None)
         .drop_nulls()
@@ -333,12 +324,13 @@ def _drop_excluded_rows(df: pl.DataFrame) -> pl.DataFrame:
         in df.lazy().collect_schema().names()
         and df.lazy()
         .select(
-            (pl.col("downstream_validate_exploded").str.len_bytes() > 0)
-            & pl.col("downstream_exclude_unpacked")
+            (
+                (pl.col("downstream_validate_exploded").str.len_bytes() > 0)
+                & pl.col("downstream_exclude_unpacked")
+            ).any()
         )
         .collect()
-        .to_series()
-        .any()
+        .item()
     )
     if has_dropped_validations:
         warnings.warn(
@@ -349,7 +341,7 @@ def _drop_excluded_rows(df: pl.DataFrame) -> pl.DataFrame:
 
     kept = pl.col("downstream_exclude_unpacked").not_().fill_null(True)
     num_before = df.lazy().select(pl.len()).collect().item()
-    df = df.lazy().filter(kept).drop("downstream_exclude_unpacked").collect()
+    df = df.filter(kept).drop("downstream_exclude_unpacked")
     num_after = len(df)
     num_dropped = num_before - num_after
     logging.info(
