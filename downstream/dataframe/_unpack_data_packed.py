@@ -263,8 +263,7 @@ def _perform_validations(
     for validator in validator_strs:
         validation_expr = eval(validator, {"pl": pl})
         group = df.lazy().filter(pl.col(col_name) == validator)
-        validation_result = group.select(validation_expr).collect().to_series()
-        if not validation_result.all():
+        if not group.select(validation_expr.all()).collect().item():
             err_msg = f"{col_name} `{validator}` failed"
             logging.error(err_msg)
             failed_rows = group.filter(~validation_expr).collect()
