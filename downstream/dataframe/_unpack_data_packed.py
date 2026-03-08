@@ -150,32 +150,40 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
     logging.info(
         f" - {indexed_len} of {df_len} row(s) have parity rules...",
     )
-    for (h_matrix_str,), group in indexed.collect().group_by(
-        "downstream_data_parity0_rule",
-    ):
-        indices = group["_downstream_parity_idx"].to_numpy()
+    unique_rules = (
+        indexed.select("downstream_data_parity0_rule")
+        .unique()
+        .collect()
+        .to_series()
+        .to_list()
+    )
+    for h_matrix_str in unique_rules:
+        group = indexed.filter(
+            pl.col("downstream_data_parity0_rule") == h_matrix_str,
+        )
+        num_rows = group.select(pl.len()).collect().item()
+        indices = (
+            group.select("_downstream_parity_idx").collect().to_numpy().ravel()
+        )
 
-        logging.info(f" - deserializing H matrix for {len(group)} row(s)...")
+        logging.info(f" - deserializing H matrix for {num_rows} row(s)...")
         h_matrix = _deserialize_h_matrix(str(h_matrix_str))
         logging.info(f" - H matrix has {h_matrix.shape[0]} parity rule(s)...")
 
-        logging.info(f" - concatenating data_hex for {len(group)} row(s)...")
+        logging.info(f" - concatenating data_hex for {num_rows} row(s)...")
         concat_hex = (
-            group.lazy()
-            .select(pl.col("data_hex").str.join(""))
+            group.select(pl.col("data_hex").str.join(""))
             .collect()
             .item()
         )
         hex_len = (
-            group.lazy()
-            .select(pl.col("data_hex").str.len_bytes().first())
+            group.select(pl.col("data_hex").str.len_bytes().first())
             .collect()
             .item()
         )
         logging.info(" - converting hex to bits...")
         all_bits = unpack_hex_bits(concat_hex)
 
-        num_rows = len(group)
         bits_per_row = hex_len * 4
         data_matrix = all_bits.reshape(num_rows, bits_per_row)
 
