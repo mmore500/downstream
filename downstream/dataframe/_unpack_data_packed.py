@@ -8,6 +8,7 @@ import warnings
 import numpy as np
 import polars as pl
 
+from .._auxlib._iter_chunks import iter_chunks
 from .._auxlib._unpack_hex_bits import unpack_hex_bits
 from ._impl._check_expected_columns import check_expected_columns
 
@@ -196,29 +197,26 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
         chunk_size_rows = max(1, _ARROW_MAX_CONCAT_BYTES // hex_len)
         total_violations = 0
         total_violating_rows = 0
-        for chunk_start in range(0, num_rows, chunk_size_rows):
-            chunk_end = min(chunk_start + chunk_size_rows, num_rows)
-            chunk_size = chunk_end - chunk_start
-            chunk = group.slice(chunk_start, chunk_size)
+        for chunk_rows in iter_chunks(range(num_rows), chunk_size_rows):
+            chunk = group.slice(chunk_rows[0], len(chunk_rows))
 
+            chunk_collected = chunk.select(
+                "_downstream_parity_idx",
+                "data_hex",
+            ).collect()
             chunk_indices = (
-                chunk.select("_downstream_parity_idx")
-                .collect()
+                chunk_collected["_downstream_parity_idx"]
                 .to_numpy()
                 .ravel()
             )
-            concat_hex = (
-                chunk.select(pl.col("data_hex").str.join(""))
-                .collect()
-                .item()
-            )
+            concat_hex = chunk_collected["data_hex"].str.join("").item()
 
             logging.info(
-                f" - processing chunk rows {chunk_start}–{chunk_end - 1} "
-                f"of {num_rows}...",
+                f" - processing chunk rows {chunk_rows[0]}–"
+                f"{chunk_rows[-1]} of {num_rows}...",
             )
             all_bits = unpack_hex_bits(concat_hex)
-            data_matrix = all_bits.reshape(chunk_size, bits_per_row)
+            data_matrix = all_bits.reshape(len(chunk_rows), bits_per_row)
 
             syndromes = (data_matrix @ h_matrix.T) % 2
             row_violations = np.sum(syndromes, axis=1)
