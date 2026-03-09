@@ -192,7 +192,7 @@ def _apply_compute_parity_chunk_ipc(args: tuple) -> np.ndarray:
     return _compute_parity_chunk_ipc(*args)
 
 
-def _generate_parity_work(
+def _divvy_parity_work(
     group: pl.LazyFrame,
     chunk_slices: list,
     h_matrix: np.ndarray,
@@ -334,7 +334,7 @@ def _apply_data_parity0(
             f" {mp_pool_size} worker(s)...",
         )
 
-        ipc_path, work = _generate_parity_work(
+        ipc_path, work = _divvy_parity_work(
             group,
             chunk_slices,
             h_matrix,
