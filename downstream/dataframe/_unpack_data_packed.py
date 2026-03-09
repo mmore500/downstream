@@ -220,6 +220,7 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
             all_bits = unpack_hex_bits(concat_hex)
             data_matrix = all_bits.reshape(-1, bits_per_row)
 
+            logging.info(f" - computing syndromes for {chunk_slice}...")
             syndromes = (data_matrix @ h_matrix.T) % 2
             row_violations = np.sum(syndromes, axis=1)
             total_violations += int(np.sum(row_violations))
