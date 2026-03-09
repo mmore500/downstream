@@ -230,8 +230,7 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
         logging.info(
             f" - data parity0: {total_violations} rule violation(s) "
             f"across {h_matrix.shape[0]} rule(s) occurring in "
-            f"{total_violating_rows} "
-            f"row(s)",
+            f"{total_violating_rows} row(s)",
         )
 
     return df.with_columns(
