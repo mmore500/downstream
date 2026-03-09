@@ -220,6 +220,9 @@ def _apply_data_parity0(
         overhead). When > 1, chunks are processed in parallel using a
         multiprocessing pool.
     """
+    if mp_pool_size == 0:
+        raise NotImplementedError("mp_pool_size=0 is not supported")
+
     df_len = df.lazy().select(pl.len()).collect().item()
     parity_result = np.zeros(df_len, dtype=int)
 
@@ -283,99 +286,72 @@ def _apply_data_parity0(
         logging.info(f" - {max_concat=} {chunk_size_rows=} for {num_rows=}...")
         total_violations, total_violating_rows = 0, 0
 
-        # Collect chunk slices and indices upfront
         chunk_slices = list(iter_slices(num_rows, chunk_size_rows))
-        chunk_indices_list = []
-        for chunk_slice in chunk_slices:
-            chunk = group[chunk_slice]
 
-            logging.info(f" - collecting indices for {chunk_slice}...")
-            chunk_indices = (
-                chunk.select("_downstream_parity_idx")
-                .collect()
-                .to_numpy()
-                .ravel()
-            )
-            chunk_indices_list.append(chunk_indices)
+        # Write group to temp IPC file so workers can read
+        # their slices without pickling large hex strings
+        ipc_path = f"/tmp/downstream_parity_{uuid.uuid4()}.arrow"  # nosec B108
+        logging.info(f" - writing group to IPC file {ipc_path}...")
+        group.select(
+            "data_hex",
+        ).collect().write_ipc(ipc_path)
 
-        if mp_pool_size > 1 and len(chunk_slices) > 1:
-            # Write group to temp IPC file so workers can read
-            # their slices without pickling large hex strings
-            ipc_path = (
-                f"/tmp/downstream_parity_{uuid.uuid4()}.arrow"  # nosec B108
-            )
-            logging.info(f" - writing group to IPC file {ipc_path}...")
-            group.select(
-                "data_hex",
-            ).collect().write_ipc(ipc_path)
+        num_chunks = len(chunk_slices)
+        logging.info(
+            f" - dispatching {num_chunks} chunk(s) across"
+            f" {mp_pool_size} worker(s)...",
+        )
 
-            num_chunks = len(chunk_slices)
-            logging.info(
-                f" - dispatching {num_chunks} chunk(s) across"
-                f" {mp_pool_size} worker(s)...",
-            )
-            try:
-                mp_context = multiprocessing.get_context("spawn")
-                with mp_context.Pool(
-                    processes=mp_pool_size,
-                ) as pool:
-                    imap_args = [
-                        (
-                            ipc_path,
-                            chunk_slice,
-                            h_matrix,
-                            bits_per_row,
-                        )
-                        for chunk_slice in chunk_slices
-                    ]
-                    for i, (chunk_indices, row_violations) in enumerate(
-                        zip(
-                            chunk_indices_list,
-                            pool.imap(
-                                _apply_compute_parity_chunk_ipc,
-                                imap_args,
-                            ),
-                        ),
-                    ):
-                        logging.info(
-                            f" - received chunk result"
-                            f" ({i + 1} / {num_chunks})...",
-                        )
-                        total_violations += int(
-                            np.sum(row_violations),
-                        )
-                        total_violating_rows += int(
-                            np.count_nonzero(row_violations),
-                        )
-                        parity_result[chunk_indices] = row_violations
-            finally:
-                pathlib.Path(ipc_path).unlink(missing_ok=True)
-        else:
-            for chunk_slice, chunk_indices in zip(
-                chunk_slices, chunk_indices_list
-            ):
+        def _generate_work():
+            for chunk_slice in chunk_slices:
                 logging.info(
-                    f" - concatenating data_hex for {chunk_slice}...",
+                    f" - collecting indices for {chunk_slice}...",
                 )
-                concat_hex = (
+                chunk_indices = (
                     group[chunk_slice]
-                    .select(pl.col("data_hex").str.join(""))
+                    .select("_downstream_parity_idx")
                     .collect()
-                    .item()
+                    .to_numpy()
+                    .ravel()
                 )
-                logging.info(
-                    f" - computing syndromes for {chunk_slice}...",
-                )
-                row_violations = _compute_parity_chunk(
-                    concat_hex,
+                imap_arg = (
+                    ipc_path,
+                    chunk_slice,
                     h_matrix,
                     bits_per_row,
                 )
-                total_violations += int(np.sum(row_violations))
-                total_violating_rows += int(
-                    np.count_nonzero(row_violations),
-                )
-                parity_result[chunk_indices] = row_violations
+                yield chunk_indices, imap_arg
+
+        try:
+            mp_context = multiprocessing.get_context("spawn")
+            with mp_context.Pool(
+                processes=mp_pool_size,
+            ) as pool:
+                work = list(_generate_work())
+                chunk_indices_list = [w[0] for w in work]
+                imap_args = [w[1] for w in work]
+                for i, (chunk_indices, row_violations) in enumerate(
+                    zip(
+                        chunk_indices_list,
+                        pool.imap(
+                            _apply_compute_parity_chunk_ipc,
+                            imap_args,
+                        ),
+                    ),
+                ):
+                    logging.info(
+                        f" - received chunk result"
+                        f" ({i + 1} / {num_chunks})...",
+                    )
+                    total_violations += int(
+                        np.sum(row_violations),
+                    )
+                    total_violating_rows += int(
+                        np.count_nonzero(row_violations),
+                    )
+                    parity_result[chunk_indices] = row_violations
+        finally:
+            pathlib.Path(ipc_path).unlink(missing_ok=True)
 
         logging.info(
             f" - data parity0: {total_violations} rule violation(s) "
