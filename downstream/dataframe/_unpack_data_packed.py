@@ -191,6 +191,7 @@ def _divvy_parity_work(
     """
     logging.info(f" - writing parity group to IPC file {ipc_path}...")
     group.select("data_hex").collect().write_ipc(ipc_path, compression="lz4")
+    logging.info(f" - parity group IPC file written to {ipc_path}")
 
     for chunk_slice in chunk_slices:
         yield ipc_path, chunk_slice, h_matrix, bits_per_row
