@@ -1,3 +1,4 @@
+import functools
 import io
 import logging
 import multiprocessing
@@ -209,22 +210,21 @@ def _divvy_parity_work(
         yield ipc_path, chunk_slice, h_matrix, bits_per_row
 
 
-def _iter_chunk_indices(
+def _extract_chunk_indices(
     group: pl.LazyFrame,
-    chunk_slices: typing.Iterable[slice],
-) -> typing.Iterator[np.ndarray]:
-    """Lazily yield chunk index arrays for each slice."""
-    for chunk_slice in chunk_slices:
-        logging.info(
-            f" - collecting parity chunk indices for {chunk_slice}...",
-        )
-        yield (
-            group[chunk_slice]
-            .select("_downstream_parity_idx")
-            .collect()
-            .to_numpy()
-            .ravel()
-        )
+    chunk_slice: slice,
+) -> np.ndarray:
+    """Extract parity chunk index array for a single slice."""
+    logging.info(
+        f" - collecting parity chunk indices for {chunk_slice}...",
+    )
+    return (
+        group[chunk_slice]
+        .select("_downstream_parity_idx")
+        .collect()
+        .to_numpy()
+        .ravel()
+    )
 
 
 def _apply_data_parity0(
@@ -348,8 +348,11 @@ def _apply_data_parity0(
             ) as pool:
                 for i, (chunk_indices, row_violations) in enumerate(
                     zip(
-                        _iter_chunk_indices(
-                            group,
+                        map(
+                            functools.partial(
+                                _extract_chunk_indices,
+                                group,
+                            ),
                             iter_slices(num_rows, chunk_size_rows),
                         ),
                         pool.imap(
