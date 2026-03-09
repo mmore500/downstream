@@ -3,6 +3,7 @@ import logging
 import multiprocessing
 import os
 import pathlib
+import tempfile
 import typing
 import uuid
 import warnings
@@ -154,6 +155,44 @@ def _compute_parity_chunk(
     return np.sum(syndromes, axis=1)
 
 
+def _compute_parity_chunk_ipc(
+    ipc_path: str,
+    chunk_slice: slice,
+    h_matrix: np.ndarray,
+    bits_per_row: int,
+) -> np.ndarray:
+    """Compute parity violations by reading a chunk from an IPC file.
+
+    Workers read their slice from a shared Arrow IPC file on disk,
+    avoiding serialization of large hex strings through the
+    multiprocessing pipe.
+
+    Parameters
+    ----------
+    ipc_path : str
+        Path to Arrow IPC file containing the group's data.
+    chunk_slice : slice
+        Row slice to read from the IPC file.
+    h_matrix : np.ndarray
+        H matrix (num_rules x bits_per_row).
+    bits_per_row : int
+        Number of bits per row in the data.
+
+    Returns
+    -------
+    np.ndarray
+        Per-row violation counts.
+    """
+    chunk = pl.scan_ipc(ipc_path)[chunk_slice]
+    concat_hex = chunk.select(pl.col("data_hex").str.join("")).collect().item()
+    return _compute_parity_chunk(concat_hex, h_matrix, bits_per_row)
+
+
+def _apply_compute_parity_chunk_ipc(args: tuple) -> np.ndarray:
+    """Unpack tuple args for pool.imap compatibility."""
+    return _compute_parity_chunk_ipc(*args)
+
+
 def _apply_data_parity0(
     df: pl.DataFrame,
     mp_pool_size: int = 1,
@@ -245,9 +284,9 @@ def _apply_data_parity0(
         logging.info(f" - {max_concat=} {chunk_size_rows=} for {num_rows=}...")
         total_violations, total_violating_rows = 0, 0
 
-        # Collect chunk data upfront for pool dispatch
+        # Collect chunk slices and indices upfront
         chunk_slices = list(iter_slices(num_rows, chunk_size_rows))
-        chunk_data = []
+        chunk_indices_list = []
         for chunk_slice in chunk_slices:
             chunk = group[chunk_slice]
 
@@ -258,38 +297,74 @@ def _apply_data_parity0(
                 .to_numpy()
                 .ravel()
             )
+            chunk_indices_list.append(chunk_indices)
 
-            logging.info(f" - concatenating data_hex for {chunk_slice}...")
-            concat_hex = (
-                chunk.select(pl.col("data_hex").str.join("")).collect().item()
+        if mp_pool_size > 1 and len(chunk_slices) > 1:
+            # Write group to temp IPC file so workers can read
+            # their slices without pickling large hex strings
+            ipc_path = os.path.join(
+                tempfile.gettempdir(),
+                f"downstream_parity_{uuid.uuid4()}.arrow",
             )
+            logging.info(f" - writing group to IPC file {ipc_path}...")
+            group.select(
+                "data_hex",
+            ).collect().write_ipc(ipc_path)
 
-            chunk_data.append((chunk_slice, chunk_indices, concat_hex))
-
-        if mp_pool_size > 1 and len(chunk_data) > 1:
+            num_chunks = len(chunk_slices)
             logging.info(
-                f" - dispatching {len(chunk_data)} chunk(s) across"
+                f" - dispatching {num_chunks} chunk(s) across"
                 f" {mp_pool_size} worker(s)...",
             )
-            mp_context = multiprocessing.get_context("spawn")
-            with mp_context.Pool(processes=mp_pool_size) as pool:
-                results = pool.starmap(
-                    _compute_parity_chunk,
-                    [
-                        (concat_hex, h_matrix, bits_per_row)
-                        for _, _, concat_hex in chunk_data
-                    ],
-                )
-            for (chunk_slice, chunk_indices, _), row_violations in zip(
-                chunk_data, results
-            ):
-                total_violations += int(np.sum(row_violations))
-                total_violating_rows += int(
-                    np.count_nonzero(row_violations),
-                )
-                parity_result[chunk_indices] = row_violations
+            try:
+                mp_context = multiprocessing.get_context("spawn")
+                with mp_context.Pool(
+                    processes=mp_pool_size,
+                ) as pool:
+                    imap_args = [
+                        (
+                            ipc_path,
+                            chunk_slice,
+                            h_matrix,
+                            bits_per_row,
+                        )
+                        for chunk_slice in chunk_slices
+                    ]
+                    for i, (chunk_indices, row_violations) in enumerate(
+                        zip(
+                            chunk_indices_list,
+                            pool.imap(
+                                _apply_compute_parity_chunk_ipc,
+                                imap_args,
+                            ),
+                        ),
+                    ):
+                        logging.info(
+                            f" - received chunk result"
+                            f" ({i + 1} / {num_chunks})...",
+                        )
+                        total_violations += int(
+                            np.sum(row_violations),
+                        )
+                        total_violating_rows += int(
+                            np.count_nonzero(row_violations),
+                        )
+                        parity_result[chunk_indices] = row_violations
+            finally:
+                pathlib.Path(ipc_path).unlink(missing_ok=True)
         else:
-            for chunk_slice, chunk_indices, concat_hex in chunk_data:
+            for chunk_slice, chunk_indices in zip(
+                chunk_slices, chunk_indices_list
+            ):
+                logging.info(
+                    f" - concatenating data_hex for {chunk_slice}...",
+                )
+                concat_hex = (
+                    group[chunk_slice]
+                    .select(pl.col("data_hex").str.join(""))
+                    .collect()
+                    .item()
+                )
                 logging.info(
                     f" - computing syndromes for {chunk_slice}...",
                 )
