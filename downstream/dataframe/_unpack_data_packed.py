@@ -195,18 +195,17 @@ def _apply_compute_parity_chunk_ipc(args: tuple) -> np.ndarray:
 def _divvy_parity_work(
     group: pl.LazyFrame,
     chunk_slices: list,
+    ipc_path: str,
     h_matrix: np.ndarray,
     bits_per_row: int,
-) -> tuple[str, list[tuple[np.ndarray, tuple]]]:
-    """Write group data to a temp IPC file and build work items.
+) -> typing.Iterator[tuple[np.ndarray, tuple]]:
+    """Write group data to a temp IPC file and yield work items.
 
-    Returns the IPC file path and a list of (chunk_indices, imap_arg) tuples.
+    Yields (chunk_indices, imap_arg) tuples for each chunk.
     """
-    ipc_path = f"/tmp/downstream_parity_{uuid.uuid4()}.arrow"  # nosec B108
     logging.info(f" - writing group to IPC file {ipc_path}...")
     group.select("data_hex").collect().write_ipc(ipc_path)
 
-    work = []
     for chunk_slice in chunk_slices:
         logging.info(
             f" - collecting indices for {chunk_slice}...",
@@ -224,9 +223,7 @@ def _divvy_parity_work(
             h_matrix,
             bits_per_row,
         )
-        work.append((chunk_indices, imap_arg))
-
-    return ipc_path, work
+        yield chunk_indices, imap_arg
 
 
 def _apply_data_parity0(
@@ -334,11 +331,15 @@ def _apply_data_parity0(
             f" {mp_pool_size} worker(s)...",
         )
 
-        ipc_path, work = _divvy_parity_work(
-            group,
-            chunk_slices,
-            h_matrix,
-            bits_per_row,
+        ipc_path = f"/tmp/downstream_parity_{uuid.uuid4()}.arrow"  # nosec B108
+        work = list(
+            _divvy_parity_work(
+                group,
+                chunk_slices,
+                ipc_path,
+                h_matrix,
+                bits_per_row,
+            ),
         )
 
         try:
