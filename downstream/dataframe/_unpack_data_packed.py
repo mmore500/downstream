@@ -356,12 +356,10 @@ def _apply_data_parity0(
                     ),
                 ):
                     logging.info(
-                        f" - received chunk result"
+                        " - received chunk result"
                         f" ({i + 1} / {num_chunks})...",
                     )
-                    total_violations += int(
-                        np.sum(row_violations),
-                    )
+                    total_violations += int(np.sum(row_violations))
                     total_violating_rows += int(
                         np.count_nonzero(row_violations),
                     )
