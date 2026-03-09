@@ -229,8 +229,8 @@ def _iter_chunk_indices(
 
 def _apply_data_parity0(
     df: pl.DataFrame,
-    mp_pool_size: int = 1,
-    mp_context: str = "spawn",
+    mp_pool_size: int,
+    mp_context: str,
 ) -> pl.DataFrame:
     """Apply downstream_data_parity0_rule to compute parity syndrome.
 
