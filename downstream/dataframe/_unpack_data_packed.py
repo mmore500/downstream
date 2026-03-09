@@ -1,4 +1,3 @@
-import functools
 import io
 import logging
 import multiprocessing
@@ -190,6 +189,7 @@ def _compute_parity_chunk_ipc(
 
 
 _apply_compute_parity_chunk_ipc = starfunc(_compute_parity_chunk_ipc)
+_apply_compute_parity_chunk_ipc.__qualname__ = "_apply_compute_parity_chunk_ipc"
 
 
 def _divvy_parity_work(
@@ -210,21 +210,10 @@ def _divvy_parity_work(
         yield ipc_path, chunk_slice, h_matrix, bits_per_row
 
 
-def _extract_chunk_indices(
-    group: pl.LazyFrame,
-    chunk_slice: slice,
-) -> np.ndarray:
-    """Extract parity chunk index array for a single slice."""
-    logging.info(
-        f" - collecting parity chunk indices for {chunk_slice}...",
-    )
-    return (
-        group[chunk_slice]
-        .select("_downstream_parity_idx")
-        .collect()
-        .to_numpy()
-        .ravel()
-    )
+def _extract_chunk_indices(chunk: pl.LazyFrame) -> np.ndarray:
+    """Extract parity chunk index array from a LazyFrame chunk."""
+    logging.info(" - collecting parity chunk indices...")
+    return chunk.select("_downstream_parity_idx").collect().to_numpy().ravel()
 
 
 def _apply_data_parity0(
@@ -349,11 +338,11 @@ def _apply_data_parity0(
                 for i, (chunk_indices, row_violations) in enumerate(
                     zip(
                         map(
-                            functools.partial(
-                                _extract_chunk_indices,
-                                group,
+                            _extract_chunk_indices,
+                            map(
+                                group.__getitem__,
+                                iter_slices(num_rows, chunk_size_rows),
                             ),
-                            iter_slices(num_rows, chunk_size_rows),
                         ),
                         pool.imap(
                             _apply_compute_parity_chunk_ipc,
