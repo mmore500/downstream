@@ -122,6 +122,9 @@ def _deserialize_h_matrix(h_matrix_str: str) -> np.ndarray:
     return h_matrix
 
 
+_PARITY_CHUNK_SIZE = 10_000_000  # rows per chunk to avoid Arrow string overflow
+
+
 def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
     """Apply downstream_data_parity0_rule to compute parity syndrome.
 
@@ -132,6 +135,9 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
     Groups by unique H matrix strings to deserialize each only once,
     then performs vectorized bulk computation across all rows sharing
     the same H matrix.
+
+    Processing is chunked to avoid exceeding Arrow's 2^31 byte utf8
+    limit when concatenating data_hex strings for large datasets.
     """
     df_len = df.lazy().select(pl.len()).collect().item()
     parity_result = np.zeros(df_len, dtype=int)
@@ -166,28 +172,17 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
             pl.col("downstream_data_parity0_rule") == h_matrix_str,
         )
         num_rows = group.select(pl.len()).collect().item()
-        indices = (
-            group.select("_downstream_parity_idx").collect().to_numpy().ravel()
-        )
 
         logging.info(f" - deserializing H matrix for {num_rows} row(s)...")
         h_matrix = _deserialize_h_matrix(str(h_matrix_str))
         logging.info(f" - H matrix has {h_matrix.shape[0]} parity rule(s)...")
 
-        logging.info(f" - concatenating data_hex for {num_rows} row(s)...")
-        concat_hex = (
-            group.select(pl.col("data_hex").str.join("")).collect().item()
-        )
         hex_len = (
             group.select(pl.col("data_hex").str.len_bytes().first())
             .collect()
             .item()
         )
-        logging.info(" - converting hex to bits...")
-        all_bits = unpack_hex_bits(concat_hex)
-
         bits_per_row = hex_len * 4
-        data_matrix = all_bits.reshape(num_rows, bits_per_row)
 
         if h_matrix.shape[1] != bits_per_row:
             raise ValueError(
@@ -196,17 +191,44 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
                 f"H matrix: {h_matrix_str!r}",
             )
 
-        logging.info(f" - computing syndromes for {num_rows} row(s)...")
-        syndromes = (data_matrix @ h_matrix.T) % 2
-        row_violations = np.sum(syndromes, axis=1)
-        total_violations = int(np.sum(row_violations))
+        total_violations = 0
+        total_violating_rows = 0
+        for chunk_start in range(0, num_rows, _PARITY_CHUNK_SIZE):
+            chunk_end = min(chunk_start + _PARITY_CHUNK_SIZE, num_rows)
+            chunk_size = chunk_end - chunk_start
+            chunk = group.slice(chunk_start, chunk_size)
+
+            chunk_indices = (
+                chunk.select("_downstream_parity_idx")
+                .collect()
+                .to_numpy()
+                .ravel()
+            )
+            concat_hex = (
+                chunk.select(pl.col("data_hex").str.join(""))
+                .collect()
+                .item()
+            )
+
+            logging.info(
+                f" - processing chunk rows {chunk_start}–{chunk_end - 1} "
+                f"of {num_rows}...",
+            )
+            all_bits = unpack_hex_bits(concat_hex)
+            data_matrix = all_bits.reshape(chunk_size, bits_per_row)
+
+            syndromes = (data_matrix @ h_matrix.T) % 2
+            row_violations = np.sum(syndromes, axis=1)
+            total_violations += int(np.sum(row_violations))
+            total_violating_rows += int(np.count_nonzero(row_violations))
+            parity_result[chunk_indices] = row_violations
+
         logging.info(
             f" - data parity0: {total_violations} rule violation(s) "
             f"across {h_matrix.shape[0]} rule(s) occurring in "
-            f"{int(np.count_nonzero(row_violations))} "
+            f"{total_violating_rows} "
             f"row(s)",
         )
-        parity_result[indices] = row_violations
 
     return df.with_columns(
         downstream_data_parity0_result=pl.Series(

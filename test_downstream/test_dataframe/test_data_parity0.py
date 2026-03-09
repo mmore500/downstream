@@ -5,8 +5,10 @@ import pytest
 import downstream
 from downstream.dataframe import unpack_data_packed
 from downstream.dataframe._unpack_data_packed import (
+    _PARITY_CHUNK_SIZE,
     _deserialize_h_matrix,
 )
+import downstream.dataframe._unpack_data_packed as _udp_mod
 
 
 
@@ -281,3 +283,45 @@ def test_parity_result_nonzero_means_fail():
     res = unpack_data_packed(df)
     # "ff00ff07" has 19 set bits -> odd parity -> 1 violation
     assert res["downstream_data_parity0_result"].to_list() == [1]
+
+
+def test_parity_chunked_matches_unchunked():
+    """Chunked processing produces the same results as single-batch."""
+    h_rows = []
+    for i in range(32):
+        row = ["0"] * 32
+        row[i] = "1"
+        h_rows.append("".join(row))
+    h_matrix = "\n".join(" ".join(r) for r in h_rows)
+
+    n = 7
+    hex_vals = [f"{i:08x}" for i in range(n)]
+    df = pl.DataFrame(
+        {
+            "dstream_algo": ["dstream.steady_algo"] * n,
+            "downstream_version": [downstream.__version__] * n,
+            "data_hex": hex_vals,
+            "dstream_storage_bitoffset": [0] * n,
+            "dstream_storage_bitwidth": [16] * n,
+            "dstream_T_bitoffset": [16] * n,
+            "dstream_T_bitwidth": [4] * n,
+            "dstream_S": [16] * n,
+            "downstream_data_parity0_rule": [h_matrix] * n,
+        }
+    )
+
+    # Run with default (large) chunk size
+    res_default = unpack_data_packed(df)
+
+    # Run with chunk size of 2 to force multiple chunks
+    orig = _udp_mod._PARITY_CHUNK_SIZE
+    try:
+        _udp_mod._PARITY_CHUNK_SIZE = 2
+        res_chunked = unpack_data_packed(df)
+    finally:
+        _udp_mod._PARITY_CHUNK_SIZE = orig
+
+    assert (
+        res_default["downstream_data_parity0_result"].to_list()
+        == res_chunked["downstream_data_parity0_result"].to_list()
+    )
