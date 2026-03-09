@@ -10,6 +10,12 @@ from ._unpack_data_packed import unpack_data_packed
 if __name__ == "__main__":
     pre_parser = argparse.ArgumentParser(add_help=False)
     pre_parser.add_argument(
+        "--mp-context",
+        default="spawn",
+        type=str,
+        help="Multiprocessing start method. " 'Default "spawn".',
+    )
+    pre_parser.add_argument(
         "--mp-pool-size",
         default=1,
         type=int,
@@ -26,6 +32,7 @@ if __name__ == "__main__":
         version=downstream_version,
         output_dataframe_op=functools.partial(
             unpack_data_packed,
+            mp_context=pre_args.mp_context,
             mp_pool_size=pre_args.mp_pool_size,
         ),
     )
