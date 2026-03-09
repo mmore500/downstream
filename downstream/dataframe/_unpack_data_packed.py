@@ -8,7 +8,7 @@ import warnings
 import numpy as np
 import polars as pl
 
-from .._auxlib._iter_chunks import iter_chunks
+from .._auxlib._iter_slices import iter_slices
 from .._auxlib._unpack_hex_bits import unpack_hex_bits
 from ._impl._check_expected_columns import check_expected_columns
 
@@ -197,8 +197,9 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
         chunk_size_rows = max(1, _ARROW_MAX_CONCAT_BYTES // hex_len)
         total_violations = 0
         total_violating_rows = 0
-        for chunk_rows in iter_chunks(range(num_rows), chunk_size_rows):
-            chunk = group.slice(chunk_rows[0], len(chunk_rows))
+        for chunk_slice in iter_slices(num_rows, chunk_size_rows):
+            chunk_len = min(chunk_slice.stop, num_rows) - chunk_slice.start
+            chunk = group.slice(chunk_slice.start, chunk_len)
 
             chunk_collected = chunk.select(
                 "_downstream_parity_idx",
@@ -212,11 +213,11 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
             concat_hex = chunk_collected["data_hex"].str.join("").item()
 
             logging.info(
-                f" - processing chunk rows {chunk_rows[0]}–"
-                f"{chunk_rows[-1]} of {num_rows}...",
+                f" - processing chunk rows {chunk_slice.start}–"
+                f"{chunk_slice.start + chunk_len - 1} of {num_rows}...",
             )
             all_bits = unpack_hex_bits(concat_hex)
-            data_matrix = all_bits.reshape(len(chunk_rows), bits_per_row)
+            data_matrix = all_bits.reshape(chunk_len, bits_per_row)
 
             syndromes = (data_matrix @ h_matrix.T) % 2
             row_violations = np.sum(syndromes, axis=1)
