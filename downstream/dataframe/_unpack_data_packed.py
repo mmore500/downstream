@@ -206,9 +206,7 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
         for chunk_slice in iter_slices(num_rows, chunk_size_rows):
             chunk = group[chunk_slice]
 
-            logging.info(
-                f" - collecting indices for {chunk_slice}...",
-            )
+            logging.info(f" - collecting indices for {chunk_slice}...")
             chunk_indices = (
                 chunk.select("_downstream_parity_idx")
                 .collect()
@@ -216,9 +214,7 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
                 .ravel()
             )
 
-            logging.info(
-                f" - concatenating data_hex for {chunk_slice}...",
-            )
+            logging.info(f" - concatenating data_hex for {chunk_slice}...")
             concat_hex = (
                 chunk.select(pl.col("data_hex").str.join("")).collect().item()
             )
@@ -588,9 +584,7 @@ def unpack_data_packed(
     df = _extract_from_data_hex(df)
 
     logging.info(" - un-dilating T...")
-    df = df.with_columns(
-        dstream_T_raw=pl.col("dstream_T"),
-    ).with_columns(
+    df = df.with_columns(dstream_T_raw=pl.col("dstream_T"),).with_columns(
         dstream_T=pl.col("dstream_T") // pl.col("dstream_T_dilation"),
     )
 
