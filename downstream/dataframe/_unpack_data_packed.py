@@ -582,7 +582,7 @@ def unpack_data_packed(
     df = _extract_from_data_hex(df)
 
     logging.info(" - un-dilating T...")
-    df = df.with_columns(dstream_T_raw=pl.col("dstream_T"),).with_columns(
+    df = df.with_columns(dstream_T_raw=pl.col("dstream_T")).with_columns(
         dstream_T=pl.col("dstream_T") // pl.col("dstream_T_dilation"),
     )
 
