@@ -269,9 +269,9 @@ def _apply_data_parity0(
         group = indexed.filter(
             pl.col("downstream_data_parity0_rule") == h_matrix_str,
         )
-        num_rows = group.select(pl.len()).collect().item()
+        nrow_group = group.select(pl.len()).collect().item()
 
-        logging.info(f" - deserializing H matrix for {num_rows} row(s)...")
+        logging.info(f" - deserializing H matrix for {nrow_group} row(s)...")
         h_matrix = _deserialize_h_matrix(str(h_matrix_str))
         logging.info(f" - H matrix has {h_matrix.shape[0]} parity rule(s)...")
 
@@ -296,14 +296,14 @@ def _apply_data_parity0(
                 2**31 // 2,
             ),
         )
-        chunk_size_rows = max(1, max_concat // hex_len)
+        nrow_chunk = max(1, max_concat // hex_len)
         logging.info(
-            f" - parity chunking: {max_concat=} {chunk_size_rows=}"
-            f" for {num_rows=}...",
+            f" - parity chunking: {max_concat=} {nrow_chunk=}"
+            f" for {nrow_group=}...",
         )
         total_violations, total_violating_rows = 0, 0
 
-        num_chunks = -(-num_rows // chunk_size_rows)
+        num_chunks = -(-nrow_group // nrow_chunk)
         logging.info(
             f" - dispatching {num_chunks} parity chunk(s) across"
             f" {mp_pool_size} worker(s)...",
@@ -312,16 +312,13 @@ def _apply_data_parity0(
         ipc_path = f"/tmp/downstream_parity_{uuid.uuid4()}.arrow"  # nosec B108
         imap_args = _divvy_parity_work(
             group,
-            iter_slices(num_rows, chunk_size_rows),
+            iter_slices(nrow_group, nrow_chunk),
             ipc_path,
             h_matrix,
             bits_per_row,
         )
 
-        group_slices = map(
-            group.__getitem__,
-            iter_slices(num_rows, chunk_size_rows),
-        )
+        group_slices = map(group.__getitem__, iter_slices(nrow_group, nrow_chunk))
 
         try:
             with multiprocessing.get_context(mp_context).Pool(
