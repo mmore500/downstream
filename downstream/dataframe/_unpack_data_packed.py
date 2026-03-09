@@ -203,18 +203,22 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
         for chunk_slice in iter_slices(num_rows, chunk_size_rows):
             chunk = group[chunk_slice]
 
-            chunk_collected = chunk.select(
-                "_downstream_parity_idx",
-                "data_hex",
-            ).collect()
+            logging.info(
+                f" - collecting indices for {chunk_slice}...",
+            )
             chunk_indices = (
-                chunk_collected["_downstream_parity_idx"].to_numpy().ravel()
+                chunk.select("_downstream_parity_idx")
+                .collect()
+                .to_numpy()
+                .ravel()
             )
 
             logging.info(
                 f" - concatenating data_hex for {chunk_slice}...",
             )
-            concat_hex = chunk_collected["data_hex"].str.join("").item()
+            concat_hex = (
+                chunk.select(pl.col("data_hex").str.join("")).collect().item()
+            )
 
             logging.info(f" - converting hex to bits for {chunk_slice}...")
             all_bits = unpack_hex_bits(concat_hex)
