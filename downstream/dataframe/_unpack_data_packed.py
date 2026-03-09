@@ -124,11 +124,6 @@ def _deserialize_h_matrix(h_matrix_str: str) -> np.ndarray:
     return h_matrix
 
 
-_ARROW_MAX_CONCAT_BYTES = int(
-    os.environ.get("DOWNSTREAM_PARITY_MAX_CONCAT_BYTES", 2**31 // 2),
-)
-
-
 def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
     """Apply downstream_data_parity0_rule to compute parity syndrome.
 
@@ -196,7 +191,14 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
                 f"H matrix: {h_matrix_str!r}",
             )
 
-        chunk_size_rows = max(1, _ARROW_MAX_CONCAT_BYTES // hex_len)
+        # default is half of Arrow's 2^31 max string bytes
+        max_concat = int(
+            os.environ.get(
+                "DOWNSTREAM_PARITY_MAX_CONCAT_BYTES",
+                2**31 // 2,
+            )
+        )
+        chunk_size_rows = max(1, max_concat // hex_len)
         total_violations, total_violating_rows = 0, 0
         for chunk_slice in iter_slices(num_rows, chunk_size_rows):
             chunk = group[chunk_slice]
@@ -206,9 +208,7 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
                 "data_hex",
             ).collect()
             chunk_indices = (
-                chunk_collected["_downstream_parity_idx"]
-                .to_numpy()
-                .ravel()
+                chunk_collected["_downstream_parity_idx"].to_numpy().ravel()
             )
 
             logging.info(
@@ -581,9 +581,7 @@ def unpack_data_packed(
     df = _extract_from_data_hex(df)
 
     logging.info(" - un-dilating T...")
-    df = df.with_columns(
-        dstream_T_raw=pl.col("dstream_T"),
-    ).with_columns(
+    df = df.with_columns(dstream_T_raw=pl.col("dstream_T"),).with_columns(
         dstream_T=pl.col("dstream_T") // pl.col("dstream_T_dilation"),
     )
 

@@ -4,12 +4,7 @@ import pytest
 
 import downstream
 from downstream.dataframe import unpack_data_packed
-from downstream.dataframe._unpack_data_packed import (
-    _ARROW_MAX_CONCAT_BYTES,
-    _deserialize_h_matrix,
-)
-import downstream.dataframe._unpack_data_packed as _udp_mod
-
+from downstream.dataframe._unpack_data_packed import _deserialize_h_matrix
 
 
 def _make_base_df(**extra_cols):
@@ -314,12 +309,17 @@ def test_parity_chunked_matches_unchunked():
     res_default = unpack_data_packed(df)
 
     # Run with tiny max bytes to force multiple chunks (8 hex chars/row)
-    orig = _udp_mod._ARROW_MAX_CONCAT_BYTES
+    import os
+
+    orig = os.environ.get("DOWNSTREAM_PARITY_MAX_CONCAT_BYTES")
     try:
-        _udp_mod._ARROW_MAX_CONCAT_BYTES = 16  # forces 2 rows per chunk
+        os.environ["DOWNSTREAM_PARITY_MAX_CONCAT_BYTES"] = "16"
         res_chunked = unpack_data_packed(df)
     finally:
-        _udp_mod._ARROW_MAX_CONCAT_BYTES = orig
+        if orig is None:
+            os.environ.pop("DOWNSTREAM_PARITY_MAX_CONCAT_BYTES", None)
+        else:
+            os.environ["DOWNSTREAM_PARITY_MAX_CONCAT_BYTES"] = orig
 
     assert (
         res_default["downstream_data_parity0_result"].to_list()
