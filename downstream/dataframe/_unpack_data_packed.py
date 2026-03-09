@@ -199,9 +199,7 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
             )
         )
         chunk_size_rows = max(1, max_concat // hex_len)
-        logging.info(
-            f" - {max_concat=} {chunk_size_rows=} for {num_rows} row(s)...",
-        )
+        logging.info(f" - {max_concat=} {chunk_size_rows=} for {num_rows=}...")
         total_violations, total_violating_rows = 0, 0
         for chunk_slice in iter_slices(num_rows, chunk_size_rows):
             chunk = group[chunk_slice]
