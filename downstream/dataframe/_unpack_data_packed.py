@@ -127,7 +127,7 @@ def _deserialize_h_matrix(h_matrix_str: str) -> np.ndarray:
 
 def _compute_parity_chunk(
     concat_hex: str,
-    h_matrix_T: np.ndarray,
+    h_matrix: np.ndarray,
     bits_per_row: int,
 ) -> np.ndarray:
     """Compute parity violations for a single chunk of concatenated hex data.
@@ -138,8 +138,8 @@ def _compute_parity_chunk(
     ----------
     concat_hex : str
         Concatenated hex strings for all rows in this chunk.
-    h_matrix_T : np.ndarray
-        Transposed H matrix (bits_per_row x num_rules).
+    h_matrix : np.ndarray
+        H matrix (num_rules x bits_per_row).
     bits_per_row : int
         Number of bits per row in the data.
 
@@ -150,7 +150,7 @@ def _compute_parity_chunk(
     """
     all_bits = unpack_hex_bits(concat_hex)
     data_matrix = all_bits.reshape(-1, bits_per_row)
-    syndromes = (data_matrix @ h_matrix_T) % 2
+    syndromes = (data_matrix @ h_matrix.T) % 2
     return np.sum(syndromes, axis=1)
 
 
@@ -245,8 +245,6 @@ def _apply_data_parity0(
         logging.info(f" - {max_concat=} {chunk_size_rows=} for {num_rows=}...")
         total_violations, total_violating_rows = 0, 0
 
-        h_matrix_T = h_matrix.T
-
         # Collect chunk data upfront for pool dispatch
         chunk_slices = list(iter_slices(num_rows, chunk_size_rows))
         chunk_data = []
@@ -273,11 +271,12 @@ def _apply_data_parity0(
                 f" - dispatching {len(chunk_data)} chunk(s) across"
                 f" {mp_pool_size} worker(s)...",
             )
-            with multiprocessing.Pool(processes=mp_pool_size) as pool:
+            mp_context = multiprocessing.get_context("spawn")
+            with mp_context.Pool(processes=mp_pool_size) as pool:
                 results = pool.starmap(
                     _compute_parity_chunk,
                     [
-                        (concat_hex, h_matrix_T, bits_per_row)
+                        (concat_hex, h_matrix, bits_per_row)
                         for _, _, concat_hex in chunk_data
                     ],
                 )
@@ -296,7 +295,7 @@ def _apply_data_parity0(
                 )
                 row_violations = _compute_parity_chunk(
                     concat_hex,
-                    h_matrix_T,
+                    h_matrix,
                     bits_per_row,
                 )
                 total_violations += int(np.sum(row_violations))
