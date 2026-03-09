@@ -11,7 +11,6 @@ import numpy as np
 import polars as pl
 
 from .._auxlib._iter_slices import iter_slices
-from .._auxlib._starfunc import starfunc
 from .._auxlib._unpack_hex_bits import unpack_hex_bits
 from ._impl._check_expected_columns import check_expected_columns
 
@@ -155,12 +154,7 @@ def _compute_parity_chunk(
     return np.sum(syndromes, axis=1)
 
 
-def _compute_parity_chunk_ipc(
-    ipc_path: str,
-    chunk_slice: slice,
-    h_matrix: np.ndarray,
-    bits_per_row: int,
-) -> np.ndarray:
+def _compute_parity_chunk_ipc(args: tuple) -> np.ndarray:
     """Compute parity violations by reading a chunk from an IPC file.
 
     Workers read their slice from a shared Arrow IPC file on disk,
@@ -169,27 +163,19 @@ def _compute_parity_chunk_ipc(
 
     Parameters
     ----------
-    ipc_path : str
-        Path to Arrow IPC file containing the group's data.
-    chunk_slice : slice
-        Row slice to read from the IPC file.
-    h_matrix : np.ndarray
-        H matrix (num_rules x bits_per_row).
-    bits_per_row : int
-        Number of bits per row in the data.
+    args : tuple
+        (ipc_path, chunk_slice, h_matrix, bits_per_row) tuple, packed
+        for compatibility with ``pool.imap``.
 
     Returns
     -------
     np.ndarray
         Per-row violation counts.
     """
+    ipc_path, chunk_slice, h_matrix, bits_per_row = args
     chunk = pl.scan_ipc(ipc_path)[chunk_slice]
     concat_hex = chunk.select(pl.col("data_hex").str.join("")).collect().item()
     return _compute_parity_chunk(concat_hex, h_matrix, bits_per_row)
-
-
-_apply_compute_parity_chunk_ipc = starfunc(_compute_parity_chunk_ipc)
-_apply_compute_parity_chunk_ipc.__qualname__ = "_apply_compute_parity_chunk_ipc"
 
 
 def _divvy_parity_work(
@@ -345,7 +331,7 @@ def _apply_data_parity0(
                             ),
                         ),
                         pool.imap(
-                            _apply_compute_parity_chunk_ipc,
+                            _compute_parity_chunk_ipc,
                             imap_args,
                         ),
                     ),
