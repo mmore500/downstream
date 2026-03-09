@@ -1,7 +1,5 @@
 import typing
 
-# adapted from https://github.com/mmore500/hstrat/blob/4ea61c516c80b080cb2b34c17aa7169176100c35/hstrat/_auxiliary_lib/_iter_slices.py
-
 
 # adapted from https://stackoverflow.com/a/434328
 def iter_slices(
