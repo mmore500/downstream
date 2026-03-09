@@ -226,12 +226,12 @@ def _apply_data_parity0(
     ----------
     df : pl.DataFrame
         Input DataFrame with 'downstream_data_parity0_rule' column.
-    mp_pool_size : int, default 1
+    mp_pool_size : int
         Number of worker processes to use for parity computation.
-        When 1 (default), processing is sequential (no multiprocessing
-        overhead). When > 1, chunks are processed in parallel using a
+        When 1, processing is sequential (no multiprocessing overhead).
+        When > 1, chunks are processed in parallel using a
         multiprocessing pool.
-    mp_context : str, default "spawn"
+    mp_context : str
         Multiprocessing start method (e.g., "spawn", "fork", "forkserver").
     """
     if mp_pool_size == 0:
