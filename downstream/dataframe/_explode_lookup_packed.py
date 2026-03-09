@@ -1,4 +1,3 @@
-import multiprocessing
 import typing
 
 import polars as pl
@@ -11,7 +10,7 @@ def explode_lookup_packed(
     df: pl.DataFrame,
     *,
     calc_Tbar_argv: bool = False,
-    mp_context: typing.Optional[multiprocessing.context.BaseContext] = None,
+    mp_context: str = "spawn",
     mp_pool_size: int = 1,
     value_type: typing.Literal["hex", "uint64", "uint32", "uint16", "uint8"],
     result_schema: typing.Literal["coerce", "relax", "shrink"] = "coerce",
@@ -27,9 +26,8 @@ def explode_lookup_packed(
     calc_Tbar_argv : bool, default False
         Include column indicating sorted order of `Tbar` values within each
         buffer.
-    mp_context : multiprocessing.context.BaseContext, optional
-        Multiprocessing context to use for creating the worker pool.
-        Defaults to ``multiprocessing.get_context("spawn")``.
+    mp_context : str, default "spawn"
+        Multiprocessing start method (e.g., "spawn", "fork", "forkserver").
     mp_pool_size : int, default 1
         Number of worker processes for parity computation.
         When 1 (default), processing is sequential with no multiprocessing
