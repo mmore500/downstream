@@ -1,5 +1,6 @@
 import io
 import logging
+import os
 import pathlib
 import typing
 import uuid
@@ -8,6 +9,7 @@ import warnings
 import numpy as np
 import polars as pl
 
+from .._auxlib._iter_slices import iter_slices
 from .._auxlib._unpack_hex_bits import unpack_hex_bits
 from ._impl._check_expected_columns import check_expected_columns
 
@@ -132,6 +134,10 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
     Groups by unique H matrix strings to deserialize each only once,
     then performs vectorized bulk computation across all rows sharing
     the same H matrix.
+
+    Processing is chunked to avoid exceeding Arrow's 2^31 byte utf8
+    limit when concatenating data_hex strings for large datasets.
+    The chunk size is calculated from each group's hex string length.
     """
     df_len = df.lazy().select(pl.len()).collect().item()
     parity_result = np.zeros(df_len, dtype=int)
@@ -166,28 +172,17 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
             pl.col("downstream_data_parity0_rule") == h_matrix_str,
         )
         num_rows = group.select(pl.len()).collect().item()
-        indices = (
-            group.select("_downstream_parity_idx").collect().to_numpy().ravel()
-        )
 
         logging.info(f" - deserializing H matrix for {num_rows} row(s)...")
         h_matrix = _deserialize_h_matrix(str(h_matrix_str))
         logging.info(f" - H matrix has {h_matrix.shape[0]} parity rule(s)...")
 
-        logging.info(f" - concatenating data_hex for {num_rows} row(s)...")
-        concat_hex = (
-            group.select(pl.col("data_hex").str.join("")).collect().item()
-        )
         hex_len = (
             group.select(pl.col("data_hex").str.len_bytes().first())
             .collect()
             .item()
         )
-        logging.info(" - converting hex to bits...")
-        all_bits = unpack_hex_bits(concat_hex)
-
         bits_per_row = hex_len * 4
-        data_matrix = all_bits.reshape(num_rows, bits_per_row)
 
         if h_matrix.shape[1] != bits_per_row:
             raise ValueError(
@@ -196,17 +191,48 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
                 f"H matrix: {h_matrix_str!r}",
             )
 
-        logging.info(f" - computing syndromes for {num_rows} row(s)...")
-        syndromes = (data_matrix @ h_matrix.T) % 2
-        row_violations = np.sum(syndromes, axis=1)
-        total_violations = int(np.sum(row_violations))
+        # default is half of Arrow's 2^31 max string bytes
+        max_concat = int(
+            os.environ.get(
+                "DOWNSTREAM_PARITY_MAX_CONCAT_BYTES",
+                2**31 // 2,
+            ),
+        )
+        chunk_size_rows = max(1, max_concat // hex_len)
+        logging.info(f" - {max_concat=} {chunk_size_rows=} for {num_rows=}...")
+        total_violations, total_violating_rows = 0, 0
+        for chunk_slice in iter_slices(num_rows, chunk_size_rows):
+            chunk = group[chunk_slice]
+
+            logging.info(f" - collecting indices for {chunk_slice}...")
+            chunk_indices = (
+                chunk.select("_downstream_parity_idx")
+                .collect()
+                .to_numpy()
+                .ravel()
+            )
+
+            logging.info(f" - concatenating data_hex for {chunk_slice}...")
+            concat_hex = (
+                chunk.select(pl.col("data_hex").str.join("")).collect().item()
+            )
+
+            logging.info(f" - converting hex to bits for {chunk_slice}...")
+            all_bits = unpack_hex_bits(concat_hex)
+            data_matrix = all_bits.reshape(-1, bits_per_row)
+
+            logging.info(f" - computing syndromes for {chunk_slice}...")
+            syndromes = (data_matrix @ h_matrix.T) % 2
+            row_violations = np.sum(syndromes, axis=1)
+            total_violations += int(np.sum(row_violations))
+            total_violating_rows += int(np.count_nonzero(row_violations))
+            parity_result[chunk_indices] = row_violations
+
         logging.info(
             f" - data parity0: {total_violations} rule violation(s) "
             f"across {h_matrix.shape[0]} rule(s) occurring in "
-            f"{int(np.count_nonzero(row_violations))} "
-            f"row(s)",
+            f"{total_violating_rows} row(s)",
         )
-        parity_result[indices] = row_violations
 
     return df.with_columns(
         downstream_data_parity0_result=pl.Series(
@@ -556,9 +582,7 @@ def unpack_data_packed(
     df = _extract_from_data_hex(df)
 
     logging.info(" - un-dilating T...")
-    df = df.with_columns(
-        dstream_T_raw=pl.col("dstream_T"),
-    ).with_columns(
+    df = df.with_columns(dstream_T_raw=pl.col("dstream_T")).with_columns(
         dstream_T=pl.col("dstream_T") // pl.col("dstream_T_dilation"),
     )
 
