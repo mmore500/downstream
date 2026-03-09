@@ -44,7 +44,9 @@ def explode_lookup_packed(
         the corresponding `Tbar` value.
     """
     df = unpack_data_packed(
-        df, mp_pool_size=mp_pool_size, result_schema=result_schema,
+        df,
+        mp_pool_size=mp_pool_size,
+        result_schema=result_schema,
     )
     return explode_lookup_unpacked(
         df,

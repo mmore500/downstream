@@ -295,7 +295,9 @@ def _apply_data_parity0(
                     f" - computing syndromes for {chunk_slice}...",
                 )
                 row_violations = _compute_parity_chunk(
-                    concat_hex, h_matrix_T, bits_per_row,
+                    concat_hex,
+                    h_matrix_T,
+                    bits_per_row,
                 )
                 total_violations += int(np.sum(row_violations))
                 total_violating_rows += int(
