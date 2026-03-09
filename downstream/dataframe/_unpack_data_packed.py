@@ -192,6 +192,34 @@ def _apply_compute_parity_chunk_ipc(args: tuple) -> np.ndarray:
     return _compute_parity_chunk_ipc(*args)
 
 
+def _generate_parity_work(
+    group: pl.LazyFrame,
+    chunk_slices: list,
+    ipc_path: str,
+    h_matrix: np.ndarray,
+    bits_per_row: int,
+) -> typing.Iterator[tuple[np.ndarray, tuple]]:
+    """Yield (chunk_indices, imap_arg) for each chunk slice."""
+    for chunk_slice in chunk_slices:
+        logging.info(
+            f" - collecting indices for {chunk_slice}...",
+        )
+        chunk_indices = (
+            group[chunk_slice]
+            .select("_downstream_parity_idx")
+            .collect()
+            .to_numpy()
+            .ravel()
+        )
+        imap_arg = (
+            ipc_path,
+            chunk_slice,
+            h_matrix,
+            bits_per_row,
+        )
+        yield chunk_indices, imap_arg
+
+
 def _apply_data_parity0(
     df: pl.DataFrame,
     mp_pool_size: int = 1,
@@ -302,32 +330,20 @@ def _apply_data_parity0(
             f" {mp_pool_size} worker(s)...",
         )
 
-        def _generate_work():
-            for chunk_slice in chunk_slices:
-                logging.info(
-                    f" - collecting indices for {chunk_slice}...",
-                )
-                chunk_indices = (
-                    group[chunk_slice]
-                    .select("_downstream_parity_idx")
-                    .collect()
-                    .to_numpy()
-                    .ravel()
-                )
-                imap_arg = (
-                    ipc_path,
-                    chunk_slice,
-                    h_matrix,
-                    bits_per_row,
-                )
-                yield chunk_indices, imap_arg
-
         try:
             mp_context = multiprocessing.get_context("spawn")
             with mp_context.Pool(
                 processes=mp_pool_size,
             ) as pool:
-                work = list(_generate_work())
+                work = list(
+                    _generate_parity_work(
+                        group,
+                        chunk_slices,
+                        ipc_path,
+                        h_matrix,
+                        bits_per_row,
+                    ),
+                )
                 chunk_indices_list = [w[0] for w in work]
                 imap_args = [w[1] for w in work]
                 for i, (chunk_indices, row_violations) in enumerate(
