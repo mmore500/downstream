@@ -122,7 +122,8 @@ def _deserialize_h_matrix(h_matrix_str: str) -> np.ndarray:
     return h_matrix
 
 
-_PARITY_CHUNK_SIZE = 10_000_000  # rows per chunk to avoid Arrow string overflow
+# Arrow utf8 limit is 2^31 bytes; use half to leave safety margin
+_ARROW_MAX_CONCAT_BYTES = 2**31 // 2
 
 
 def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
@@ -138,6 +139,7 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
 
     Processing is chunked to avoid exceeding Arrow's 2^31 byte utf8
     limit when concatenating data_hex strings for large datasets.
+    The chunk size is calculated from each group's hex string length.
     """
     df_len = df.lazy().select(pl.len()).collect().item()
     parity_result = np.zeros(df_len, dtype=int)
@@ -191,10 +193,11 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
                 f"H matrix: {h_matrix_str!r}",
             )
 
+        chunk_size_rows = max(1, _ARROW_MAX_CONCAT_BYTES // hex_len)
         total_violations = 0
         total_violating_rows = 0
-        for chunk_start in range(0, num_rows, _PARITY_CHUNK_SIZE):
-            chunk_end = min(chunk_start + _PARITY_CHUNK_SIZE, num_rows)
+        for chunk_start in range(0, num_rows, chunk_size_rows):
+            chunk_end = min(chunk_start + chunk_size_rows, num_rows)
             chunk_size = chunk_end - chunk_start
             chunk = group.slice(chunk_start, chunk_size)
 
