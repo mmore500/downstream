@@ -318,19 +318,18 @@ def _apply_data_parity0(
             bits_per_row,
         )
 
+        group_slices = map(
+            group.__getitem__,
+            iter_slices(num_rows, chunk_size_rows),
+        )
+
         try:
             with multiprocessing.get_context(mp_context).Pool(
                 processes=mp_pool_size,
             ) as pool:
                 for i, (chunk_indices, row_violations) in enumerate(
                     zip(
-                        map(
-                            _extract_chunk_indices,
-                            map(
-                                group.__getitem__,
-                                iter_slices(num_rows, chunk_size_rows),
-                            ),
-                        ),
+                        map(_extract_chunk_indices, group_slices),
                         pool.imap(
                             _compute_parity_chunk_ipc,
                             imap_args,
