@@ -196,7 +196,7 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
             os.environ.get(
                 "DOWNSTREAM_PARITY_MAX_CONCAT_BYTES",
                 2**31 // 2,
-            )
+            ),
         )
         chunk_size_rows = max(1, max_concat // hex_len)
         logging.info(f" - {max_concat=} {chunk_size_rows=} for {num_rows=}...")
