@@ -204,7 +204,7 @@ def _divvy_parity_work(
     Yields (chunk_indices, imap_arg) tuples for each chunk.
     """
     logging.info(f" - writing group to IPC file {ipc_path}...")
-    group.select("data_hex").collect().write_ipc(ipc_path)
+    group.select("data_hex").collect().write_ipc(ipc_path, compression="lz4")
 
     for chunk_slice in chunk_slices:
         logging.info(
@@ -348,11 +348,10 @@ def _apply_data_parity0(
             with mp_context.Pool(
                 processes=mp_pool_size,
             ) as pool:
-                chunk_indices_list = [w[0] for w in work]
                 imap_args = [w[1] for w in work]
-                for i, (chunk_indices, row_violations) in enumerate(
+                for i, ((chunk_indices, _), row_violations) in enumerate(
                     zip(
-                        chunk_indices_list,
+                        work,
                         pool.imap(
                             _apply_compute_parity_chunk_ipc,
                             imap_args,
