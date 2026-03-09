@@ -202,7 +202,7 @@ def _divvy_parity_work(
 
     Yields (ipc_path, chunk_slice, h_matrix, bits_per_row) tuples.
     """
-    logging.info(f" - writing group to IPC file {ipc_path}...")
+    logging.info(f" - writing parity group to IPC file {ipc_path}...")
     group.select("data_hex").collect().write_ipc(ipc_path, compression="lz4")
 
     for chunk_slice in chunk_slices:
@@ -216,7 +216,7 @@ def _iter_chunk_indices(
     """Lazily yield chunk index arrays for each slice."""
     for chunk_slice in chunk_slices:
         logging.info(
-            f" - collecting indices for {chunk_slice}...",
+            f" - collecting parity chunk indices for {chunk_slice}...",
         )
         yield (
             group[chunk_slice]
@@ -321,12 +321,15 @@ def _apply_data_parity0(
             ),
         )
         chunk_size_rows = max(1, max_concat // hex_len)
-        logging.info(f" - {max_concat=} {chunk_size_rows=} for {num_rows=}...")
+        logging.info(
+            f" - parity chunking: {max_concat=} {chunk_size_rows=}"
+            f" for {num_rows=}...",
+        )
         total_violations, total_violating_rows = 0, 0
 
         num_chunks = -(-num_rows // chunk_size_rows)
         logging.info(
-            f" - dispatching {num_chunks} chunk(s) across"
+            f" - dispatching {num_chunks} parity chunk(s) across"
             f" {mp_pool_size} worker(s)...",
         )
 
@@ -356,7 +359,7 @@ def _apply_data_parity0(
                     ),
                 ):
                     logging.info(
-                        " - received chunk result"
+                        " - received parity chunk result"
                         f" ({i + 1} / {num_chunks})...",
                     )
                     total_violations += int(np.sum(row_violations))
