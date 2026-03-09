@@ -195,11 +195,18 @@ def _apply_compute_parity_chunk_ipc(args: tuple) -> np.ndarray:
 def _generate_parity_work(
     group: pl.LazyFrame,
     chunk_slices: list,
-    ipc_path: str,
     h_matrix: np.ndarray,
     bits_per_row: int,
-) -> typing.Iterator[tuple[np.ndarray, tuple]]:
-    """Yield (chunk_indices, imap_arg) for each chunk slice."""
+) -> tuple[str, list[tuple[np.ndarray, tuple]]]:
+    """Write group data to a temp IPC file and build work items.
+
+    Returns the IPC file path and a list of (chunk_indices, imap_arg) tuples.
+    """
+    ipc_path = f"/tmp/downstream_parity_{uuid.uuid4()}.arrow"  # nosec B108
+    logging.info(f" - writing group to IPC file {ipc_path}...")
+    group.select("data_hex").collect().write_ipc(ipc_path)
+
+    work = []
     for chunk_slice in chunk_slices:
         logging.info(
             f" - collecting indices for {chunk_slice}...",
@@ -217,12 +224,15 @@ def _generate_parity_work(
             h_matrix,
             bits_per_row,
         )
-        yield chunk_indices, imap_arg
+        work.append((chunk_indices, imap_arg))
+
+    return ipc_path, work
 
 
 def _apply_data_parity0(
     df: pl.DataFrame,
     mp_pool_size: int = 1,
+    mp_context: typing.Optional[multiprocessing.context.BaseContext] = None,
 ) -> pl.DataFrame:
     """Apply downstream_data_parity0_rule to compute parity syndrome.
 
@@ -247,6 +257,9 @@ def _apply_data_parity0(
         When 1 (default), processing is sequential (no multiprocessing
         overhead). When > 1, chunks are processed in parallel using a
         multiprocessing pool.
+    mp_context : multiprocessing.context.BaseContext, optional
+        Multiprocessing context to use for creating the pool.
+        Defaults to ``multiprocessing.get_context("spawn")``.
     """
     if mp_pool_size == 0:
         raise NotImplementedError("mp_pool_size=0 is not supported")
@@ -315,35 +328,25 @@ def _apply_data_parity0(
         total_violations, total_violating_rows = 0, 0
 
         chunk_slices = list(iter_slices(num_rows, chunk_size_rows))
-
-        # Write group to temp IPC file so workers can read
-        # their slices without pickling large hex strings
-        ipc_path = f"/tmp/downstream_parity_{uuid.uuid4()}.arrow"  # nosec B108
-        logging.info(f" - writing group to IPC file {ipc_path}...")
-        group.select(
-            "data_hex",
-        ).collect().write_ipc(ipc_path)
-
-        num_chunks = len(chunk_slices)
+        num_chunks = -(-num_rows // chunk_size_rows)
         logging.info(
             f" - dispatching {num_chunks} chunk(s) across"
             f" {mp_pool_size} worker(s)...",
         )
 
+        ipc_path, work = _generate_parity_work(
+            group,
+            chunk_slices,
+            h_matrix,
+            bits_per_row,
+        )
+
         try:
-            mp_context = multiprocessing.get_context("spawn")
+            if mp_context is None:
+                mp_context = multiprocessing.get_context("spawn")
             with mp_context.Pool(
                 processes=mp_pool_size,
             ) as pool:
-                work = list(
-                    _generate_parity_work(
-                        group,
-                        chunk_slices,
-                        ipc_path,
-                        h_matrix,
-                        bits_per_row,
-                    ),
-                )
                 chunk_indices_list = [w[0] for w in work]
                 imap_args = [w[1] for w in work]
                 for i, (chunk_indices, row_violations) in enumerate(
@@ -551,6 +554,7 @@ def _finalize_result_schema(
 def unpack_data_packed(
     df: pl.DataFrame,
     *,
+    mp_context: typing.Optional[multiprocessing.context.BaseContext] = None,
     mp_pool_size: int = 1,
     result_schema: typing.Literal["coerce", "relax", "shrink"] = "coerce",
 ) -> pl.DataFrame:
@@ -626,6 +630,10 @@ def unpack_data_packed(
             - Polars expression to validate unpacked data.
         - 'downstream_version' : pl.Categorical
             - Version of downstream library used to curate data items.
+
+    mp_context : multiprocessing.context.BaseContext, optional
+        Multiprocessing context to use for creating the worker pool.
+        Defaults to ``multiprocessing.get_context("spawn")``.
 
     mp_pool_size : int, default 1
         Number of worker processes for parity computation.
@@ -709,7 +717,11 @@ def unpack_data_packed(
 
     if "downstream_data_parity0_rule" in schema_names:
         logging.info(" - computing downstream_data_parity0_result...")
-        df = _apply_data_parity0(df, mp_pool_size=mp_pool_size)
+        df = _apply_data_parity0(
+            df,
+            mp_pool_size=mp_pool_size,
+            mp_context=mp_context,
+        )
     else:
         logging.info(" - downstream_data_parity0_rule not found in df")
 
