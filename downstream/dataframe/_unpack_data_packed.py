@@ -1,5 +1,6 @@
 import io
 import logging
+import multiprocessing
 import os
 import pathlib
 import typing
@@ -124,7 +125,39 @@ def _deserialize_h_matrix(h_matrix_str: str) -> np.ndarray:
     return h_matrix
 
 
-def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
+def _compute_parity_chunk(
+    concat_hex: str,
+    h_matrix_T: np.ndarray,
+    bits_per_row: int,
+) -> np.ndarray:
+    """Compute parity violations for a single chunk of concatenated hex data.
+
+    Designed to be picklable for use with multiprocessing.Pool.
+
+    Parameters
+    ----------
+    concat_hex : str
+        Concatenated hex strings for all rows in this chunk.
+    h_matrix_T : np.ndarray
+        Transposed H matrix (bits_per_row x num_rules).
+    bits_per_row : int
+        Number of bits per row in the data.
+
+    Returns
+    -------
+    np.ndarray
+        Per-row violation counts.
+    """
+    all_bits = unpack_hex_bits(concat_hex)
+    data_matrix = all_bits.reshape(-1, bits_per_row)
+    syndromes = (data_matrix @ h_matrix_T) % 2
+    return np.sum(syndromes, axis=1)
+
+
+def _apply_data_parity0(
+    df: pl.DataFrame,
+    mp_pool_size: int = 1,
+) -> pl.DataFrame:
     """Apply downstream_data_parity0_rule to compute parity syndrome.
 
     If 'downstream_data_parity0_rule' column is present, computes the
@@ -138,6 +171,16 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
     Processing is chunked to avoid exceeding Arrow's 2^31 byte utf8
     limit when concatenating data_hex strings for large datasets.
     The chunk size is calculated from each group's hex string length.
+
+    Parameters
+    ----------
+    df : pl.DataFrame
+        Input DataFrame with 'downstream_data_parity0_rule' column.
+    mp_pool_size : int, default 1
+        Number of worker processes to use for parity computation.
+        When 1 (default), processing is sequential (no multiprocessing
+        overhead). When > 1, chunks are processed in parallel using a
+        multiprocessing pool.
     """
     df_len = df.lazy().select(pl.len()).collect().item()
     parity_result = np.zeros(df_len, dtype=int)
@@ -201,7 +244,13 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
         chunk_size_rows = max(1, max_concat // hex_len)
         logging.info(f" - {max_concat=} {chunk_size_rows=} for {num_rows=}...")
         total_violations, total_violating_rows = 0, 0
-        for chunk_slice in iter_slices(num_rows, chunk_size_rows):
+
+        h_matrix_T = h_matrix.T
+
+        # Collect chunk data upfront for pool dispatch
+        chunk_slices = list(iter_slices(num_rows, chunk_size_rows))
+        chunk_data = []
+        for chunk_slice in chunk_slices:
             chunk = group[chunk_slice]
 
             logging.info(f" - collecting indices for {chunk_slice}...")
@@ -217,16 +266,42 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
                 chunk.select(pl.col("data_hex").str.join("")).collect().item()
             )
 
-            logging.info(f" - converting hex to bits for {chunk_slice}...")
-            all_bits = unpack_hex_bits(concat_hex)
-            data_matrix = all_bits.reshape(-1, bits_per_row)
+            chunk_data.append((chunk_slice, chunk_indices, concat_hex))
 
-            logging.info(f" - computing syndromes for {chunk_slice}...")
-            syndromes = (data_matrix @ h_matrix.T) % 2
-            row_violations = np.sum(syndromes, axis=1)
-            total_violations += int(np.sum(row_violations))
-            total_violating_rows += int(np.count_nonzero(row_violations))
-            parity_result[chunk_indices] = row_violations
+        if mp_pool_size > 1 and len(chunk_data) > 1:
+            logging.info(
+                f" - dispatching {len(chunk_data)} chunk(s) across"
+                f" {mp_pool_size} worker(s)...",
+            )
+            with multiprocessing.Pool(processes=mp_pool_size) as pool:
+                results = pool.starmap(
+                    _compute_parity_chunk,
+                    [
+                        (concat_hex, h_matrix_T, bits_per_row)
+                        for _, _, concat_hex in chunk_data
+                    ],
+                )
+            for (chunk_slice, chunk_indices, _), row_violations in zip(
+                chunk_data, results
+            ):
+                total_violations += int(np.sum(row_violations))
+                total_violating_rows += int(
+                    np.count_nonzero(row_violations),
+                )
+                parity_result[chunk_indices] = row_violations
+        else:
+            for chunk_slice, chunk_indices, concat_hex in chunk_data:
+                logging.info(
+                    f" - computing syndromes for {chunk_slice}...",
+                )
+                row_violations = _compute_parity_chunk(
+                    concat_hex, h_matrix_T, bits_per_row,
+                )
+                total_violations += int(np.sum(row_violations))
+                total_violating_rows += int(
+                    np.count_nonzero(row_violations),
+                )
+                parity_result[chunk_indices] = row_violations
 
         logging.info(
             f" - data parity0: {total_violations} rule violation(s) "
@@ -410,6 +485,7 @@ def _finalize_result_schema(
 def unpack_data_packed(
     df: pl.DataFrame,
     *,
+    mp_pool_size: int = 1,
     result_schema: typing.Literal["coerce", "relax", "shrink"] = "coerce",
 ) -> pl.DataFrame:
     """Unpack data with dstream buffer and counter serialized into a single
@@ -484,6 +560,13 @@ def unpack_data_packed(
             - Polars expression to validate unpacked data.
         - 'downstream_version' : pl.Categorical
             - Version of downstream library used to curate data items.
+
+    mp_pool_size : int, default 1
+        Number of worker processes for parity computation.
+
+        When 1 (default), processing is sequential with no
+        multiprocessing overhead. When > 1, parity check chunks are
+        dispatched to a multiprocessing pool for parallel computation.
 
     result_schema : Literal['coerce', 'relax', 'shrink'], default 'coerce'
         How should dtypes in the output DataFrame be handled?
@@ -560,7 +643,7 @@ def unpack_data_packed(
 
     if "downstream_data_parity0_rule" in schema_names:
         logging.info(" - computing downstream_data_parity0_result...")
-        df = _apply_data_parity0(df)
+        df = _apply_data_parity0(df, mp_pool_size=mp_pool_size)
     else:
         logging.info(" - downstream_data_parity0_rule not found in df")
 

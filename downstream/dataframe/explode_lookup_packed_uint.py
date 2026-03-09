@@ -1,5 +1,7 @@
+import argparse
 import functools
 import logging
+import sys
 
 from joinem import dataframe_cli
 
@@ -12,6 +14,17 @@ if __name__ == "__main__":
         format="%(asctime)s %(levelname)-8s %(message)s",
         level=logging.INFO,
     )
+    pre_parser = argparse.ArgumentParser(add_help=False)
+    pre_parser.add_argument(
+        "--mp-pool-size",
+        default=1,
+        type=int,
+        help="Number of worker processes for parity computation. "
+        "Default 1 (sequential, no multiprocessing overhead).",
+    )
+    pre_args, remaining = pre_parser.parse_known_args()
+    sys.argv = sys.argv[:1] + remaining
+
     dataframe_cli(
         description="Explode downstream-curated data from hexidecimal "
         "serialization of downstream buffers and counters to "
@@ -21,6 +34,7 @@ if __name__ == "__main__":
         version=downstream_version,
         output_dataframe_op=functools.partial(
             explode_lookup_packed,
+            mp_pool_size=pre_args.mp_pool_size,
             value_type="uint64",
         ),
     )
