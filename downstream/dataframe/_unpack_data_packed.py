@@ -3,7 +3,6 @@ import logging
 import multiprocessing
 import os
 import pathlib
-import tempfile
 import typing
 import uuid
 import warnings
@@ -302,9 +301,8 @@ def _apply_data_parity0(
         if mp_pool_size > 1 and len(chunk_slices) > 1:
             # Write group to temp IPC file so workers can read
             # their slices without pickling large hex strings
-            ipc_path = os.path.join(
-                tempfile.gettempdir(),
-                f"downstream_parity_{uuid.uuid4()}.arrow",
+            ipc_path = (
+                f"/tmp/downstream_parity_{uuid.uuid4()}.arrow"  # nosec B108
             )
             logging.info(f" - writing group to IPC file {ipc_path}...")
             group.select(
