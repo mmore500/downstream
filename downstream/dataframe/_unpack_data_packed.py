@@ -1,5 +1,6 @@
 import io
 import logging
+import os
 import pathlib
 import typing
 import uuid
@@ -123,8 +124,9 @@ def _deserialize_h_matrix(h_matrix_str: str) -> np.ndarray:
     return h_matrix
 
 
-# Arrow utf8 limit is 2^31 bytes; use half to leave safety margin
-_ARROW_MAX_CONCAT_BYTES = 2**31 // 2
+_ARROW_MAX_CONCAT_BYTES = int(
+    os.environ.get("DOWNSTREAM_PARITY_MAX_CONCAT_BYTES", 2**31 // 2),
+)
 
 
 def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
@@ -195,11 +197,9 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
             )
 
         chunk_size_rows = max(1, _ARROW_MAX_CONCAT_BYTES // hex_len)
-        total_violations = 0
-        total_violating_rows = 0
+        total_violations, total_violating_rows = 0, 0
         for chunk_slice in iter_slices(num_rows, chunk_size_rows):
-            chunk_len = min(chunk_slice.stop, num_rows) - chunk_slice.start
-            chunk = group.slice(chunk_slice.start, chunk_len)
+            chunk = group[chunk_slice]
 
             chunk_collected = chunk.select(
                 "_downstream_parity_idx",
@@ -210,14 +210,15 @@ def _apply_data_parity0(df: pl.DataFrame) -> pl.DataFrame:
                 .to_numpy()
                 .ravel()
             )
-            concat_hex = chunk_collected["data_hex"].str.join("").item()
 
             logging.info(
-                f" - processing chunk rows {chunk_slice.start}–"
-                f"{chunk_slice.start + chunk_len - 1} of {num_rows}...",
+                f" - concatenating data_hex for {chunk_slice}...",
             )
+            concat_hex = chunk_collected["data_hex"].str.join("").item()
+
+            logging.info(f" - converting hex to bits for {chunk_slice}...")
             all_bits = unpack_hex_bits(concat_hex)
-            data_matrix = all_bits.reshape(chunk_len, bits_per_row)
+            data_matrix = all_bits.reshape(-1, bits_per_row)
 
             syndromes = (data_matrix @ h_matrix.T) % 2
             row_violations = np.sum(syndromes, axis=1)
