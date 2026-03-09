@@ -327,10 +327,7 @@ def _apply_data_parity0(
                 for i, (chunk_indices, row_violations) in enumerate(
                     zip(
                         map(_extract_chunk_indices, group_slices),
-                        pool.imap(
-                            _compute_parity_chunk_ipc,
-                            imap_args,
-                        ),
+                        pool.imap(_compute_parity_chunk_ipc, imap_args),
                     ),
                 ):
                     logging.info(
