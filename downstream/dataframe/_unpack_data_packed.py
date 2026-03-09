@@ -318,7 +318,9 @@ def _apply_data_parity0(
             bits_per_row,
         )
 
-        group_slices = map(group.__getitem__, iter_slices(nrow_group, nrow_chunk))
+        group_slices = map(
+            group.__getitem__, iter_slices(nrow_group, nrow_chunk)
+        )
 
         try:
             with multiprocessing.get_context(mp_context).Pool(
