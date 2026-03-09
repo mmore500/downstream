@@ -259,7 +259,7 @@ def _apply_data_parity0(
         Multiprocessing start method (e.g., "spawn", "fork", "forkserver").
     """
     if mp_pool_size == 0:
-        raise NotImplementedError("mp_pool_size=0 is not supported")
+        raise NotImplementedError("mp_pool_size=0 is not yet supported")
 
     df_len = df.lazy().select(pl.len()).collect().item()
     parity_result = np.zeros(df_len, dtype=int)
