@@ -324,7 +324,6 @@ def _apply_data_parity0(
         logging.info(f" - {max_concat=} {chunk_size_rows=} for {num_rows=}...")
         total_violations, total_violating_rows = 0, 0
 
-        chunk_slices = list(iter_slices(num_rows, chunk_size_rows))
         num_chunks = -(-num_rows // chunk_size_rows)
         logging.info(
             f" - dispatching {num_chunks} chunk(s) across"
@@ -334,7 +333,7 @@ def _apply_data_parity0(
         ipc_path = f"/tmp/downstream_parity_{uuid.uuid4()}.arrow"  # nosec B108
         imap_args = _divvy_parity_work(
             group,
-            chunk_slices,
+            iter_slices(num_rows, chunk_size_rows),
             ipc_path,
             h_matrix,
             bits_per_row,
@@ -346,7 +345,10 @@ def _apply_data_parity0(
             ) as pool:
                 for i, (chunk_indices, row_violations) in enumerate(
                     zip(
-                        _iter_chunk_indices(group, chunk_slices),
+                        _iter_chunk_indices(
+                            group,
+                            iter_slices(num_rows, chunk_size_rows),
+                        ),
                         pool.imap(
                             _apply_compute_parity_chunk_ipc,
                             imap_args,
