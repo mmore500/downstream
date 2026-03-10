@@ -30,6 +30,7 @@ if __name__ == "__main__":
     args, __ = parser.parse_known_args()
 
     dataframe_cli(
+        base_parser=parser,
         description="Unpack data with dstream buffer and counter serialized "
         "into a single hexadecimal data field.",
         module="downstream.dataframe.unpack_data_packed",

@@ -36,6 +36,7 @@ if __name__ == "__main__":
     args, __ = parser.parse_known_args()
 
     dataframe_cli(
+        base_parser=parser,
         description="Explode downstream-curated data from hexidecimal "
         "serialization of downstream buffers and counters to "
         "one-data-item-per-row, applying downstream lookup to identify origin "
