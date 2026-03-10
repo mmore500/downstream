@@ -4,7 +4,7 @@ import logging
 import os
 import pathlib
 import typing
-import unittest.mock
+from unittest import mock
 import uuid
 import warnings
 
@@ -249,8 +249,10 @@ def _apply_data_parity0(
     if mp_pool_size == 0:
         raise NotImplementedError("mp_pool_size=0 is not yet supported")
 
-    env_override = {"OPENBLAS_NUM_THREADS": "1"} if mp_pool_size > 1 else {}
-    with unittest.mock.patch.dict(os.environ, env_override):
+    with mock.patch.dict(
+        os.environ,
+        {"OPENBLAS_NUM_THREADS": "1"} if mp_pool_size > 1 else {},
+    ):
         df_len = df.lazy().select(pl.len()).collect().item()
         parity_result = np.zeros(df_len, dtype=int)
 
