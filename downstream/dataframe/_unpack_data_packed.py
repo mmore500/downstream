@@ -320,11 +320,10 @@ def _apply_data_parity0(
             )
             nrow_chunk = max(1, max_concat // hex_len)
             # ensure enough chunks to keep all workers busy
-            if mp_pool_size > 1:
-                nrow_chunk = min(
-                    nrow_chunk,
-                    max(1, nrow_group // mp_pool_size),
-                )
+            nrow_chunk = min(
+                nrow_chunk,
+                max(1, nrow_group // mp_pool_size),
+            )
             logging.info(
                 f" - parity chunking: {max_concat=} {nrow_chunk=}"
                 f" for {nrow_group=}...",
