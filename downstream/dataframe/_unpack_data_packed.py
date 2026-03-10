@@ -4,6 +4,7 @@ import logging
 import os
 import pathlib
 import typing
+import unittest.mock
 import uuid
 import warnings
 
@@ -248,11 +249,8 @@ def _apply_data_parity0(
     if mp_pool_size == 0:
         raise NotImplementedError("mp_pool_size=0 is not yet supported")
 
-    _prev_openblas = os.environ.get("OPENBLAS_NUM_THREADS")
-    if mp_pool_size > 1:
-        os.environ["OPENBLAS_NUM_THREADS"] = "1"
-
-    try:
+    env_override = {"OPENBLAS_NUM_THREADS": "1"} if mp_pool_size > 1 else {}
+    with unittest.mock.patch.dict(os.environ, env_override):
         df_len = df.lazy().select(pl.len()).collect().item()
         parity_result = np.zeros(df_len, dtype=int)
 
@@ -373,17 +371,12 @@ def _apply_data_parity0(
                 f" occurring in {total_violating_rows} row(s)",
             )
 
-        return df.with_columns(
-            downstream_data_parity0_result=pl.Series(
-                parity_result,
-                dtype=pl.UInt32,
-            ),
-        ).drop("downstream_data_parity0_rule")
-    finally:
-        if _prev_openblas is None:
-            os.environ.pop("OPENBLAS_NUM_THREADS", None)
-        else:
-            os.environ["OPENBLAS_NUM_THREADS"] = _prev_openblas
+    return df.with_columns(
+        downstream_data_parity0_result=pl.Series(
+            parity_result,
+            dtype=pl.UInt32,
+        ),
+    ).drop("downstream_data_parity0_rule")
 
 
 def _extract_from_data_hex(df: pl.DataFrame) -> pl.DataFrame:
