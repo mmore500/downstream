@@ -229,10 +229,6 @@ def _apply_data_parity0(
         Input DataFrame with 'downstream_data_parity0_rule' column.
     mp_pool_size : int
         Number of worker threads to use for parity computation.
-        When 1, processing is sequential (no threading overhead).
-        When > 1, chunks are processed in parallel using a thread
-        pool. Chunk count is automatically increased to match the
-        pool size for effective parallelism.
     mp_context : str
         Deprecated, retained for API compatibility. Previously
         selected the multiprocessing start method; now ignored since
@@ -320,11 +316,10 @@ def _apply_data_parity0(
             )
             nrow_chunk = max(1, max_concat // hex_len)
             # ensure enough chunks to keep all workers busy
-            if mp_pool_size > 1:
-                nrow_chunk = min(
-                    nrow_chunk,
-                    max(1, nrow_group // mp_pool_size),
-                )
+            nrow_chunk = min(
+                nrow_chunk,
+                max(1, nrow_group // mp_pool_size),
+            )
             logging.info(
                 f" - parity chunking: {max_concat=} {nrow_chunk=}"
                 f" for {nrow_group=}...",
@@ -632,10 +627,6 @@ def unpack_data_packed(
 
     mp_pool_size : int, default 1
         Number of worker threads for parity computation.
-
-        When 1 (default), processing is sequential with no threading
-        overhead. When > 1, parity check chunks are dispatched to a
-        thread pool for parallel computation.
 
     result_schema : Literal['coerce', 'relax', 'shrink'], default 'coerce'
         How should dtypes in the output DataFrame be handled?
