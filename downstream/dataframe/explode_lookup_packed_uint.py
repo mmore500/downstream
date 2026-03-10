@@ -10,7 +10,15 @@ from ._explode_lookup_packed import explode_lookup_packed
 
 
 def _create_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(add_help=False)
+    parser = argparse.ArgumentParser(
+        add_help=False,
+        allow_abbrev=False,
+        description="Explode downstream-curated data from hexidecimal "
+        "serialization of downstream buffers and counters to "
+        "one-data-item-per-row, applying downstream lookup to identify origin "
+        "time `Tbar` of each item.",
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
     _add_parser_base(
         parser=parser,
         dfcli_module="downstream.dataframe.explode_lookup_packed_uint",

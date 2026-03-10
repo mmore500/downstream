@@ -9,7 +9,13 @@ from ._unpack_data_packed import unpack_data_packed
 
 
 def _create_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(add_help=False)
+    parser = argparse.ArgumentParser(
+        add_help=False,
+        allow_abbrev=False,
+        description="Unpack data with dstream buffer and counter serialized "
+        "into a single hexadecimal data field.",
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
     _add_parser_base(
         parser=parser,
         dfcli_module="downstream.dataframe.unpack_data_packed",
