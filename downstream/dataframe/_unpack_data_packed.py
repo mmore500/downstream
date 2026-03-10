@@ -1,6 +1,6 @@
+import concurrent.futures
 import io
 import logging
-import multiprocessing
 import os
 import pathlib
 import typing
@@ -132,7 +132,7 @@ def _compute_parity_chunk(
 ) -> np.ndarray:
     """Compute parity violations for a single chunk of concatenated hex data.
 
-    Designed to be picklable for use with multiprocessing.Pool.
+    Designed for use with thread or process pools.
 
     Parameters
     ----------
@@ -154,53 +154,49 @@ def _compute_parity_chunk(
     return np.sum(syndromes, axis=1)
 
 
-def _compute_parity_chunk_ipc(args: tuple) -> np.ndarray:
-    """Compute parity violations by reading a chunk from an IPC file.
+def _compute_parity_chunk_threaded(args: tuple) -> tuple:
+    """Compute parity violations for one chunk of a group LazyFrame.
 
-    Workers read their slice from a shared Arrow IPC file on disk,
-    avoiding serialization of large hex strings through the
-    multiprocessing pipe.
+    Each worker collects its own slice, joins hex strings, and computes
+    the parity syndrome. Returns both chunk indices and violation counts
+    so index extraction is parallelized across workers.
 
     Parameters
     ----------
     args : tuple
-        (ipc_path, chunk_slice, h_matrix, bits_per_row) tuple, packed
-        for compatibility with ``pool.imap``.
+        (group_slice, h_matrix, bits_per_row) tuple, packed for
+        compatibility with ``pool.map``.
 
     Returns
     -------
-    np.ndarray
-        Per-row violation counts.
+    tuple
+        (chunk_indices, row_violations) arrays.
     """
-    ipc_path, chunk_slice, h_matrix, bits_per_row = args
-    chunk = pl.scan_ipc(ipc_path)[chunk_slice]
-    concat_hex = chunk.select(pl.col("data_hex").str.join("")).collect().item()
-    return _compute_parity_chunk(concat_hex, h_matrix, bits_per_row)
+    group_slice, h_matrix, bits_per_row = args
+    chunk = group_slice.select(
+        "data_hex", "_downstream_parity_idx",
+    ).collect()
+    concat_hex = chunk.select(
+        pl.col("data_hex").str.join(""),
+    ).item()
+    chunk_indices = chunk["_downstream_parity_idx"].to_numpy()
+    row_violations = _compute_parity_chunk(concat_hex, h_matrix, bits_per_row)
+    return chunk_indices, row_violations
 
 
 def _divvy_parity_work(
     group: pl.LazyFrame,
     chunk_slices: typing.Iterable[slice],
-    ipc_path: str,
     h_matrix: np.ndarray,
     bits_per_row: int,
 ) -> typing.Iterator[tuple]:
-    """Write group data to a temp IPC file and yield imap args.
+    """Yield per-chunk work items for the thread pool.
 
-    Yields (ipc_path, chunk_slice, h_matrix, bits_per_row) tuples.
+    Yields (group_slice, h_matrix, bits_per_row) tuples.
     """
-    logging.info(f" - writing parity group to IPC file {ipc_path}...")
-    group.select("data_hex").lazy().sink_ipc(ipc_path, compression="lz4")
-    logging.info(f" - parity group IPC file written to {ipc_path}")
-
     for chunk_slice in chunk_slices:
-        yield ipc_path, chunk_slice, h_matrix, bits_per_row
+        yield group[chunk_slice], h_matrix, bits_per_row
 
-
-def _extract_chunk_indices(chunk: pl.LazyFrame) -> np.ndarray:
-    """Extract parity chunk index array from a LazyFrame chunk."""
-    logging.info(" - collecting parity chunk indices...")
-    return chunk.select("_downstream_parity_idx").collect().to_numpy().ravel()
 
 
 def _apply_data_parity0(
@@ -222,20 +218,38 @@ def _apply_data_parity0(
     limit when concatenating data_hex strings for large datasets.
     The chunk size is calculated from each group's hex string length.
 
+    Uses threads for parallel chunk processing (polars and numpy
+    both release the GIL). BLAS thread count is restricted to 1 per
+    worker when parallelism is requested to prevent oversubscription.
+
     Parameters
     ----------
     df : pl.DataFrame
         Input DataFrame with 'downstream_data_parity0_rule' column.
     mp_pool_size : int
-        Number of worker processes to use for parity computation.
-        When 1, processing is sequential (no multiprocessing overhead).
-        When > 1, chunks are processed in parallel using a
-        multiprocessing pool.
+        Number of worker threads to use for parity computation.
+        When 1, processing is sequential (no threading overhead).
+        When > 1, chunks are processed in parallel using a thread
+        pool. Chunk count is automatically increased to match the
+        pool size for effective parallelism.
     mp_context : str
-        Multiprocessing start method (e.g., "spawn", "fork", "forkserver").
+        Deprecated, retained for API compatibility. Previously
+        selected the multiprocessing start method; now ignored since
+        parity computation uses threads instead of processes.
     """
+    if mp_context != "spawn":
+        warnings.warn(
+            f"mp_context={mp_context!r} is deprecated and ignored; "
+            "parity computation now uses threads instead of processes",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
     if mp_pool_size == 0:
         raise NotImplementedError("mp_pool_size=0 is not yet supported")
+
+    if mp_pool_size > 1:
+        os.environ["OPENBLAS_NUM_THREADS"] = "1"
 
     df_len = df.lazy().select(pl.len()).collect().item()
     parity_result = np.zeros(df_len, dtype=int)
@@ -297,6 +311,11 @@ def _apply_data_parity0(
             ),
         )
         nrow_chunk = max(1, max_concat // hex_len)
+        # ensure enough chunks to keep all workers busy
+        if mp_pool_size > 1:
+            nrow_chunk = min(
+                nrow_chunk, max(1, nrow_group // mp_pool_size),
+            )
         logging.info(
             f" - parity chunking: {max_concat=} {nrow_chunk=}"
             f" for {nrow_group=}...",
@@ -309,40 +328,28 @@ def _apply_data_parity0(
             f" {mp_pool_size} worker(s)...",
         )
 
-        ipc_path = f"/tmp/downstream_parity_{uuid.uuid4()}.arrow"  # nosec B108
-        imap_args = _divvy_parity_work(
+        work_items = _divvy_parity_work(
             group,
             iter_slices(nrow_group, nrow_chunk),
-            ipc_path,
             h_matrix,
             bits_per_row,
         )
 
-        group_slices = map(
-            group.__getitem__, iter_slices(nrow_group, nrow_chunk)
-        )
-
-        try:
-            with multiprocessing.get_context(mp_context).Pool(
-                processes=mp_pool_size,
-            ) as pool:
-                for i, (chunk_indices, row_violations) in enumerate(
-                    zip(
-                        map(_extract_chunk_indices, group_slices),
-                        pool.imap(_compute_parity_chunk_ipc, imap_args),
-                    ),
-                ):
-                    logging.info(
-                        " - received parity chunk result"
-                        f" ({i + 1} / {num_chunks})...",
-                    )
-                    total_violations += int(np.sum(row_violations))
-                    total_violating_rows += int(
-                        np.count_nonzero(row_violations),
-                    )
-                    parity_result[chunk_indices] = row_violations
-        finally:
-            pathlib.Path(ipc_path).unlink(missing_ok=True)
+        with concurrent.futures.ThreadPoolExecutor(
+            max_workers=mp_pool_size,
+        ) as pool:
+            for i, (chunk_indices, row_violations) in enumerate(
+                pool.map(_compute_parity_chunk_threaded, work_items),
+            ):
+                logging.info(
+                    " - received parity chunk result"
+                    f" ({i + 1} / {num_chunks})...",
+                )
+                total_violations += int(np.sum(row_violations))
+                total_violating_rows += int(
+                    np.count_nonzero(row_violations),
+                )
+                parity_result[chunk_indices] = row_violations
 
         logging.info(
             f" - data parity0: {total_violations} rule violation(s) "
