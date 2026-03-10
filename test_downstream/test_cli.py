@@ -28,7 +28,12 @@ def test_downstream_cli_version():
 def test_downstream_cli_steady_algo():
     test_cases = "".join(f"8 {T}\n" for T in range(80))
     result = subprocess.run(
-        ["python3", "-m", "downstream", "dstream.steady_algo.assign_storage_site"],
+        [
+            "python3",
+            "-m",
+            "downstream",
+            "dstream.steady_algo.assign_storage_site",
+        ],
         input=test_cases,
         capture_output=True,
         text=True,
