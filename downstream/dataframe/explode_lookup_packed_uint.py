@@ -2,13 +2,20 @@ import argparse
 import functools
 import logging
 
-from joinem._dataframe_cli import _run_dataframe_cli
+from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
+
+from .._version import __version__ as downstream_version
 
 from ._explode_lookup_packed import explode_lookup_packed
 
 
 def _create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(add_help=False)
+    _add_parser_base(
+        parser=parser,
+        dfcli_module="downstream.dataframe.explode_lookup_packed_uint",
+        dfcli_version=downstream_version,
+    )
     parser.add_argument(
         "--mp-context",
         default="spawn",

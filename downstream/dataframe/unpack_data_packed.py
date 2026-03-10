@@ -1,13 +1,20 @@
 import argparse
 import functools
 
-from joinem._dataframe_cli import _run_dataframe_cli
+from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
+
+from .._version import __version__ as downstream_version
 
 from ._unpack_data_packed import unpack_data_packed
 
 
 def _create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(add_help=False)
+    _add_parser_base(
+        parser=parser,
+        dfcli_module="downstream.dataframe.unpack_data_packed",
+        dfcli_version=downstream_version,
+    )
     parser.add_argument(
         "--mp-context",
         default="spawn",
