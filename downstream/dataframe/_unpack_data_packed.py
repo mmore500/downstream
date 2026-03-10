@@ -1,4 +1,4 @@
-import concurrent.futures
+from concurrent import futures
 import io
 import logging
 import os
@@ -174,7 +174,8 @@ def _compute_parity_chunk_threaded(args: tuple) -> tuple:
     """
     group_slice, h_matrix, bits_per_row = args
     chunk = group_slice.select(
-        "data_hex", "_downstream_parity_idx",
+        "data_hex",
+        "_downstream_parity_idx",
     ).collect()
     concat_hex = chunk.select(
         pl.col("data_hex").str.join(""),
@@ -196,7 +197,6 @@ def _divvy_parity_work(
     """
     for chunk_slice in chunk_slices:
         yield group[chunk_slice], h_matrix, bits_per_row
-
 
 
 def _apply_data_parity0(
@@ -237,7 +237,7 @@ def _apply_data_parity0(
         selected the multiprocessing start method; now ignored since
         parity computation uses threads instead of processes.
     """
-    if mp_context != "spawn":
+    if mp_context != "thread":
         warnings.warn(
             f"mp_context={mp_context!r} is deprecated and ignored; "
             "parity computation now uses threads instead of processes",
@@ -248,121 +248,142 @@ def _apply_data_parity0(
     if mp_pool_size == 0:
         raise NotImplementedError("mp_pool_size=0 is not yet supported")
 
+    _prev_openblas = os.environ.get("OPENBLAS_NUM_THREADS")
     if mp_pool_size > 1:
         os.environ["OPENBLAS_NUM_THREADS"] = "1"
 
-    df_len = df.lazy().select(pl.len()).collect().item()
-    parity_result = np.zeros(df_len, dtype=int)
+    try:
+        df_len = df.lazy().select(pl.len()).collect().item()
+        parity_result = np.zeros(df_len, dtype=int)
 
-    logging.info(" - filtering non-empty parity rules...")
-    indexed = (
-        df.lazy()
-        .with_row_index("_downstream_parity_idx")
-        .filter(
-            pl.col("downstream_data_parity0_rule").is_not_null()
-            & (
-                pl.col("downstream_data_parity0_rule")
-                .cast(pl.String)
-                .str.len_bytes()
-                > 0
-            ),
+        logging.info(" - filtering non-empty parity rules...")
+        indexed = (
+            df.lazy()
+            .with_row_index("_downstream_parity_idx")
+            .filter(
+                pl.col("downstream_data_parity0_rule").is_not_null()
+                & (
+                    pl.col("downstream_data_parity0_rule")
+                    .cast(pl.String)
+                    .str.len_bytes()
+                    > 0
+                ),
+            )
         )
-    )
-    indexed_len = indexed.select(pl.len()).collect().item()
-    logging.info(
-        f" - {indexed_len} of {df_len} row(s) have parity rules...",
-    )
-    unique_rules = (
-        indexed.select("downstream_data_parity0_rule")
-        .unique()
-        .collect()
-        .to_series()
-        .to_list()
-    )
-    for h_matrix_str in unique_rules:
-        group = indexed.filter(
-            pl.col("downstream_data_parity0_rule") == h_matrix_str,
+        indexed_len = indexed.select(pl.len()).collect().item()
+        logging.info(
+            f" - {indexed_len} of {df_len} row(s) have parity rules...",
         )
-        nrow_group = group.select(pl.len()).collect().item()
-
-        logging.info(f" - deserializing H matrix for {nrow_group} row(s)...")
-        h_matrix = _deserialize_h_matrix(str(h_matrix_str))
-        logging.info(f" - H matrix has {h_matrix.shape[0]} parity rule(s)...")
-
-        hex_len = (
-            group.select(pl.col("data_hex").str.len_bytes().first())
+        unique_rules = (
+            indexed.select("downstream_data_parity0_rule")
+            .unique()
             .collect()
-            .item()
+            .to_series()
+            .to_list()
         )
-        bits_per_row = hex_len * 4
+        for h_matrix_str in unique_rules:
+            group = indexed.filter(
+                pl.col("downstream_data_parity0_rule") == h_matrix_str,
+            )
+            nrow_group = group.select(pl.len()).collect().item()
 
-        if h_matrix.shape[1] != bits_per_row:
-            raise ValueError(
-                f"H matrix column count {h_matrix.shape[1]} does not "
-                f"match data_hex bit length {bits_per_row}, "
-                f"H matrix: {h_matrix_str!r}",
+            logging.info(
+                f" - deserializing H matrix for {nrow_group} row(s)...",
+            )
+            h_matrix = _deserialize_h_matrix(str(h_matrix_str))
+            logging.info(
+                f" - H matrix has {h_matrix.shape[0]} parity rule(s)...",
             )
 
-        # default is half of Arrow's 2^31 max string bytes
-        max_concat = int(
-            os.environ.get(
-                "DOWNSTREAM_PARITY_MAX_CONCAT_BYTES",
-                2**31 // 2,
+            hex_len = (
+                group.select(
+                    pl.col("data_hex").str.len_bytes().first(),
+                )
+                .collect()
+                .item()
+            )
+            bits_per_row = hex_len * 4
+
+            if h_matrix.shape[1] != bits_per_row:
+                raise ValueError(
+                    f"H matrix column count {h_matrix.shape[1]} does "
+                    f"not match data_hex bit length {bits_per_row}, "
+                    f"H matrix: {h_matrix_str!r}",
+                )
+
+            # default is half of Arrow's 2^31 max string bytes
+            max_concat = int(
+                os.environ.get(
+                    "DOWNSTREAM_PARITY_MAX_CONCAT_BYTES",
+                    2**31 // 2,
+                ),
+            )
+            nrow_chunk = max(1, max_concat // hex_len)
+            # ensure enough chunks to keep all workers busy
+            if mp_pool_size > 1:
+                nrow_chunk = min(
+                    nrow_chunk,
+                    max(1, nrow_group // mp_pool_size),
+                )
+            logging.info(
+                f" - parity chunking: {max_concat=} {nrow_chunk=}"
+                f" for {nrow_group=}...",
+            )
+            num_chunks = -(-nrow_group // nrow_chunk)
+            logging.info(
+                f" - dispatching {num_chunks} parity chunk(s) across"
+                f" {mp_pool_size} worker(s)...",
+            )
+
+            work_items = _divvy_parity_work(
+                group,
+                iter_slices(nrow_group, nrow_chunk),
+                h_matrix,
+                bits_per_row,
+            )
+
+            with futures.ThreadPoolExecutor(
+                max_workers=mp_pool_size,
+            ) as pool:
+                for i, (chunk_indices, row_violations) in enumerate(
+                    pool.map(
+                        _compute_parity_chunk_threaded,
+                        work_items,
+                    ),
+                ):
+                    logging.info(
+                        " - received parity chunk result"
+                        f" ({i + 1} / {num_chunks})...",
+                    )
+                    parity_result[chunk_indices] = row_violations
+
+            group_indices = (
+                group.select("_downstream_parity_idx")
+                .collect()["_downstream_parity_idx"]
+                .to_numpy()
+            )
+            group_result = parity_result[group_indices]
+            total_violations = int(np.sum(group_result))
+            total_violating_rows = int(
+                np.count_nonzero(group_result),
+            )
+            logging.info(
+                f" - data parity0: {total_violations} rule"
+                f" violation(s) across {h_matrix.shape[0]} rule(s)"
+                f" occurring in {total_violating_rows} row(s)",
+            )
+
+        return df.with_columns(
+            downstream_data_parity0_result=pl.Series(
+                parity_result,
+                dtype=pl.UInt32,
             ),
-        )
-        nrow_chunk = max(1, max_concat // hex_len)
-        # ensure enough chunks to keep all workers busy
-        if mp_pool_size > 1:
-            nrow_chunk = min(
-                nrow_chunk, max(1, nrow_group // mp_pool_size),
-            )
-        logging.info(
-            f" - parity chunking: {max_concat=} {nrow_chunk=}"
-            f" for {nrow_group=}...",
-        )
-        total_violations, total_violating_rows = 0, 0
-
-        num_chunks = -(-nrow_group // nrow_chunk)
-        logging.info(
-            f" - dispatching {num_chunks} parity chunk(s) across"
-            f" {mp_pool_size} worker(s)...",
-        )
-
-        work_items = _divvy_parity_work(
-            group,
-            iter_slices(nrow_group, nrow_chunk),
-            h_matrix,
-            bits_per_row,
-        )
-
-        with concurrent.futures.ThreadPoolExecutor(
-            max_workers=mp_pool_size,
-        ) as pool:
-            for i, (chunk_indices, row_violations) in enumerate(
-                pool.map(_compute_parity_chunk_threaded, work_items),
-            ):
-                logging.info(
-                    " - received parity chunk result"
-                    f" ({i + 1} / {num_chunks})...",
-                )
-                total_violations += int(np.sum(row_violations))
-                total_violating_rows += int(
-                    np.count_nonzero(row_violations),
-                )
-                parity_result[chunk_indices] = row_violations
-
-        logging.info(
-            f" - data parity0: {total_violations} rule violation(s) "
-            f"across {h_matrix.shape[0]} rule(s) occurring in "
-            f"{total_violating_rows} row(s)",
-        )
-
-    return df.with_columns(
-        downstream_data_parity0_result=pl.Series(
-            parity_result,
-            dtype=pl.UInt32,
-        ),
-    ).drop("downstream_data_parity0_rule")
+        ).drop("downstream_data_parity0_rule")
+    finally:
+        if _prev_openblas is None:
+            os.environ.pop("OPENBLAS_NUM_THREADS", None)
+        else:
+            os.environ["OPENBLAS_NUM_THREADS"] = _prev_openblas
 
 
 def _extract_from_data_hex(df: pl.DataFrame) -> pl.DataFrame:
@@ -533,7 +554,7 @@ def _finalize_result_schema(
 def unpack_data_packed(
     df: pl.DataFrame,
     *,
-    mp_context: str = "spawn",
+    mp_context: str = "thread",
     mp_pool_size: int = 1,
     result_schema: typing.Literal["coerce", "relax", "shrink"] = "coerce",
 ) -> pl.DataFrame:
@@ -610,15 +631,16 @@ def unpack_data_packed(
         - 'downstream_version' : pl.Categorical
             - Version of downstream library used to curate data items.
 
-    mp_context : str, default "spawn"
-        Multiprocessing start method (e.g., "spawn", "fork", "forkserver").
+    mp_context : str, default "thread"
+        Deprecated. Previously selected the multiprocessing start
+        method; now ignored since parity computation uses threads.
 
     mp_pool_size : int, default 1
-        Number of worker processes for parity computation.
+        Number of worker threads for parity computation.
 
-        When 1 (default), processing is sequential with no
-        multiprocessing overhead. When > 1, parity check chunks are
-        dispatched to a multiprocessing pool for parallel computation.
+        When 1 (default), processing is sequential with no threading
+        overhead. When > 1, parity check chunks are dispatched to a
+        thread pool for parallel computation.
 
     result_schema : Literal['coerce', 'relax', 'shrink'], default 'coerce'
         How should dtypes in the output DataFrame be handled?
