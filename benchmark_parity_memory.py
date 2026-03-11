@@ -34,7 +34,7 @@ from downstream._auxlib._iter_slices import iter_slices
 from downstream.dataframe._unpack_data_packed import (
     _collect_chunk,
     _compute_parity_chunk,
-    _compute_parity_numpy_only,
+    _compute_indexed_parity_chunk,
     _deserialize_h_matrix,
 )
 
@@ -187,7 +187,7 @@ def run(n_rows, hex_width, mp_pool_size, max_concat_bytes, use_old):
                     for chunk_slice in chunk_iter:
                         ci, ch = _collect_chunk(group, chunk_slice)
                         fut = pool.submit(
-                            _compute_parity_numpy_only,
+                            _compute_indexed_parity_chunk,
                             ci, ch, h_matrix, bits_per_row,
                         )
                         pending.add(fut)
@@ -207,7 +207,7 @@ def run(n_rows, hex_width, mp_pool_size, max_concat_bytes, use_old):
                                 group, chunk_slice,
                             )
                             fut = pool.submit(
-                                _compute_parity_numpy_only,
+                                _compute_indexed_parity_chunk,
                                 ci, ch, h_matrix, bits_per_row,
                             )
                             pending.add(fut)

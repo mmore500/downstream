@@ -155,28 +155,24 @@ def _compute_parity_chunk(
     return np.sum(syndromes, axis=1)
 
 
-def _compute_parity_numpy_only(
+def _compute_indexed_parity_chunk(
     chunk_indices: np.ndarray,
     concat_hex: str,
     h_matrix: np.ndarray,
     bits_per_row: int,
 ) -> tuple:
-    """Compute parity violations from pre-collected chunk data (numpy only).
+    """Compute parity violations for a pre-collected chunk.
 
-    Unlike the previous ``_compute_parity_chunk_threaded``, this
-    function does not perform any polars operations --- all polars
-    collection and string joining is done in the main thread before
-    dispatching to workers. This avoids the memory explosion caused by
-    multiple threads simultaneously materializing polars LazyFrames and
-    concatenating strings.
+    Wraps ``_compute_parity_chunk`` to pair the result with row
+    indices, suitable for use as a thread-pool worker on data that has
+    already been collected from polars in the main thread.
 
     Parameters
     ----------
     chunk_indices : np.ndarray
-        Row indices for the chunk, pre-extracted in the main thread.
+        Row indices for the chunk.
     concat_hex : str
-        Concatenated hex string for the chunk, pre-joined in the main
-        thread.
+        Concatenated hex string for the chunk.
     h_matrix : np.ndarray
         Parity-check matrix.
     bits_per_row : int
@@ -362,7 +358,7 @@ def _apply_data_parity0(
                 for chunk_slice in chunk_iter:
                     ci, ch = _collect_chunk(group, chunk_slice)
                     fut = pool.submit(
-                        _compute_parity_numpy_only,
+                        _compute_indexed_parity_chunk,
                         ci,
                         ch,
                         h_matrix,
@@ -390,7 +386,7 @@ def _apply_data_parity0(
                     for chunk_slice in chunk_iter:
                         ci, ch = _collect_chunk(group, chunk_slice)
                         fut = pool.submit(
-                            _compute_parity_numpy_only,
+                            _compute_indexed_parity_chunk,
                             ci,
                             ch,
                             h_matrix,
