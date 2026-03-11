@@ -356,6 +356,7 @@ def _apply_data_parity0(
                 results = pool.imap_unordered(
                     _compute_indexed_parity_chunk,
                     work_items,
+                    chunksize=1,
                 )
                 for i, (chunk_indices, row_violations) in enumerate(
                     results,
