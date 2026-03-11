@@ -1,6 +1,6 @@
-from concurrent import futures
 import io
 import logging
+from multiprocessing.pool import ThreadPool
 import os
 import pathlib
 import typing
@@ -155,61 +155,56 @@ def _compute_parity_chunk(
     return np.sum(syndromes, axis=1)
 
 
-def _compute_indexed_parity_chunk(
-    chunk_indices: np.ndarray,
-    concat_hex: str,
-    h_matrix: np.ndarray,
-    bits_per_row: int,
-) -> tuple:
+def _compute_indexed_parity_chunk(args: tuple) -> tuple:
     """Compute parity violations for a pre-collected chunk.
 
     Wraps ``_compute_parity_chunk`` to pair the result with row
-    indices, suitable for use as a thread-pool worker on data that has
-    already been collected from polars in the main thread.
+    indices, suitable for use as a ``ThreadPool`` worker on data that
+    has already been collected from polars.
 
     Parameters
     ----------
-    chunk_indices : np.ndarray
-        Row indices for the chunk.
-    concat_hex : str
-        Concatenated hex string for the chunk.
-    h_matrix : np.ndarray
-        Parity-check matrix.
-    bits_per_row : int
-        Number of bits per row in the data.
+    args : tuple
+        (chunk_indices, concat_hex, h_matrix, bits_per_row) packed for
+        compatibility with ``pool.imap_unordered``.
 
     Returns
     -------
     tuple
         (chunk_indices, row_violations) arrays.
     """
+    chunk_indices, concat_hex, h_matrix, bits_per_row = args
     row_violations = _compute_parity_chunk(concat_hex, h_matrix, bits_per_row)
     return chunk_indices, row_violations
 
 
-def _collect_chunk(
+def _collect_parity_work(
     group: pl.LazyFrame,
-    chunk_slice: slice,
-) -> tuple:
-    """Collect one chunk's polars data in the calling thread.
+    chunk_slices: typing.Iterable[slice],
+    h_matrix: np.ndarray,
+    bits_per_row: int,
+) -> typing.Iterator[tuple]:
+    """Collect polars data sequentially, yielding worker-ready tuples.
 
-    Returns (chunk_indices, concat_hex) with the polars DataFrame
-    released immediately after extraction.
+    Polars collection and string concatenation happen in whichever
+    thread consumes this generator (the pool's task-handler thread),
+    serializing the memory-heavy polars operations so that at most one
+    chunk's DataFrame is alive at a time.
+
+    Yields (chunk_indices, concat_hex, h_matrix, bits_per_row) tuples.
     """
-    chunk = (
-        group[chunk_slice]
-        .select(
-            "data_hex",
-            "_downstream_parity_idx",
+    for chunk_slice in chunk_slices:
+        chunk = (
+            group[chunk_slice]
+            .select("data_hex", "_downstream_parity_idx")
+            .collect()
         )
-        .collect()
-    )
-    concat_hex = chunk.select(
-        pl.col("data_hex").str.join(""),
-    ).item()
-    chunk_indices = chunk["_downstream_parity_idx"].to_numpy()
-    del chunk  # release polars DataFrame immediately
-    return chunk_indices, concat_hex
+        concat_hex = chunk.select(
+            pl.col("data_hex").str.join(""),
+        ).item()
+        chunk_indices = chunk["_downstream_parity_idx"].to_numpy()
+        del chunk  # release polars DataFrame before next iteration
+        yield chunk_indices, concat_hex, h_matrix, bits_per_row
 
 
 def _apply_data_parity0(
@@ -342,59 +337,28 @@ def _apply_data_parity0(
                 f" {mp_pool_size} worker(s)...",
             )
 
-            # Bounded submission: collect polars data in the main
-            # thread one chunk at a time, and keep at most
-            # mp_pool_size numpy jobs in flight. This prevents
-            # memory explosion from 8+ threads simultaneously
-            # materializing polars LazyFrames and concatenating
-            # strings.
-            chunk_iter = iter(iter_slices(nrow_group, nrow_chunk))
-            completed_count = 0
-            with futures.ThreadPoolExecutor(
-                max_workers=mp_pool_size,
-            ) as pool:
-                pending: set = set()
-                # prime the pool
-                for chunk_slice in chunk_iter:
-                    ci, ch = _collect_chunk(group, chunk_slice)
-                    fut = pool.submit(
-                        _compute_indexed_parity_chunk,
-                        ci,
-                        ch,
-                        h_matrix,
-                        bits_per_row,
+            # Polars collection is serialized in the pool's
+            # task-handler thread via the generator; only numpy
+            # work runs in the worker threads.
+            work_items = _collect_parity_work(
+                group,
+                iter_slices(nrow_group, nrow_chunk),
+                h_matrix,
+                bits_per_row,
+            )
+            with ThreadPool(mp_pool_size) as pool:
+                results = pool.imap_unordered(
+                    _compute_indexed_parity_chunk,
+                    work_items,
+                )
+                for i, (chunk_indices, row_violations) in enumerate(
+                    results,
+                ):
+                    parity_result[chunk_indices] = row_violations
+                    logging.info(
+                        " - received parity chunk result"
+                        f" ({i + 1} / {num_chunks})...",
                     )
-                    pending.add(fut)
-                    if len(pending) >= mp_pool_size:
-                        break
-
-                while pending:
-                    done, pending = futures.wait(
-                        pending,
-                        return_when=futures.FIRST_COMPLETED,
-                    )
-                    for fut in done:
-                        chunk_indices, row_violations = fut.result()
-                        parity_result[chunk_indices] = row_violations
-                        completed_count += 1
-                        logging.info(
-                            " - received parity chunk result"
-                            f" ({completed_count}"
-                            f" / {num_chunks})...",
-                        )
-                    # backfill: collect and submit new chunks
-                    for chunk_slice in chunk_iter:
-                        ci, ch = _collect_chunk(group, chunk_slice)
-                        fut = pool.submit(
-                            _compute_indexed_parity_chunk,
-                            ci,
-                            ch,
-                            h_matrix,
-                            bits_per_row,
-                        )
-                        pending.add(fut)
-                        if len(pending) >= mp_pool_size:
-                            break
 
             group_indices = (
                 group.select("_downstream_parity_idx")

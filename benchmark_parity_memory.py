@@ -24,6 +24,7 @@ import sys
 import threading
 import time
 from concurrent import futures
+from multiprocessing.pool import ThreadPool
 from unittest import mock
 
 import numpy as np
@@ -32,7 +33,7 @@ import polars as pl
 import downstream
 from downstream._auxlib._iter_slices import iter_slices
 from downstream.dataframe._unpack_data_packed import (
-    _collect_chunk,
+    _collect_parity_work,
     _compute_parity_chunk,
     _compute_indexed_parity_chunk,
     _deserialize_h_matrix,
@@ -178,41 +179,19 @@ def run(n_rows, hex_width, mp_pool_size, max_concat_bytes, use_old):
                     for ci, rv in pool.map(_old_worker, work_items):
                         parity_result[ci] = rv
             else:
-                # NEW: bounded submission, polars in main thread
-                chunk_iter = iter(iter_slices(nrow_group, nrow_chunk))
-                with futures.ThreadPoolExecutor(
-                    max_workers=mp_pool_size,
-                ) as pool:
-                    pending = set()
-                    for chunk_slice in chunk_iter:
-                        ci, ch = _collect_chunk(group, chunk_slice)
-                        fut = pool.submit(
-                            _compute_indexed_parity_chunk,
-                            ci, ch, h_matrix, bits_per_row,
-                        )
-                        pending.add(fut)
-                        if len(pending) >= mp_pool_size:
-                            break
-
-                    while pending:
-                        done, pending = futures.wait(
-                            pending,
-                            return_when=futures.FIRST_COMPLETED,
-                        )
-                        for fut in done:
-                            ci, rv = fut.result()
-                            parity_result[ci] = rv
-                        for chunk_slice in chunk_iter:
-                            ci, ch = _collect_chunk(
-                                group, chunk_slice,
-                            )
-                            fut = pool.submit(
-                                _compute_indexed_parity_chunk,
-                                ci, ch, h_matrix, bits_per_row,
-                            )
-                            pending.add(fut)
-                            if len(pending) >= mp_pool_size:
-                                break
+                # NEW: imap_unordered, polars in task-handler thread
+                work_items = _collect_parity_work(
+                    group,
+                    iter_slices(nrow_group, nrow_chunk),
+                    h_matrix,
+                    bits_per_row,
+                )
+                with ThreadPool(mp_pool_size) as pool:
+                    for ci, rv in pool.imap_unordered(
+                        _compute_indexed_parity_chunk,
+                        work_items,
+                    ):
+                        parity_result[ci] = rv
 
         stop_event.set()
         sampler.join()
