@@ -1,6 +1,6 @@
 import io
 import logging
-from multiprocessing.pool import ThreadPool
+import multiprocessing as mp
 import os
 import pathlib
 import typing
@@ -159,7 +159,7 @@ def _compute_indexed_parity_chunk(args: tuple) -> tuple:
     """Compute parity violations for a pre-collected chunk.
 
     Wraps ``_compute_parity_chunk`` to pair the result with row
-    indices, suitable for use as a ``ThreadPool`` worker on data that
+    indices, suitable for use as a ``mp.pool.ThreadPool`` worker on data that
     has already been collected from polars.
 
     Parameters
@@ -346,7 +346,7 @@ def _apply_data_parity0(
                 h_matrix,
                 bits_per_row,
             )
-            with ThreadPool(mp_pool_size) as pool:
+            with mp.pool.ThreadPool(mp_pool_size) as pool:
                 results = pool.imap_unordered(
                     _compute_indexed_parity_chunk,
                     work_items,
