@@ -344,7 +344,7 @@ def _apply_data_parity0(
 
             # Bounded submission: collect polars data in the main
             # thread one chunk at a time, and keep at most
-            # mp_pool_size numpy jobs in flight.  This prevents the
+            # mp_pool_size numpy jobs in flight. This prevents
             # memory explosion from 8+ threads simultaneously
             # materializing polars LazyFrames and concatenating
             # strings.
