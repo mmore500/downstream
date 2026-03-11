@@ -361,11 +361,11 @@ def _apply_data_parity0(
                 for i, (chunk_indices, row_violations) in enumerate(
                     results,
                 ):
-                    parity_result[chunk_indices] = row_violations
                     logging.info(
                         " - received parity chunk result"
                         f" ({i + 1} / {num_chunks})...",
                     )
+                    parity_result[chunk_indices] = row_violations
 
             group_indices = (
                 group.select("_downstream_parity_idx")
