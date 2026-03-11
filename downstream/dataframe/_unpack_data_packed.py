@@ -194,16 +194,22 @@ def _collect_parity_work(
     Yields (chunk_indices, concat_hex, h_matrix, bits_per_row) tuples.
     """
     for chunk_slice in chunk_slices:
-        chunk = (
-            group[chunk_slice]
-            .select("data_hex", "_downstream_parity_idx")
-            .collect()
+        chunk_lf = group[chunk_slice].select(
+            "data_hex",
+            "_downstream_parity_idx",
         )
-        concat_hex = chunk.select(
-            pl.col("data_hex").str.join(""),
-        ).item()
-        chunk_indices = chunk["_downstream_parity_idx"].to_numpy()
-        del chunk  # release polars DataFrame before next iteration
+        concat_hex = (
+            chunk_lf.select(
+                pl.col("data_hex").str.join(""),
+            )
+            .collect()
+            .item()
+        )
+        chunk_indices = (
+            chunk_lf.select("_downstream_parity_idx")
+            .collect()["_downstream_parity_idx"]
+            .to_numpy()
+        )
         yield chunk_indices, concat_hex, h_matrix, bits_per_row
 
 
