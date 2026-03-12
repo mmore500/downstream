@@ -8,9 +8,9 @@ black==22.10.0
     # via downstream (pyproject.toml)
 bumpver==2022.1120
     # via downstream (pyproject.toml)
-certifi==2026.1.4
+certifi==2026.2.25
     # via requests
-charset-normalizer==3.4.4
+charset-normalizer==3.4.5
     # via requests
 click==8.3.1
     # via
@@ -42,7 +42,7 @@ jedi==0.19.2
     # via ipython
 joinem==0.11.1
     # via downstream (pyproject.toml)
-lazy-loader==0.4
+lazy-loader==0.5
     # via downstream (pyproject.toml)
 lexid==2021.1006
     # via bumpver
@@ -72,7 +72,7 @@ pexpect==4.9.0
     # via ipython
 pkginfo==1.12.1.2
     # via twine
-platformdirs==4.9.2
+platformdirs==4.9.4
     # via black
 pluggy==1.6.0
     # via pytest
