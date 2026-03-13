@@ -11,13 +11,9 @@ use crate::_auxlib as aux;
 #[allow(non_snake_case)]
 pub fn has_ingest_capacity<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> bool {
     let _0: Uint = Uint::zero();
-    let _1: Uint = Uint::one();
-    let _2: Uint = _1 + _1;
-    let _4: Uint = _2 + _2;
-    let _8: Uint = _4 + _4;
-    let _10: Uint = _8 + _2;
-    let _11: Uint = _8 + _2 + _1;
-    let _12: Uint = _8 + _4;
+    let _10: Uint = Uint::from_u32(10).unwrap();
+    let _11: Uint = Uint::from_u32(11).unwrap();
+    let _12: Uint = Uint::from_u32(12).unwrap();
     if S < _12 || S % _12 != _0 {
         return false;
     }
@@ -47,12 +43,8 @@ pub fn has_ingest_capacity<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> bool {
 pub fn _assign_storage_site<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> Uint {
     debug_assert!(has_ingest_capacity(S, T));
 
-    let _1: Uint = Uint::one();
-    let _2: Uint = _1 + _1;
-    let _4: Uint = _2 + _2;
-    let _8: Uint = _4 + _4;
-    let _11: Uint = _8 + _2 + _1;
-    let _12: Uint = _8 + _4;
+    let _11: Uint = Uint::from_u32(11).unwrap();
+    let _12: Uint = Uint::from_u32(12).unwrap();
     let twelfth_S: Uint = S / _12;
     let eleven_twelfth_S: Uint = _11 * twelfth_S;
     let remainder: Uint = T % _12;

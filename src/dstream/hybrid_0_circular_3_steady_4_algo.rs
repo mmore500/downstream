@@ -14,7 +14,7 @@ pub fn has_ingest_capacity<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> bool {
     let _1: Uint = Uint::one();
     let _2: Uint = _1 + _1;
     let _3: Uint = _2 + _1;
-    let _4: Uint = _3 + _1;
+    let _4: Uint = Uint::from_u32(4).unwrap();
     if S < _4 || S % _4 != _0 {
         return false;
     }
@@ -47,7 +47,7 @@ pub fn _assign_storage_site<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> Uint 
     let _1: Uint = Uint::one();
     let _2: Uint = _1 + _1;
     let _3: Uint = _2 + _1;
-    let _4: Uint = _3 + _1;
+    let _4: Uint = Uint::from_u32(4).unwrap();
     let quarter_S: Uint = S / _4;
     let three_quarter_S: Uint = _3 * quarter_S;
     let remainder: Uint = T % _4;

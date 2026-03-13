@@ -11,11 +11,9 @@ use crate::_auxlib as aux;
 #[allow(non_snake_case)]
 pub fn has_ingest_capacity<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> bool {
     let _0: Uint = Uint::zero();
-    let _1: Uint = Uint::one();
-    let _2: Uint = _1 + _1;
-    let _4: Uint = _2 + _2;
-    let _5: Uint = _4 + _1;
-    let _6: Uint = _4 + _2;
+    let _4: Uint = Uint::from_u32(4).unwrap();
+    let _5: Uint = Uint::from_u32(5).unwrap();
+    let _6: Uint = Uint::from_u32(6).unwrap();
     if S < _6 || S % _6 != _0 {
         return false;
     }
@@ -45,11 +43,8 @@ pub fn has_ingest_capacity<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> bool {
 pub fn _assign_storage_site<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> Uint {
     debug_assert!(has_ingest_capacity(S, T));
 
-    let _1: Uint = Uint::one();
-    let _2: Uint = _1 + _1;
-    let _4: Uint = _2 + _2;
-    let _5: Uint = _4 + _1;
-    let _6: Uint = _4 + _2;
+    let _5: Uint = Uint::from_u32(5).unwrap();
+    let _6: Uint = Uint::from_u32(6).unwrap();
     let sixth_S: Uint = S / _6;
     let five_sixth_S: Uint = _5 * sixth_S;
     let remainder: Uint = T % _6;
