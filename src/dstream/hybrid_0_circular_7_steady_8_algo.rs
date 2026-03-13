@@ -1,4 +1,4 @@
-use super::{AssignStorageSiteTrait, HasIngestCapacityTrait, CircularAlgo, SteadyAlgo};
+use super::{AssignStorageSiteTrait, CircularAlgo, HasIngestCapacityTrait, SteadyAlgo};
 use crate::_auxlib as aux;
 
 /// Does this algorithm have the capacity to ingest a data item at logical time
@@ -25,12 +25,9 @@ pub fn has_ingest_capacity<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> bool {
     let t_div_8: Uint = T / _8;
     let t_mod_8: Uint = T % _8;
     let adj_t_mod: Uint = if t_mod_8 < _7 { t_mod_8 } else { _6 };
-    let has_capacity_1st = CircularAlgo::has_ingest_capacity(
-        seven_eighth_S,
-        t_div_8 * _7 + adj_t_mod,
-    );
-    let has_capacity_2nd =
-        T < _7 || SteadyAlgo::has_ingest_capacity(eighth_S, (T - _7) / _8);
+    let has_capacity_1st =
+        CircularAlgo::has_ingest_capacity(seven_eighth_S, t_div_8 * _7 + adj_t_mod);
+    let has_capacity_2nd = T < _7 || SteadyAlgo::has_ingest_capacity(eighth_S, (T - _7) / _8);
 
     has_capacity_1st && has_capacity_2nd
 }

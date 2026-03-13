@@ -1,4 +1,4 @@
-use super::{AssignStorageSiteTrait, HasIngestCapacityTrait, CircularAlgo, SteadyAlgo};
+use super::{AssignStorageSiteTrait, CircularAlgo, HasIngestCapacityTrait, SteadyAlgo};
 use crate::_auxlib as aux;
 
 /// Does this algorithm have the capacity to ingest a data item at logical time

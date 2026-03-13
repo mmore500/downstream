@@ -116,7 +116,8 @@ fn dispatch(algo_name: &String, S: u64, T: u64) {
             dispatch_algo::<dstream::Hybrid0Steady1Tilted2Algo>(S, T, 2) // nofmt
         }
         "dstream.hybrid_0_steady_1_tilted_2_circular_3_algo.assign_storage_site" => {
-            dispatch_algo::<dstream::Hybrid0Steady1Tilted2Circular3Algo>(S, T, 2) // nofmt
+            dispatch_algo::<dstream::Hybrid0Steady1Tilted2Circular3Algo>(S, T, 2)
+            // nofmt
         }
         "dstream.hybrid_0_steady_2_circular_3_algo.assign_storage_site" => {
             dispatch_algo::<dstream::Hybrid0Steady2Circular3Algo>(S, T, 1) // nofmt
