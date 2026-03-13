@@ -27,7 +27,10 @@ See the [Python quickstart](https://mmore500.github.io/downstream/quickstart) fo
 
 Each algorithm variant is accessible through the `downstream::dstream` module:
 
+* Circular: `downstream::dstream::CircularAlgo`
+* Compressing: `downstream::dstream::CompressingAlgo`
 * Steady: `downstream::dstream::SteadyAlgo`
+* Sticky: `downstream::dstream::StickyAlgo`
 * Stretched: `downstream::dstream::StretchedAlgo`
 * Tilted: `downstream::dstream::TiltedAlgo`
 

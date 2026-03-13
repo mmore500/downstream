@@ -82,14 +82,62 @@ fn dispatch_algo<Algo: dstream::AssignStorageSiteTrait + dstream::HasIngestCapac
 #[allow(non_snake_case)]
 fn dispatch(algo_name: &String, S: u64, T: u64) {
     match algo_name.as_str() {
+        "dstream.circular_algo.assign_storage_site" => {
+            dispatch_algo::<dstream::CircularAlgo>(S, T, 1) // nofmt
+        }
+        "dstream.compressing_algo.assign_storage_site" => {
+            dispatch_algo::<dstream::CompressingAlgo>(S, T, 1) // nofmt
+        }
+        "dstream.hybrid_0_circular_2_steady_3_algo.assign_storage_site" => {
+            dispatch_algo::<dstream::Hybrid0Circular2Steady3Algo>(S, T, 1) // nofmt
+        }
+        "dstream.hybrid_0_circular_2_tilted_3_algo.assign_storage_site" => {
+            dispatch_algo::<dstream::Hybrid0Circular2Tilted3Algo>(S, T, 2) // nofmt
+        }
+        "dstream.hybrid_0_circular_3_steady_4_algo.assign_storage_site" => {
+            dispatch_algo::<dstream::Hybrid0Circular3Steady4Algo>(S, T, 1) // nofmt
+        }
+        "dstream.hybrid_0_circular_5_steady_6_algo.assign_storage_site" => {
+            dispatch_algo::<dstream::Hybrid0Circular5Steady6Algo>(S, T, 1) // nofmt
+        }
+        "dstream.hybrid_0_circular_7_steady_8_algo.assign_storage_site" => {
+            dispatch_algo::<dstream::Hybrid0Circular7Steady8Algo>(S, T, 1) // nofmt
+        }
+        "dstream.hybrid_0_circular_11_steady_12_algo.assign_storage_site" => {
+            dispatch_algo::<dstream::Hybrid0Circular11Steady12Algo>(S, T, 1) // nofmt
+        }
+        "dstream.hybrid_0_steady_1_circular_2_algo.assign_storage_site" => {
+            dispatch_algo::<dstream::Hybrid0Steady1Circular2Algo>(S, T, 1) // nofmt
+        }
         "dstream.hybrid_0_steady_1_stretched_2_algo.assign_storage_site" => {
-            todo!() // nofmt
+            dispatch_algo::<dstream::Hybrid0Steady1Stretched2Algo>(S, T, 2) // nofmt
         }
         "dstream.hybrid_0_steady_1_tilted_2_algo.assign_storage_site" => {
-            todo!() // nofmt
+            dispatch_algo::<dstream::Hybrid0Steady1Tilted2Algo>(S, T, 2) // nofmt
+        }
+        "dstream.hybrid_0_steady_1_tilted_2_circular_3_algo.assign_storage_site" => {
+            dispatch_algo::<dstream::Hybrid0Steady1Tilted2Circular3Algo>(S, T, 2) // nofmt
+        }
+        "dstream.hybrid_0_steady_2_circular_3_algo.assign_storage_site" => {
+            dispatch_algo::<dstream::Hybrid0Steady2Circular3Algo>(S, T, 1) // nofmt
+        }
+        "dstream.hybrid_0_steady_2_tilted_3_algo.assign_storage_site" => {
+            dispatch_algo::<dstream::Hybrid0Steady2Tilted3Algo>(S, T, 2) // nofmt
+        }
+        "dstream.hybrid_0_tilted_1_circular_2_algo.assign_storage_site" => {
+            dispatch_algo::<dstream::Hybrid0Tilted1Circular2Algo>(S, T, 2) // nofmt
+        }
+        "dstream.hybrid_0_tilted_2_circular_3_algo.assign_storage_site" => {
+            dispatch_algo::<dstream::Hybrid0Tilted2Circular3Algo>(S, T, 2) // nofmt
+        }
+        "dstream.hybrid_0_tilted_2_steady_3_algo.assign_storage_site" => {
+            dispatch_algo::<dstream::Hybrid0Tilted2Steady3Algo>(S, T, 2) // nofmt
         }
         "dstream.steady_algo.assign_storage_site" => {
             dispatch_algo::<dstream::SteadyAlgo>(S, T, 1) // nofmt
+        }
+        "dstream.sticky_algo.assign_storage_site" => {
+            dispatch_algo::<dstream::StickyAlgo>(S, T, 1) // nofmt
         }
         "dstream.stretched_algo.assign_storage_site" => {
             dispatch_algo::<dstream::StretchedAlgo>(S, T, 2) // nofmt
