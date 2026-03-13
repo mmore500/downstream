@@ -66,6 +66,48 @@ int dispatch_algo_op(const std::string_view target_name) {
         eval_assign_storage_site<compressing_algo_>(S, T, 1);
     }
     else if (
+        is_algo_op<hybrid_0_circular_11_steady_12_algo>(
+        "assign_storage_site", target_name)
+    ) while (std::cin >> S >> T) {
+        eval_assign_storage_site<hybrid_0_circular_11_steady_12_algo_>(S, T, 1);
+    }
+    else if (
+        is_algo_op<hybrid_0_circular_2_steady_3_algo>(
+        "assign_storage_site", target_name)
+    ) while (std::cin >> S >> T) {
+        eval_assign_storage_site<hybrid_0_circular_2_steady_3_algo_>(S, T, 1);
+    }
+    else if (
+        is_algo_op<hybrid_0_circular_2_tilted_3_algo>(
+        "assign_storage_site", target_name)
+    ) while (std::cin >> S >> T) {
+        eval_assign_storage_site<hybrid_0_circular_2_tilted_3_algo_>(S, T, 1);
+    }
+    else if (
+        is_algo_op<hybrid_0_circular_3_steady_4_algo>(
+        "assign_storage_site", target_name)
+    ) while (std::cin >> S >> T) {
+        eval_assign_storage_site<hybrid_0_circular_3_steady_4_algo_>(S, T, 1);
+    }
+    else if (
+        is_algo_op<hybrid_0_circular_5_steady_6_algo>(
+        "assign_storage_site", target_name)
+    ) while (std::cin >> S >> T) {
+        eval_assign_storage_site<hybrid_0_circular_5_steady_6_algo_>(S, T, 1);
+    }
+    else if (
+        is_algo_op<hybrid_0_circular_7_steady_8_algo>(
+        "assign_storage_site", target_name)
+    ) while (std::cin >> S >> T) {
+        eval_assign_storage_site<hybrid_0_circular_7_steady_8_algo_>(S, T, 1);
+    }
+    else if (
+        is_algo_op<hybrid_0_steady_1_circular_2_algo>(
+        "assign_storage_site", target_name)
+    ) while (std::cin >> S >> T) {
+        eval_assign_storage_site<hybrid_0_steady_1_circular_2_algo_>(S, T, 1);
+    }
+    else if (
         is_algo_op<hybrid_0_steady_1_stretched_2_algo>(
         "assign_storage_site", target_name)
     ) while (std::cin >> S >> T) {
@@ -76,6 +118,42 @@ int dispatch_algo_op(const std::string_view target_name) {
         "assign_storage_site", target_name)
     ) while (std::cin >> S >> T) {
         eval_assign_storage_site<hybrid_0_steady_1_tilted_2_algo_>(S, T, 1);
+    }
+    else if (
+        is_algo_op<hybrid_0_steady_1_tilted_2_circular_3_algo>(
+        "assign_storage_site", target_name)
+    ) while (std::cin >> S >> T) {
+        eval_assign_storage_site<hybrid_0_steady_1_tilted_2_circular_3_algo_>(S, T, 1);
+    }
+    else if (
+        is_algo_op<hybrid_0_steady_2_circular_3_algo>(
+        "assign_storage_site", target_name)
+    ) while (std::cin >> S >> T) {
+        eval_assign_storage_site<hybrid_0_steady_2_circular_3_algo_>(S, T, 1);
+    }
+    else if (
+        is_algo_op<hybrid_0_steady_2_tilted_3_algo>(
+        "assign_storage_site", target_name)
+    ) while (std::cin >> S >> T) {
+        eval_assign_storage_site<hybrid_0_steady_2_tilted_3_algo_>(S, T, 1);
+    }
+    else if (
+        is_algo_op<hybrid_0_tilted_1_circular_2_algo>(
+        "assign_storage_site", target_name)
+    ) while (std::cin >> S >> T) {
+        eval_assign_storage_site<hybrid_0_tilted_1_circular_2_algo_>(S, T, 1);
+    }
+    else if (
+        is_algo_op<hybrid_0_tilted_2_circular_3_algo>(
+        "assign_storage_site", target_name)
+    ) while (std::cin >> S >> T) {
+        eval_assign_storage_site<hybrid_0_tilted_2_circular_3_algo_>(S, T, 1);
+    }
+    else if (
+        is_algo_op<hybrid_0_tilted_2_steady_3_algo>(
+        "assign_storage_site", target_name)
+    ) while (std::cin >> S >> T) {
+        eval_assign_storage_site<hybrid_0_tilted_2_steady_3_algo_>(S, T, 1);
     }
     else if (
         is_algo_op<steady_algo>("assign_storage_site", target_name)
