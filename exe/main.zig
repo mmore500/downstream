@@ -71,13 +71,92 @@ fn dispatch_algo(
 }
 
 fn dispatch(algo_name: []const u8, values: []const u64) !void {
+    const circular_assign = "dstream.circular_algo.assign_storage_site";
+    const compressing_assign = "dstream.compressing_algo.assign_storage_site";
+    const hybrid_0_circular_2_steady_3_assign = "dstream.hybrid_0_circular_2_steady_3_algo.assign_storage_site";
+    const hybrid_0_circular_2_tilted_3_assign = "dstream.hybrid_0_circular_2_tilted_3_algo.assign_storage_site";
+    const hybrid_0_circular_3_steady_4_assign = "dstream.hybrid_0_circular_3_steady_4_algo.assign_storage_site";
+    const hybrid_0_circular_5_steady_6_assign = "dstream.hybrid_0_circular_5_steady_6_algo.assign_storage_site";
+    const hybrid_0_circular_7_steady_8_assign = "dstream.hybrid_0_circular_7_steady_8_algo.assign_storage_site";
+    const hybrid_0_circular_11_steady_12_assign = "dstream.hybrid_0_circular_11_steady_12_algo.assign_storage_site";
+    const hybrid_0_steady_1_circular_2_assign = "dstream.hybrid_0_steady_1_circular_2_algo.assign_storage_site";
     const hybrid_0_steady_1_stretched_2_assign = "dstream.hybrid_0_steady_1_stretched_2_algo.assign_storage_site";
     const hybrid_0_steady_1_tilted_2_assign = "dstream.hybrid_0_steady_1_tilted_2_algo.assign_storage_site";
+    const hybrid_0_steady_1_tilted_2_circular_3_assign = "dstream.hybrid_0_steady_1_tilted_2_circular_3_algo.assign_storage_site";
+    const hybrid_0_steady_2_circular_3_assign = "dstream.hybrid_0_steady_2_circular_3_algo.assign_storage_site";
+    const hybrid_0_steady_2_tilted_3_assign = "dstream.hybrid_0_steady_2_tilted_3_algo.assign_storage_site";
+    const hybrid_0_tilted_1_circular_2_assign = "dstream.hybrid_0_tilted_1_circular_2_algo.assign_storage_site";
+    const hybrid_0_tilted_2_circular_3_assign = "dstream.hybrid_0_tilted_2_circular_3_algo.assign_storage_site";
+    const hybrid_0_tilted_2_steady_3_assign = "dstream.hybrid_0_tilted_2_steady_3_algo.assign_storage_site";
     const steady_assign = "dstream.steady_algo.assign_storage_site";
+    const sticky_assign = "dstream.sticky_algo.assign_storage_site";
     const stretched_assign = "dstream.stretched_algo.assign_storage_site";
     const tilted_assign = "dstream.tilted_algo.assign_storage_site";
 
-    if (std.mem.eql(u8, algo_name, hybrid_0_steady_1_stretched_2_assign)) {
+    if (std.mem.eql(u8, algo_name, circular_assign)) {
+        try dispatch_algo(
+            dstream.circular_algo,
+            values[0],
+            values[1],
+            1,
+        );
+    } else if (std.mem.eql(u8, algo_name, compressing_assign)) {
+        try dispatch_algo(
+            dstream.compressing_algo,
+            values[0],
+            values[1],
+            1,
+        );
+    } else if (std.mem.eql(u8, algo_name, hybrid_0_circular_2_steady_3_assign)) {
+        try dispatch_algo(
+            dstream.hybrid_0_circular_2_steady_3_algo,
+            values[0],
+            values[1],
+            1,
+        );
+    } else if (std.mem.eql(u8, algo_name, hybrid_0_circular_2_tilted_3_assign)) {
+        try dispatch_algo(
+            dstream.hybrid_0_circular_2_tilted_3_algo,
+            values[0],
+            values[1],
+            1,
+        );
+    } else if (std.mem.eql(u8, algo_name, hybrid_0_circular_3_steady_4_assign)) {
+        try dispatch_algo(
+            dstream.hybrid_0_circular_3_steady_4_algo,
+            values[0],
+            values[1],
+            1,
+        );
+    } else if (std.mem.eql(u8, algo_name, hybrid_0_circular_5_steady_6_assign)) {
+        try dispatch_algo(
+            dstream.hybrid_0_circular_5_steady_6_algo,
+            values[0],
+            values[1],
+            1,
+        );
+    } else if (std.mem.eql(u8, algo_name, hybrid_0_circular_7_steady_8_assign)) {
+        try dispatch_algo(
+            dstream.hybrid_0_circular_7_steady_8_algo,
+            values[0],
+            values[1],
+            1,
+        );
+    } else if (std.mem.eql(u8, algo_name, hybrid_0_circular_11_steady_12_assign)) {
+        try dispatch_algo(
+            dstream.hybrid_0_circular_11_steady_12_algo,
+            values[0],
+            values[1],
+            1,
+        );
+    } else if (std.mem.eql(u8, algo_name, hybrid_0_steady_1_circular_2_assign)) {
+        try dispatch_algo(
+            dstream.hybrid_0_steady_1_circular_2_algo,
+            values[0],
+            values[1],
+            1,
+        );
+    } else if (std.mem.eql(u8, algo_name, hybrid_0_steady_1_stretched_2_assign)) {
         try dispatch_algo(
             dstream.hybrid_0_steady_1_stretched_2_algo,
             values[0],
@@ -91,9 +170,58 @@ fn dispatch(algo_name: []const u8, values: []const u64) !void {
             values[1],
             1,
         );
+    } else if (std.mem.eql(u8, algo_name, hybrid_0_steady_1_tilted_2_circular_3_assign)) {
+        try dispatch_algo(
+            dstream.hybrid_0_steady_1_tilted_2_circular_3_algo,
+            values[0],
+            values[1],
+            1,
+        );
+    } else if (std.mem.eql(u8, algo_name, hybrid_0_steady_2_circular_3_assign)) {
+        try dispatch_algo(
+            dstream.hybrid_0_steady_2_circular_3_algo,
+            values[0],
+            values[1],
+            1,
+        );
+    } else if (std.mem.eql(u8, algo_name, hybrid_0_steady_2_tilted_3_assign)) {
+        try dispatch_algo(
+            dstream.hybrid_0_steady_2_tilted_3_algo,
+            values[0],
+            values[1],
+            1,
+        );
+    } else if (std.mem.eql(u8, algo_name, hybrid_0_tilted_1_circular_2_assign)) {
+        try dispatch_algo(
+            dstream.hybrid_0_tilted_1_circular_2_algo,
+            values[0],
+            values[1],
+            1,
+        );
+    } else if (std.mem.eql(u8, algo_name, hybrid_0_tilted_2_circular_3_assign)) {
+        try dispatch_algo(
+            dstream.hybrid_0_tilted_2_circular_3_algo,
+            values[0],
+            values[1],
+            1,
+        );
+    } else if (std.mem.eql(u8, algo_name, hybrid_0_tilted_2_steady_3_assign)) {
+        try dispatch_algo(
+            dstream.hybrid_0_tilted_2_steady_3_algo,
+            values[0],
+            values[1],
+            1,
+        );
     } else if (std.mem.eql(u8, algo_name, steady_assign)) {
         try dispatch_algo(
             dstream.steady_algo,
+            values[0],
+            values[1],
+            1,
+        );
+    } else if (std.mem.eql(u8, algo_name, sticky_assign)) {
+        try dispatch_algo(
+            dstream.sticky_algo,
             values[0],
             values[1],
             1,
