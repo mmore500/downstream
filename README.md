@@ -30,7 +30,7 @@ downstream provides efficient, constant-space implementations of stream curation
 
 To install from PyPi with pip, run
 
-`python3 -m pip install "downstream[jit]"`
+`python3 -m pip install "downstream[jit]==1.22.0"`
 
 A containerized release of `downstream` is available via <https://ghcr.io>
 
