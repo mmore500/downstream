@@ -9,3 +9,6 @@ push = true
 "CITATION.cff" = [
     'cff-version: {pep440_version}',
 ]
+"README.md" = [
+    'downstream[jit]=={pep440_version}',
+]
