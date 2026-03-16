@@ -180,24 +180,27 @@ def test_serialization_signed(
 def test_Surface_T_dilation(
     algo: types.ModuleType, S: int, T_dilation: int
 ) -> None:
-    """A Surface with T_dilation should behave identically to a non-dilated
-    Surface in terms of algorithm behavior, but with T scaled."""
+    """A Surface with T_dilation should produce the same algorithm behavior
+    as a plain Surface, but only ingest every T_dilation-th call."""
     surface_dilated = Surface(algo, S, T_dilation=T_dilation)
     surface_plain = Surface(algo, S)
 
     assert surface_dilated.T == 0
     assert surface_dilated.T_dilation == T_dilation
 
-    for i in range(100):
-        site_d = surface_dilated.ingest_one(i)
-        site_p = surface_plain.ingest_one(i)
-        assert site_d == site_p
-        assert surface_dilated.T == (i + 1) * T_dilation
-        assert surface_plain.T == i + 1
-        assert [*surface_dilated.lookup()] == [*surface_plain.lookup()]
-        if site_d is not None:
-            assert surface_dilated[site_d] == i
-            assert surface_plain[site_p] == i
+    n_raw = 100 * T_dilation
+    for raw_T in range(n_raw):
+        site_d = surface_dilated.ingest_one(raw_T)
+        assert surface_dilated.T == raw_T + 1
+
+        if raw_T % T_dilation == 0:
+            # effective T incremented, should match plain ingest
+            site_p = surface_plain.ingest_one(raw_T)
+            assert site_d == site_p
+            assert [*surface_dilated.lookup()] == [*surface_plain.lookup()]
+        else:
+            # effective T didn't change, item should be discarded
+            assert site_d is None
 
 
 @pytest.mark.parametrize("algo", [steady_algo, stretched_algo, tilted_algo])
@@ -214,7 +217,7 @@ def test_Surface_T_dilation_ingest_many(
         (
             opyt.apply_if_or_value(
                 algo.get_ingest_capacity(single_surface.S),
-                lambda x: x // step_size // 2,
+                lambda x: x * T_dilation // step_size // 2,
                 100,
             ),
             100,
@@ -222,7 +225,10 @@ def test_Surface_T_dilation_ingest_many(
     )
     for T in range(num_iterations):
         for i in range(step_size):
-            single_surface.ingest_one(T * step_size + i)
+            # store effective T to match what ingest_many(n, lambda x: x)
+            # would store (item_getter receives effective ingest times)
+            eff = single_surface.T // T_dilation
+            single_surface.ingest_one(eff)
         multi_surface.ingest_many(step_size, lambda x: x)
         assert single_surface == multi_surface
 
@@ -234,7 +240,7 @@ def test_Surface_T_dilation_deepcopy(
 ) -> None:
     """deepcopy should preserve T_dilation."""
     surf = Surface(algo, 16, T_dilation=T_dilation)
-    for i in range(50):
+    for i in range(50 * T_dilation):
         surf.ingest_one(i)
     surf_copy = deepcopy(surf)
     assert surf == surf_copy
@@ -252,7 +258,9 @@ def test_Surface_T_dilation_serialization(
     S = 32
     surf = Surface(algo, S, T_dilation=T_dilation)
     max_val = 2**item_bitwidth - 1
-    surf.ingest_many(S * 3, lambda x: random.randint(0, max_val))
+    surf.ingest_many(
+        S * 3 * T_dilation, lambda x: random.randint(0, max_val),
+    )
     hex_str = surf.to_hex(item_bitwidth=item_bitwidth)
     restored = Surface.from_hex(
         hex_str,

@@ -304,23 +304,30 @@ class Surface(typing.Generic[_DSurfDataItem]):
         if n_ingests == 0:
             return
 
-        T_effective = self.T // self.T_dilation
+        d = self.T_dilation
+        # effective ingest count before and after this batch
+        eff_before = -((-self.T) // d)  # ceildiv
+        self.T += n_ingests
+        eff_after = -((-self.T) // d)  # ceildiv
+        n_eff_ingests = eff_after - eff_before
+
+        if n_eff_ingests == 0:
+            return  # no effective time steps elapsed
+
         assert self.algo.has_ingest_capacity(
-            self.S, T_effective + n_ingests - 1,
+            self.S, eff_after - 1,
         )
         for site, (T_1, T_2) in enumerate(
             zip(
-                self.lookup(),
-                self.algo.lookup_ingest_times(
-                    self.S, T_effective + n_ingests,
-                ),
+                self.algo.lookup_ingest_times(self.S, eff_before),
+                self.algo.lookup_ingest_times(self.S, eff_after),
             )
         ):
             if T_1 != T_2 and T_2 is not None:
                 self._storage[site] = item_getter(
-                    T_2 - T_effective if use_relative_time else T_2
+                    T_2 - eff_before if use_relative_time else T_2
                 )
-        self.T += n_ingests * self.T_dilation
+
 
     def ingest_one(
         self: "Surface", item: _DSurfDataItem
@@ -328,15 +335,21 @@ class Surface(typing.Generic[_DSurfDataItem]):
         """Ingest data item.
 
         Returns the storage site of the data item, or None if the data item is
-        not retained.
+        not retained. With ``T_dilation > 1``, items are only stored every
+        ``T_dilation``th call (when the effective time increments); otherwise
+        the item is discarded.
         """
         T_effective = self.T // self.T_dilation
-        assert self.algo.has_ingest_capacity(self.S, T_effective)
+        is_ingest_step = self.T % self.T_dilation == 0
+        self.T += 1
 
+        if not is_ingest_step:
+            return None  # not on a dilation boundary, discard
+
+        assert self.algo.has_ingest_capacity(self.S, T_effective)
         site = self.algo.assign_storage_site(self.S, T_effective)
         if site is not None:
             self._storage[site] = item
-        self.T += self.T_dilation
         return site
 
     @typing.overload
@@ -365,9 +378,9 @@ class Surface(typing.Generic[_DSurfDataItem]):
         """Iterate over data item ingest times, including null values for
         uninitialized sites."""
         assert len(self._storage) == self.S
-        T_effective = self.T // self.T_dilation
+        eff_count = -((-self.T) // self.T_dilation)  # ceildiv
         return (
             T
-            for T in self.algo.lookup_ingest_times(self.S, T_effective)
+            for T in self.algo.lookup_ingest_times(self.S, eff_count)
             if include_empty or T is not None
         )
