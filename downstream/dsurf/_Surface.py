@@ -203,10 +203,7 @@ class Surface(typing.Generic[_DSurfDataItem]):
         self.algo = algo
 
     def __repr__(self) -> str:
-        dilation = (
-            f", T_dilation={self.T_dilation}" if self.T_dilation != 1 else ""
-        )
-        return f"Surface(algo={self.algo}, storage={self._storage}{dilation})"
+        return f"Surface(algo={self.algo}, storage={self._storage}, T_dilation={self.T_dilation})"
 
     def __eq__(self: "Surface", other: typing.Any) -> bool:
         if not isinstance(other, Surface):
