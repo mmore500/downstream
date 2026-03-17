@@ -13,11 +13,12 @@ _DSurfDataItem = typing.TypeVar("_DSurfDataItem")
 class Surface(typing.Generic[_DSurfDataItem]):
     """Container orchestrating downstream curation over a fixed-size buffer."""
 
-    __slots__ = ("_storage", "algo", "T")
+    __slots__ = ("_storage", "algo", "T", "T_dilation")
 
     algo: types.ModuleType
     _storage: typing.MutableSequence[_DSurfDataItem]
-    T: int  # current logical time
+    T: int  # current logical time (raw, before dilation)
+    T_dilation: int  # dilation factor applied to T counter
 
     @staticmethod
     def from_hex(
@@ -29,6 +30,7 @@ class Surface(typing.Generic[_DSurfDataItem]):
         storage_bitwidth: int,
         T_bitoffset: int = 0,
         T_bitwidth: int = 32,
+        T_dilation: int = 1,
     ) -> "Surface":
         """
         Deserialize a Surface object from a hex string representation.
@@ -55,6 +57,8 @@ class Surface(typing.Generic[_DSurfDataItem]):
             Number of bits before dstream_T.
         T_bitwidth: int, default 32
             Number of bits used to store dstream_T.
+        T_dilation: int, default 1
+            Dilation factor applied to the T counter.
         S: int
             Number of buffer sites used to store data items.
 
@@ -90,7 +94,7 @@ class Surface(typing.Generic[_DSurfDataItem]):
         T_hex = hex_string[T_hexoffset : T_hexoffset + T_hexwidth]
         T = int(T_hex, base=16)
 
-        return Surface(algo, storage, T)
+        return Surface(algo, storage, T, T_dilation=T_dilation)
 
     def to_hex(
         self: "Surface", *, item_bitwidth: int, T_bitwidth: int = 32
@@ -163,6 +167,7 @@ class Surface(typing.Generic[_DSurfDataItem]):
         algo: types.ModuleType,
         storage: typing.Union[typing.MutableSequence[_DSurfDataItem], int],
         T: int = 0,
+        T_dilation: int = 1,
     ) -> None:
         """Initialize a downstream Surface object, which stores hereditary
         stratigraphic annotations using a provided algorithm.
@@ -179,9 +184,18 @@ class Surface(typing.Generic[_DSurfDataItem]):
             supported. For example, for efficient storage, a user may pass
             in a NumPy array.
         T: int, default 0
-            The initial logical time (i.e. how many items have been ingested)
+            The initial logical time (i.e. how many items have been ingested).
+
+            Represents the raw counter value before dilation is applied.
+        T_dilation: int, default 1
+            Dilation factor applied to the T counter. Supports scenarios
+            where data items are ingested every `T_dilation`th counter step.
+
+            The effective logical time used by the algorithm is
+            ``T // T_dilation``.
         """
         self.T = T
+        self.T_dilation = T_dilation
         if isinstance(storage, int):
             self._storage = [None] * storage
         else:
@@ -189,13 +203,14 @@ class Surface(typing.Generic[_DSurfDataItem]):
         self.algo = algo
 
     def __repr__(self) -> str:
-        return f"Surface(algo={self.algo}, storage={self._storage})"
+        return f"Surface(algo={self.algo}, storage={self._storage}, T_dilation={self.T_dilation})"
 
     def __eq__(self: "Surface", other: typing.Any) -> bool:
         if not isinstance(other, Surface):
             return False
         return (
             self.T == other.T
+            and self.T_dilation == other.T_dilation
             and self.algo is other.algo
             and [*self.lookup_zip_items()] == [*other.lookup_zip_items()]
         )
@@ -212,7 +227,11 @@ class Surface(typing.Generic[_DSurfDataItem]):
 
     def __deepcopy__(self: "Surface", memo: dict) -> "Surface":
         """Ensure pickle compatibility when algo is a module."""
-        new_surf = Surface(self.algo, deepcopy(self._storage, memo))
+        new_surf = Surface(
+            self.algo,
+            deepcopy(self._storage, memo),
+            T_dilation=self.T_dilation,
+        )
         new_surf.T = self.T
         return new_surf
 
@@ -282,18 +301,27 @@ class Surface(typing.Generic[_DSurfDataItem]):
         if n_ingests == 0:
             return
 
-        assert self.algo.has_ingest_capacity(self.S, self.T + n_ingests - 1)
+        d = self.T_dilation
+        # effective ingest count before and after this batch
+        eff_before = -((-self.T) // d)  # ceildiv
+        self.T += n_ingests
+        eff_after = -((-self.T) // d)  # ceildiv
+
+        if eff_before == eff_after:
+            return  # no effective time steps elapsed
+
+        assert self.algo.has_ingest_capacity(self.S, eff_after - 1)
         for site, (T_1, T_2) in enumerate(
             zip(
-                self.lookup(),
-                self.algo.lookup_ingest_times(self.S, self.T + n_ingests),
+                self.algo.lookup_ingest_times(self.S, eff_before),
+                self.algo.lookup_ingest_times(self.S, eff_after),
             )
         ):
             if T_1 != T_2 and T_2 is not None:
                 self._storage[site] = item_getter(
-                    T_2 - self.T if use_relative_time else T_2
+                    T_2 - eff_before if use_relative_time else T_2
                 )
-        self.T += n_ingests
+
 
     def ingest_one(
         self: "Surface", item: _DSurfDataItem
@@ -301,14 +329,21 @@ class Surface(typing.Generic[_DSurfDataItem]):
         """Ingest data item.
 
         Returns the storage site of the data item, or None if the data item is
-        not retained.
+        not retained. With ``T_dilation > 1``, items are only stored every
+        ``T_dilation``th call (when the effective time increments); otherwise
+        the item is discarded.
         """
-        assert self.algo.has_ingest_capacity(self.S, self.T)
+        T_effective = self.T // self.T_dilation
+        is_ingest_step = self.T % self.T_dilation == 0
+        self.T += 1
 
-        site = self.algo.assign_storage_site(self.S, self.T)
+        if not is_ingest_step:
+            return None  # not on a dilation boundary, discard
+
+        assert self.algo.has_ingest_capacity(self.S, T_effective)
+        site = self.algo.assign_storage_site(self.S, T_effective)
         if site is not None:
             self._storage[site] = item
-        self.T += 1
         return site
 
     @typing.overload
@@ -337,8 +372,9 @@ class Surface(typing.Generic[_DSurfDataItem]):
         """Iterate over data item ingest times, including null values for
         uninitialized sites."""
         assert len(self._storage) == self.S
+        eff_count = -((-self.T) // self.T_dilation)  # ceildiv
         return (
             T
-            for T in self.algo.lookup_ingest_times(self.S, self.T)
+            for T in self.algo.lookup_ingest_times(self.S, eff_count)
             if include_empty or T is not None
         )
