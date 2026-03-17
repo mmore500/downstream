@@ -309,14 +309,11 @@ class Surface(typing.Generic[_DSurfDataItem]):
         eff_before = -((-self.T) // d)  # ceildiv
         self.T += n_ingests
         eff_after = -((-self.T) // d)  # ceildiv
-        n_eff_ingests = eff_after - eff_before
 
-        if n_eff_ingests == 0:
+        if eff_before == eff_after:
             return  # no effective time steps elapsed
 
-        assert self.algo.has_ingest_capacity(
-            self.S, eff_after - 1,
-        )
+        assert self.algo.has_ingest_capacity(self.S, eff_after - 1)
         for site, (T_1, T_2) in enumerate(
             zip(
                 self.algo.lookup_ingest_times(self.S, eff_before),
