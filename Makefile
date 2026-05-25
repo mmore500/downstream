@@ -60,8 +60,8 @@ ALGOS := \
 default: release validate
 
 .PHONY: all clean check debug debug-cuda default release release-cuda \
-        release-hip validate validate-hip vendor
-all: release validate release-cuda release-hip validate-hip
+        release-hip validate validate-cuda validate-hip vendor
+all: release validate release-cuda validate-cuda release-hip validate-hip
 debug: CFLAGS_nat := $(CFLAGS_nat_debug)
 debug: release
 debug-cuda: NVCCFLAGS_nat := $(NVCCFLAGS_nat_debug)
@@ -100,6 +100,19 @@ validate: debug
 			$$algo.assign_storage_site || exit 1; \
 		$(PYTHON) -m downstream.testing.validate_one \
 			$(MAIN_BIN) \
+			$$algo.assign_storage_site || exit 1; \
+	done
+
+# Requires a real CUDA device at runtime; main.cu aborts otherwise.
+validate-cuda: $(CUDA_BIN)
+	@echo "Running validation tests against $(CUDA_BIN)..."
+	@for algo in $(ALGOS); do \
+		echo "Validating assign_storage_site for $$algo (CUDA build)..."; \
+		$(PYTHON) -m downstream.testing.debug_one \
+			$(CUDA_BIN) \
+			$$algo.assign_storage_site || exit 1; \
+		$(PYTHON) -m downstream.testing.validate_one \
+			$(CUDA_BIN) \
 			$$algo.assign_storage_site || exit 1; \
 	done
 
