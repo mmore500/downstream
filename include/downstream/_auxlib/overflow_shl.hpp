@@ -4,7 +4,7 @@
 
 #include <concepts>
 
-#include "./DOWNSTREAM_HD.hpp"
+#include "./DOWNSTREAM_CUDA_HD.hpp"
 
 namespace downstream {
 namespace _auxlib {
@@ -15,7 +15,7 @@ namespace _auxlib {
  * @exceptsafe no-throw
  */
 template <std::unsigned_integral UINT>
-DOWNSTREAM_HD inline UINT overflow_shl(const UINT a, const UINT b) {
+DOWNSTREAM_CUDA_HD inline UINT overflow_shl(const UINT a, const UINT b) {
   return b < sizeof(UINT) * 8 ? a << b : 0;
 }
 

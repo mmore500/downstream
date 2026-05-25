@@ -12,7 +12,7 @@
 // `CudaEvalAssignStorageSite` buffers every per-pair invocation from the
 // shared dispatcher and flushes once at destruction. When a CUDA device is
 // available and the dispatched algo is `dstream_steady` (whose call graph is
-// DOWNSTREAM_HD-annotated), the flush issues a single bulk kernel launch
+// DOWNSTREAM_CUDA_HD-annotated), the flush issues a single bulk kernel launch
 // (N threads, one H2D copy, one D2H copy) and asserts the device result
 // matches the host result before printing. Other algorithms and the no-GPU
 // path simply print the buffered host results, so the binary remains
