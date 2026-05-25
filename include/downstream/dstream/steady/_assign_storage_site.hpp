@@ -3,7 +3,6 @@
 #define DOWNSTREAM_DSTREAM_STEADY__ASSIGN_STORAGE_SITE_HPP
 
 #include <algorithm>
-#include <bit>
 #include <cassert>
 #include <concepts>
 #include <optional>
@@ -12,6 +11,7 @@
 #include "../../_auxlib/DOWNSTREAM_UINT.hpp"
 #include "../../_auxlib/overflow_shl.hpp"
 #include "../../_auxlib/overflow_shr.hpp"
+#include "../../_auxlib/std_bit.hpp"
 #include "../../_auxlib/std_bit_casted.hpp"
 #include "./_has_ingest_capacity.hpp"
 
@@ -37,16 +37,16 @@ UINT _assign_storage_site(const UINT S, const UINT T) {
   constexpr UINT _1{1};
   namespace aux = downstream::_auxlib;
 
-  const UINT s = std::bit_width(S) - _1;
+  const UINT s = aux::std_bit::bit_width(S) - _1;
   {  // If not a top n(T) hanoi value...
-    const UINT hv_thresh = std::bit_width(static_cast<UINT>(T >> s));
+    const UINT hv_thresh = aux::std_bit::bit_width(static_cast<UINT>(T >> s));
     const UINT tz_mask = ((_1 << hv_thresh) - _1);
     const bool should_discard = (T + _1) & tz_mask;
     if (should_discard) [[likely]]
       return S;  // ...discard without storing
   }
 
-  const UINT blT = std::bit_width(T);
+  const UINT blT = aux::std_bit::bit_width(T);
   [[maybe_unused]] const UINT t = blT - std::min(s, blT);  // Current epoch
   const UINT h = aux::countr_zero_casted<UINT>(T + _1);  // Current hanoi value
   assert(h >= t);  // otherwise, should have been discarded
@@ -58,8 +58,8 @@ UINT _assign_storage_site(const UINT S, const UINT T) {
     o = 0;         // Within-bunch offset
     w = s + _1;    // Segment width
   } else {
-    const UINT j = std::bit_floor(i) - _1;          // Num full-bunch segments
-    const UINT B = std::bit_width(j);               // Num full bunches
+    const UINT j = aux::std_bit::bit_floor(i) - _1;          // Num full-bunch segments
+    const UINT B = aux::std_bit::bit_width(j);               // Num full bunches
     k_b = aux::overflow_shl(_1, B) * (s - B + _1);  // Bunch position
     // substituting t = s - blT into h + 1 - t
     w = h + s + _1 - blT;  // Segment width
