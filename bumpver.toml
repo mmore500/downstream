@@ -10,5 +10,5 @@ push = true
     'cff-version: {pep440_version}',
 ]
 "README.md" = [
-    'downstream[jit]=={pep440_version}',
+    'downstream\[jit\]=={pep440_version}',
 ]
