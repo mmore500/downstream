@@ -9,21 +9,25 @@
 //   python3 -m downstream.testing.validate_one \
 //       ./main_cuda dstream.steady_algo.assign_storage_site
 //
-// Algorithms whose call graph is annotated DOWNSTREAM_HD (currently
-// `dstream_steady`) execute their `_assign_storage_site` on the GPU when a
-// CUDA device is available; the device result is asserted equal to the host
-// result before printing. Other algorithms and the no-GPU path simply fall
-// through to host execution, so the executable still produces correct output
-// in environments without a GPU.
+// `CudaEvalAssignStorageSite` buffers every per-pair invocation from the
+// shared dispatcher and flushes once at destruction. When a CUDA device is
+// available and the dispatched algo is `dstream_steady` (whose call graph is
+// DOWNSTREAM_HD-annotated), the flush issues a single bulk kernel launch
+// (N threads, one H2D copy, one D2H copy) and asserts the device result
+// matches the host result before printing. Other algorithms and the no-GPU
+// path simply print the buffered host results, so the binary remains
+// output-equivalent to ./main in environments without a GPU.
 
 #include <cassert>
 #include <csignal>
+#include <cstddef>
 #include <cstdint>
 #include <iostream>
 #include <optional>
 #include <string>
 #include <string_view>
 #include <type_traits>
+#include <vector>
 
 #include <cuda_runtime.h>
 
@@ -38,19 +42,13 @@ bool cuda_device_available() {
   return cudaGetDeviceCount(&n) == cudaSuccess && n > 0;
 }
 
-__global__ void steady_assign_kernel(std::uint64_t S, std::uint64_t T,
+__global__ void steady_assign_kernel(std::size_t N, const std::uint64_t *S,
+                                     const std::uint64_t *T,
                                      std::uint64_t *out) {
-  *out = downstream::dstream_steady::_assign_storage_site<std::uint64_t>(S, T);
-}
-
-std::uint64_t steady_assign_on_device(std::uint64_t S, std::uint64_t T) {
-  std::uint64_t *d_out = nullptr;
-  cudaMalloc(&d_out, sizeof(std::uint64_t));
-  steady_assign_kernel<<<1, 1>>>(S, T, d_out);
-  std::uint64_t h_out = 0;
-  cudaMemcpy(&h_out, d_out, sizeof(std::uint64_t), cudaMemcpyDeviceToHost);
-  cudaFree(d_out);
-  return h_out;
+  const std::size_t i = blockIdx.x * blockDim.x + threadIdx.x;
+  if (i >= N) return;
+  out[i] = downstream::dstream_steady::_assign_storage_site<std::uint64_t>(
+      S[i], T[i]);
 }
 
 template <template <typename> typename Algo>
@@ -62,41 +60,92 @@ constexpr bool is_steady_algo_v =
 
 struct CudaEvalAssignStorageSite {
   const bool gpu_available;
+  bool is_steady = false;
+  std::vector<std::uint64_t> Ss;
+  std::vector<std::uint64_t> Ts;
+  std::vector<std::uint64_t> host_results;  // sentinel = S (no-capacity/discard)
+  std::vector<unsigned char> has_capacity;
 
   CudaEvalAssignStorageSite() : gpu_available(cuda_device_available()) {}
 
   template <template <typename> typename Algo>
   void operator()(std::uint64_t S, std::uint64_t T, std::uint64_t Smx) {
     namespace downaux = downstream::_auxlib;
-    const bool has_capacity = Algo<std::uint64_t>::has_ingest_capacity(S, T);
-    if (!has_capacity) {
-      std::cout << '\n';
-      return;
+
+    if constexpr (is_steady_algo_v<Algo>) is_steady = true;
+
+    const bool cap = Algo<std::uint64_t>::has_ingest_capacity(S, T);
+    assert(!downaux::can_type_fit_value<std::uint8_t>(S) ||
+           !downaux::can_type_fit_value<std::uint8_t>(T) ||
+           (Algo<std::uint8_t>::has_ingest_capacity(S, T) == cap));
+    assert(!downaux::can_type_fit_value<std::uint16_t>(S) ||
+           !downaux::can_type_fit_value<std::uint16_t>(T) ||
+           (Algo<std::uint16_t>::has_ingest_capacity(S, T) == cap));
+    assert(!downaux::can_type_fit_value<std::uint32_t>(S) ||
+           !downaux::can_type_fit_value<std::uint32_t>(T) ||
+           (Algo<std::uint32_t>::has_ingest_capacity(S, T) == cap));
+
+    std::uint64_t result = S;  // sentinel: no-capacity or discard
+    if (cap) {
+      const auto maybe_site = Algo<std::uint64_t>::assign_storage_site(S, T);
+      assert(!downaux::can_type_fit_value<std::uint8_t>(S * Smx) ||
+             !downaux::can_type_fit_value<std::uint8_t>(T) ||
+             (Algo<std::uint8_t>::assign_storage_site(S, T) == maybe_site));
+      assert(!downaux::can_type_fit_value<std::uint16_t>(S * Smx) ||
+             !downaux::can_type_fit_value<std::uint16_t>(T) ||
+             (Algo<std::uint16_t>::assign_storage_site(S, T) == maybe_site));
+      assert(!downaux::can_type_fit_value<std::uint32_t>(S * Smx) ||
+             !downaux::can_type_fit_value<std::uint32_t>(T) ||
+             (Algo<std::uint32_t>::assign_storage_site(S, T) == maybe_site));
+      if (maybe_site) result = *maybe_site;
     }
 
-    const auto maybe_site = Algo<std::uint64_t>::assign_storage_site(S, T);
+    Ss.push_back(S);
+    Ts.push_back(T);
+    host_results.push_back(result);
+    has_capacity.push_back(cap ? 1 : 0);
+  }
 
-    if constexpr (is_steady_algo_v<Algo>) {
-      if (gpu_available) {
-        const std::uint64_t dev_site = steady_assign_on_device(S, T);
-        const std::uint64_t expected = maybe_site.value_or(S);
-        assert(dev_site == expected);
-        (void)expected;
+  ~CudaEvalAssignStorageSite() {
+    const std::size_t N = Ss.size();
+
+    if (is_steady && gpu_available && N > 0) {
+      std::uint64_t *d_S = nullptr;
+      std::uint64_t *d_T = nullptr;
+      std::uint64_t *d_out = nullptr;
+      const std::size_t bytes = N * sizeof(std::uint64_t);
+      cudaMalloc(&d_S, bytes);
+      cudaMalloc(&d_T, bytes);
+      cudaMalloc(&d_out, bytes);
+      cudaMemcpy(d_S, Ss.data(), bytes, cudaMemcpyHostToDevice);
+      cudaMemcpy(d_T, Ts.data(), bytes, cudaMemcpyHostToDevice);
+
+      constexpr int threads = 256;
+      const int blocks = static_cast<int>((N + threads - 1) / threads);
+      steady_assign_kernel<<<blocks, threads>>>(N, d_S, d_T, d_out);
+
+      std::vector<std::uint64_t> dev_results(N);
+      cudaMemcpy(dev_results.data(), d_out, bytes, cudaMemcpyDeviceToHost);
+      cudaFree(d_S);
+      cudaFree(d_T);
+      cudaFree(d_out);
+
+      for (std::size_t i = 0; i < N; ++i) {
+        assert(dev_results[i] == host_results[i]);
+        (void)dev_results[i];
       }
     }
 
-    // Cross-width invariants, matching the host entrypoint.
-    assert(!downaux::can_type_fit_value<std::uint8_t>(S * Smx) ||
-           !downaux::can_type_fit_value<std::uint8_t>(T) ||
-           (Algo<std::uint8_t>::assign_storage_site(S, T) == maybe_site));
-    assert(!downaux::can_type_fit_value<std::uint16_t>(S * Smx) ||
-           !downaux::can_type_fit_value<std::uint16_t>(T) ||
-           (Algo<std::uint16_t>::assign_storage_site(S, T) == maybe_site));
-    assert(!downaux::can_type_fit_value<std::uint32_t>(S * Smx) ||
-           !downaux::can_type_fit_value<std::uint32_t>(T) ||
-           (Algo<std::uint32_t>::assign_storage_site(S, T) == maybe_site));
-
-    std::cout << (maybe_site ? std::to_string(*maybe_site) : "None") << '\n';
+    for (std::size_t i = 0; i < N; ++i) {
+      if (!has_capacity[i]) {
+        std::cout << '\n';
+      } else if (host_results[i] == Ss[i]) {
+        std::cout << "None\n";
+      } else {
+        std::cout << host_results[i] << '\n';
+      }
+    }
+    std::cout.flush();
   }
 };
 
