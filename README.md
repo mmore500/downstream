@@ -11,11 +11,10 @@
 <!-- [![code coverage status](https://codecov.io/gh/mmore500/downstream/branch/master/graph/badge.svg)](https://codecov.io/gh/mmore500/downstream) -->
 <!-- [![dotos](https://img.shields.io/endpoint?url=https%3A%2F%2Fmmore500.com%2Fdownstream%2Fdoto-badge.json)](https://github.com/mmore500/downstream/search?q=todo+OR+fixme&type=) -->
 
-downstream provides efficient, constant-space implementations of stream curation algorithms.
+downstream provides efficient, constant-space implementations of stream curation algorithms for Python, C++/CUDA, Cerebras Software Language, Python, Rust, and Zig.
 
 -   Free software: MIT license
 -   Documentation: <https://mmore500.github.io/downstream>
-
 
 ## CI Status
 
