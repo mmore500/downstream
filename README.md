@@ -12,16 +12,15 @@
 downstream provides efficient, constant-space implementations of stream curation algorithms.
 
 -   Free software: MIT license
-
-<!---
--   Documentation: <https://downstream.readthedocs.io>.
--->
+-   Documentation: <https://mmore500.github.io/downstream>.
 
 ## Installation
 
 To install from PyPi with pip, run
 
-`python3 -m pip install "downstream[jit]"`
+```bash
+python3 -m pip install "downstream[jit]==1.22.0"
+```
 
 A containerized release of `downstream` is available via <https://ghcr.io>
 
