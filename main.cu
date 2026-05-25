@@ -4,7 +4,7 @@
 // against this binary.
 //
 // Build:
-//   nvcc -std=c++20 --expt-relaxed-constexpr -I. main_cuda.cu -o main_cuda
+//   nvcc -std=c++20 --expt-relaxed-constexpr -I. main.cu -o main_cuda
 // Validate (one algo):
 //   python3 -m downstream.testing.validate_one \
 //       ./main_cuda dstream.steady_algo.assign_storage_site

@@ -70,7 +70,7 @@ $(MAIN_BIN): $(MAIN_BIN).cpp $(HEADERS)
 	@mkdir -p $(dir $@)
 	$(CXX) $(CFLAGS_nat) $< -o $@
 
-$(CUDA_BIN): main_cuda.cu $(HEADERS)
+$(CUDA_BIN): main.cu $(HEADERS)
 	@mkdir -p $(dir $@)
 	$(NVCC) $(NVCCFLAGS_nat) $< -o $@
 
