@@ -3,13 +3,14 @@
 #define DOWNSTREAM_DSTREAM_STRETCHED__ASSIGN_STORAGE_SITE_HPP
 
 #include <algorithm>
-#include <bit>
 #include <cassert>
 #include <concepts>
 #include <optional>
 
+#include "../../_auxlib/DOWNSTREAM_CUDA_HD.hpp"
 #include "../../_auxlib/DOWNSTREAM_UINT.hpp"
 #include "../../_auxlib/overflow_shr.hpp"
+#include "../../_auxlib/std_bit.hpp"
 #include "../../_auxlib/std_bit_casted.hpp"
 #include "./_has_ingest_capacity.hpp"
 
@@ -30,6 +31,7 @@ namespace dstream_stretched {
  * @exceptsafe no-throw
  */
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
+DOWNSTREAM_CUDA_HD
 UINT _assign_storage_site(const UINT S, const UINT T) {
   assert(dstream_stretched::has_ingest_capacity<UINT>(S, T));
   assert(2 * S > S);  // otherwise, calculations overflow
@@ -37,14 +39,14 @@ UINT _assign_storage_site(const UINT S, const UINT T) {
   constexpr UINT _1{1};
   namespace aux = downstream::_auxlib;
 
-  const UINT s = std::bit_width(S) - _1;
-  const UINT blT = std::bit_width(T);
+  const UINT s = aux::std_bit::bit_width(S) - _1;
+  const UINT blT = aux::std_bit::bit_width(T);
   const UINT t = blT - std::min(s, blT);                 // Current epoch
   const UINT h = aux::countr_zero_casted<UINT>(T + _1);  // Current hanoi value
   const UINT i = aux::overflow_shr<UINT>(T, h + _1);
   // ^^^ Hanoi value incidence (i.e., num seen)
 
-  const UINT blt = std::bit_width(t);  // Bit length of t
+  const UINT blt = aux::std_bit::bit_width(t);  // Bit length of t
   bool epsilon_tau =
       aux::bit_floor_casted<UINT>(t << _1) > t + blt;  // Correction factor
   const UINT tau = blt - epsilon_tau;                  // Current meta-epoch
@@ -60,12 +62,12 @@ UINT _assign_storage_site(const UINT S, const UINT T) {
   // Need to calculate physical bunch index...
   // ... i.e., position among bunches left-to-right in buffer space
   const UINT v =
-      std::bit_width(b_l);  // Nestedness depth level of physical bunch
+      aux::std_bit::bit_width(b_l);  // Nestedness depth level of physical bunch
   const UINT w =
       (S >> v) * (v != 0);  // Num bunches spaced between bunches in nest level
   const UINT o = w >> _1;  // Offset of nestedness level in physical bunch order
   const UINT p =
-      b_l - std::bit_floor(b_l);  // Bunch position within nestedness level
+      b_l - aux::std_bit::bit_floor(b_l);  // Bunch position within nestedness level
   const UINT b_p = o + w * p;     // Physical bunch index...
   // ... i.e., in left-to-right sequential bunch order
 

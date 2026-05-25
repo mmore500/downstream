@@ -3,14 +3,15 @@
 #define DOWNSTREAM_DSTREAM_COMPRESSING__ASSIGN_STORAGE_SITE_HPP
 
 #include <algorithm>
-#include <bit>
 #include <cassert>
 #include <concepts>
 #include <optional>
 
+#include "../../_auxlib/DOWNSTREAM_CUDA_HD.hpp"
 #include "../../_auxlib/DOWNSTREAM_UINT.hpp"
 #include "../../_auxlib/overflow_shl.hpp"
 #include "../../_auxlib/overflow_shr.hpp"
+#include "../../_auxlib/std_bit.hpp"
 #include "../../_auxlib/std_bit_casted.hpp"
 #include "./_has_ingest_capacity.hpp"
 
@@ -31,6 +32,7 @@ namespace dstream_compressing {
  * @exceptsafe no-throw
  */
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
+DOWNSTREAM_CUDA_HD
 UINT _assign_storage_site_even_S(const UINT S, const UINT T) {
   assert((S & 1) == 0);
   constexpr UINT _1{1};
@@ -40,7 +42,7 @@ UINT _assign_storage_site_even_S(const UINT S, const UINT T) {
 
   const UINT M = S - _1;
   const UINT T_ = T - _1;
-  const UINT si = std::bit_width(
+  const UINT si = aux::std_bit::bit_width(
       static_cast<UINT>(T_ / M));  // Current sampling interval
   const UINT h =
       aux::countr_zero_casted<UINT>(std::max(T_, _1));  // Hanoi value
@@ -63,13 +65,14 @@ UINT _assign_storage_site_even_S(const UINT S, const UINT T) {
  * @exceptsafe no-throw
  */
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
+DOWNSTREAM_CUDA_HD
 UINT _assign_storage_site_odd_S(const UINT S, const UINT T) {
   assert((S & 1) == 1);
   constexpr UINT _1{1};
   namespace aux = downstream::_auxlib;
 
   const UINT M = S;
-  const UINT si = std::bit_width(
+  const UINT si = aux::std_bit::bit_width(
       static_cast<UINT>(T / M));  // Current sampling interval
   const UINT h =
       aux::countr_zero_casted<UINT>(std::max(T, _1));  // Hanoi value
@@ -90,6 +93,7 @@ UINT _assign_storage_site_odd_S(const UINT S, const UINT T) {
  * @exceptsafe no-throw
  */
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
+DOWNSTREAM_CUDA_HD
 UINT _assign_storage_site(const UINT S, const UINT T) {
   assert(dstream_compressing::has_ingest_capacity<UINT>(S, T));
 

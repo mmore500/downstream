@@ -2,11 +2,12 @@
 #ifndef DOWNSTREAM_DSTREAM_STEADY__HAS_INGEST_CAPACITY_HPP
 #define DOWNSTREAM_DSTREAM_STEADY__HAS_INGEST_CAPACITY_HPP
 
-#include <bit>
 #include <cassert>
 #include <concepts>
 
+#include "../../_auxlib/DOWNSTREAM_CUDA_HD.hpp"
 #include "../../_auxlib/DOWNSTREAM_UINT.hpp"
+#include "../../_auxlib/std_bit.hpp"
 
 namespace downstream {
 namespace dstream_steady {
@@ -23,9 +24,10 @@ namespace dstream_steady {
  * @exceptsafe no-throw
  */
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
+DOWNSTREAM_CUDA_HD
 bool has_ingest_capacity(const UINT S, const UINT T) {
   assert(T >= 0);
-  return std::has_single_bit(S) and S > 1;
+  return downstream::_auxlib::std_bit::has_single_bit(S) and S > 1;
 }
 
 }  // namespace dstream_steady

@@ -2,9 +2,11 @@
 #ifndef DOWNSTREAM_AUXLIB_MODPOW2_HPP
 #define DOWNSTREAM_AUXLIB_MODPOW2_HPP
 
-#include <bit>
 #include <cassert>
 #include <concepts>
+
+#include "./DOWNSTREAM_CUDA_HD.hpp"
+#include "./std_bit.hpp"
 
 namespace downstream {
 namespace _auxlib {
@@ -20,8 +22,9 @@ namespace _auxlib {
  * @exceptsafe no-throw
  */
 template <std::unsigned_integral UINT>
+DOWNSTREAM_CUDA_HD
 inline UINT modpow2(const UINT x, const UINT n) {
-  assert(std::has_single_bit(n));
+  assert(std_bit::has_single_bit(n));
   return x & (n - 1);
 }
 

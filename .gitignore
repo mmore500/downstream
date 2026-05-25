@@ -2,6 +2,10 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=python
 
 main
+main_cuda
+main_hip
+main_hip.cpp
+vendor/
 
 ### Python ###
 # Byte-compiled / optimized / DLL files

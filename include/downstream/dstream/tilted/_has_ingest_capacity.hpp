@@ -2,12 +2,13 @@
 #ifndef DOWNSTREAM_DSTREAM_TILTED__HAS_INGEST_CAPACITY_HPP
 #define DOWNSTREAM_DSTREAM_TILTED__HAS_INGEST_CAPACITY_HPP
 
-#include <bit>
 #include <cassert>
 #include <concepts>
 #include <limits>
 
+#include "../../_auxlib/DOWNSTREAM_CUDA_HD.hpp"
 #include "../../_auxlib/DOWNSTREAM_UINT.hpp"
+#include "../../_auxlib/std_bit.hpp"
 #include "../../_auxlib/overflow_shr.hpp"
 
 namespace downstream {
@@ -25,8 +26,9 @@ namespace dstream_tilted {
  * @exceptsafe no-throw
  */
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
+DOWNSTREAM_CUDA_HD
 bool has_ingest_capacity(const UINT S, const UINT T) {
-  const bool surface_size_ok = S > 1 and std::has_single_bit(S);
+  const bool surface_size_ok = S > 1 and downstream::_auxlib::std_bit::has_single_bit(S);
   const UINT overflow_epsilon = T == std::numeric_limits<UINT>::max();
   return surface_size_ok and
          0 == downstream::_auxlib::overflow_shr<UINT>(              //

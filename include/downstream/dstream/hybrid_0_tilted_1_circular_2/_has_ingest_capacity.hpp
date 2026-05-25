@@ -6,6 +6,7 @@
 #include <concepts>
 #include <optional>
 
+#include "../../_auxlib/DOWNSTREAM_CUDA_HD.hpp"
 #include "../../_auxlib/DOWNSTREAM_UINT.hpp"
 #include "../tilted/_has_ingest_capacity.hpp"
 #include "../circular/_has_ingest_capacity.hpp"
@@ -25,6 +26,7 @@ namespace dstream_hybrid_0_tilted_1_circular_2 {
  * @exceptsafe no-throw
  */
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
+DOWNSTREAM_CUDA_HD
 bool has_ingest_capacity(const UINT S, const UINT T) {
   const UINT half_S = S >> 1;
   const bool has_capacity_1st =
