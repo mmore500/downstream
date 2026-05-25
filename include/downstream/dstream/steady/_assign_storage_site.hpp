@@ -8,6 +8,7 @@
 #include <concepts>
 #include <optional>
 
+#include "../../_auxlib/DOWNSTREAM_HD.hpp"
 #include "../../_auxlib/DOWNSTREAM_UINT.hpp"
 #include "../../_auxlib/overflow_shl.hpp"
 #include "../../_auxlib/overflow_shr.hpp"
@@ -29,7 +30,7 @@ namespace dstream_steady {
  * @exceptsafe no-throw
  */
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
-UINT _assign_storage_site(const UINT S, const UINT T) {
+DOWNSTREAM_HD UINT _assign_storage_site(const UINT S, const UINT T) {
   assert(dstream_steady::has_ingest_capacity<UINT>(S, T));
 
   constexpr UINT _1{1};

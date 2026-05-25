@@ -5,26 +5,28 @@
 #include <bit>
 #include <concepts>
 
+#include "./DOWNSTREAM_HD.hpp"
+
 namespace downstream {
 namespace _auxlib {
 
 template <std::unsigned_integral UINT>
-inline UINT bit_floor_casted(const UINT v) {
+DOWNSTREAM_HD inline UINT bit_floor_casted(const UINT v) {
   return static_cast<UINT>(std::bit_floor(v));
 }
 
 template <std::unsigned_integral UINT>
-inline UINT bit_width_casted(const UINT v) {
+DOWNSTREAM_HD inline UINT bit_width_casted(const UINT v) {
   return static_cast<UINT>(std::bit_width(v));
 }
 
 template <std::unsigned_integral UINT>
-inline UINT countr_zero_casted(const UINT v) {
+DOWNSTREAM_HD inline UINT countr_zero_casted(const UINT v) {
   return static_cast<UINT>(std::countr_zero(v));
 }
 
 template <std::unsigned_integral UINT>
-inline UINT popcount_casted(const UINT v) {
+DOWNSTREAM_HD inline UINT popcount_casted(const UINT v) {
   return static_cast<UINT>(std::popcount(v));
 }
 

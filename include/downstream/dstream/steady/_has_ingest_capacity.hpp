@@ -6,6 +6,7 @@
 #include <cassert>
 #include <concepts>
 
+#include "../../_auxlib/DOWNSTREAM_HD.hpp"
 #include "../../_auxlib/DOWNSTREAM_UINT.hpp"
 
 namespace downstream {
@@ -23,7 +24,7 @@ namespace dstream_steady {
  * @exceptsafe no-throw
  */
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
-bool has_ingest_capacity(const UINT S, const UINT T) {
+DOWNSTREAM_HD bool has_ingest_capacity(const UINT S, const UINT T) {
   assert(T >= 0);
   return std::has_single_bit(S) and S > 1;
 }

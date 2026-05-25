@@ -52,3 +52,25 @@ jobs:
           make clean
           make ${{ matrix.build_mode }}
           make validate
+
+  test-validators-cuda:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install CUDA toolkit
+        uses: Jimver/cuda-toolkit@v0.2.19
+        with:
+          cuda: '12.5.0'
+          method: 'network'
+          sub-packages: '["nvcc", "cudart-dev"]'
+      - name: Install Python dependencies
+        run: |
+          sudo apt-get update
+          python3 -m pip install pip --upgrade
+          python3 -m pip install -r requirements.txt
+      - name: Build CUDA entrypoint
+        run: |
+          make clean
+          make release-cuda
+      - name: Validate CUDA entrypoint (host fallback; no GPU on runner)
+        run: make validate-cuda
