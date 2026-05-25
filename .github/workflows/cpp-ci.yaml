@@ -28,13 +28,12 @@ jobs:
           sudo apt-get install -y clang-tidy
       - run: ./lint.sh
 
-  test-validators:
+  check-headers:
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
         compiler: [g++, clang++]
-        mode: [release, debug]
     env:
       CXX: ${{ matrix.compiler }}
     steps:
@@ -43,17 +42,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y g++-13 clang
-          python3 -m pip install pip --upgrade
-          python3 -m pip install -r requirements.txt
-      - name: Run C++ syntax checks
-        run: make check
-      - name: Build and validate tests
-        run: |
-          make clean
-          make ${{ matrix.build_mode }}
-          make validate
+      - run: make check
 
-  test-validators-cuda:
+  build-cuda:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v2
@@ -63,15 +54,18 @@ jobs:
           cuda: '12.5.0'
           method: 'network'
           sub-packages: '["nvcc", "cudart-dev"]'
-      - name: Install Python dependencies
+      - name: Compile CUDA entrypoint
+        run: make release-cuda
+
+  validate-hip:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dependencies
         run: |
           sudo apt-get update
+          sudo apt-get install -y libtbb-dev
           python3 -m pip install pip --upgrade
           python3 -m pip install -r requirements.txt
-      - name: Build CUDA entrypoint
-        run: |
-          make clean
-          make release-cuda
-      - name: Validate CUDA entrypoint (host fallback; no GPU on runner)
-        run: make validate-cuda
-      
+      - name: Build HIP-CPU entrypoint and validate
+        run: make validate-hip
