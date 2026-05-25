@@ -15,7 +15,8 @@ namespace _auxlib {
  * @exceptsafe no-throw
  */
 template <std::unsigned_integral UINT>
-DOWNSTREAM_CUDA_HD inline UINT overflow_shr(const UINT a, const UINT b) {
+DOWNSTREAM_CUDA_HD
+inline UINT overflow_shr(const UINT a, const UINT b) {
   return b < sizeof(UINT) * 8 ? a >> b : 0;
 }
 

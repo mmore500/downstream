@@ -24,7 +24,8 @@ namespace dstream_circular {
  * @exceptsafe no-throw
  */
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
-DOWNSTREAM_CUDA_HD UINT _assign_storage_site(const UINT S, const UINT T) {
+DOWNSTREAM_CUDA_HD
+UINT _assign_storage_site(const UINT S, const UINT T) {
   assert(dstream_circular::has_ingest_capacity<UINT>(S, T));
 
   return T % S;

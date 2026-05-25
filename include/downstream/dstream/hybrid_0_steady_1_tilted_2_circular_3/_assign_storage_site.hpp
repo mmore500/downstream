@@ -31,7 +31,8 @@ namespace dstream_hybrid_0_steady_1_tilted_2_circular_3 {
  * @exceptsafe no-throw
  */
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
-DOWNSTREAM_CUDA_HD UINT _assign_storage_site(const UINT S, const UINT T) {
+DOWNSTREAM_CUDA_HD
+UINT _assign_storage_site(const UINT S, const UINT T) {
   assert(
       dstream_hybrid_0_steady_1_tilted_2_circular_3::has_ingest_capacity<UINT>(
           S, T));

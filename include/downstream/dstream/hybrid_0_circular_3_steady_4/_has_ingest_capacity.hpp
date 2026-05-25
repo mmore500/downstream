@@ -26,7 +26,8 @@ namespace dstream_hybrid_0_circular_3_steady_4 {
  * @exceptsafe no-throw
  */
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
-DOWNSTREAM_CUDA_HD bool has_ingest_capacity(const UINT S, const UINT T) {
+DOWNSTREAM_CUDA_HD
+bool has_ingest_capacity(const UINT S, const UINT T) {
   if (S < 4 or S % 4 != 0) {
     return false;
   }

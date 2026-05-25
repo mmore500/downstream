@@ -30,7 +30,8 @@ namespace dstream_hybrid_0_circular_3_steady_4 {
  * @exceptsafe no-throw
  */
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
-DOWNSTREAM_CUDA_HD UINT _assign_storage_site(const UINT S, const UINT T) {
+DOWNSTREAM_CUDA_HD
+UINT _assign_storage_site(const UINT S, const UINT T) {
   assert(dstream_hybrid_0_circular_3_steady_4::has_ingest_capacity<UINT>(S, T));
 
   const UINT frac_S = S / 4;

@@ -26,7 +26,8 @@ namespace dstream_hybrid_0_steady_1_stretched_2 {
  * @exceptsafe no-throw
  */
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
-DOWNSTREAM_CUDA_HD bool has_ingest_capacity(const UINT S, const UINT T) {
+DOWNSTREAM_CUDA_HD
+bool has_ingest_capacity(const UINT S, const UINT T) {
   const UINT half_S = S >> 1;
   const bool has_capacity_1st =
       dstream_steady::has_ingest_capacity<UINT>(half_S, T >> 1);

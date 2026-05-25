@@ -24,7 +24,8 @@ namespace dstream_steady {
  * @exceptsafe no-throw
  */
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
-DOWNSTREAM_CUDA_HD bool has_ingest_capacity(const UINT S, const UINT T) {
+DOWNSTREAM_CUDA_HD
+bool has_ingest_capacity(const UINT S, const UINT T) {
   assert(T >= 0);
   return std::has_single_bit(S) and S > 1;
 }
