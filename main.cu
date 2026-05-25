@@ -42,8 +42,6 @@ template <template <typename> typename Algo>
 struct CudaEvalAssignStorageSite {
     std::vector<std::uint64_t> Ss;
     std::vector<std::uint64_t> Ts;
-    std::vector<std::uint64_t> host_results;  // sentinel value = S (no-capacity/discard)
-    std::vector<unsigned char> has_capacity;
 
     CudaEvalAssignStorageSite() { require_cuda_device(); }
 
@@ -59,7 +57,6 @@ struct CudaEvalAssignStorageSite {
             || !downstream::_auxlib::can_type_fit_value<std::uint32_t>(T)
             || (Algo<std::uint32_t>::has_ingest_capacity(S, T) == cap));
 
-        std::uint64_t result = S;  // sentinel: no-capacity or discard
         if (cap) {
             const auto maybe_site = Algo<std::uint64_t>::assign_storage_site(S, T);
             assert(!downstream::_auxlib::can_type_fit_value<std::uint8_t>(S * Smx)
@@ -71,51 +68,43 @@ struct CudaEvalAssignStorageSite {
             assert(!downstream::_auxlib::can_type_fit_value<std::uint32_t>(S * Smx)
                 || !downstream::_auxlib::can_type_fit_value<std::uint32_t>(T)
                 || (Algo<std::uint32_t>::assign_storage_site(S, T) == maybe_site));
-            if (maybe_site) result = *maybe_site;
         }
 
         Ss.push_back(S);
         Ts.push_back(T);
-        host_results.push_back(result);
-        has_capacity.push_back(cap ? 1 : 0);
     }
 
     ~CudaEvalAssignStorageSite() {
         const std::size_t N = Ss.size();
+        if (N == 0) return;
 
-        if (N > 0) {
-            std::uint64_t* d_S = nullptr;
-            std::uint64_t* d_T = nullptr;
-            std::uint64_t* d_out = nullptr;
-            const std::size_t bytes = N * sizeof(std::uint64_t);
-            cudaMalloc(&d_S, bytes);
-            cudaMalloc(&d_T, bytes);
-            cudaMalloc(&d_out, bytes);
-            cudaMemcpy(d_S, Ss.data(), bytes, cudaMemcpyHostToDevice);
-            cudaMemcpy(d_T, Ts.data(), bytes, cudaMemcpyHostToDevice);
+        std::uint64_t* d_S = nullptr;
+        std::uint64_t* d_T = nullptr;
+        std::uint64_t* d_out = nullptr;
+        const std::size_t bytes = N * sizeof(std::uint64_t);
+        cudaMalloc(&d_S, bytes);
+        cudaMalloc(&d_T, bytes);
+        cudaMalloc(&d_out, bytes);
+        cudaMemcpy(d_S, Ss.data(), bytes, cudaMemcpyHostToDevice);
+        cudaMemcpy(d_T, Ts.data(), bytes, cudaMemcpyHostToDevice);
 
-            constexpr int threads = 256;
-            const int blocks = static_cast<int>((N + threads - 1) / threads);
-            assign_kernel<Algo><<<blocks, threads>>>(N, d_S, d_T, d_out);
+        constexpr int threads = 256;
+        const int blocks = static_cast<int>((N + threads - 1) / threads);
+        assign_kernel<Algo><<<blocks, threads>>>(N, d_S, d_T, d_out);
 
-            std::vector<std::uint64_t> dev_results(N);
-            cudaMemcpy(dev_results.data(), d_out, bytes, cudaMemcpyDeviceToHost);
-            cudaFree(d_S);
-            cudaFree(d_T);
-            cudaFree(d_out);
-
-            for (std::size_t i = 0; i < N; ++i) {
-                assert(dev_results[i] == host_results[i]);
-            }
-        }
+        std::vector<std::uint64_t> dev_results(N);
+        cudaMemcpy(dev_results.data(), d_out, bytes, cudaMemcpyDeviceToHost);
+        cudaFree(d_S);
+        cudaFree(d_T);
+        cudaFree(d_out);
 
         for (std::size_t i = 0; i < N; ++i) {
-            if (!has_capacity[i]) {
+            if (!Algo<std::uint64_t>::has_ingest_capacity(Ss[i], Ts[i])) {
                 std::cout << '\n';
-            } else if (host_results[i] == Ss[i]) {
+            } else if (dev_results[i] == Ss[i]) {
                 std::cout << "None\n";
             } else {
-                std::cout << host_results[i] << '\n';
+                std::cout << dev_results[i] << '\n';
             }
         }
         std::cout.flush();
