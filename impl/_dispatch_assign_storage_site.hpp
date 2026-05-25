@@ -7,7 +7,7 @@
 #include <iostream>
 #include <string_view>
 
-#include "./dstream/dstream.hpp"
+#include "include/downstream/dstream/dstream.hpp"
 
 namespace downstream {
 

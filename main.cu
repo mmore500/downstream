@@ -27,8 +27,8 @@
 
 #include <cuda_runtime.h>
 
+#include "impl/_dispatch_assign_storage_site.hpp"
 #include "include/downstream/_auxlib/can_type_fit_value.hpp"
-#include "include/downstream/_dispatch_assign_storage_site.hpp"
 #include "include/downstream/dstream/steady/_assign_storage_site.hpp"
 
 namespace {

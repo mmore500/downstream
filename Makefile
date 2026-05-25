@@ -14,6 +14,7 @@ NVCCFLAGS_nat := -O3 -DNDEBUG $(NVCCFLAGS_all)
 NVCCFLAGS_nat_debug := -g -G $(NVCCFLAGS_all)
 
 HEADERS := $(shell find include -name '*.hpp')
+IMPL_HEADERS := $(shell find impl -name '*.hpp')
 
 MAIN_BIN := ./main
 CUDA_BIN := ./main_cuda
@@ -66,11 +67,11 @@ check:
 	done
 	@echo "All files pass C++20 syntax check"
 
-$(MAIN_BIN): $(MAIN_BIN).cpp $(HEADERS)
+$(MAIN_BIN): $(MAIN_BIN).cpp $(HEADERS) $(IMPL_HEADERS)
 	@mkdir -p $(dir $@)
 	$(CXX) $(CFLAGS_nat) $< -o $@
 
-$(CUDA_BIN): main.cu $(HEADERS)
+$(CUDA_BIN): main.cu $(HEADERS) $(IMPL_HEADERS)
 	@mkdir -p $(dir $@)
 	$(NVCC) $(NVCCFLAGS_nat) $< -o $@
 
