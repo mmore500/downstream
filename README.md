@@ -36,7 +36,7 @@ python3 -m pip install "downstream[jit]==1.22.0"
 A containerized release of `downstream` is available via <https://ghcr.io>
 
 ```bash
-singularity exec docker://ghcr.io/mmore500/downstream python3 -m downstream --help
+singularity exec docker://ghcr.io/mmore500/downstream:v1.22.0 python3 -m downstream --help
 ```
 
 ## Quickstart Guide
