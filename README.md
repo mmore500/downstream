@@ -1,4 +1,4 @@
-# Downstream --- C++ Implementation
+# Downstream --- C++/CUDA Implementation
 
 ![downstream wordmark](https://raw.githubusercontent.com/mmore500/downstream/master/docs/assets/downstream-wordmark.png)
 
@@ -18,6 +18,7 @@ downstream provides efficient, constant-space implementations of stream curation
 
 C++ downstream is packaged as a header-only library.
 It can be added to a system-wide include path, or incorporated as a git submodule in another project.
+CUDA compatible (see `main.cu`).
 
 ## API Reference
 
