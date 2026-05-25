@@ -19,7 +19,7 @@ downstream provides efficient, constant-space implementations of stream curation
 ## CI Status
 
 [![CI](https://github.com/mmore500/downstream/actions/workflows/ci.yaml/badge.svg)](https://github.com/mmore500/downstream/actions/workflows/ci.yaml)
-[![Cpp CI](https://github.com/mmore500/downstream/actions/workflows/cpp-ci.yaml/badge.svg?branch=cpp)](https://github.com/mmore500/downstream/actions/workflows/cpp-ci.yaml?query=branch:cpp)
+[![Cpp/CUDA CI](https://github.com/mmore500/downstream/actions/workflows/cpp-ci.yaml/badge.svg?branch=cpp)](https://github.com/mmore500/downstream/actions/workflows/cpp-ci.yaml?query=branch:cpp)
 [![CSL CI](https://github.com/mmore500/downstream/actions/workflows/csl-ci.yaml/badge.svg?branch=csl)](https://github.com/mmore500/downstream/actions/workflows/csl-ci.yaml?query=branch:csl)
 [![Python CI](https://github.com/mmore500/downstream/actions/workflows/python-ci.yaml/badge.svg?branch=python)](https://github.com/mmore500/downstream/actions/workflows/python-ci.yaml?query=branch:python)
 [![Rust CI](https://github.com/mmore500/downstream/actions/workflows/rust-ci.yaml/badge.svg?branch=rust)](https://github.com/mmore500/downstream/actions/workflows/rust-ci.yaml?query=branch:csl)
@@ -29,7 +29,9 @@ downstream provides efficient, constant-space implementations of stream curation
 
 To install from PyPi with pip, run
 
-`python3 -m pip install "downstream[jit]==1.22.0"`
+```bash
+python3 -m pip install "downstream[jit]==1.22.0"
+```
 
 A containerized release of `downstream` is available via <https://ghcr.io>
 
