@@ -28,6 +28,10 @@ __global__ void assign_kernel(
 ) {
     const std::size_t i = blockIdx.x * blockDim.x + threadIdx.x;
     if (i >= N) return;
+    if (!Algo<std::uint64_t>::has_ingest_capacity(S[i], T[i])) {
+        out[i] = S[i];  // sentinel: no capacity
+        return;
+    }
     out[i] = Algo<std::uint64_t>::_assign_storage_site(S[i], T[i]);
 }
 
