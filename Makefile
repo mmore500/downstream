@@ -6,6 +6,8 @@ NVCC ?= nvcc
 PYTHON ?= python3
 
 CFLAGS_all := -Wall -Wno-unused-function -std=c++20 -I.
+CFLAGS_nat := -O3 -DNDEBUG $(CFLAGS_all)
+CFLAGS_nat_debug := -g $(CFLAGS_all)
 
 NVCCFLAGS_all := -std=c++20 --expt-relaxed-constexpr -I.
 NVCCFLAGS_nat := -O3 -DNDEBUG $(NVCCFLAGS_all)
@@ -14,6 +16,7 @@ NVCCFLAGS_nat_debug := -g -G $(NVCCFLAGS_all)
 HEADERS := $(shell find include -name '*.hpp')
 IMPL_HEADERS := $(shell find impl -name '*.hpp')
 
+MAIN_BIN := ./main
 CUDA_BIN := ./main_cuda
 HIP_BIN := ./main_hip
 HIP_SOURCE := ./main_hip.cpp
@@ -55,14 +58,17 @@ ALGOS := \
 	dstream.stretched_algo \
 	dstream.tilted_algo
 
-default: release-hip validate-hip
+default: release validate
 
-.PHONY: all clean check debug-cuda default release-cuda release-hip \
-        validate-hip vendor
-all: release-cuda release-hip validate-hip
+.PHONY: all clean check debug debug-cuda default release release-cuda \
+        release-hip validate validate-hip vendor
+all: release validate release-cuda release-hip validate-hip
+debug: CFLAGS_nat := $(CFLAGS_nat_debug)
+debug: release
 debug-cuda: NVCCFLAGS_nat := $(NVCCFLAGS_nat_debug)
 debug-cuda: release-cuda
 
+release: $(MAIN_BIN)
 release-cuda: $(CUDA_BIN)
 release-hip: $(HIP_BIN)
 
@@ -70,17 +76,33 @@ check:
 	@echo "Checking C++20 compatibility..."
 	@for file in $(HEADERS); do \
 		echo "Checking $$file with GCC..."; \
-		$(CXX) $(CFLAGS_all) -fsyntax-only "$$file" || exit 1; \
+		$(CXX) $(CFLAGS_nat) -fsyntax-only "$$file" || exit 1; \
 		if command -v $(CXXCLANG) > /dev/null 2>&1; then \
 			echo "Checking $$file with Clang..."; \
-			$(CXXCLANG) $(CFLAGS_all) -fsyntax-only "$$file" || exit 1; \
+			$(CXXCLANG) $(CFLAGS_nat) -fsyntax-only "$$file" || exit 1; \
 		fi \
 	done
 	@echo "All files pass C++20 syntax check"
 
+$(MAIN_BIN): $(MAIN_BIN).cpp $(HEADERS) $(IMPL_HEADERS)
+	@mkdir -p $(dir $@)
+	$(CXX) $(CFLAGS_nat) $< -o $@
+
 $(CUDA_BIN): main.cu $(HEADERS) $(IMPL_HEADERS)
 	@mkdir -p $(dir $@)
 	$(NVCC) $(NVCCFLAGS_nat) $< -o $@
+
+validate: debug
+	@echo "Running validation tests against $(MAIN_BIN)..."
+	@for algo in $(ALGOS); do \
+		echo "Validating assign_storage_site for $$algo..."; \
+		$(PYTHON) -m downstream.testing.debug_one \
+			$(MAIN_BIN) \
+			$$algo.assign_storage_site || exit 1; \
+		$(PYTHON) -m downstream.testing.validate_one \
+			$(MAIN_BIN) \
+			$$algo.assign_storage_site || exit 1; \
+	done
 
 # --- HIP / HIP-CPU pipeline ----------------------------------------------
 # main.cu is translated to a HIP .cpp by hipify-perl, then compiled against
@@ -120,5 +142,5 @@ validate-hip: $(HIP_BIN)
 
 clean:
 	@echo "Cleaning build artifacts..."
-	rm -f $(CUDA_BIN) $(HIP_BIN) $(HIP_SOURCE)
+	rm -f $(MAIN_BIN) $(CUDA_BIN) $(HIP_BIN) $(HIP_SOURCE)
 	rm -rf $(VENDOR_DIR)
