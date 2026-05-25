@@ -6,6 +6,8 @@
 #include <cassert>
 #include <concepts>
 
+#include "./DOWNSTREAM_CUDA_HD.hpp"
+
 namespace downstream {
 namespace _auxlib {
 
@@ -20,7 +22,7 @@ namespace _auxlib {
  * @exceptsafe no-throw
  */
 template <std::unsigned_integral UINT>
-inline UINT modpow2(const UINT x, const UINT n) {
+DOWNSTREAM_CUDA_HD inline UINT modpow2(const UINT x, const UINT n) {
   assert(std::has_single_bit(n));
   return x & (n - 1);
 }

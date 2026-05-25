@@ -5,6 +5,7 @@
 #include <cassert>
 #include <concepts>
 
+#include "../../_auxlib/DOWNSTREAM_CUDA_HD.hpp"
 #include "../../_auxlib/DOWNSTREAM_UINT.hpp"
 
 namespace downstream {
@@ -22,7 +23,7 @@ namespace dstream_compressing {
  * @exceptsafe no-throw
  */
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
-bool has_ingest_capacity(const UINT S, const UINT T) {
+DOWNSTREAM_CUDA_HD bool has_ingest_capacity(const UINT S, const UINT T) {
   assert(T >= 0);
   return S > 0;
 }

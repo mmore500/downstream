@@ -8,6 +8,7 @@
 #include <concepts>
 #include <optional>
 
+#include "../../_auxlib/DOWNSTREAM_CUDA_HD.hpp"
 #include "../../_auxlib/DOWNSTREAM_UINT.hpp"
 #include "../../_auxlib/modpow2.hpp"
 #include "../../_auxlib/overflow_shr.hpp"
@@ -31,7 +32,7 @@ namespace dstream_tilted {
  * @exceptsafe no-throw
  */
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
-UINT _assign_storage_site(const UINT S, const UINT T) {
+DOWNSTREAM_CUDA_HD UINT _assign_storage_site(const UINT S, const UINT T) {
   assert(dstream_tilted::has_ingest_capacity<UINT>(S, T));
   assert(2 * S > S);  // otherwise, calculations overflow
 

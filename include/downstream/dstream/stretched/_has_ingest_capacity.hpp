@@ -7,6 +7,7 @@
 #include <concepts>
 #include <limits>
 
+#include "../../_auxlib/DOWNSTREAM_CUDA_HD.hpp"
 #include "../../_auxlib/DOWNSTREAM_UINT.hpp"
 #include "../../_auxlib/overflow_shr.hpp"
 
@@ -25,7 +26,7 @@ namespace dstream_stretched {
  * @exceptsafe no-throw
  */
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
-bool has_ingest_capacity(const UINT S, const UINT T) {
+DOWNSTREAM_CUDA_HD bool has_ingest_capacity(const UINT S, const UINT T) {
   const bool surface_size_ok = S > 1 and std::has_single_bit(S);
   const UINT overflow_epsilon = T == std::numeric_limits<UINT>::max();
   return surface_size_ok and

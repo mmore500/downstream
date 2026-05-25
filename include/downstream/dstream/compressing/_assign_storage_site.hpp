@@ -8,6 +8,7 @@
 #include <concepts>
 #include <optional>
 
+#include "../../_auxlib/DOWNSTREAM_CUDA_HD.hpp"
 #include "../../_auxlib/DOWNSTREAM_UINT.hpp"
 #include "../../_auxlib/overflow_shl.hpp"
 #include "../../_auxlib/overflow_shr.hpp"
@@ -31,7 +32,7 @@ namespace dstream_compressing {
  * @exceptsafe no-throw
  */
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
-UINT _assign_storage_site_even_S(const UINT S, const UINT T) {
+DOWNSTREAM_CUDA_HD UINT _assign_storage_site_even_S(const UINT S, const UINT T) {
   assert((S & 1) == 0);
   constexpr UINT _1{1};
   namespace aux = downstream::_auxlib;
@@ -63,7 +64,7 @@ UINT _assign_storage_site_even_S(const UINT S, const UINT T) {
  * @exceptsafe no-throw
  */
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
-UINT _assign_storage_site_odd_S(const UINT S, const UINT T) {
+DOWNSTREAM_CUDA_HD UINT _assign_storage_site_odd_S(const UINT S, const UINT T) {
   assert((S & 1) == 1);
   constexpr UINT _1{1};
   namespace aux = downstream::_auxlib;
@@ -90,7 +91,7 @@ UINT _assign_storage_site_odd_S(const UINT S, const UINT T) {
  * @exceptsafe no-throw
  */
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
-UINT _assign_storage_site(const UINT S, const UINT T) {
+DOWNSTREAM_CUDA_HD UINT _assign_storage_site(const UINT S, const UINT T) {
   assert(dstream_compressing::has_ingest_capacity<UINT>(S, T));
 
   return (S & 1) == 0
