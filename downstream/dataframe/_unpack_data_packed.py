@@ -11,6 +11,7 @@ import warnings
 import numpy as np
 import polars as pl
 
+from .._auxlib._get_pl_collect_engine import get_pl_collect_engine
 from .._auxlib._iter_slices import iter_slices
 from .._auxlib._unpack_hex_bits import unpack_hex_bits
 from ._impl._check_expected_columns import check_expected_columns
@@ -43,7 +44,7 @@ def _enforce_hex_aligned(df: pl.DataFrame, col: str) -> None:
         not df.lazy()
         .filter((pl.col(col) & pl.lit(0b11) != 0))
         .limit(1)
-        .collect()
+        .collect(engine=get_pl_collect_engine())
         .is_empty()
     ):
         raise NotImplementedError(f"{col} not hex-aligned")
@@ -85,7 +86,7 @@ def _calculate_offsets(df: pl.DataFrame) -> pl.DataFrame:
                 pl.col(hexoffset) + pl.col(hexwidth)
                 > pl.col("data_hex").str.len_bytes(),
             )
-            .collect()
+            .collect(engine=get_pl_collect_engine())
         )
         if not out_of_bounds.is_empty():
             raise ValueError(
@@ -202,12 +203,12 @@ def _collect_parity_work(
             chunk_lf.select(
                 pl.col("data_hex").str.join(""),
             )
-            .collect()
+            .collect(engine=get_pl_collect_engine())
             .item()
         )
         chunk_indices = (
             chunk_lf.select("_downstream_parity_idx")
-            .collect()["_downstream_parity_idx"]
+            .collect(engine=get_pl_collect_engine())["_downstream_parity_idx"]
             .to_numpy()
         )
         yield chunk_indices, concat_hex, h_matrix, bits_per_row
@@ -262,7 +263,12 @@ def _apply_data_parity0(
         os.environ,
         {"OPENBLAS_NUM_THREADS": "1"} if mp_pool_size > 1 else {},
     ):
-        df_len = df.lazy().select(pl.len()).collect().item()
+        df_len = (
+            df.lazy()
+            .select(pl.len())
+            .collect(engine=get_pl_collect_engine())
+            .item()
+        )
         parity_result = np.zeros(df_len, dtype=int)
 
         logging.info(" - filtering non-empty parity rules...")
@@ -279,14 +285,18 @@ def _apply_data_parity0(
                 ),
             )
         )
-        indexed_len = indexed.select(pl.len()).collect().item()
+        indexed_len = (
+            indexed.select(pl.len())
+            .collect(engine=get_pl_collect_engine())
+            .item()
+        )
         logging.info(
             f" - {indexed_len} of {df_len} row(s) have parity rules...",
         )
         unique_rules = (
             indexed.select("downstream_data_parity0_rule")
             .unique()
-            .collect()
+            .collect(engine=get_pl_collect_engine())
             .to_series()
             .to_list()
         )
@@ -294,7 +304,11 @@ def _apply_data_parity0(
             group = indexed.filter(
                 pl.col("downstream_data_parity0_rule") == h_matrix_str,
             )
-            nrow_group = group.select(pl.len()).collect().item()
+            nrow_group = (
+                group.select(pl.len())
+                .collect(engine=get_pl_collect_engine())
+                .item()
+            )
 
             logging.info(
                 f" - deserializing H matrix for {nrow_group} row(s)...",
@@ -308,7 +322,7 @@ def _apply_data_parity0(
                 group.select(
                     pl.col("data_hex").str.len_bytes().first(),
                 )
-                .collect()
+                .collect(engine=get_pl_collect_engine())
                 .item()
             )
             bits_per_row = hex_len * 4
@@ -369,7 +383,9 @@ def _apply_data_parity0(
 
             group_indices = (
                 group.select("_downstream_parity_idx")
-                .collect()["_downstream_parity_idx"]
+                .collect(engine=get_pl_collect_engine())[
+                    "_downstream_parity_idx"
+                ]
                 .to_numpy()
             )
             group_result = parity_result[group_indices]
@@ -419,7 +435,7 @@ def _extract_from_data_hex(df: pl.DataFrame) -> pl.DataFrame:
                 "dstream_T_bitwidth",
             ],
         )
-        .collect()
+        .collect(engine=get_pl_collect_engine())
     )
 
 
@@ -431,7 +447,7 @@ def _perform_validations(
         df.lazy()
         .select(pl.col(col_name))
         .unique()
-        .collect()
+        .collect(engine=get_pl_collect_engine())
         .to_series()
         .drop_nulls()
         .replace("", None)
@@ -441,11 +457,17 @@ def _perform_validations(
     for validator in validator_strs:
         validation_expr = eval(validator, {"pl": pl})
         group = df.lazy().filter(pl.col(col_name) == validator)
-        if not group.select(validation_expr.all()).collect().item():
+        if (
+            not group.select(validation_expr.all())
+            .collect(engine=get_pl_collect_engine())
+            .item()
+        ):
             err_msg = f"{col_name} `{validator}` failed"
             logging.error(err_msg)
-            failed_rows = group.filter(~validation_expr).collect()
-            logging.error(failed_rows.glimpse(return_type="str"))
+            failed_rows = group.filter(~validation_expr).collect(
+                engine=get_pl_collect_engine()
+            )
+            logging.error(failed_rows.glimpse(return_type="string"))
             for dump_path in (
                 pathlib.Path.home()
                 / f"downstream_validation_fail_{uuid.uuid4()}.pqt",
@@ -471,12 +493,17 @@ def _apply_filters(
     df: pl.DataFrame,
     col_name: str,
 ) -> pl.DataFrame:
-    num_before = df.lazy().select(pl.len()).collect().item()
+    num_before = (
+        df.lazy()
+        .select(pl.len())
+        .collect(engine=get_pl_collect_engine())
+        .item()
+    )
     filter_strs = (
         df.lazy()
         .select(pl.col(col_name))
         .unique()
-        .collect()
+        .collect(engine=get_pl_collect_engine())
         .to_series()
         .drop_nulls()
         .replace("", None)
@@ -491,7 +518,12 @@ def _apply_filters(
             .otherwise(combined_expr)
         )
 
-    df = df.lazy().filter(combined_expr).collect().drop(col_name)
+    df = (
+        df.lazy()
+        .filter(combined_expr)
+        .collect(engine=get_pl_collect_engine())
+        .drop(col_name)
+    )
     num_after = len(df)
     num_filtered = num_before - num_after
     logging.info(
@@ -513,7 +545,7 @@ def _drop_excluded_rows(df: pl.DataFrame) -> pl.DataFrame:
                 & pl.col("downstream_exclude_unpacked")
             ).any()
         )
-        .collect()
+        .collect(engine=get_pl_collect_engine())
         .item()
     )
     if has_dropped_validations:
@@ -524,7 +556,12 @@ def _drop_excluded_rows(df: pl.DataFrame) -> pl.DataFrame:
         )
 
     kept = pl.col("downstream_exclude_unpacked").not_().fill_null(True)
-    num_before = df.lazy().select(pl.len()).collect().item()
+    num_before = (
+        df.lazy()
+        .select(pl.len())
+        .collect(engine=get_pl_collect_engine())
+        .item()
+    )
     df = df.filter(kept).drop("downstream_exclude_unpacked")
     num_after = len(df)
     num_dropped = num_before - num_after
@@ -549,7 +586,10 @@ def _finalize_result_schema(
                 },
             ),
             "relax": lambda df: df,
-            "shrink": lambda df: df.select(pl.all().shrink_dtype()),
+            # Expr.shrink_dtype was removed in polars 2.0
+            "shrink": lambda df: df.with_columns(
+                [s.shrink_dtype() for s in df.get_columns()],
+            ),
         }[result_schema](df)
     except KeyError:
         raise ValueError(f"Invalid arg {result_schema} for result_schema")
@@ -701,7 +741,7 @@ def unpack_data_packed(
     logging.info(" - prepping data...")
 
     _check_df(df)
-    if df.lazy().limit(1).collect().is_empty():
+    if df.lazy().limit(1).collect(engine=get_pl_collect_engine()).is_empty():
         return _make_empty()
 
     logging.info(" - casting data_hex and dstream_algo...")
@@ -727,7 +767,7 @@ def unpack_data_packed(
                 last=pl.col("dstream_data_id").last(),
                 len=pl.len(),
             )
-            .collect()
+            .collect(engine=get_pl_collect_engine())
             .row(named=True)
         )
         logging.info(f" - {dstream_data_id_metrics=}")
