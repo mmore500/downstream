@@ -2,7 +2,6 @@ import warnings
 
 import polars as pl
 
-from ..._auxlib._get_pl_collect_engine import get_pl_collect_engine
 from ..._version import __version__ as downstream_version
 
 
@@ -36,26 +35,14 @@ def check_downstream_version(df: pl.DataFrame) -> None:
             "Dataframe downstream_version column not provided",
         )
     elif (
-        len(
-            df.lazy()
-            .select("downstream_version")
-            .unique()
-            .limit(2)
-            .collect(engine=get_pl_collect_engine())
-        )
+        len(df.lazy().select("downstream_version").unique().limit(2).collect())
         > 1
     ):
         warnings.warn(
             "Multiple downstream_version values detected",
         )
     elif (
-        len(
-            df.lazy()
-            .select("downstream_version")
-            .unique()
-            .limit(1)
-            .collect(engine=get_pl_collect_engine())
-        )
+        len(df.lazy().select("downstream_version").unique().limit(1).collect())
         == 0
     ):
         pass
@@ -64,7 +51,7 @@ def check_downstream_version(df: pl.DataFrame) -> None:
             df.lazy()
             .select("downstream_version")
             .limit(1)
-            .collect(engine=get_pl_collect_engine())
+            .collect()
             .item()
             .split(".")
         ),

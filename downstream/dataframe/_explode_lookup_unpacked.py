@@ -5,7 +5,7 @@ import numpy as np
 import polars as pl
 
 from .. import dstream
-from .._auxlib._get_pl_collect_engine import get_pl_collect_engine
+from .._auxlib._choose_pl_engine import choose_pl_engine
 from .._auxlib._unpack_hex import unpack_hex
 from ._impl._check_downstream_version import check_downstream_version
 from ._impl._check_expected_columns import check_expected_columns
@@ -30,33 +30,16 @@ def _check_df(df: pl.DataFrame) -> None:
         not df.lazy()
         .filter(pl.col("dstream_T") < pl.col("dstream_S"))
         .limit(1)
-        .collect(engine=get_pl_collect_engine())
+        # in-memory: streaming slow to materialize multi-file scans
+        .collect(engine=choose_pl_engine(prefer="in-memory"))
         .is_empty()
     ):
         raise NotImplementedError("T < S not yet supported")
 
-    if (
-        len(
-            df.lazy()
-            .select("dstream_algo")
-            .unique()
-            .limit(2)
-            .collect(engine=get_pl_collect_engine())
-        )
-        > 1
-    ):
+    if len(df.lazy().select("dstream_algo").unique().limit(2).collect()) > 1:
         raise NotImplementedError("Multiple dstream_algo not yet supported")
 
-    if (
-        len(
-            df.lazy()
-            .select("dstream_S")
-            .unique()
-            .limit(2)
-            .collect(engine=get_pl_collect_engine())
-        )
-        > 1
-    ):
+    if len(df.lazy().select("dstream_S").unique().limit(2).collect()) > 1:
         raise NotImplementedError("Multiple dstream_S not yet supported")
 
 
@@ -66,7 +49,8 @@ def _check_bitwidths(df: pl.DataFrame) -> None:
         not df.lazy()
         .filter(pl.col("dstream_value_bitwidth").cast(pl.UInt32) > 64)
         .limit(1)
-        .collect(engine=get_pl_collect_engine())
+        # in-memory: streaming slow to materialize multi-file scans
+        .collect(engine=choose_pl_engine(prefer="in-memory"))
         .is_empty()
     ):
         raise NotImplementedError("Value bitwidth > 64 not yet supported")
@@ -74,7 +58,8 @@ def _check_bitwidths(df: pl.DataFrame) -> None:
         not df.lazy()
         .filter(pl.col("dstream_value_bitwidth").cast(pl.UInt32).is_in([2, 3]))
         .limit(1)
-        .collect(engine=get_pl_collect_engine())
+        # in-memory: streaming slow to materialize multi-file scans
+        .collect(engine=choose_pl_engine(prefer="in-memory"))
         .is_empty()
     ):
         raise NotImplementedError("Value bitwidth 2 and 3 not yet supported")
@@ -82,7 +67,8 @@ def _check_bitwidths(df: pl.DataFrame) -> None:
         not df.lazy()
         .filter(pl.col("dstream_value_bitwidth").diff() != pl.lit(0))
         .limit(1)
-        .collect(engine=get_pl_collect_engine())
+        # in-memory: streaming slow to materialize multi-file scans
+        .collect(engine=choose_pl_engine(prefer="in-memory"))
         .is_empty()
     ):
         raise NotImplementedError("Multiple value bitwidths not yet supported")
@@ -161,7 +147,8 @@ def _unpack_hex_strings(
     concat_hex = (
         df.lazy()
         .select(pl.col("dstream_storage_hex").str.join(""))
-        .collect(engine=get_pl_collect_engine())
+        # in-memory: streaming slow to materialize multi-file scans
+        .collect(engine=choose_pl_engine(prefer="in-memory"))
         .item()
     )
 
@@ -181,10 +168,11 @@ def _lookup_ingest_times(
     dstream_S: int,
 ) -> pl.DataFrame:
 
+    # in-memory: streaming slow to materialize multi-file scans
     dstream_T = (
         df.lazy()
         .select("dstream_T")
-        .collect(engine=get_pl_collect_engine())
+        .collect(engine=choose_pl_engine(prefer="in-memory"))
         .to_numpy()
         .ravel()
     )
@@ -200,7 +188,8 @@ def _lookup_ingest_times(
             dstream_Tbar_argv=pl.Series(values=dstream_Tbar_argv.ravel()),
         )
 
-    return df_long.lazy().collect(engine=get_pl_collect_engine())
+    # in-memory: streaming slow to materialize multi-file scans
+    return df_long.lazy().collect(engine=choose_pl_engine(prefer="in-memory"))
 
 
 def _check_lookup_bounds(df_long: pl.DataFrame) -> None:
@@ -257,9 +246,8 @@ def _finalize_result_schema(
                 },
             ),
             "relax": lambda df: df,
-            # Expr.shrink_dtype was removed in polars 2.0
-            "shrink": lambda df: df.with_columns(
-                [s.shrink_dtype() for s in df.get_columns()],
+            "shrink": lambda df: df.map_columns(
+                pl.selectors.all(), pl.Series.shrink_dtype
             ),
         }[result_schema](df_long)
     except KeyError:
@@ -385,30 +373,13 @@ def explode_lookup_unpacked(
     _check_df(df)
     value_dtype = _get_value_dtype(value_type)
 
-    if df.lazy().limit(1).collect(engine=get_pl_collect_engine()).is_empty():
+    if df.lazy().limit(1).collect().is_empty():
         return _make_empty(value_dtype)
 
-    dstream_S = (
-        df.lazy()
-        .select("dstream_S")
-        .limit(1)
-        .collect(engine=get_pl_collect_engine())
-        .item()
-    )
-    dstream_algo = (
-        df.lazy()
-        .select("dstream_algo")
-        .limit(1)
-        .collect(engine=get_pl_collect_engine())
-        .item()
-    )
+    dstream_S = df.lazy().select("dstream_S").limit(1).collect().item()
+    dstream_algo = df.lazy().select("dstream_algo").limit(1).collect().item()
     dstream_algo = eval(dstream_algo, {"dstream": dstream})
-    num_records = (
-        df.lazy()
-        .select(pl.len())
-        .collect(engine=get_pl_collect_engine())
-        .item()
-    )
+    num_records = df.lazy().select(pl.len()).collect().item()
     num_items = num_records * dstream_S
 
     logging.info("begin explode_lookup_unpacked")
