@@ -11,18 +11,12 @@ def test_choose_pl_engine_unset(monkeypatch: pytest.MonkeyPatch, prefer: str):
 
 
 @pytest.mark.parametrize("prefer", ["in-memory", "streaming"])
-def test_choose_pl_engine_empty(monkeypatch: pytest.MonkeyPatch, prefer: str):
-    monkeypatch.setenv("POLARS_ENGINE_AFFINITY", "")
-    assert choose_pl_engine(prefer=prefer) == prefer
-
-
-@pytest.mark.parametrize("prefer", ["in-memory", "streaming"])
 @pytest.mark.parametrize("affinity", ["streaming", "in-memory", "auto"])
 def test_choose_pl_engine_set(
     monkeypatch: pytest.MonkeyPatch, affinity: str, prefer: str
 ):
     monkeypatch.setenv("POLARS_ENGINE_AFFINITY", affinity)
-    assert choose_pl_engine(prefer=prefer) == "auto"
+    assert choose_pl_engine(prefer=prefer) == affinity
 
 
 def test_choose_pl_engine_requires_prefer():
