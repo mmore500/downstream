@@ -11,6 +11,7 @@ import warnings
 import numpy as np
 import polars as pl
 
+from .._auxlib._choose_pl_engine import choose_pl_engine
 from .._auxlib._iter_slices import iter_slices
 from .._auxlib._unpack_hex_bits import unpack_hex_bits
 from ._impl._check_expected_columns import check_expected_columns
@@ -43,7 +44,8 @@ def _enforce_hex_aligned(df: pl.DataFrame, col: str) -> None:
         not df.lazy()
         .filter((pl.col(col) & pl.lit(0b11) != 0))
         .limit(1)
-        .collect()
+        # in-memory: streaming slow to materialize multi-file scans
+        .collect(engine=choose_pl_engine(prefer="in-memory"))
         .is_empty()
     ):
         raise NotImplementedError(f"{col} not hex-aligned")
@@ -79,13 +81,14 @@ def _calculate_offsets(df: pl.DataFrame) -> pl.DataFrame:
     for what in "dstream_storage", "dstream_T":
         hexoffset = f"{what}_hexoffset"
         hexwidth = f"{what}_hexwidth"
+        # in-memory: streaming slow to materialize multi-file scans
         out_of_bounds = (
             df.lazy()
             .filter(
                 pl.col(hexoffset) + pl.col(hexwidth)
                 > pl.col("data_hex").str.len_bytes(),
             )
-            .collect()
+            .collect(engine=choose_pl_engine(prefer="in-memory"))
         )
         if not out_of_bounds.is_empty():
             raise ValueError(
@@ -198,16 +201,18 @@ def _collect_parity_work(
             "data_hex",
             "_downstream_parity_idx",
         )
+        # in-memory: streaming slow to materialize multi-file scans
         concat_hex = (
             chunk_lf.select(
                 pl.col("data_hex").str.join(""),
             )
-            .collect()
+            .collect(engine=choose_pl_engine(prefer="in-memory"))
             .item()
         )
         chunk_indices = (
             chunk_lf.select("_downstream_parity_idx")
-            .collect()["_downstream_parity_idx"]
+            .collect(engine=choose_pl_engine(prefer="in-memory"))
+            .to_series()
             .to_numpy()
         )
         yield chunk_indices, concat_hex, h_matrix, bits_per_row
@@ -367,9 +372,11 @@ def _apply_data_parity0(
                     )
                     parity_result[chunk_indices] = row_violations
 
+            # in-memory: streaming slow to materialize multi-file scans
             group_indices = (
                 group.select("_downstream_parity_idx")
-                .collect()["_downstream_parity_idx"]
+                .collect(engine=choose_pl_engine(prefer="in-memory"))
+                .to_series()
                 .to_numpy()
             )
             group_result = parity_result[group_indices]
@@ -419,7 +426,8 @@ def _extract_from_data_hex(df: pl.DataFrame) -> pl.DataFrame:
                 "dstream_T_bitwidth",
             ],
         )
-        .collect()
+        # in-memory: streaming slow to materialize multi-file scans
+        .collect(engine=choose_pl_engine(prefer="in-memory"))
     )
 
 
@@ -445,7 +453,7 @@ def _perform_validations(
             err_msg = f"{col_name} `{validator}` failed"
             logging.error(err_msg)
             failed_rows = group.filter(~validation_expr).collect()
-            logging.error(failed_rows.glimpse(return_type="str"))
+            logging.error(failed_rows.glimpse(return_type="string"))
             for dump_path in (
                 pathlib.Path.home()
                 / f"downstream_validation_fail_{uuid.uuid4()}.pqt",
@@ -491,7 +499,13 @@ def _apply_filters(
             .otherwise(combined_expr)
         )
 
-    df = df.lazy().filter(combined_expr).collect().drop(col_name)
+    # in-memory: streaming slow to materialize multi-file scans
+    df = (
+        df.lazy()
+        .filter(combined_expr)
+        .collect(engine=choose_pl_engine(prefer="in-memory"))
+        .drop(col_name)
+    )
     num_after = len(df)
     num_filtered = num_before - num_after
     logging.info(
@@ -549,7 +563,9 @@ def _finalize_result_schema(
                 },
             ),
             "relax": lambda df: df,
-            "shrink": lambda df: df.select(pl.all().shrink_dtype()),
+            "shrink": lambda df: df.map_columns(
+                pl.selectors.all(), pl.Series.shrink_dtype
+            ),
         }[result_schema](df)
     except KeyError:
         raise ValueError(f"Invalid arg {result_schema} for result_schema")

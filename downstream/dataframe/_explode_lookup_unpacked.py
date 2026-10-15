@@ -5,6 +5,7 @@ import numpy as np
 import polars as pl
 
 from .. import dstream
+from .._auxlib._choose_pl_engine import choose_pl_engine
 from .._auxlib._unpack_hex import unpack_hex
 from ._impl._check_downstream_version import check_downstream_version
 from ._impl._check_expected_columns import check_expected_columns
@@ -29,7 +30,8 @@ def _check_df(df: pl.DataFrame) -> None:
         not df.lazy()
         .filter(pl.col("dstream_T") < pl.col("dstream_S"))
         .limit(1)
-        .collect()
+        # in-memory: streaming slow to materialize multi-file scans
+        .collect(engine=choose_pl_engine(prefer="in-memory"))
         .is_empty()
     ):
         raise NotImplementedError("T < S not yet supported")
@@ -47,7 +49,8 @@ def _check_bitwidths(df: pl.DataFrame) -> None:
         not df.lazy()
         .filter(pl.col("dstream_value_bitwidth").cast(pl.UInt32) > 64)
         .limit(1)
-        .collect()
+        # in-memory: streaming slow to materialize multi-file scans
+        .collect(engine=choose_pl_engine(prefer="in-memory"))
         .is_empty()
     ):
         raise NotImplementedError("Value bitwidth > 64 not yet supported")
@@ -55,7 +58,8 @@ def _check_bitwidths(df: pl.DataFrame) -> None:
         not df.lazy()
         .filter(pl.col("dstream_value_bitwidth").cast(pl.UInt32).is_in([2, 3]))
         .limit(1)
-        .collect()
+        # in-memory: streaming slow to materialize multi-file scans
+        .collect(engine=choose_pl_engine(prefer="in-memory"))
         .is_empty()
     ):
         raise NotImplementedError("Value bitwidth 2 and 3 not yet supported")
@@ -63,7 +67,8 @@ def _check_bitwidths(df: pl.DataFrame) -> None:
         not df.lazy()
         .filter(pl.col("dstream_value_bitwidth").diff() != pl.lit(0))
         .limit(1)
-        .collect()
+        # in-memory: streaming slow to materialize multi-file scans
+        .collect(engine=choose_pl_engine(prefer="in-memory"))
         .is_empty()
     ):
         raise NotImplementedError("Multiple value bitwidths not yet supported")
@@ -142,7 +147,8 @@ def _unpack_hex_strings(
     concat_hex = (
         df.lazy()
         .select(pl.col("dstream_storage_hex").str.join(""))
-        .collect()
+        # in-memory: streaming slow to materialize multi-file scans
+        .collect(engine=choose_pl_engine(prefer="in-memory"))
         .item()
     )
 
@@ -162,7 +168,14 @@ def _lookup_ingest_times(
     dstream_S: int,
 ) -> pl.DataFrame:
 
-    dstream_T = df.lazy().select("dstream_T").collect().to_numpy().ravel()
+    # in-memory: streaming slow to materialize multi-file scans
+    dstream_T = (
+        df.lazy()
+        .select("dstream_T")
+        .collect(engine=choose_pl_engine(prefer="in-memory"))
+        .to_numpy()
+        .ravel()
+    )
     dstream_Tbar_values = lookup_op(dstream_S, dstream_T)
     df_long = df_long.with_columns(
         dstream_Tbar=pl.Series(values=dstream_Tbar_values.ravel()),
@@ -175,7 +188,8 @@ def _lookup_ingest_times(
             dstream_Tbar_argv=pl.Series(values=dstream_Tbar_argv.ravel()),
         )
 
-    return df_long.lazy().collect()
+    # in-memory: streaming slow to materialize multi-file scans
+    return df_long.lazy().collect(engine=choose_pl_engine(prefer="in-memory"))
 
 
 def _check_lookup_bounds(df_long: pl.DataFrame) -> None:
@@ -232,7 +246,9 @@ def _finalize_result_schema(
                 },
             ),
             "relax": lambda df: df,
-            "shrink": lambda df: df.select(pl.all().shrink_dtype()),
+            "shrink": lambda df: df.map_columns(
+                pl.selectors.all(), pl.Series.shrink_dtype
+            ),
         }[result_schema](df_long)
     except KeyError:
         raise ValueError(f"Invalid arg {result_schema} for result_schema")

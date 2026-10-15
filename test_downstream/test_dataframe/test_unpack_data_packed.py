@@ -86,6 +86,31 @@ def test_unpack_data_packed():
     assert len(res) == 2
 
 
+def test_unpack_data_packed_shrink():
+
+    df = pl.DataFrame(
+        {
+            "dstream_algo": ["dstream.steady_algo", "dstream.steady_algo"],
+            "downstream_version": [downstream.__version__] * 2,
+            "data_hex": ["aa11ccdd", "221188dd"],
+            "dstream_storage_bitoffset": [0, 0],
+            "dstream_storage_bitwidth": [16, 16],
+            "dstream_T_bitoffset": [16, 16],
+            "dstream_T_bitwidth": [4, 4],
+            "dstream_S": [16, 16],
+        },
+    )
+    res = unpack_data_packed(df, result_schema="shrink")
+    expected = unpack_data_packed(df, result_schema="relax")
+
+    assert res.columns == expected.columns
+    for col in res.columns:
+        assert res[col].to_list() == expected[col].to_list()
+
+    assert res["dstream_S"].dtype == pl.Int8
+    assert res["dstream_T"].dtype == pl.Int8
+
+
 def test_unpack_data_packed2():
 
     df = pl.DataFrame(
@@ -380,7 +405,7 @@ def test_unpack_data_packed_validate_packed_invalid():
             "downstream_validate_packed": ["pl.col('dstream_S') == 42", ""],
         },
     )
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="downstream_validate_packed"):
         unpack_data_packed(df)
 
 

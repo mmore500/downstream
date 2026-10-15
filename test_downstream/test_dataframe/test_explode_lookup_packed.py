@@ -34,6 +34,32 @@ def test_explode_lookup_packed_empty():
     assert res.is_empty()
 
 
+def test_explode_lookup_packed_shrink():
+
+    df = pl.DataFrame(
+        {
+            "dstream_algo": ["dstream.steady_algo", "dstream.steady_algo"],
+            "downstream_version": [downstream.__version__] * 2,
+            "data_hex": ["aa11ccdd", "221188dd"],
+            "dstream_storage_bitoffset": [0, 0],
+            "dstream_storage_bitwidth": [16, 16],
+            "dstream_T_bitoffset": [16, 16],
+            "dstream_T_bitwidth": [16, 16],
+            "dstream_S": [16, 16],
+        },
+    )
+    res = explode_lookup_packed(df, value_type="uint8", result_schema="shrink")
+    expected = explode_lookup_packed(
+        df, value_type="uint8", result_schema="relax"
+    )
+
+    assert res.columns == expected.columns
+    for col in res.columns:
+        assert res[col].to_list() == expected[col].to_list()
+
+    assert res["dstream_data_id"].dtype == pl.UInt8
+
+
 @pytest.mark.parametrize("dstream_T_dilation", [None, 1, 2, 3, 4, 8])
 def test_explode_lookup_packed_bit(dstream_T_dilation: typing.Optional[int]):
 
