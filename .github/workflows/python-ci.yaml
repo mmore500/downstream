@@ -68,6 +68,7 @@ jobs:
           "test_downstream/test_dataframe",
           "test_downstream/test_dstream/test_circular_algo",
           "test_downstream/test_dstream/test_compressing_algo",
+          "test_downstream/test_dstream/test_discard_algo",
           "test_downstream/test_dstream/test_hybrid_algo",
           "test_downstream/test_dstream/test_hybrid_algo_prefab",
           "test_downstream/test_dstream/test_primed_algo",
@@ -103,6 +104,7 @@ jobs:
         algo: [
           "dstream.circular_algo",
           "dstream.compressing_algo",
+          "dstream.discard_algo",
           "dstream.hybrid_0_circular_2_steady_3_algo",
           "dstream.hybrid_0_circular_2_tilted_3_algo",
           "dstream.hybrid_0_circular_3_steady_4_algo",
