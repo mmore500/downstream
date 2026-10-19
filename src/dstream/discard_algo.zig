@@ -12,7 +12,7 @@ const aux = @import("../_auxlib.zig");
 pub fn has_ingest_capacity(comptime u: type, S: u, T: u) bool {
     aux.assert_unsigned(u);
     _ = T;
-    return S > 0;
+    return S >= 0;
 }
 
 /// Site selection for discard curation.
@@ -21,7 +21,7 @@ pub fn has_ingest_capacity(comptime u: type, S: u, T: u) bool {
 ///
 /// @param u Unsigned integer type for operands and return value.
 /// @param S Buffer size.
-///     Must be greater than 0.
+///     Must be non-negative.
 /// @param T Current logical time.
 /// @returns The selected storage site, if any.
 ///     Returns S if no site should be selected (i.e., discard).
