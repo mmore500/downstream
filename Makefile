@@ -37,6 +37,7 @@ HIPLDFLAGS := -ltbb
 ALGOS := \
 	dstream.circular_algo \
 	dstream.compressing_algo \
+	dstream.discard_algo \
 	dstream.hybrid_0_circular_11_steady_12_algo \
 	dstream.hybrid_0_circular_2_steady_3_algo \
 	dstream.hybrid_0_circular_2_tilted_3_algo \
