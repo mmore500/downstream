@@ -88,6 +88,9 @@ fn dispatch(algo_name: &String, S: u64, T: u64) {
         "dstream.compressing_algo.assign_storage_site" => {
             dispatch_algo::<dstream::CompressingAlgo>(S, T, 1) // nofmt
         }
+        "dstream.discard_algo.assign_storage_site" => {
+            dispatch_algo::<dstream::DiscardAlgo>(S, T, 1) // nofmt
+        }
         "dstream.hybrid_0_circular_2_steady_3_algo.assign_storage_site" => {
             dispatch_algo::<dstream::Hybrid0Circular2Steady3Algo>(S, T, 1) // nofmt
         }

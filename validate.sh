@@ -29,6 +29,7 @@ for bin in "target/debug/downstream" "target/release/downstream"; do
 for algo in \
     dstream.circular_algo \
     dstream.compressing_algo \
+    dstream.discard_algo \
     dstream.steady_algo \
     dstream.sticky_algo \
     dstream.stretched_algo \

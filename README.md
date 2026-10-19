@@ -29,6 +29,7 @@ Each algorithm variant is accessible through the `downstream::dstream` module:
 
 * Circular: `downstream::dstream::CircularAlgo`
 * Compressing: `downstream::dstream::CompressingAlgo`
+* Discard: `downstream::dstream::DiscardAlgo`
 * Steady: `downstream::dstream::SteadyAlgo`
 * Sticky: `downstream::dstream::StickyAlgo`
 * Stretched: `downstream::dstream::StretchedAlgo`
