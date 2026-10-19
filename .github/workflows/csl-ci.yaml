@@ -39,6 +39,7 @@ jobs:
           - "wse3"
         target:
           - "set01/dstream.circular_algo.assign_storage_site"
+          - "set01/dstream.discard_algo.assign_storage_site"
           - "set01/dstream.steady_algo.assign_storage_site"
           - "set01/dstream.stretched_algo.assign_storage_site"
           - "set01/dstream.tilted_algo.assign_storage_site"
