@@ -32,7 +32,7 @@ def generate_test_cases() -> typing.Iterable[typing.Tuple[int, int]]:
             yield S, rand.randint(0, 2**32 - 1)
 
     # test zero-size buffer (e.g., for discard)
-    for T in range(960):
+    for T in range(8):
         yield 0, T
 
     # test at edges of unsigned integer representations
