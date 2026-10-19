@@ -1,4 +1,5 @@
 const circular_algo = @import_module("<downstream/dstream/circular_algo>");
+const discard_algo = @import_module("<downstream/dstream/discard_algo>");
 const hybrid_0_circular_11_steady_12_algo = @import_module(
     "<downstream/dstream/hybrid_0_circular_11_steady_12_algo>",
 );

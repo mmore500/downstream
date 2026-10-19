@@ -9,6 +9,7 @@ for CSLC_ARCH_FLAG in "wse2" "wse3"; do
     export CSLC_ARCH_FLAG
 
     ./test.sh 'dstream.circular_algo.assign_storage_site'
+    ./test.sh 'dstream.discard_algo.assign_storage_site'
     ./test.sh 'dstream.steady_algo.assign_storage_site'
     ./test.sh 'dstream.stretched_algo.assign_storage_site'
     ./test.sh 'dstream.tilted_algo.assign_storage_site'
