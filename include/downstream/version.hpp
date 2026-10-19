@@ -1,1 +1,1 @@
-#define DSTREAM_VERSION "v1.24.0"
+#define DSTREAM_VERSION "v1.24.1"
