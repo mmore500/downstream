@@ -9,7 +9,7 @@ def discard_assign_storage_site(S: int, T: int) -> typing.Optional[int]:
     Parameters
     ----------
     S : int
-        Buffer size. Must be positive.
+        Buffer size. Must be non-negative.
     T : int
         Current logical time.
 

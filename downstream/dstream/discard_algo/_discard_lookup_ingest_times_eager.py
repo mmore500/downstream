@@ -11,7 +11,7 @@ def discard_lookup_ingest_times_eager(
     Parameters
     ----------
     S : int
-        Buffer size. Must be positive.
+        Buffer size. Must be non-negative.
     T : int
         Current logical time.
 

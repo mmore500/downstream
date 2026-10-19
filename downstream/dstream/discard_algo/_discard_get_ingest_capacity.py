@@ -11,7 +11,7 @@ def discard_get_ingest_capacity(S: int) -> typing.Optional[int]:
     has_ingest_capacity : Does this algorithm have the capacity to ingest `n`
     data items?
     """
-    surface_size_ok = S >= 1
+    surface_size_ok = S >= 0
     return None if surface_size_ok else 0
 
 
