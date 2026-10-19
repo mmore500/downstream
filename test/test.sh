@@ -24,6 +24,9 @@ python3 -m downstream.testing.debug_one \
     'dstream.compressing_algo.assign_storage_site'
 python3 -m downstream.testing.debug_one \
     ./zig-out/bin/downstream \
+    'dstream.discard_algo.assign_storage_site'
+python3 -m downstream.testing.debug_one \
+    ./zig-out/bin/downstream \
     'dstream.hybrid_0_circular_2_steady_3_algo.assign_storage_site'
 python3 -m downstream.testing.debug_one \
     ./zig-out/bin/downstream \
@@ -83,6 +86,9 @@ python3 -m downstream.testing.validate_one \
 python3 -m downstream.testing.validate_one \
     ./zig-out/bin/downstream \
     'dstream.compressing_algo.assign_storage_site'
+python3 -m downstream.testing.validate_one \
+    ./zig-out/bin/downstream \
+    'dstream.discard_algo.assign_storage_site'
 python3 -m downstream.testing.validate_one \
     ./zig-out/bin/downstream \
     'dstream.hybrid_0_circular_2_steady_3_algo.assign_storage_site'

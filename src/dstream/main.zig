@@ -1,5 +1,6 @@
 pub const circular_algo = @import("circular_algo.zig");
 pub const compressing_algo = @import("compressing_algo.zig");
+pub const discard_algo = @import("discard_algo.zig");
 pub const hybrid_0_circular_2_steady_3_algo = @import(
     "hybrid_0_circular_2_steady_3_algo.zig",
 );

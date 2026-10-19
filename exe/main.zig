@@ -73,6 +73,7 @@ fn dispatch_algo(
 fn dispatch(algo_name: []const u8, values: []const u64) !void {
     const circular_assign = "dstream.circular_algo.assign_storage_site";
     const compressing_assign = "dstream.compressing_algo.assign_storage_site";
+    const discard_assign = "dstream.discard_algo.assign_storage_site";
     const hybrid_0_circular_2_steady_3_assign = "dstream.hybrid_0_circular_2_steady_3_algo.assign_storage_site";
     const hybrid_0_circular_2_tilted_3_assign = "dstream.hybrid_0_circular_2_tilted_3_algo.assign_storage_site";
     const hybrid_0_circular_3_steady_4_assign = "dstream.hybrid_0_circular_3_steady_4_algo.assign_storage_site";
@@ -103,6 +104,13 @@ fn dispatch(algo_name: []const u8, values: []const u64) !void {
     } else if (std.mem.eql(u8, algo_name, compressing_assign)) {
         try dispatch_algo(
             dstream.compressing_algo,
+            values[0],
+            values[1],
+            1,
+        );
+    } else if (std.mem.eql(u8, algo_name, discard_assign)) {
+        try dispatch_algo(
+            dstream.discard_algo,
             values[0],
             values[1],
             1,
