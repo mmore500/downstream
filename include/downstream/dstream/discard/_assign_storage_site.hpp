@@ -16,7 +16,7 @@ namespace dstream_discard {
 /**
  * Internal implementation of site selection for discard curation.
  *
- * @param S Buffer size. Must be positive.
+ * @param S Buffer size. Must be non-negative.
  * @param T Current logical time.
  * @returns The selected storage site, if any.
  *     Returns S if no site should be selected (i.e., discard).
@@ -33,7 +33,7 @@ DOWNSTREAM_CUDA_HD UINT _assign_storage_site(const UINT S, const UINT T) {
 /**
  * Site selection algorithm for discard curation.
  *
- * @param S Buffer size. Must be positive.
+ * @param S Buffer size. Must be non-negative.
  * @param T Current logical time.
  * @returns Selected site, if any.
  *     Returns nullopt if no site should be selected (i.e., discard).

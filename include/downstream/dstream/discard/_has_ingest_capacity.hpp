@@ -16,7 +16,7 @@ namespace dstream_discard {
  * T?
  *
  * @tparam UINT Unsigned integer type for operands and return value.
- * @param S The number of buffer sites available. Must be positive.
+ * @param S The number of buffer sites available. Must be non-negative.
  * @param T Queried logical time.
  * @returns Whether there is capacity to ingest at time T.
  *
@@ -25,7 +25,7 @@ namespace dstream_discard {
 template <std::unsigned_integral UINT = DOWNSTREAM_UINT>
 DOWNSTREAM_CUDA_HD bool has_ingest_capacity(const UINT S, const UINT T) {
   assert(T >= 0);
-  return S > 0;
+  return S >= 0;
 }
 
 }  // namespace dstream_discard
