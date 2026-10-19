@@ -10,7 +10,7 @@ use crate::_auxlib as aux;
 #[allow(non_snake_case)]
 pub fn has_ingest_capacity<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> bool {
     _ = T;
-    S > Uint::zero()
+    S >= Uint::zero()
 }
 
 /// Site selection implementation for discard curation.
@@ -19,7 +19,7 @@ pub fn has_ingest_capacity<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> bool {
 ///
 /// @template Uint Unsigned integer type for operands and return value.
 /// @param S Buffer size.
-///     Must be greater than 0.
+///     Must be non-negative.
 /// @param T Current logical time.
 /// @returns The selected storage site, if any.
 ///     Returns S if no site should be selected (i.e., discard).
@@ -35,7 +35,7 @@ pub fn _assign_storage_site<Uint: aux::UnsignedTrait>(S: Uint, T: Uint) -> Uint 
 ///
 /// @template Uint Unsigned integer type for operands and return value.
 /// @param S Buffer size.
-///     Must be greater than 0.
+///     Must be non-negative.
 /// @param T Current logical time.
 /// @returns The selected storage site, if any.
 ///     Returns None if no site should be selected (i.e., discard).
