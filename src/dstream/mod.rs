@@ -6,6 +6,8 @@ pub mod circular_algo;
 pub use circular_algo::Algo as CircularAlgo;
 pub mod compressing_algo;
 pub use compressing_algo::Algo as CompressingAlgo;
+pub mod discard_algo;
+pub use discard_algo::Algo as DiscardAlgo;
 pub mod steady_algo;
 pub use steady_algo::Algo as SteadyAlgo;
 pub mod sticky_algo;
