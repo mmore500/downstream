@@ -5,7 +5,7 @@
 /// @param T Queried logical time.
 /// @returns Whether there is capacity to ingest at time T.
 fn has_ingest_capacity(S: u32, T: u32) bool {
-    return S > 0;
+    return S >= 0;
 }
 
 /// Site selection for discard curation.
@@ -13,7 +13,7 @@ fn has_ingest_capacity(S: u32, T: u32) bool {
 /// What buffer site should the T'th data item be stored to?
 ///
 /// @param S Buffer size.
-///     Must be greater than 0.
+///     Must be non-negative.
 /// @param T Current logical time.
 /// @returns The selected storage site, if any.
 ///     Returns S if no site should be selected (i.e., discard).
