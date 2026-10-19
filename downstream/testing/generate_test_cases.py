@@ -31,7 +31,7 @@ def generate_test_cases() -> typing.Iterable[typing.Tuple[int, int]]:
             yield S, rand.randint(0, capacity_bound - 1)
             yield S, rand.randint(0, 2**32 - 1)
 
-    # test zero-size buffer (e.g., for discard)
+    # test zero-size buffer (i.e., for discard)
     for T in range(8):
         yield 0, T
 
