@@ -137,6 +137,13 @@ int dispatch_algo_op(const std::string_view target_name) {
         while (std::cin >> S >> T) eval(S, T, 1);
     }
     else if (
+        is_algo_op<discard_algo>(
+        "assign_storage_site", target_name)
+    ) {
+        CudaEvalAssignStorageSite<discard_algo_> eval;
+        while (std::cin >> S >> T) eval(S, T, 1);
+    }
+    else if (
         is_algo_op<hybrid_0_circular_11_steady_12_algo>(
         "assign_storage_site", target_name)
     ) {

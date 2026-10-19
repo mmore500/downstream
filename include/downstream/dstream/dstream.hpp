@@ -7,6 +7,7 @@
 #include "../_auxlib/DOWNSTREAM_UINT.hpp"
 #include "./circular/algo.hpp"
 #include "./compressing/algo.hpp"
+#include "./discard/algo.hpp"
 #include "./hybrid_0_circular_11_steady_12/algo.hpp"
 #include "./hybrid_0_circular_2_steady_3/algo.hpp"
 #include "./hybrid_0_circular_2_tilted_3/algo.hpp"
@@ -41,6 +42,12 @@ template <std::unsigned_integral UINT>
 using compressing_algo_ = dstream_compressing::algo<UINT>;
 /** Convenience typedef instantiating compressing algo obj. */
 using compressing_algo = compressing_algo_<DOWNSTREAM_UINT>;
+
+/** Convenience typedef of discard algo template. */
+template <std::unsigned_integral UINT>
+using discard_algo_ = dstream_discard::algo<UINT>;
+/** Convenience typedef of discard algo obj. */
+using discard_algo = discard_algo_<DOWNSTREAM_UINT>;
 
 /** Convenience typedef of circular_11/steady_12 hybrid algo template. */
 template <std::unsigned_integral UINT>
