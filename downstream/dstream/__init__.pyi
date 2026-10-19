@@ -1,6 +1,7 @@
 from . import (
     circular_algo,
     compressing_algo,
+    discard_algo,
     steady_algo,
     sticky_algo,
     stretched_algo,
@@ -147,6 +148,7 @@ from ._primed_algo_prefab import (
 __all__ = [
     "circular_algo",
     "compressing_algo",
+    "discard_algo",
     "hybrid_algo",
     "hybrid_0_circular_2_steady_3_algo",
     "hybrid_0_circular_2_tilted_3_algo",
