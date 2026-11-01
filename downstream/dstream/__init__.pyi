@@ -12,6 +12,7 @@ from . import (
     xtctail_algo,
 )
 from ._hybrid_algo import hybrid_algo
+from ._rolling_steady_algo import rolling_steady_algo
 from ._hybrid_algo_prefab import (
     hybrid_0_circular_2_steady_3_algo,
     hybrid_0_circular_2_tilted_3_algo,
@@ -150,6 +151,7 @@ __all__ = [
     "compressing_algo",
     "discard_algo",
     "hybrid_algo",
+    "rolling_steady_algo",
     "hybrid_0_circular_2_steady_3_algo",
     "hybrid_0_circular_2_tilted_3_algo",
     "hybrid_0_circular_3_steady_4_algo",
