@@ -71,7 +71,8 @@ def _select_sample(m: int, k: int) -> int:
         e = v.bit_length() - 1
         z = v >> (e - s)
 
-    # C(z//2) = z-popcount(z): keep s+1 leading bits instead of s.
+    # OEIS A005187 (https://oeis.org/A005187): C(i)=2*i-popcount(i).
+    # Hence C(z//2)=z-popcount(z); use s+1 leading bits instead of s.
     return (e - z + z.bit_count() - 2) % (m + 1)
 
 
