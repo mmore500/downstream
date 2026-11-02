@@ -1,4 +1,5 @@
 from copy import deepcopy
+import types
 import typing
 
 import numpy as np
@@ -9,35 +10,19 @@ from .._auxlib._unpack_hex import unpack_hex
 _DSurfDataItem = typing.TypeVar("_DSurfDataItem")
 
 
-class _DStreamAlgo(typing.Protocol):
-    def assign_storage_site(self, S: int, T: int) -> typing.Optional[int]:
-        ...
-
-    def get_ingest_capacity(self, S: int) -> typing.Optional[int]:
-        ...
-
-    def has_ingest_capacity(self, S: int, T: int) -> bool:
-        ...
-
-    def lookup_ingest_times(
-        self, S: int, T: int
-    ) -> typing.Iterable[typing.Optional[int]]:
-        ...
-
-
 class Surface(typing.Generic[_DSurfDataItem]):
     """Container orchestrating downstream curation over a fixed-size buffer."""
 
     __slots__ = ("_storage", "algo", "T")
 
-    algo: _DStreamAlgo
+    algo: types.ModuleType
     _storage: typing.MutableSequence[_DSurfDataItem]
     T: int  # current logical time
 
     @staticmethod
     def from_hex(
         hex_string: str,
-        algo: _DStreamAlgo,
+        algo: types.ModuleType,
         *,
         S: int,
         storage_bitoffset: typing.Optional[int] = None,
@@ -61,7 +46,7 @@ class Surface(typing.Generic[_DSurfDataItem]):
         hex_string: str
             Hex string to be parsed, which can be uppercase or lowercase.
         algo: module
-            Dstream algorithm module or compatible object for the new Surface.
+            Dstream algorithm to use to create the new Surface object.
         storage_bitoffset: int, default T_bitwidth
             Number of bits before the storage.
         storage_bitwidth: int
@@ -175,7 +160,7 @@ class Surface(typing.Generic[_DSurfDataItem]):
 
     def __init__(
         self: "Surface",
-        algo: _DStreamAlgo,
+        algo: types.ModuleType,
         storage: typing.Union[typing.MutableSequence[_DSurfDataItem], int],
         T: int = 0,
     ) -> None:
@@ -185,7 +170,8 @@ class Surface(typing.Generic[_DSurfDataItem]):
         Parameters
         ----------
         algo: module
-            A dstream algorithm module or compatible algorithm object.
+            The algorithm used by the surface to determine the placements
+            of data items. Should be one of the modules in `downstream.dstream`.
         storage: int or MutableSequence
             The object used to hold any ingested data. If an integer is
             passed in, a list of length `storage` is used. Otherwise, the

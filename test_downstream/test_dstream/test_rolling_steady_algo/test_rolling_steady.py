@@ -6,12 +6,15 @@ import numpy as np
 import pytest
 
 from downstream.dstream import rolling_steady_algo, steady_algo
-from downstream.dstream._rolling_steady_algo import (
+from downstream.dstream.rolling_steady_algo import assign_storage_site
+from downstream.dstream.rolling_steady_algo._rolling_steady_assign_storage_site import (
     _select_sample,
-    assign_storage_site,
-    lookup_ingest_times,
 )
 from downstream.dsurf import Surface
+
+
+def lookup_ingest_times(S, T):
+    return list(rolling_steady_algo.lookup_ingest_times(S, T))
 
 
 def _reference_root(m, k):
@@ -39,45 +42,46 @@ def _reference_root(m, k):
 
 
 @pytest.mark.parametrize("S", [4, 8, 16, 32, 64])
-@pytest.mark.parametrize("n", [0, 1, 3, 7])
-def test_replay(S, n):
-    m, d = S // 2, 1 << n
+def test_replay(S):
+    m = S // 2
     storage = [None] * S
     archive = [None] * m
-    assert lookup_ingest_times(S, 0, n) == storage
-    for k in range(1024):
+    assert lookup_ingest_times(S, 0) == storage
+    for T in range(2048):
         # This is the only operation on the proposed policy's payload buffer.
-        storage[assign_storage_site(S, k * d, n)] = k * d
+        storage[assign_storage_site(S, T)] = T
 
         # Independently simulate steady on the prefix outside the window.
-        if k >= m:
-            site = steady_algo.assign_storage_site(m, k - m)
+        if T >= m:
+            site = steady_algo.assign_storage_site(m, T - m)
             if site is not None:
-                archive[site] = (k - m) * d
+                archive[site] = T - m
 
-        b = max(0, k + 1 - m)
-        recent = set(range(b * d, (k + 1) * d, d))
+        b = max(0, T + 1 - m)
+        recent = set(range(b, T + 1))
         old = set(archive) - {None}
         assert not old & recent
         assert set(storage) - {None} == old | recent
-        assert sum(x is not None for x in storage) == min(S, k + 1)
+        assert sum(x is not None for x in storage) == min(S, T + 1)
         assert len(old) == min(m, b)
-        for T in {k * d + 1, (k + 1) * d}:
-            assert lookup_ingest_times(S, T, n) == storage
-            boundary = max(0, T - m * d)
-            assert all(boundary <= t < T for t in recent)
-            assert all(t < boundary for t in old)
+        assert lookup_ingest_times(S, T + 1) == storage
 
 
-def test_discard_between_grid_points():
-    for n in range(1, 7):
-        d = 1 << n
-        for T in range(5 * d):
-            assert (assign_storage_site(16, T, n) is None) == bool(T % d)
+@pytest.mark.parametrize("n", [0, 1, 3, 7])
+def test_caller_sampling(n):
+    # Raw-time sampling remains a caller concern; T counts sampled arrivals.
+    S, d = 16, 1 << n
+    surface = Surface(rolling_steady_algo, S)
+    for raw_time in range(0, 256 * d, d):
+        surface.ingest_one(raw_time)
+        assert list(surface) == [
+            None if t is None else t * d for t in surface.lookup()
+        ]
+    assert set(range((256 - S // 2) * d, 256 * d, d)) <= set(surface)
 
 
 def test_public_surface_interface():
-    algo = rolling_steady_algo(n=2)
+    algo = rolling_steady_algo
     surface = Surface(algo, 16)
     for T in range(256):
         assert surface.ingest_one(T) == algo.assign_storage_site(16, T)
@@ -98,23 +102,23 @@ def test_public_surface_interface():
 
 def test_physical_layout_compatibility():
     # Preserve the original prototype's slot numbering, not only its set.
-    assert lookup_ingest_times(16, 256, 2) == [
-        92,
-        188,
-        156,
-        12,
-        28,
+    assert lookup_ingest_times(16, 64) == [
+        23,
+        47,
+        39,
+        3,
+        7,
+        15,
+        31,
+        63,
+        55,
+        56,
+        57,
+        58,
+        59,
         60,
-        124,
-        252,
-        220,
-        224,
-        228,
-        232,
-        236,
-        240,
-        244,
-        248,
+        61,
+        62,
     ]
 
 
@@ -148,41 +152,42 @@ def test_large_snapshot_uniqueness():
     for _ in range(1000):
         S = 1 << rng.randrange(2, 9)
         T = rng.randrange(1 << 64, 1 << 256)
-        n = rng.randrange(33)
-        q = (T + (1 << n) - 1) >> n
-        b = q - S // 2
+        b = T - S // 2
         expected = {
-            k << n for k in steady_algo.lookup_ingest_times(S // 2, b)
-        } | {k << n for k in range(b, q)}
-        actual = lookup_ingest_times(S, T, n)
+            k for k in steady_algo.lookup_ingest_times(S // 2, b)
+        } | set(range(b, T))
+        actual = lookup_ingest_times(S, T)
         assert None not in actual
         assert len(set(actual)) == S
         assert set(actual) == expected
 
 
 @pytest.mark.parametrize("S", [4, 16, 64, 256])
-@pytest.mark.parametrize("n", [0, 3])
-def test_dyadic_snapshot_boundaries(S, n):
+def test_dyadic_snapshot_boundaries(S):
     m = S // 2
     for extra_bits in (0, 1, 8, 64, 128):
         for offset in (-1, 0, 1, m - 1, m, m + 1):
-            q = (1 << (S.bit_length() + extra_bits)) + offset
-            T = q << n
-            storage = lookup_ingest_times(S, T, n)
+            T = (1 << (S.bit_length() + extra_bits)) + offset
+            storage = lookup_ingest_times(S, T)
             expected = {
-                k << n for k in steady_algo.lookup_ingest_times(m, q - m)
-            } | {k << n for k in range(q - m, q)}
+                k for k in steady_algo.lookup_ingest_times(m, T - m)
+            } | set(range(T - m, T))
             assert len(set(storage)) == S
             assert set(storage) == expected
-            storage[assign_storage_site(S, T, n)] = T
-            assert storage == lookup_ingest_times(S, T + 1, n)
+            storage[assign_storage_site(S, T)] = T
+            assert storage == lookup_ingest_times(S, T + 1)
 
 
-@pytest.mark.parametrize(
-    "S,T,n", [(2, 0, 0), (12, 0, 0), (8, -1, 0), (8, 0, -1)]
-)
-def test_invalid_arguments(S, T, n):
+@pytest.mark.parametrize("S", [0, 1, 2, 3, 12])
+def test_invalid_capacity(S):
     with pytest.raises(ValueError):
-        assign_storage_site(S, T, n)
+        assign_storage_site(S, 0)
     with pytest.raises(ValueError):
-        lookup_ingest_times(S, T, n)
+        lookup_ingest_times(S, 0)
+
+
+def test_negative_time():
+    with pytest.raises(AssertionError):
+        assign_storage_site(8, -1)
+    with pytest.raises(AssertionError):
+        lookup_ingest_times(8, -1)
