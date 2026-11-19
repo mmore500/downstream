@@ -14,6 +14,7 @@ import polars as pl
 from .._auxlib._choose_pl_engine import choose_pl_engine
 from .._auxlib._iter_slices import iter_slices
 from .._auxlib._unpack_hex_bits import unpack_hex_bits
+from ._demultiplex_data_packed import demultiplex_data_packed
 from ._impl._check_expected_columns import check_expected_columns
 
 
@@ -577,6 +578,7 @@ def unpack_data_packed(
     *,
     mp_context: str = "thread",
     mp_pool_size: int = 1,
+    multiplex: int = 0,
     result_schema: typing.Literal["coerce", "relax", "shrink"] = "coerce",
 ) -> pl.DataFrame:
     """Unpack data with dstream buffer and counter serialized into a single
@@ -659,6 +661,13 @@ def unpack_data_packed(
     mp_pool_size : int, default 1
         Number of worker threads for parity computation.
 
+    multiplex : int, default 0
+        Number of serialized records stored back to back in each 'data_hex'
+        field. If 1 or higher, each row is first split into one row per
+        record, as by `demultiplex_data_packed`, adding column
+        'dstream_multiplex_idx', and bit offsets and widths apply within each
+        record. If 0, data is not multiplexed.
+
     result_schema : Literal['coerce', 'relax', 'shrink'], default 'coerce'
         How should dtypes in the output DataFrame be handled?
 
@@ -690,6 +699,11 @@ def unpack_data_packed(
                 - Raw dstream buffer binary data, containing packed data items.
                 - Represented as a hexadecimal string.
 
+        If `multiplex` was 1 or higher:
+
+            - 'dstream_multiplex_idx' : pl.UInt32
+                - Position of record within its multiplexed 'data_hex' field.
+
         If 'downstream_data_parity0_rule' was provided:
 
             - 'downstream_data_parity0_result' : pl.UInt32
@@ -710,6 +724,8 @@ def unpack_data_packed(
 
     See Also
     --------
+    downstream.dataframe.demultiplex_data_packed :
+        Splits multiplexed packed data into one row per record.
     downstream.dataframe.explode_lookup_unpacked :
         Explodes unpacked buffers into individual constituent data items.
     """
@@ -719,6 +735,8 @@ def unpack_data_packed(
     _check_df(df)
     if df.lazy().limit(1).collect().is_empty():
         return _make_empty()
+
+    df = demultiplex_data_packed(df, multiplex=multiplex)
 
     logging.info(" - casting data_hex and dstream_algo...")
     df = df.cast({"data_hex": pl.String, "dstream_algo": pl.Categorical})

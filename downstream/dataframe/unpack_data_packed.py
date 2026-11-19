@@ -34,6 +34,15 @@ def _create_parser() -> argparse.ArgumentParser:
         help="Number of worker threads for parity computation. "
         "Default 1 (sequential, no threading overhead).",
     )
+    parser.add_argument(
+        "--multiplex",
+        default=0,
+        type=int,
+        help="Number of serialized records stored back to back in each "
+        "data_hex field; if 1 or higher, records are split into separate "
+        "rows, with column dstream_multiplex_idx. Default 0 (not "
+        "multiplexed).",
+    )
     return parser
 
 
@@ -47,5 +56,6 @@ if __name__ == "__main__":
             unpack_data_packed,
             mp_context=args.mp_context,
             mp_pool_size=args.mp_pool_size,
+            multiplex=args.multiplex,
         ),
     )
