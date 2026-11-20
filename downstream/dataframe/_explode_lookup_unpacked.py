@@ -126,7 +126,7 @@ def _prep_data(
             "|^dstream_T$"
             "|^dstream_T_dilation$"
             "|^dstream_T_raw$"
-            "|^dstream_multiplex_idx$"
+            "|^dstream_storage_multiplex_idx$"
             "|^downstream_exclude_exploded$"
             "|^downstream_filter_exploded$"
             "|^downstream_validate_exploded$",

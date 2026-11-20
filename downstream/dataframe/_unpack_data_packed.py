@@ -578,7 +578,7 @@ def unpack_data_packed(
     *,
     mp_context: str = "thread",
     mp_pool_size: int = 1,
-    multiplex: int = 0,
+    storage_multiplex: int = 0,
     result_schema: typing.Literal["coerce", "relax", "shrink"] = "coerce",
 ) -> pl.DataFrame:
     """Unpack data with dstream buffer and counter serialized into a single
@@ -661,13 +661,13 @@ def unpack_data_packed(
     mp_pool_size : int, default 1
         Number of worker threads for parity computation.
 
-    multiplex : int, default 0
+    storage_multiplex : int, default 0
         Number of dstream buffers stored back to back in each 'data_hex'
         field, from 'dstream_storage_bitoffset' on, each
         'dstream_storage_bitwidth' bits and sharing dstream_T. If 1 or
         higher, each row is first split into one row per buffer, as by
-        `demultiplex_data_packed`, adding column 'dstream_multiplex_idx'. If
-        0, data is not multiplexed.
+        `demultiplex_data_packed`, adding column
+        'dstream_storage_multiplex_idx'. If 0, data is not multiplexed.
 
     result_schema : Literal['coerce', 'relax', 'shrink'], default 'coerce'
         How should dtypes in the output DataFrame be handled?
@@ -700,9 +700,9 @@ def unpack_data_packed(
                 - Raw dstream buffer binary data, containing packed data items.
                 - Represented as a hexadecimal string.
 
-        If `multiplex` was 1 or higher:
+        If `storage_multiplex` was 1 or higher:
 
-            - 'dstream_multiplex_idx' : pl.UInt32
+            - 'dstream_storage_multiplex_idx' : pl.UInt32
                 - Position of record within its multiplexed 'data_hex' field.
 
         If 'downstream_data_parity0_rule' was provided:
@@ -737,7 +737,7 @@ def unpack_data_packed(
     if df.lazy().limit(1).collect().is_empty():
         return _make_empty()
 
-    df = demultiplex_data_packed(df, multiplex=multiplex)
+    df = demultiplex_data_packed(df, storage_multiplex=storage_multiplex)
 
     logging.info(" - casting data_hex and dstream_algo...")
     df = df.cast({"data_hex": pl.String, "dstream_algo": pl.Categorical})

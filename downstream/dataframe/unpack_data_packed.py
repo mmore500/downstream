@@ -35,12 +35,12 @@ def _create_parser() -> argparse.ArgumentParser:
         "Default 1 (sequential, no threading overhead).",
     )
     parser.add_argument(
-        "--multiplex",
+        "--storage-multiplex",
         default=0,
         type=int,
         help="Number of dstream buffers stored back to back in each "
         "data_hex field, sharing dstream_T; if 1 or higher, buffers are "
-        "split into separate rows, with column dstream_multiplex_idx. "
+        "split into separate rows, with column dstream_storage_multiplex_idx. "
         "Default 0 (not multiplexed).",
     )
     return parser
@@ -56,6 +56,6 @@ if __name__ == "__main__":
             unpack_data_packed,
             mp_context=args.mp_context,
             mp_pool_size=args.mp_pool_size,
-            multiplex=args.multiplex,
+            storage_multiplex=args.storage_multiplex,
         ),
     )
