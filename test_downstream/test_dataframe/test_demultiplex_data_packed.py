@@ -13,7 +13,8 @@ from downstream.dataframe import (
 )
 
 
-def _make_df(data_hex: list, **kwargs) -> pl.DataFrame:
+def _make_df(data_hex: list, multiplex: int = 1) -> pl.DataFrame:
+    """Packed data with `multiplex` 16-bit buffers, then a shared 16-bit T."""
     n = len(data_hex)
     return pl.DataFrame(
         {
@@ -22,16 +23,15 @@ def _make_df(data_hex: list, **kwargs) -> pl.DataFrame:
             "data_hex": data_hex,
             "dstream_storage_bitoffset": [0] * n,
             "dstream_storage_bitwidth": [16] * n,
-            "dstream_T_bitoffset": [16] * n,
+            "dstream_T_bitoffset": [16 * multiplex] * n,
             "dstream_T_bitwidth": [16] * n,
             "dstream_S": [16] * n,
-            **kwargs,
         },
     )
 
 
 def test_demultiplex_data_packed_default():
-    df = _make_df(["aa11ccdd221188dd"])
+    df = _make_df(["aa11ccdd"])
     pl_testing.assert_frame_equal(demultiplex_data_packed(df), df)
     pl_testing.assert_frame_equal(demultiplex_data_packed(df, multiplex=0), df)
 
@@ -40,35 +40,26 @@ def test_demultiplex_data_packed_one():
     df = _make_df(["aa11ccdd", "221188dd"])
     res = demultiplex_data_packed(df, multiplex=1)
 
-    assert res["data_hex"].to_list() == df["data_hex"].to_list()
     assert res["dstream_multiplex_idx"].to_list() == [0, 0]
     assert res["dstream_multiplex_idx"].dtype == pl.UInt32
     pl_testing.assert_frame_equal(res.drop("dstream_multiplex_idx"), df)
 
 
 def test_demultiplex_data_packed_split():
-    df = _make_df(["aa11ccdd221188dd00000001", "0123456789abcdef01234567"])
+    df = _make_df(["aa11ccdd22110001", "0123456789ab0002"], multiplex=3)
     res = demultiplex_data_packed(df, multiplex=3)
 
-    # one row per record, in input row order and then record order
-    assert res["data_hex"].to_list() == [
-        "aa11ccdd",
-        "221188dd",
-        "00000001",
-        "01234567",
-        "89abcdef",
-        "01234567",
-    ]
+    # one row per buffer, in input row order and then buffer order
     assert res["dstream_multiplex_idx"].to_list() == [0, 1, 2, 0, 1, 2]
-    # other columns are forwarded to each record
-    assert res["dstream_S"].to_list() == [16] * 6
+    # each buffer's storage offset points to its own buffer
+    assert res["dstream_storage_bitoffset"].to_list() == [0, 16, 32] * 2
+    # other columns, including data and shared T, are forwarded
+    assert (
+        res["data_hex"].to_list()
+        == [df["data_hex"][0]] * 3 + [df["data_hex"][1]] * 3
+    )
+    assert res["dstream_T_bitoffset"].to_list() == [48] * 6
     assert res.columns == [*df.columns, "dstream_multiplex_idx"]
-
-
-def test_demultiplex_data_packed_misaligned():
-    df = _make_df(["aa11ccdd221188dd"])
-    with pytest.raises(ValueError):
-        demultiplex_data_packed(df, multiplex=3)
 
 
 def test_demultiplex_data_packed_negative():
@@ -78,14 +69,18 @@ def test_demultiplex_data_packed_negative():
 
 
 def test_unpack_data_packed_multiplex():
-    multiplexed = _make_df(["aa11ccdd221188dd"])
-    separate = _make_df(["aa11ccdd", "221188dd"])
+    multiplexed = _make_df(["aa11ccdd0088"], multiplex=2)
+    separate = _make_df(["aa110088", "ccdd0088"])
 
     res = unpack_data_packed(multiplexed, multiplex=2)
     expected = unpack_data_packed(separate)
 
     assert res["dstream_multiplex_idx"].to_list() == [0, 1]
-    pl_testing.assert_frame_equal(res.drop("dstream_multiplex_idx"), expected)
+    assert res["dstream_T"].to_list() == [0x88, 0x88]  # shared T
+    pl_testing.assert_frame_equal(
+        res.drop("dstream_multiplex_idx", "dstream_data_id"),
+        expected.drop("dstream_data_id"),
+    )
 
 
 def test_unpack_data_packed_multiplex_default():
@@ -95,19 +90,18 @@ def test_unpack_data_packed_multiplex_default():
 
 
 def test_explode_lookup_packed_multiplex():
-    multiplexed = _make_df(["aa11ccdd221188dd"])
-    separate = _make_df(["aa11ccdd", "221188dd"])
+    multiplexed = _make_df(["aa11ccdd0088"], multiplex=2)
+    separate = _make_df(["aa110088", "ccdd0088"])
 
     res = explode_lookup_packed(multiplexed, multiplex=2, value_type="uint8")
     expected = explode_lookup_packed(separate, value_type="uint8")
 
-    # each data item keeps the position of its record
-    assert set(res["dstream_multiplex_idx"].to_list()) == {0, 1}
-    assert res.group_by("dstream_data_id").agg(
-        pl.col("dstream_multiplex_idx").n_unique()
-    )["dstream_multiplex_idx"].to_list() == [1, 1]
+    # each data item keeps the position of its buffer
+    assert sorted(res["dstream_multiplex_idx"].unique().to_list()) == [0, 1]
     pl_testing.assert_frame_equal(
-        res.drop("dstream_multiplex_idx"), expected, check_row_order=False
+        res.drop("dstream_multiplex_idx", "dstream_data_id"),
+        expected.drop("dstream_data_id"),
+        check_row_order=False,
     )
 
 
@@ -127,7 +121,7 @@ def test_explode_lookup_packed_multiplex_default():
 def test_multiplex_cli(module: str, tmp_path):
     input_file = os.path.join(tmp_path, "multiplexed.pqt")
     output_file = os.path.join(tmp_path, "output.pqt")
-    _make_df(["aa11ccdd221188dd"]).write_parquet(input_file)
+    _make_df(["aa11ccdd0088"], multiplex=2).write_parquet(input_file)
 
     subprocess.run(
         ["python3", "-m", module, output_file, "--multiplex", "2"],

@@ -662,11 +662,12 @@ def unpack_data_packed(
         Number of worker threads for parity computation.
 
     multiplex : int, default 0
-        Number of serialized records stored back to back in each 'data_hex'
-        field. If 1 or higher, each row is first split into one row per
-        record, as by `demultiplex_data_packed`, adding column
-        'dstream_multiplex_idx', and bit offsets and widths apply within each
-        record. If 0, data is not multiplexed.
+        Number of dstream buffers stored back to back in each 'data_hex'
+        field, from 'dstream_storage_bitoffset' on, each
+        'dstream_storage_bitwidth' bits and sharing dstream_T. If 1 or
+        higher, each row is first split into one row per buffer, as by
+        `demultiplex_data_packed`, adding column 'dstream_multiplex_idx'. If
+        0, data is not multiplexed.
 
     result_schema : Literal['coerce', 'relax', 'shrink'], default 'coerce'
         How should dtypes in the output DataFrame be handled?

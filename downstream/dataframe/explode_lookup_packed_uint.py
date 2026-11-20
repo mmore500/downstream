@@ -41,10 +41,10 @@ def _create_parser() -> argparse.ArgumentParser:
         "--multiplex",
         default=0,
         type=int,
-        help="Number of serialized records stored back to back in each "
-        "data_hex field; if 1 or higher, records are split into separate "
-        "rows, with column dstream_multiplex_idx. Default 0 (not "
-        "multiplexed).",
+        help="Number of dstream buffers stored back to back in each "
+        "data_hex field, sharing dstream_T; if 1 or higher, buffers are "
+        "split into separate rows, with column dstream_multiplex_idx. "
+        "Default 0 (not multiplexed).",
     )
     return parser
 
