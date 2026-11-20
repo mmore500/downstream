@@ -14,6 +14,7 @@ import polars as pl
 from .._auxlib._choose_pl_engine import choose_pl_engine
 from .._auxlib._iter_slices import iter_slices
 from .._auxlib._unpack_hex_bits import unpack_hex_bits
+from ._demultiplex_data_packed import demultiplex_data_packed
 from ._impl._check_expected_columns import check_expected_columns
 
 
@@ -639,6 +640,11 @@ def unpack_data_packed(
         - 'downstream_filter_unpacked' : pl.String, polars expression
             - Polars expression to filter unpacked data; non-matching rows
             are dropped. Applied after validation.
+        - 'dstream_storage_multiplex' : pl.UInt32
+            - Number of dstream buffers stored back to back in row's
+              'data_hex' field (starting at 'dstream_storage_bitoffset', each
+              'dstream_storage_bitwidth' bits) and sharing dstream_T.
+            - If absent or 1, one buffer is assumed per row.
         - 'dstream_T_dilation' : pl.UInt32
             - Dilation factor applied to T counter, if any; supports scenario
             where data items are ingested every `dstream_T_dilation`th counter
@@ -690,6 +696,11 @@ def unpack_data_packed(
                 - Raw dstream buffer binary data, containing packed data items.
                 - Represented as a hexadecimal string.
 
+        If 'dstream_storage_multiplex' was provided:
+
+            - 'dstream_storage_multiplex_id' : pl.UInt32
+                - Order of buffer within back-to-back multiplex block.
+
         If 'downstream_data_parity0_rule' was provided:
 
             - 'downstream_data_parity0_result' : pl.UInt32
@@ -710,6 +721,8 @@ def unpack_data_packed(
 
     See Also
     --------
+    downstream.dataframe.demultiplex_data_packed :
+        Splits multiplexed packed data into one row per buffer.
     downstream.dataframe.explode_lookup_unpacked :
         Explodes unpacked buffers into individual constituent data items.
     """
@@ -719,6 +732,8 @@ def unpack_data_packed(
     _check_df(df)
     if df.lazy().limit(1).collect().is_empty():
         return _make_empty()
+
+    df = demultiplex_data_packed(df)
 
     logging.info(" - casting data_hex and dstream_algo...")
     df = df.cast({"data_hex": pl.String, "dstream_algo": pl.Categorical})
