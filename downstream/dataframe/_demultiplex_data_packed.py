@@ -75,10 +75,9 @@ def demultiplex_data_packed(df: pl.DataFrame) -> pl.DataFrame:
         ],
     )
     num_buffers = pl.col("dstream_storage_multiplex").cast(pl.UInt32)
-    # in-memory: streaming slow to materialize multi-file scans
     invalid = (
-        df.lazy()
-        .filter(num_buffers < 1)
+        df.lazy().filter(num_buffers < 1)
+        # in-memory: streaming slow to materialize multi-file scans
         .collect(engine=choose_pl_engine(prefer="in-memory"))
     )
     if not invalid.is_empty():

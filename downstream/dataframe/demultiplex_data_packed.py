@@ -10,9 +10,8 @@ def _create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         add_help=False,
         allow_abbrev=False,
-        description="Split multiplexed packed data, with several dstream "
-        "buffers stored back to back in each 'data_hex' field, into one row "
-        "per buffer, according to column 'dstream_storage_multiplex'.",
+        description="If multiplexed (i.e., 'dstream_storage_multiplex' "
+        "present), split to one storage buffer per row.",
         formatter_class=argparse.RawTextHelpFormatter,
     )
     _add_parser_base(
