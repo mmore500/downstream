@@ -11,7 +11,7 @@ def demultiplex_data_packed(df: pl.DataFrame) -> pl.DataFrame:
     to back in each 'data_hex' field, into one row per buffer.
 
     If present, column 'dstream_storage_multiplex' gives each row's number
-    of multiplexed buffers. Added rows adjust storage bit offset, keeping
+    of multiplexed buffers. Split rows just adjust storage bit offset, keeping
     original 'data_hex'.
 
     Parameters
@@ -42,8 +42,7 @@ def demultiplex_data_packed(df: pl.DataFrame) -> pl.DataFrame:
     Returns
     -------
     pl.DataFrame
-        DataFrame with one row per buffer, in input row order and then buffer
-        order, with 'dstream_storage_bitoffset' pointing to its buffer.
+        DataFrame with one row per packed buffer.
 
         If 'dstream_storage_multiplex' is present, adds column:
 
@@ -54,8 +53,8 @@ def demultiplex_data_packed(df: pl.DataFrame) -> pl.DataFrame:
     ------
     ValueError
         If required columns are missing, if any 'dstream_storage_multiplex'
-        is less than 1, or if multiplexed buffers extend past the end of
-        'data_hex'.
+        is less than 1, or if multiplexed buffers exceed
+        'data_hex' bounds.
 
     See Also
     --------
