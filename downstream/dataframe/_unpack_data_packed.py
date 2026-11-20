@@ -642,11 +642,10 @@ def unpack_data_packed(
             are dropped. Applied after validation.
         - 'dstream_storage_multiplex' : pl.UInt32
             - Number of dstream buffers stored back to back in row's
-              'data_hex' field, from 'dstream_storage_bitoffset' on, each
-              'dstream_storage_bitwidth' bits and sharing dstream_T; 0 (or 1)
-              if not multiplexed.
-            - If present, each row is first split into one row per buffer,
-              as by `demultiplex_data_packed`.
+              'data_hex' field (starting at 'dstream_storage_bitoffset', each
+              'dstream_storage_bitwidth' bits) and sharing dstream_T; 0 (or
+              1) if not multiplexed.
+            - If present, data is preprocessed via `demultiplex_data_packed`.
         - 'dstream_T_dilation' : pl.UInt32
             - Dilation factor applied to T counter, if any; supports scenario
             where data items are ingested every `dstream_T_dilation`th counter
@@ -700,8 +699,8 @@ def unpack_data_packed(
 
         If 'dstream_storage_multiplex' was provided:
 
-            - 'dstream_storage_multiplex_idx' : pl.UInt32
-                - Position of buffer within its multiplexed 'data_hex' field.
+            - 'dstream_storage_multiplex_id' : pl.UInt32
+                - Order of buffer within back-to-back multiplex block.
 
         If 'downstream_data_parity0_rule' was provided:
 

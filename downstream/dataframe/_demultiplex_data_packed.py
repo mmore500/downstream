@@ -48,7 +48,7 @@ def demultiplex_data_packed(df: pl.DataFrame) -> pl.DataFrame:
 
         If 'dstream_storage_multiplex' is present, adds column:
 
-        - 'dstream_storage_multiplex_idx' : pl.UInt32
+        - 'dstream_storage_multiplex_id' : pl.UInt32
             - Position of buffer within its multiplexed 'data_hex' field.
 
     Raises
@@ -79,7 +79,7 @@ def demultiplex_data_packed(df: pl.DataFrame) -> pl.DataFrame:
         pl.col("dstream_storage_multiplex").cast(pl.UInt32), pl.lit(1)
     )
 
-    # last buffer must end within data_hex; earlier buffers then do too
+    # check if last buffer out of bounds within data_hex
     out_of_bounds = (
         df.lazy().filter(
             pl.col("dstream_storage_bitoffset")
@@ -100,14 +100,14 @@ def demultiplex_data_packed(df: pl.DataFrame) -> pl.DataFrame:
 
     df = (
         df.with_columns(
-            dstream_storage_multiplex_idx=pl.int_ranges(
+            dstream_storage_multiplex_id=pl.int_ranges(
                 num_buffers, dtype=pl.UInt32
             ),
         )
-        .explode("dstream_storage_multiplex_idx")
+        .explode("dstream_storage_multiplex_id")
         .with_columns(
             dstream_storage_bitoffset=pl.col("dstream_storage_bitoffset")
-            + pl.col("dstream_storage_multiplex_idx")
+            + pl.col("dstream_storage_multiplex_id")
             * pl.col("dstream_storage_bitwidth"),
         )
     )

@@ -46,11 +46,9 @@ def test_demultiplex_data_packed_unmultiplexed(value: int):
     df = _with_multiplex(_make_df(["aa11ccdd", "221188dd"]), [value] * 2)
     res = demultiplex_data_packed(df)
 
-    assert res["dstream_storage_multiplex_idx"].to_list() == [0, 0]
-    assert res["dstream_storage_multiplex_idx"].dtype == pl.UInt32
-    pl_testing.assert_frame_equal(
-        res.drop("dstream_storage_multiplex_idx"), df
-    )
+    assert res["dstream_storage_multiplex_id"].to_list() == [0, 0]
+    assert res["dstream_storage_multiplex_id"].dtype == pl.UInt32
+    pl_testing.assert_frame_equal(res.drop("dstream_storage_multiplex_id"), df)
 
 
 def test_demultiplex_data_packed_split():
@@ -60,7 +58,7 @@ def test_demultiplex_data_packed_split():
     res = demultiplex_data_packed(df)
 
     # one row per buffer, in input row order and then buffer order
-    assert res["dstream_storage_multiplex_idx"].to_list() == [0, 1, 2] * 2
+    assert res["dstream_storage_multiplex_id"].to_list() == [0, 1, 2] * 2
     # each buffer's storage offset points to its own buffer
     assert res["dstream_storage_bitoffset"].to_list() == [0, 16, 32] * 2
     # other columns, including data and shared T, are forwarded
@@ -69,13 +67,13 @@ def test_demultiplex_data_packed_split():
         == [df["data_hex"][0]] * 3 + [df["data_hex"][1]] * 3
     )
     assert res["dstream_T_bitoffset"].to_list() == [48] * 6
-    assert res.columns == [*df.columns, "dstream_storage_multiplex_idx"]
+    assert res.columns == [*df.columns, "dstream_storage_multiplex_id"]
 
 
 def test_demultiplex_data_packed_mixed():
     df = _with_multiplex(_make_df(["aa11ccdd0088", "aa110088"]), [2, 0])
     res = demultiplex_data_packed(df)
-    assert res["dstream_storage_multiplex_idx"].to_list() == [0, 1, 0]
+    assert res["dstream_storage_multiplex_id"].to_list() == [0, 1, 0]
     assert res["dstream_storage_bitoffset"].to_list() == [0, 16, 0]
 
 
@@ -93,12 +91,12 @@ def test_unpack_data_packed_multiplex():
     res = unpack_data_packed(multiplexed)
     expected = unpack_data_packed(separate)
 
-    assert res["dstream_storage_multiplex_idx"].to_list() == [0, 1]
+    assert res["dstream_storage_multiplex_id"].to_list() == [0, 1]
     assert res["dstream_T"].to_list() == [0x88, 0x88]  # shared T
     pl_testing.assert_frame_equal(
         res.drop(
             "dstream_storage_multiplex",
-            "dstream_storage_multiplex_idx",
+            "dstream_storage_multiplex_id",
             "dstream_data_id",
             strict=False,
         ),
@@ -108,7 +106,7 @@ def test_unpack_data_packed_multiplex():
 
 def test_unpack_data_packed_multiplex_absent():
     res = unpack_data_packed(_make_df(["aa11ccdd", "221188dd"]))
-    assert "dstream_storage_multiplex_idx" not in res.columns
+    assert "dstream_storage_multiplex_id" not in res.columns
 
 
 def test_explode_lookup_packed_multiplex():
@@ -119,9 +117,9 @@ def test_explode_lookup_packed_multiplex():
     expected = explode_lookup_packed(separate, value_type="uint8")
 
     # each data item keeps the position of its buffer
-    assert sorted(res["dstream_storage_multiplex_idx"].unique()) == [0, 1]
+    assert sorted(res["dstream_storage_multiplex_id"].unique()) == [0, 1]
     pl_testing.assert_frame_equal(
-        res.drop("dstream_storage_multiplex_idx", "dstream_data_id"),
+        res.drop("dstream_storage_multiplex_id", "dstream_data_id"),
         expected.drop("dstream_data_id"),
         check_row_order=False,
     )
@@ -147,4 +145,4 @@ def test_multiplex_cli(module: str, tmp_path):
         input=input_file.encode(),
     )
     res = pl.read_parquet(output_file)
-    assert set(res["dstream_storage_multiplex_idx"].to_list()) == {0, 1}
+    assert set(res["dstream_storage_multiplex_id"].to_list()) == {0, 1}
