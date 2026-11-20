@@ -41,9 +41,8 @@ def test_demultiplex_data_packed_absent():
     pl_testing.assert_frame_equal(demultiplex_data_packed(df), df)
 
 
-@pytest.mark.parametrize("value", [0, 1])
-def test_demultiplex_data_packed_unmultiplexed(value: int):
-    df = _with_multiplex(_make_df(["aa11ccdd", "221188dd"]), [value] * 2)
+def test_demultiplex_data_packed_unmultiplexed():
+    df = _with_multiplex(_make_df(["aa11ccdd", "221188dd"]), [1, 1])
     res = demultiplex_data_packed(df)
 
     assert res["dstream_storage_multiplex_id"].to_list() == [0, 0]
@@ -71,10 +70,16 @@ def test_demultiplex_data_packed_split():
 
 
 def test_demultiplex_data_packed_mixed():
-    df = _with_multiplex(_make_df(["aa11ccdd0088", "aa110088"]), [2, 0])
+    df = _with_multiplex(_make_df(["aa11ccdd0088", "aa110088"]), [2, 1])
     res = demultiplex_data_packed(df)
     assert res["dstream_storage_multiplex_id"].to_list() == [0, 1, 0]
     assert res["dstream_storage_bitoffset"].to_list() == [0, 16, 0]
+
+
+def test_demultiplex_data_packed_zero():
+    df = _with_multiplex(_make_df(["aa11ccdd"]), [0])
+    with pytest.raises(ValueError):
+        demultiplex_data_packed(df)
 
 
 def test_demultiplex_data_packed_out_of_bounds():
@@ -130,6 +135,7 @@ def test_explode_lookup_packed_multiplex():
     [
         "downstream.dataframe.unpack_data_packed",
         "downstream.dataframe.explode_lookup_packed_uint",
+        "downstream.dataframe.demultiplex_data_packed",
     ],
 )
 def test_multiplex_cli(module: str, tmp_path):

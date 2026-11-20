@@ -8,12 +8,11 @@ from ._impl._check_expected_columns import check_expected_columns
 
 def demultiplex_data_packed(df: pl.DataFrame) -> pl.DataFrame:
     """Split multiplexed packed data, with several dstream buffers stored back
-    to back in each 'data_hex' field and sharing other fields (such as the
-    dstream counter T), into one row per buffer.
+    to back in each 'data_hex' field, into one row per buffer.
 
-    Rows are demultiplexed by their 'dstream_storage_multiplex' value, if
-    that column is present. Each output row keeps the whole 'data_hex'
-    field, with its storage bit offset shifted to its own buffer.
+    Column 'dstream_storage_multiplex' gives each row's number of buffers, if
+    that column is present. Added rows adjust storage bit offset, keeping
+    original 'data_hex'.
 
     Parameters
     ----------
@@ -33,8 +32,8 @@ def demultiplex_data_packed(df: pl.DataFrame) -> pl.DataFrame:
         Optional schema:
 
         - 'dstream_storage_multiplex' : pl.UInt32
-            - Number of buffers multiplexed into row's 'data_hex' field; 0
-              (or 1) if not multiplexed.
+            - Number of buffers multiplexed into row's 'data_hex' field; 1
+              if not multiplexed.
             - If absent, `df` is returned unchanged.
 
         Other columns, such as dstream T bit offset and width, are shared by
@@ -54,8 +53,9 @@ def demultiplex_data_packed(df: pl.DataFrame) -> pl.DataFrame:
     Raises
     ------
     ValueError
-        If required columns are missing, or if multiplexed buffers extend
-        past the end of 'data_hex'.
+        If required columns are missing, if any 'dstream_storage_multiplex'
+        is less than 1, or if multiplexed buffers extend past the end of
+        'data_hex'.
 
     See Also
     --------
@@ -74,10 +74,18 @@ def demultiplex_data_packed(df: pl.DataFrame) -> pl.DataFrame:
             "dstream_storage_bitwidth",
         ],
     )
-    # unmultiplexed rows, with 0, hold one buffer
-    num_buffers = pl.max_horizontal(
-        pl.col("dstream_storage_multiplex").cast(pl.UInt32), pl.lit(1)
+    num_buffers = pl.col("dstream_storage_multiplex").cast(pl.UInt32)
+    # in-memory: streaming slow to materialize multi-file scans
+    invalid = (
+        df.lazy()
+        .filter(num_buffers < 1)
+        .collect(engine=choose_pl_engine(prefer="in-memory"))
     )
+    if not invalid.is_empty():
+        raise ValueError(
+            "dstream_storage_multiplex must be at least 1, "
+            f"{invalid['dstream_storage_multiplex'].to_list()[:10]=}",
+        )
 
     # check if last buffer out of bounds within data_hex
     out_of_bounds = (

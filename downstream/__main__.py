@@ -34,6 +34,7 @@ if __name__ == "__main__":
             | python3 -m downstream 'dstream.steady_algo.assign_storage_site'
 
         Additional available commands:
+        $ python3 -m downstream.dataframe.demultiplex_data_packed
         $ python3 -m downstream.dataframe.explode_lookup_packed_uint
         $ python3 -m downstream.dataframe.explode_lookup_unpacked_uint
         $ python3 -m downstream.dataframe.unpack_data_packed
