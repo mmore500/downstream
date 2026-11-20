@@ -10,8 +10,8 @@ def demultiplex_data_packed(df: pl.DataFrame) -> pl.DataFrame:
     """Split multiplexed packed data, with several dstream buffers stored back
     to back in each 'data_hex' field, into one row per buffer.
 
-    Column 'dstream_storage_multiplex' gives each row's number of buffers, if
-    that column is present. Added rows adjust storage bit offset, keeping
+    If present, column 'dstream_storage_multiplex' gives each row's number
+    of multiplexed buffers. Added rows adjust storage bit offset, keeping
     original 'data_hex'.
 
     Parameters
