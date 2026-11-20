@@ -2,6 +2,7 @@ import logging
 
 import polars as pl
 
+from .._auxlib._choose_pl_engine import choose_pl_engine
 from ._impl._check_expected_columns import check_expected_columns
 
 
@@ -53,7 +54,8 @@ def demultiplex_data_packed(
     Raises
     ------
     ValueError
-        If `multiplex` is negative, or if required columns are missing.
+        If `multiplex` is negative, if required columns are missing, or if
+        multiplexed buffers extend past the end of 'data_hex'.
 
     See Also
     --------
@@ -74,6 +76,24 @@ def demultiplex_data_packed(
             "dstream_storage_bitwidth",
         ],
     )
+
+    # last buffer must end within data_hex; earlier buffers then do too
+    out_of_bounds = (
+        df.lazy().filter(
+            pl.col("dstream_storage_bitoffset")
+            + multiplex * pl.col("dstream_storage_bitwidth")
+            > pl.col("data_hex").str.len_bytes() * 4,
+        )
+        # in-memory: streaming slow to materialize multi-file scans
+        .collect(engine=choose_pl_engine(prefer="in-memory"))
+    )
+    if not out_of_bounds.is_empty():
+        raise ValueError(
+            f"multiplexed storage out of bounds, {multiplex=} "
+            f"{out_of_bounds['data_hex'].str.len_bytes().to_list()[:10]=} "
+            f"{out_of_bounds['dstream_storage_bitoffset'].to_list()[:10]=} "
+            f"{out_of_bounds['dstream_storage_bitwidth'].to_list()[:10]=}",
+        )
 
     df = (
         df.with_columns(

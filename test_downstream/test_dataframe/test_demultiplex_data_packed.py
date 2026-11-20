@@ -62,6 +62,13 @@ def test_demultiplex_data_packed_split():
     assert res.columns == [*df.columns, "dstream_multiplex_idx"]
 
 
+def test_demultiplex_data_packed_out_of_bounds():
+    df = _make_df(["aa11ccdd"], multiplex=2)  # room for 2 buffers, not 3
+    demultiplex_data_packed(df, multiplex=2)
+    with pytest.raises(ValueError):
+        demultiplex_data_packed(df, multiplex=3)
+
+
 def test_demultiplex_data_packed_negative():
     df = _make_df(["aa11ccdd"])
     with pytest.raises(ValueError):
