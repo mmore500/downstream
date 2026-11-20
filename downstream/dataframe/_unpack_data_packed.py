@@ -578,7 +578,6 @@ def unpack_data_packed(
     *,
     mp_context: str = "thread",
     mp_pool_size: int = 1,
-    storage_multiplex: int = 0,
     result_schema: typing.Literal["coerce", "relax", "shrink"] = "coerce",
 ) -> pl.DataFrame:
     """Unpack data with dstream buffer and counter serialized into a single
@@ -641,6 +640,13 @@ def unpack_data_packed(
         - 'downstream_filter_unpacked' : pl.String, polars expression
             - Polars expression to filter unpacked data; non-matching rows
             are dropped. Applied after validation.
+        - 'dstream_storage_multiplex' : pl.UInt32
+            - Number of dstream buffers stored back to back in row's
+              'data_hex' field, from 'dstream_storage_bitoffset' on, each
+              'dstream_storage_bitwidth' bits and sharing dstream_T; 0 (or 1)
+              if not multiplexed.
+            - If present, each row is first split into one row per buffer,
+              as by `demultiplex_data_packed`.
         - 'dstream_T_dilation' : pl.UInt32
             - Dilation factor applied to T counter, if any; supports scenario
             where data items are ingested every `dstream_T_dilation`th counter
@@ -660,14 +666,6 @@ def unpack_data_packed(
 
     mp_pool_size : int, default 1
         Number of worker threads for parity computation.
-
-    storage_multiplex : int, default 0
-        Number of dstream buffers stored back to back in each 'data_hex'
-        field, from 'dstream_storage_bitoffset' on, each
-        'dstream_storage_bitwidth' bits and sharing dstream_T. If 1 or
-        higher, each row is first split into one row per buffer, as by
-        `demultiplex_data_packed`, adding column
-        'dstream_storage_multiplex_idx'. If 0, data is not multiplexed.
 
     result_schema : Literal['coerce', 'relax', 'shrink'], default 'coerce'
         How should dtypes in the output DataFrame be handled?
@@ -700,10 +698,10 @@ def unpack_data_packed(
                 - Raw dstream buffer binary data, containing packed data items.
                 - Represented as a hexadecimal string.
 
-        If `storage_multiplex` was 1 or higher:
+        If 'dstream_storage_multiplex' was provided:
 
             - 'dstream_storage_multiplex_idx' : pl.UInt32
-                - Position of record within its multiplexed 'data_hex' field.
+                - Position of buffer within its multiplexed 'data_hex' field.
 
         If 'downstream_data_parity0_rule' was provided:
 
@@ -726,7 +724,7 @@ def unpack_data_packed(
     See Also
     --------
     downstream.dataframe.demultiplex_data_packed :
-        Splits multiplexed packed data into one row per record.
+        Splits multiplexed packed data into one row per buffer.
     downstream.dataframe.explode_lookup_unpacked :
         Explodes unpacked buffers into individual constituent data items.
     """
@@ -737,7 +735,7 @@ def unpack_data_packed(
     if df.lazy().limit(1).collect().is_empty():
         return _make_empty()
 
-    df = demultiplex_data_packed(df, storage_multiplex=storage_multiplex)
+    df = demultiplex_data_packed(df)
 
     logging.info(" - casting data_hex and dstream_algo...")
     df = df.cast({"data_hex": pl.String, "dstream_algo": pl.Categorical})

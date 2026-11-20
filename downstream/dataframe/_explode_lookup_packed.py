@@ -12,7 +12,6 @@ def explode_lookup_packed(
     calc_Tbar_argv: bool = False,
     mp_context: str = "thread",
     mp_pool_size: int = 1,
-    storage_multiplex: int = 0,
     value_type: typing.Literal["hex", "uint64", "uint32", "uint16", "uint8"],
     result_schema: typing.Literal["coerce", "relax", "shrink"] = "coerce",
 ) -> pl.DataFrame:
@@ -35,12 +34,6 @@ def explode_lookup_packed(
         When 1 (default), processing is sequential with no threading
         overhead. When > 1, parity check chunks are dispatched to a
         thread pool for parallel computation.
-    storage_multiplex : int, default 0
-        Number of dstream buffers stored back to back in each 'data_hex'
-        field, sharing dstream_T. If 1 or higher, buffers are split apart
-        before unpacking, and output includes column
-        'dstream_storage_multiplex_idx', the position of each data item's
-        buffer within its 'data_hex' field.
     value_type : {'hex', 'uint64', 'uint32', 'uint16', 'uint8'}
         Type of the packed data values. Determines how the packed data is
         interpreted.
@@ -58,7 +51,6 @@ def explode_lookup_packed(
         df,
         mp_context=mp_context,
         mp_pool_size=mp_pool_size,
-        storage_multiplex=storage_multiplex,
         result_schema=result_schema,
     )
     return explode_lookup_unpacked(

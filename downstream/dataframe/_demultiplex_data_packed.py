@@ -6,17 +6,14 @@ from .._auxlib._choose_pl_engine import choose_pl_engine
 from ._impl._check_expected_columns import check_expected_columns
 
 
-def demultiplex_data_packed(
-    df: pl.DataFrame,
-    *,
-    storage_multiplex: int = 0,
-) -> pl.DataFrame:
+def demultiplex_data_packed(df: pl.DataFrame) -> pl.DataFrame:
     """Split multiplexed packed data, with several dstream buffers stored back
     to back in each 'data_hex' field and sharing other fields (such as the
     dstream counter T), into one row per buffer.
 
-    Each output row keeps the whole 'data_hex' field, with its storage bit
-    offset shifted to its own buffer.
+    Rows are demultiplexed by their 'dstream_storage_multiplex' value, if
+    that column is present. Each output row keeps the whole 'data_hex'
+    field, with its storage bit offset shifted to its own buffer.
 
     Parameters
     ----------
@@ -33,12 +30,15 @@ def demultiplex_data_packed(
             - Size of each buffer's storage; buffer `i` begins at
               'dstream_storage_bitoffset' + `i` * 'dstream_storage_bitwidth'.
 
+        Optional schema:
+
+        - 'dstream_storage_multiplex' : pl.UInt32
+            - Number of buffers multiplexed into row's 'data_hex' field; 0
+              (or 1) if not multiplexed.
+            - If absent, `df` is returned unchanged.
+
         Other columns, such as dstream T bit offset and width, are shared by
         all buffers, and are forwarded to every buffer's row.
-
-    storage_multiplex : int, default 0
-        Number of buffers multiplexed into each 'data_hex' field. If 0, data
-        is not multiplexed, and `df` is returned unchanged.
 
     Returns
     -------
@@ -46,7 +46,7 @@ def demultiplex_data_packed(
         DataFrame with one row per buffer, in input row order and then buffer
         order, with 'dstream_storage_bitoffset' pointing to its buffer.
 
-        If `storage_multiplex` is 1 or higher, adds column:
+        If 'dstream_storage_multiplex' is present, adds column:
 
         - 'dstream_storage_multiplex_idx' : pl.UInt32
             - Position of buffer within its multiplexed 'data_hex' field.
@@ -54,23 +54,18 @@ def demultiplex_data_packed(
     Raises
     ------
     ValueError
-        If `storage_multiplex` is negative, if required columns are missing,
-        or if multiplexed buffers extend past the end of 'data_hex'.
+        If required columns are missing, or if multiplexed buffers extend
+        past the end of 'data_hex'.
 
     See Also
     --------
     downstream.dataframe.unpack_data_packed :
-        Unpacks packed data, demultiplexing first if `storage_multiplex` is
-        given.
+        Unpacks packed data, demultiplexing first.
     """
-    if storage_multiplex < 0:
-        raise ValueError(
-            f"storage_multiplex must be non-negative, got {storage_multiplex}"
-        )
-    if storage_multiplex == 0:
+    if "dstream_storage_multiplex" not in df.lazy().collect_schema().names():
         return df
 
-    logging.info(f"begin demultiplex_data_packed with {storage_multiplex=}")
+    logging.info("begin demultiplex_data_packed")
     check_expected_columns(
         df,
         expected_columns=[
@@ -79,12 +74,16 @@ def demultiplex_data_packed(
             "dstream_storage_bitwidth",
         ],
     )
+    # unmultiplexed rows, with 0, hold one buffer
+    num_buffers = pl.max_horizontal(
+        pl.col("dstream_storage_multiplex").cast(pl.UInt32), pl.lit(1)
+    )
 
     # last buffer must end within data_hex; earlier buffers then do too
     out_of_bounds = (
         df.lazy().filter(
             pl.col("dstream_storage_bitoffset")
-            + storage_multiplex * pl.col("dstream_storage_bitwidth")
+            + num_buffers * pl.col("dstream_storage_bitwidth")
             > pl.col("data_hex").str.len_bytes() * 4,
         )
         # in-memory: streaming slow to materialize multi-file scans
@@ -92,16 +91,17 @@ def demultiplex_data_packed(
     )
     if not out_of_bounds.is_empty():
         raise ValueError(
-            f"multiplexed storage out of bounds, {storage_multiplex=} "
+            "multiplexed storage out of bounds, "
             f"{out_of_bounds['data_hex'].str.len_bytes().to_list()[:10]=} "
             f"{out_of_bounds['dstream_storage_bitoffset'].to_list()[:10]=} "
-            f"{out_of_bounds['dstream_storage_bitwidth'].to_list()[:10]=}",
+            f"{out_of_bounds['dstream_storage_bitwidth'].to_list()[:10]=} "
+            f"{out_of_bounds['dstream_storage_multiplex'].to_list()[:10]=}",
         )
 
     df = (
         df.with_columns(
-            dstream_storage_multiplex_idx=pl.lit(
-                [*range(storage_multiplex)], dtype=pl.List(pl.UInt32)
+            dstream_storage_multiplex_idx=pl.int_ranges(
+                num_buffers, dtype=pl.UInt32
             ),
         )
         .explode("dstream_storage_multiplex_idx")
